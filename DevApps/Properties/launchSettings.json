@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "DevApps": {
+      "commandName": "Project",
+      "commandLineArgs": "-w",
+      "workingDirectory": "Samples"
+    }
+  }
+}

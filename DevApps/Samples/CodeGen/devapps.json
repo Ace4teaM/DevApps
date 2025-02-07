@@ -1,0 +1,148 @@
+{
+  "Objects": [
+    {
+      "Key": "insocket",
+      "Value": {
+        "Description": "System socket buffer in",
+        "Pointers": [
+        ],
+        "Functions": [
+        ],
+        "Properties": [
+        ],
+        "Commands": [
+        ],
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": ""
+      }
+    },
+    {
+      "Key": "outsocket",
+      "Value": {
+        "Description": "System socket buffer out",
+        "Pointers": [
+        ],
+        "Functions": [
+        ],
+        "Properties": [
+        ],
+        "Commands": [
+        ],
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": ""
+      }
+    },
+    {
+      "Key": "socket",
+      "Value": {
+        "Description": "System socket",
+        "Pointers": [
+          {
+            "Key": "IN",
+            "Value": "insocket"
+          },
+          {
+            "Key": "OUT",
+            "Value": "outsocket"
+          },
+          {
+            "Key": "RECEIVE",
+            "Value": "buffer"
+          }
+        ],
+        "Functions": [
+          {
+            "Key": "recv",
+            "Value": "buffer.name = \"Kiki\"\r\nbuffer.data.append(5)\r\nbuffer.data.append(21)\r\nbuffer.data.append(0x14)\r\nbuffer.data.append(5)"
+          },
+          {
+            "Key": "send",
+            "Value": ""
+          }
+        ],
+        "Properties": [
+        ],
+        "Commands": [
+        ],
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": ""
+      }
+    },
+    {
+      "Key": "buffer",
+      "Value": {
+        "Description": "Receive Buffer",
+        "Pointers": [
+        ],
+        "Functions": [
+          {
+            "Key": "control",
+            "Value": "name != \"Ignored\""
+          }
+        ],
+        "Properties": [
+          {
+            "Key": "isvalid",
+            "Value": "len(buffer.data) > 0"
+          },
+          {
+            "Key": "value",
+            "Value": "buffer.name"
+          }
+        ],
+        "Commands": [
+        ],
+        "LoopMethod": "",
+        "InitMethod": "import array\r\nclass Buffer:\r\n    name = \"Ignored\"\r\n    data = bytearray()\r\nbuffer = Buffer()",
+        "BuildMethod": "import binascii\r\nprint(binascii.hexlify(buffer.data))",
+        "ObjectCode": ""
+      }
+    },
+    {
+      "Key": "cstemplate",
+      "Value": {
+        "Description": "Template",
+        "Pointers": [
+        ],
+        "Functions": [
+        ],
+        "Properties": [
+          {
+            "Key": "base",
+            "Value": "cstemplate.base"
+          }
+        ],
+        "Commands": [
+        ],
+        "LoopMethod": "",
+        "InitMethod": "class CsTemplate:\r\n    base = \"{namespace}\\n\\n{class def}\\n\\n{footer}\"\r\ncstemplate = CsTemplate()",
+        "BuildMethod": "",
+        "ObjectCode": ""
+      }
+    },
+    {
+      "Key": "cscode",
+      "Value": {
+        "Description": "CSharp Code generator",
+        "Pointers": [
+        ],
+        "Functions": [
+        ],
+        "Properties": [
+        ],
+        "Commands": [
+        ],
+        "LoopMethod": "",
+        "InitMethod": "out = \"\"\r\nprint('hello world!')",
+        "BuildMethod": "print('using namespace System;')\r\nprint()\r\nprint('public class { ... }')",
+        "ObjectCode": ""
+      }
+    }
+  ]
+}
