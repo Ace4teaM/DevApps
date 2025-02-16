@@ -17,7 +17,9 @@ internal partial class Program
     public class DevObject
     {
         public static Dictionary<string, DevObject> References = new Dictionary<string, DevObject>();
-        internal static Mutex m = new Mutex();
+        internal static Mutex mutexExecuteObjects = new Mutex();
+        internal static Mutex mutexCheckObjectList = new Mutex();
+        internal Mutex mutexReadOutput = new Mutex();
         internal static bool run = false;
         internal static Thread? thread;
         public MemoryStream buildStream = new MemoryStream();
@@ -122,7 +124,7 @@ internal partial class Program
                 int i = 0;
                 while (run)
                 {
-                    m.WaitOne();
+                    mutexExecuteObjects.WaitOne();
                     System.Console.WriteLine(i++);
                     if (run == true)
                         DevObject.Timer();
@@ -131,7 +133,10 @@ internal partial class Program
                     if (run == true)
                         Thread.Sleep(1000);
 
-                    m.ReleaseMutex();
+                    mutexExecuteObjects.ReleaseMutex();
+
+                    // Attend la fin des opérations de dessin
+                    GUI.Service.WaitDrawOperations();
                 }
             }
             catch (Exception e )
@@ -145,11 +150,17 @@ internal partial class Program
         /// </summary>
         private static void Timer()
         {
-            foreach (var o in References)
+            mutexCheckObjectList.WaitOne();
+            var list = References.ToArray();
+            mutexCheckObjectList.ReleaseMutex();
+
+            foreach (var o in list)
             {
-                pyScope.SetVariable("out", o.Value.buildStream);
+                o.Value.mutexReadOutput.WaitOne();
+                pyScope.SetVariable("out", o.Value.buildStream.GetBuffer());
                 pyScope.RemoveVariable("gui");
                 o.Value.LoopMethod.Item2?.Execute(pyScope);
+                o.Value.mutexReadOutput.ReleaseMutex();
             }
         }
 
@@ -161,15 +172,14 @@ internal partial class Program
             if (GUI.Service.IsInitialized == false)
                 return;
 
-            foreach (var o in References.Where(p=>p.Value.DrawCode.Item2 != null))
-            {
-                pyScope.SetVariable("out", o.Value.buildStream.GetBuffer());
-                pyScope.SetVariable("gui", o.Value.gui);
-                GUI.Service.Draw(o.Key, delegate (DrawingContext ctx) { o.Value.gui.Begin(ctx);  o.Value.DrawCode.Item2?.Execute(pyScope); o.Value.gui.End();  return true; });
-            }
+            mutexCheckObjectList.WaitOne();
+            var list = References.Where(p => p.Value.DrawCode.Item2 != null).ToArray();
+            mutexCheckObjectList.ReleaseMutex();
 
-            // Attend la fin des opérations de dessin
-            GUI.Service.WaitDrawOperations();
+            foreach (var o in list)
+            {
+                GUI.Service.Invalidate(o.Key, o.Value.buildStream); // appeler uniquement si le contenu de out a changé
+            }
         }
 
         /// <summary>
@@ -177,7 +187,7 @@ internal partial class Program
         /// </summary>
         public static void SaveOutput()
         {
-            m.WaitOne();
+            mutexExecuteObjects.WaitOne();
             foreach (var o in References)
             {
                 if (o.Value.buildStream.Length == 0)
@@ -196,7 +206,7 @@ internal partial class Program
                     System.Console.WriteLine(ex.Message);
                 }
             }
-            m.ReleaseMutex();
+            mutexExecuteObjects.ReleaseMutex();
         }
 
         /// <summary>
@@ -204,12 +214,12 @@ internal partial class Program
         /// </summary>
         public static void Init()
         {
-            m.WaitOne();
+            mutexExecuteObjects.WaitOne();
             foreach (var o in References)
             {
                 var result = o.Value.InitMethod.Item2?.Execute(pyScope);
             }
-            m.ReleaseMutex();
+            mutexExecuteObjects.ReleaseMutex();
         }
 
         /// <summary>
@@ -219,7 +229,7 @@ internal partial class Program
         /// <param name="func"></param>
         public static void Function(string obj, string func)
         {
-            m.WaitOne();
+            mutexExecuteObjects.WaitOne();
             if (References.ContainsKey(obj))
             {
                 var o = References[obj];
@@ -229,7 +239,7 @@ internal partial class Program
                     var result = f.Item2?.Execute(pyScope);
                 }
             }
-            m.ReleaseMutex();
+            mutexExecuteObjects.ReleaseMutex();
         }
 
         /// <summary>
@@ -241,7 +251,7 @@ internal partial class Program
         public static dynamic? Property(string obj, string prop)
         {
             dynamic? ret = null;
-            m.WaitOne();
+            mutexExecuteObjects.WaitOne();
             if (References.ContainsKey(obj))
             {
                 var o = References[obj];
@@ -251,7 +261,7 @@ internal partial class Program
                     ret = p.Item2?.Execute(pyScope);
                 }
             }
-            m.ReleaseMutex();
+            mutexExecuteObjects.ReleaseMutex();
             return ret;
         }
 
@@ -386,6 +396,13 @@ internal partial class Program
         public DevObject SetOutput(string text)
         {
             var data = Encoding.UTF8.GetBytes(text);
+            buildStream.Write(data);
+            return this;
+        }
+
+        public DevObject LoadOutput(string name)
+        {
+            var data = File.ReadAllBytes(Path.Combine(DataDir, name));
             buildStream.Write(data);
             return this;
         }

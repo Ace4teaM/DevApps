@@ -11,15 +11,16 @@ namespace DevApps.Samples
     {
         internal static void Create() {
 
-            DevObject.Create("webapp", "Web Application");
-            DevObject.Create("service", "Data Service");
-            DevObject.Create("req_getinventory", "GetInventory Request");
-            DevObject.Create("in_inventoryid", "Request Input");
-            DevObject.Create("in_inventoryitemid", "Request Input");
-            DevObject.Create("cmd_listing", "UDP command listing on port 4432");
+            DevObject.Create("webapp", "Web Application").SetDrawCode(@"gui.image(out); gui.line(name); gui.line(desc);").LoadOutput("webapp");
+            DevObject.Create("service", "Data Service").SetDrawCode(@"gui.line(name); gui.line(desc)");
+            DevObject.Create("req_getinventory", "GetInventory Request").SetDrawCode(@"gui.line(name); gui.line(desc)");
+            DevObject.Create("in_inventoryid", "Request Input").SetDrawCode(@"gui.line(name); gui.line(desc)");
+            DevObject.Create("in_inventoryitemid", "Request Input").SetDrawCode(@"gui.line(name); gui.line(desc)");
+            DevObject.Create("cmd_listing", "UDP command listing on port 4432").SetDrawCode(@"gui.line(name); gui.line(desc)");
 
             /*
-             * Par exemple, je souhaite intégrer un modèle de données relationnel. Je vais d'abord créer des entités sous forme d'objets avec comme contenu une liste de membres.
+             * Par exemple, je souhaite intégrer un modèle de données relationnel.
+             * Je vais d'abord créer des entités sous forme d'objets avec comme contenu une liste de membres.
              */
 
             DevObject.Create("Equipement", "Entité")
@@ -28,13 +29,14 @@ namespace DevApps.Samples
 * desc : string")
                 .AddPointer("0.1", "Emplacement")
                 .SetDrawCode(@"
-                    console.write('DrawCode')
-                    gui.text(out)
+                    gui.line(name)
+                    gui.line(desc)
+                    gui.line('')
+                    gui.grid(out.lines(), r'\s*[*]\s*(\w+)\s*[:]\s*(\w+)\s*')
                 ")
                 .SetBuildMethod(@"
                     console.write('HELLo WORLD')
                 ");
-
 
             DevObject.Create("Emplacement", "Entité")
                 .SetOutput(@"
@@ -42,21 +44,32 @@ namespace DevApps.Samples
 * desc : string
 * latitude : int
 * longitude : int")
-                .SetDrawCode(@"gui.text(out)");
+                .SetDrawCode(@"
+                    gui.line(name)
+                    gui.line(desc)
+                    gui.line('')
+                    gui.grid(out.lines(), r'\s*[*]\s*(\w+)\s*[:]\s*(\w+)\s*')
+                ");
 
             /*
-             * Maintenant je souhaite intégrer une logique de génération de code. J'ajoute un objet template donnant la forme générale pour mes fichiers SQL et C#
+             * Maintenant je souhaite intégrer une logique de génération de code.
+             * J'ajoute un objet template donnant la forme générale pour mes fichiers SQL et C#
             */
 
             DevObject.Create("SqlModelTemplate", "SQL Code Template")
                 .SetOutput(@"
- -- SQL Model
+-- SQL Model
 Create table {name}
 (
 {0} {1}
 );
 ")
-                .SetDrawCode(@"gui.text(out)");
+                .SetDrawCode(@"
+                    gui.line(name)
+                    gui.line(desc)
+                    gui.line('')
+                    gui.lines(out.lines())
+                ");
 
             DevObject.Create("CsModelTemplate", "C# Code Template")
                 .SetOutput(@"
@@ -66,7 +79,7 @@ public class {name}
     public {1} {0} {get; set;}
 }
 ")
-                .SetDrawCode(@"gui.text(out)");
+                .SetDrawCode(@"gui.lines(out.lines())");
 
             /*
              * Puis j'intègre le script de générations de code. (C'est le pointeur BUILD qui contient le code final)
@@ -86,7 +99,7 @@ public class {name}
             print(equipement)
 
             # recherche les groupes de champs nom/type
-            # result = re.findall(r""\s*[*]\s*(\w+)\s*[:]\s*(\w+)\s*"", equipement)
+            # result = re.findall(r'\s*[*]\s*(\w+)\s*[:]\s*(\w+)\s*', equipement)
 
             # edit le code existant
             #editor.inclass('InputsCheck').inproperty(result[0]).getset()
@@ -94,7 +107,7 @@ public class {name}
             # 
             #for r in result:
             #    tmp = 
-            #    print(""{} is {}"".format(r[0],r[1]))
+            #    print('{} is {}'.format(r[0],r[1]))
             #    modified_out.insert(index, number)
     
             console.write('HELLO')
@@ -164,9 +177,12 @@ cat $build2 > .\ui\cs\model\entities.cs
                 display the result without comment and based only on the syntax of the language
                 """"""
                 data = {'model': 'gpt-4o-mini', 'messages':[{""role"": ""user"", ""content"": message}]}
-                print(requests.post(url, headers=headers, json=data))
-                #print(requests.post(url, headers=headers, json=data).json())
-");
+                #print(requests.post(url, headers=headers, json=data))
+")
+                .SetDrawCode(@"
+                    gui.line(name)
+                    gui.line(desc)
+                ");
             /*
 
 
