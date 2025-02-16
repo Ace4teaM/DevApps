@@ -1,7 +1,10 @@
 ﻿using DevApps.GUI;
 using Newtonsoft.Json.Linq;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
@@ -35,7 +38,7 @@ namespace GUI
          }
      }
 
-    */
+    
     // Classe VisualHost pour rendre DrawingVisual dans le Canvas
     internal class MyVisualHost : FrameworkElement
     {
@@ -93,8 +96,74 @@ namespace GUI
 
             return drawingVisual;
         }
-    }
+    }*/
 
+    public class DrawElement : FrameworkElement
+    {
+        // Définir une largeur et une hauteur fixes pour l'exemple
+        public double ContentWidth { get; set; } = 100;
+        public double ContentHeight { get; set; } = 100;
+
+        // Surcharge de la méthode DesiredSize
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            Program.DevObject.References.TryGetValue(this.Name, out var reference);
+            if (reference?.gui != null)
+            {
+                ContentWidth = reference.gui.w;
+                ContentHeight = reference.gui.h;
+            }
+
+            // Calculer la taille désirée en fonction de la taille du contenu
+            double desiredWidth = ContentWidth;
+            double desiredHeight = ContentHeight;
+
+            // Si les contraintes sont spécifiées (availableSize), ajuster la taille en conséquence
+            if (!double.IsInfinity(availableSize.Width))
+            {
+                desiredWidth = Math.Min(desiredWidth, availableSize.Width);
+            }
+            if (!double.IsInfinity(availableSize.Height))
+            {
+                desiredHeight = Math.Min(desiredHeight, availableSize.Height);
+            }
+
+            // Retourner la taille calculée
+            return new Size(desiredWidth, desiredHeight);
+        }
+
+        // Cette méthode gère le rendu
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
+
+            Program.DevObject.mutexCheckObjectList.WaitOne();
+            Program.DevObject.References.TryGetValue(this.Name, out var reference);
+            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+            if(reference != null)
+            {
+                // Dessiner un rectangle pour illustrer
+                Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
+                drawingContext.DrawRectangle(Brushes.Yellow, null, rect);
+                if (reference.DrawCode.Item2 != null)
+                {
+                    reference.mutexReadOutput.WaitOne();
+
+                    var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream));// mise en cache dans l'objet ?
+                    pyScope.SetVariable("gui", reference.gui);
+                    pyScope.SetVariable("name", this.Name);
+                    pyScope.SetVariable("desc", reference.Description);
+
+                    reference.gui.Begin(drawingContext);
+                    reference.DrawCode.Item2?.Execute(pyScope);
+                    reference.gui.End();
+                    reference.mutexReadOutput.ReleaseMutex();
+                }
+            }
+        }
+    }
 
     internal static class Service
     {
@@ -145,7 +214,23 @@ namespace GUI
             dispatcherOperations.Clear();
         }
 
-        internal static void Draw(string name, Func<DrawingContext,bool> func)
+        internal static void Invalidate(string name, MemoryStream output)
+        {
+            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+                    var canvas = (WindowContent?.Content as Canvas);
+
+                    var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                    if (host != null)
+                    {
+                        host.InvalidateVisual();
+                    }
+                })));
+
+        }
+
+        /*internal static void Draw(string name, Func<DrawingContext,bool> func)
         {
             dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
@@ -162,15 +247,9 @@ namespace GUI
                         host.InvalidateMeasure();
                     }
 
-                    /*var image = canvas.Children.OfType<Image>().FirstOrDefault(p=>p.Name == name);
-                    if(image != null)
-                    {
-                        (image.Source as RenderTargetBitmap).Render(visual);
-                    }*/
-                })));
+        }*/
 
-        }
-
+        static double X = 10;
         static double Y = 10;
         internal static void AddShape(string name)
         {
@@ -178,15 +257,28 @@ namespace GUI
                 DispatcherPriority.Render,
                 new Action(() => {
                     var canvas = (WindowContent?.Content as Canvas);
+
+                    var element = new DrawElement();
+                    element.Name = name;
+                    Canvas.SetLeft(element, X);
+                    Canvas.SetTop(element, Y);
+                    X += element.ContentWidth + 10;
+                    if(X > 500)
+                    {
+                        X = 10;
+                        Y += element.ContentHeight + 10;
+                    }
+                    canvas.Children.Add(element);
                     
-                    
+
+                    /*
                     var host = new MyVisualHost();
                     host.Name = name;
                     Canvas.SetTop(host, Y);
                     Y += host.Height + 10;
                     //host.CreateDrawingVisualRectangle();
 
-                    canvas.Children.Add(host);
+                    canvas.Children.Add(host);*/
 
                     // render the visual on a bitmap
                     /*var bmp = new RenderTargetBitmap(

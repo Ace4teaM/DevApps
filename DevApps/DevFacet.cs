@@ -52,7 +52,7 @@ internal partial class Program
         /// </summary>
         public void Build()
         {
-            DevObject.m.WaitOne();
+            DevObject.mutexExecuteObjects.WaitOne();
 
             var refs = DevObject.References.ToArray();
 
@@ -124,7 +124,7 @@ internal partial class Program
             {
             }
 
-            DevObject.m.ReleaseMutex();
+            DevObject.mutexExecuteObjects.ReleaseMutex();
         }
 
     }
