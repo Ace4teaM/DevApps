@@ -11,12 +11,12 @@ namespace DevApps.Samples
     {
         internal static void Create() {
 
-            DevObject.Create("webapp", "Web Application").SetDrawCode(@"gui.image(out); gui.line(name); gui.line(desc);").LoadOutput("webapp");
-            DevObject.Create("service", "Data Service").SetDrawCode(@"gui.line(name); gui.line(desc)");
-            DevObject.Create("req_getinventory", "GetInventory Request").SetDrawCode(@"gui.line(name); gui.line(desc)");
-            DevObject.Create("in_inventoryid", "Request Input").SetDrawCode(@"gui.line(name); gui.line(desc)");
-            DevObject.Create("in_inventoryitemid", "Request Input").SetDrawCode(@"gui.line(name); gui.line(desc)");
-            DevObject.Create("cmd_listing", "UDP command listing on port 4432").SetDrawCode(@"gui.line(name); gui.line(desc)");
+            DevObject.Create("webapp", "Web Application").SetDrawCode(@"gui.full().foreground(0,0,0).circle().image(out).stack().text(name).text(desc)").LoadOutput("webapp");
+            DevObject.Create("service", "Data Service").SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("req_getinventory", "GetInventory Request").SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("in_inventoryid", "Request Input").SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("in_inventoryitemid", "Request Input").SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("cmd_listing", "UDP command listing on port 4432").SetDrawCode(@"gui.text(name).text(desc)");
 
             /*
              * Par exemple, je souhaite intégrer un modèle de données relationnel.
@@ -29,10 +29,12 @@ namespace DevApps.Samples
 * desc : string")
                 .AddPointer("0.1", "Emplacement")
                 .SetDrawCode(@"
-                    gui.line(name)
-                    gui.line(desc)
-                    gui.line('')
-                    gui.grid(out.lines(), r'\s*[*]\s*(\w+)\s*[:]\s*(\w+)\s*')
+                    gui.full().top().stack()
+                    gui.text(name)
+                    gui.text(desc)
+                    gui.text('')
+                    gui.full().bottom().grid(2,2)
+                    gui.text(out.words(r'\s*[*]\s*(\w+)\s*[:]\s*(\w+)\s*'))
                 ")
                 .SetBuildMethod(@"
                     console.write('HELLo WORLD')
@@ -45,10 +47,10 @@ namespace DevApps.Samples
 * latitude : int
 * longitude : int")
                 .SetDrawCode(@"
-                    gui.line(name)
-                    gui.line(desc)
-                    gui.line('')
-                    gui.grid(out.lines(), r'\s*[*]\s*(\w+)\s*[:]\s*(\w+)\s*')
+                    gui.text(name)
+                    gui.text(desc)
+                    gui.text('')
+                    gui.grid(4,2).text(out.words(r'\s*[*]\s*(\w+)\s*[:]\s*(\w+)\s*'))
                 ");
 
             /*
@@ -65,10 +67,10 @@ Create table {name}
 );
 ")
                 .SetDrawCode(@"
-                    gui.line(name)
-                    gui.line(desc)
-                    gui.line('')
-                    gui.lines(out.lines())
+                    gui.text(name)
+                    gui.text(desc)
+                    gui.text('')
+                    gui.text(out.lines())
                 ");
 
             DevObject.Create("CsModelTemplate", "C# Code Template")
@@ -79,7 +81,7 @@ public class {name}
     public {1} {0} {get; set;}
 }
 ")
-                .SetDrawCode(@"gui.lines(out.lines())");
+                .SetDrawCode(@"gui.text(out.lines())");
 
             /*
              * Puis j'intègre le script de générations de code. (C'est le pointeur BUILD qui contient le code final)
@@ -180,8 +182,8 @@ cat $build2 > .\ui\cs\model\entities.cs
                 #print(requests.post(url, headers=headers, json=data))
 ")
                 .SetDrawCode(@"
-                    gui.line(name)
-                    gui.line(desc)
+                    gui.text(name)
+                    gui.text(desc)
                 ");
             /*
 
