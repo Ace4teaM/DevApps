@@ -1,6 +1,7 @@
 ﻿//#define LOAD // sinon SAVE
 //#define Sample_CodeGen
-#define Sample_InputCheck
+//#define Sample_InputCheck
+#define Sample_UI
 
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
@@ -61,6 +62,8 @@ internal partial class Program
         Directory.SetCurrentDirectory(@"CodeGen");
 #elif Sample_InputCheck
         Directory.SetCurrentDirectory(@"InputCheck");
+#elif Sample_UI
+        Directory.SetCurrentDirectory(@"UI");
 #endif
         try
         {
@@ -106,6 +109,8 @@ internal partial class Program
         DevApps.Samples.CodeGen.Create();
 #elif Sample_InputCheck
         DevApps.Samples.InputCheck.Create();
+#elif Sample_UI
+        DevApps.Samples.UI.Create();
 #endif
         SaveProject();
 #endif

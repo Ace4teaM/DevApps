@@ -393,9 +393,9 @@ internal partial class Program
             return this;
         }
 
-        public DevObject SetOutput(string text)
+        public DevObject SetOutput(string text, bool removeIdent = false)
         {
-            var data = Encoding.UTF8.GetBytes(text);
+            var data = Encoding.UTF8.GetBytes(removeIdent ? RemoveIdent(text) : text);
             buildStream.Write(data);
             return this;
         }

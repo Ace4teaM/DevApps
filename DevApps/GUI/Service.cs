@@ -110,8 +110,8 @@ namespace GUI
             Program.DevObject.References.TryGetValue(this.Name, out var reference);
             if (reference?.gui != null)
             {
-                ContentWidth = reference.gui.w;
-                ContentHeight = reference.gui.h;
+                ContentWidth = reference.gui.current.Rect.Width;
+                ContentHeight = reference.gui.current.Rect.Height;
             }
 
             // Calculer la taille désirée en fonction de la taille du contenu
@@ -145,7 +145,7 @@ namespace GUI
             {
                 // Dessiner un rectangle pour illustrer
                 Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
-                drawingContext.DrawRectangle(Brushes.Yellow, null, rect);
+                drawingContext.DrawRectangle(/*reference.gui.GetBackground()*/Brushes.LightGray, null, rect);
                 if (reference.DrawCode.Item2 != null)
                 {
                     reference.mutexReadOutput.WaitOne();
@@ -155,6 +155,11 @@ namespace GUI
                     pyScope.SetVariable("gui", reference.gui);
                     pyScope.SetVariable("name", this.Name);
                     pyScope.SetVariable("desc", reference.Description);
+                    foreach (var pointer in reference.GetPointers())
+                    {
+                        Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
+                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream :  new MemoryStream()));// mise en cache dans l'objet ?
+                    }
 
                     reference.gui.Begin(drawingContext);
                     reference.DrawCode.Item2?.Execute(pyScope);
