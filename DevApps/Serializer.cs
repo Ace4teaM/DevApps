@@ -54,6 +54,10 @@ namespace Serializer
         /// Code/Données de l'objet
         /// </summary>
         public string? ObjectCode { get { return content.GetCode(); } set { content.SetCode(value); } }
+        /// <summary>
+        /// Code/Données de l'objet
+        /// </summary>
+        public System.Windows.Rect? Zone { get { return content.GetZone(); } set { content.SetZone(value); } }
     }
 
     internal class DevProject

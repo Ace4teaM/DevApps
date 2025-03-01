@@ -112,7 +112,6 @@ internal partial class Program
 #elif Sample_UI
         DevApps.Samples.UI.Create();
 #endif
-        SaveProject();
 #endif
 
         if (GUI.Service.IsInitialized)
@@ -141,5 +140,10 @@ internal partial class Program
 
         // Attend la fermeture de la fenêtre
         GUI.Service.WaitWindowClosed();
+
+#if !LOAD
+        SaveProject();
+#endif
+
     }
 }
