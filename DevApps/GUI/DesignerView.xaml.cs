@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,189 @@ namespace DevApps.GUI
     /// </summary>
     public partial class DesignerView : UserControl
     {
+        internal bool isDragging = false;
+        internal bool isResizing = false;
+        internal Point startMousePosition;
+        internal DrawElement? selectedElement;
+        internal ResizeDirection resizeDirection;
+
+        internal enum ResizeDirection { None, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight }
+
+        internal void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            selectedElement = Mouse.DirectlyOver as DrawElement;
+
+            if (selectedElement == null) return;
+
+            startMousePosition = e.GetPosition(MyCanvas);
+            resizeDirection = GetResizeDirection(startMousePosition);
+
+            if (resizeDirection != DesignerView.ResizeDirection.None)
+            {
+                isResizing = true;
+            }
+            else
+            {
+                isDragging = true;
+            }
+
+            selectedElement?.CaptureMouse();
+        }
+
+        internal void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (selectedElement == null) return;
+
+            Point currentMousePosition = e.GetPosition(MyCanvas);
+
+            if (isDragging)
+            {
+                MoveRectangle(currentMousePosition);
+            }
+            else if (isResizing)
+            {
+                ResizeRectangle(currentMousePosition);
+            }
+            else
+            {
+                UpdateCursor(e.GetPosition(MyCanvas));
+            }
+        }
+
+        internal void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            isDragging = false;
+            isResizing = false;
+            selectedElement?.ReleaseMouseCapture();
+        }
+
+        internal void MoveRectangle(Point mousePosition)
+        {
+            double offsetX = mousePosition.X - startMousePosition.X;
+            double offsetY = mousePosition.Y - startMousePosition.Y;
+
+            double newLeft = Canvas.GetLeft(selectedElement) + offsetX;
+            double newTop = Canvas.GetTop(selectedElement) + offsetY;
+
+            Canvas.SetLeft(selectedElement, newLeft);
+            Canvas.SetTop(selectedElement, newTop);
+
+            startMousePosition = mousePosition;
+        }
+
+        internal void ResizeRectangle(Point mousePosition)
+        {
+            double offsetX = mousePosition.X - startMousePosition.X;
+            double offsetY = mousePosition.Y - startMousePosition.Y;
+
+            double left = Canvas.GetLeft(selectedElement);
+            double top = Canvas.GetTop(selectedElement);
+            double width = selectedElement.Width;
+            double height = selectedElement.Height;
+
+            switch (resizeDirection)
+            {
+                case ResizeDirection.Left:
+                    width -= offsetX;
+                    left += offsetX;
+                    break;
+                case ResizeDirection.Right:
+                    width += offsetX;
+                    break;
+                case ResizeDirection.Top:
+                    height -= offsetY;
+                    top += offsetY;
+                    break;
+                case ResizeDirection.Bottom:
+                    height += offsetY;
+                    break;
+                case ResizeDirection.TopLeft:
+                    width -= offsetX;
+                    left += offsetX;
+                    height -= offsetY;
+                    top += offsetY;
+                    break;
+                case ResizeDirection.TopRight:
+                    width += offsetX;
+                    height -= offsetY;
+                    top += offsetY;
+                    break;
+                case ResizeDirection.BottomLeft:
+                    width -= offsetX;
+                    left += offsetX;
+                    height += offsetY;
+                    break;
+                case ResizeDirection.BottomRight:
+                    width += offsetX;
+                    height += offsetY;
+                    break;
+            }
+
+            if (width > 10) selectedElement.Width = width;
+            if (height > 10) selectedElement.Height = height;
+
+            Canvas.SetLeft(selectedElement, left);
+            Canvas.SetTop(selectedElement, top);
+
+            startMousePosition = mousePosition;
+        }
+
+        internal void UpdateCursor(Point mousePosition)
+        {
+            ResizeDirection direction = GetResizeDirection(mousePosition);
+            switch (direction)
+            {
+                case ResizeDirection.Left:
+                case ResizeDirection.Right:
+                    Cursor = Cursors.SizeWE;
+                    break;
+                case ResizeDirection.Top:
+                case ResizeDirection.Bottom:
+                    Cursor = Cursors.SizeNS;
+                    break;
+                case ResizeDirection.TopLeft:
+                case ResizeDirection.BottomRight:
+                    Cursor = Cursors.SizeNWSE;
+                    break;
+                case ResizeDirection.TopRight:
+                case ResizeDirection.BottomLeft:
+                    Cursor = Cursors.SizeNESW;
+                    break;
+                default:
+                    Cursor = Cursors.Arrow;
+                    break;
+            }
+        }
+
+        internal ResizeDirection GetResizeDirection(Point mousePosition)
+        {
+            var selectedElement = Mouse.DirectlyOver as DrawElement;
+            if (selectedElement == null)
+                return ResizeDirection.None;
+
+            double left = Canvas.GetLeft(selectedElement);
+            double top = Canvas.GetTop(selectedElement);
+            double right = left + selectedElement.Width;
+            double bottom = top + selectedElement.Height;
+            double margin = 10; // Zone de redimensionnement
+
+            bool nearLeft = mousePosition.X >= left - margin && mousePosition.X <= left + margin;
+            bool nearRight = mousePosition.X >= right - margin && mousePosition.X <= right + margin;
+            bool nearTop = mousePosition.Y >= top - margin && mousePosition.Y <= top + margin;
+            bool nearBottom = mousePosition.Y >= bottom - margin && mousePosition.Y <= bottom + margin;
+
+            if (nearLeft && nearTop) return ResizeDirection.TopLeft;
+            if (nearRight && nearTop) return ResizeDirection.TopRight;
+            if (nearLeft && nearBottom) return ResizeDirection.BottomLeft;
+            if (nearRight && nearBottom) return ResizeDirection.BottomRight;
+            if (nearLeft) return ResizeDirection.Left;
+            if (nearRight) return ResizeDirection.Right;
+            if (nearTop) return ResizeDirection.Top;
+            if (nearBottom) return ResizeDirection.Bottom;
+
+            return ResizeDirection.None;
+        }
+
         public DesignerView()
         {
             InitializeComponent();

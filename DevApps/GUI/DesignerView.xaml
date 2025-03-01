@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:DevApps.GUI"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Canvas Background="White">
+    <Canvas x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
             
     </Canvas>
 </UserControl>

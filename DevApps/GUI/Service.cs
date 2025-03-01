@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
@@ -15,123 +16,8 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace GUI
 {
-    // Classe VisualHost pour rendre DrawingVisual dans le Canvas
-    /* public class VisualHost : FrameworkElement
-     {
-         public Visual Visual
-         {
-             get { return (Visual)GetValue(VisualProperty); }
-             set { SetValue(VisualProperty, value); }
-         }
-
-         public static readonly DependencyProperty VisualProperty =
-             DependencyProperty.Register("Visual", typeof(Visual), typeof(VisualHost),
-                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
-
-         protected override void OnRender(DrawingContext drawingContext)
-         {
-             base.OnRender(drawingContext);
-             if (Visual != null)
-             {
-                 drawingContext.DrawDrawing(Visual as Drawing);
-             }
-         }
-     }
-
-    
-    // Classe VisualHost pour rendre DrawingVisual dans le Canvas
-    internal class MyVisualHost : FrameworkElement
-    {
-        // Create a collection of child visual objects.
-        internal DrawingVisual drawingVisual;
-
-        public DrawingVisual Child { get { return drawingVisual; } }
-
-        public MyVisualHost()
-        {
-            drawingVisual = new DrawingVisual();
-
-            this.Width = 200;
-            this.Height = 200;
-            this.Visibility = Visibility.Visible;
-        }
-
-        public MyVisualHost(DrawingVisual visual)
-        {
-            drawingVisual = visual;
-
-            this.Width = 200;
-            this.Height = 200;
-            this.Visibility = Visibility.Visible;
-        }
-
-        // Provide a required override for the VisualChildrenCount property.
-        protected override int VisualChildrenCount
-        {
-            get { return 1; }
-        }
-
-        // Provide a required override for the GetVisualChild method.
-        protected override Visual GetVisualChild(int index)
-        {
-            if (index != 0)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-
-            return drawingVisual;
-        }
-
-        internal DrawingVisual CreateDrawingVisualRectangle()
-        {
-            // Retrieve the DrawingContext in order to create new drawing content.
-            DrawingContext drawingContext = drawingVisual.RenderOpen();
-
-            // Create a rectangle and draw it in the DrawingContext.
-            Rect rect = new Rect(new System.Windows.Point(0, 0), new System.Windows.Size(this.Width, this.Height));
-            drawingContext.DrawRectangle(System.Windows.Media.Brushes.LightBlue, null, rect);
-
-            // Persist the drawing content.
-            drawingContext.Close();
-
-            return drawingVisual;
-        }
-    }*/
-
     public class DrawElement : FrameworkElement
     {
-        // Définir une largeur et une hauteur fixes pour l'exemple
-        public double ContentWidth { get; set; } = 100;
-        public double ContentHeight { get; set; } = 100;
-
-        // Surcharge de la méthode DesiredSize
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            Program.DevObject.References.TryGetValue(this.Name, out var reference);
-            if (reference?.gui != null)
-            {
-                ContentWidth = reference.gui.current.Rect.Width;
-                ContentHeight = reference.gui.current.Rect.Height;
-            }
-
-            // Calculer la taille désirée en fonction de la taille du contenu
-            double desiredWidth = ContentWidth;
-            double desiredHeight = ContentHeight;
-
-            // Si les contraintes sont spécifiées (availableSize), ajuster la taille en conséquence
-            if (!double.IsInfinity(availableSize.Width))
-            {
-                desiredWidth = Math.Min(desiredWidth, availableSize.Width);
-            }
-            if (!double.IsInfinity(availableSize.Height))
-            {
-                desiredHeight = Math.Min(desiredHeight, availableSize.Height);
-            }
-
-            // Retourner la taille calculée
-            return new Size(desiredWidth, desiredHeight);
-        }
-
         // Cette méthode gère le rendu
         protected override void OnRender(DrawingContext drawingContext)
         {
@@ -143,12 +29,17 @@ namespace GUI
 
             if(reference != null)
             {
+                var ContentWidth = this.ActualWidth;
+                var ContentHeight = this.ActualHeight;
+
                 // Dessiner un rectangle pour illustrer
                 Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
                 drawingContext.DrawRectangle(/*reference.gui.GetBackground()*/Brushes.LightGray, null, rect);
                 if (reference.DrawCode.Item2 != null)
                 {
                     reference.mutexReadOutput.WaitOne();
+
+                    reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = new Rect(0, 0, ContentWidth, ContentHeight) };
 
                     var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
                     pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream));// mise en cache dans l'objet ?
@@ -265,13 +156,15 @@ namespace GUI
 
                     var element = new DrawElement();
                     element.Name = name;
+                    element.Width = 100;
+                    element.Height = 100;
                     Canvas.SetLeft(element, X);
                     Canvas.SetTop(element, Y);
-                    X += element.ContentWidth + 10;
+                    X += element.ActualWidth + 10;
                     if(X > 500)
                     {
                         X = 10;
-                        Y += element.ContentHeight + 10;
+                        Y += element.ActualHeight + 10;
                     }
                     canvas.Children.Add(element);
                     
