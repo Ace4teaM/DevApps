@@ -407,6 +407,17 @@ internal partial class Program
             return this;
         }
 
+        public System.Windows.Rect? GetZone()
+        {
+            return gui.baseZone.Rect;
+        }
+
+        public DevObject SetZone(System.Windows.Rect? rect)
+        {
+            gui.baseZone.Rect = rect ?? new System.Windows.Rect();
+            return this;
+        }
+
         public string? GetCode()
         {
             return ObjectCode.Item1;
