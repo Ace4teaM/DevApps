@@ -41,8 +41,11 @@ namespace DevApps.Samples
                 .AddUserAction("log", "out.write('ok')")
                 .AddUserAction("cancel", "out.write('nok')")
                 .SetDrawCode(@"
-                    gui.fill().gray().rectangle(6).inflate(-10)
-                    gui.stack().white()
+                    gui.fill()
+                    gui.style('Gray', 2, True).background()
+                    gui.style('White', 2, False).foreground()
+                    gui.rectangle(6).inflate(-10)
+                    gui.stack()
                     gui.text('LOGIN')
                     gui.separator()
                     gui.wrap().icon('user').edit(login).pop()

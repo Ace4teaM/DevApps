@@ -3,8 +3,6 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using static IronPython.Modules._ast;
-using System.Windows.Media.Media3D;
 
 namespace DevApps.PythonExtends
 {
@@ -89,6 +87,11 @@ namespace DevApps.PythonExtends
         {
 
         }
+        internal virtual void separator(GUI gui)
+        {
+
+        }
+
         internal virtual void list(GUI gui, Output output)
         {
 
@@ -96,20 +99,9 @@ namespace DevApps.PythonExtends
 
         internal virtual void rectangle(GUI gui, double cornerRadius)
         {
-            // Création d'un pinceau et d'un stylo
-            SolidColorBrush fillBrush = new SolidColorBrush(gui.Foreground);
-            Pen borderPen = new Pen(Brushes.Black, cornerRadius);
-
-            borderPen.Brush = new LinearGradientBrush(
-                GUI.AdjustColorBrightness(gui.Foreground, 1.2),// Teinte plus claire
-                GUI.AdjustColorBrightness(gui.Foreground, 0.8),// Teinte plus sombre
-                new Point(0, 0), // Dégradé du coin supérieur gauche
-                new Point(1, 1)  // vers le coin inférieur droit
-            );
-            
             // Dessiner un rectangle avec des coins arrondis
             Rect rect = new Rect(Top, Left, Width, Height);
-            gui.drawingContext?.DrawRoundedRectangle(fillBrush, borderPen, rect, cornerRadius, cornerRadius);
+            gui.drawingContext?.DrawRoundedRectangle(gui.backgroundBrush, gui.backgroundPen, rect, cornerRadius, cornerRadius);
         }
         internal virtual void circle(GUI gui)
         {
@@ -122,29 +114,20 @@ namespace DevApps.PythonExtends
 
         public class Stack : Fill
         {
-            public double UsedHeight { get; set; }
-
             public Stack(Zone zone) : base(zone)
             {
-                
             }
 
             internal override void text(GUI gui, string text)
             {
                 double x = Left;
-                double y = -Top;
+                double y = Top;
                 if (String.IsNullOrEmpty(text))
                     return;
-                var glyphRun = GUI.ConvertTextToGlyphRun(GUI.glyphTypeface, GUI.renderingEmSize, GUI.advanceWidth, GUI.advanceHeight, GUI.baselineOrigin, text, ref x, ref y);
+                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
                 gui.drawingContext?.DrawGlyphRun(gui.ForegroundBrush, glyphRun);
 
                 Top = y;
-
-                /*
-                Top += UsedHeight;
-                Left = Base.Rect.Left;
-                AvailableHeight -= UsedHeight;
-                */
             }
 
             internal override void code(GUI gui, string text, string syntax)
@@ -154,7 +137,23 @@ namespace DevApps.PythonExtends
 
             internal override void rectangle(GUI gui, double cornerRadius)
             {
-                throw new NotImplementedException();
+                // Création d'un pinceau et d'un stylo
+                /* SolidColorBrush fillBrush = new SolidColorBrush(gui.color);
+                 Pen borderPen = new Pen(Brushes.Black, cornerRadius);
+
+                 borderPen.Brush = new LinearGradientBrush(
+                     GUI.AdjustColorBrightness(gui.color, 1.2),// Teinte plus claire
+                     GUI.AdjustColorBrightness(gui.color, 0.8),// Teinte plus sombre
+                     new Point(0, 0), // Dégradé du coin supérieur gauche
+                     new Point(1, 1)  // vers le coin inférieur droit
+                 );*/
+
+                // Dessiner un rectangle avec des coins arrondis
+                Rect rect = new Rect(Top, Left, Width, Height);
+                gui.drawingContext?.DrawRoundedRectangle(gui.backgroundBrush, gui.backgroundPen, rect, cornerRadius, cornerRadius);
+
+                Top += Height;
+                Bottom += Height;
             }
 
             internal override void circle(GUI gui)
@@ -162,6 +161,14 @@ namespace DevApps.PythonExtends
                 var radiusX = (Right - Left) / 2.0;
                 var radiusY = (Bottom - Top) / 2.0;
                 gui.drawingContext?.DrawEllipse(gui.ForegroundBrush, null, new Point(Top + radiusX, Left + radiusY), radiusX, radiusY);
+            }
+            internal override void separator(GUI gui)
+            {
+                SolidColorBrush fillBrush = new SolidColorBrush(gui.color);
+                Pen pen = new Pen(Brushes.Black, 2.0);
+                gui.drawingContext?.DrawLine(pen, new Point(Left, Top + 5), new Point(Right, Top + 5));
+
+                Top += 10;
             }
             internal override void image(GUI gui, Output data, string format)
             {
@@ -216,9 +223,6 @@ namespace DevApps.PythonExtends
 
         public class Wrap : Fill
         {
-            public double UsedWidth { get; set; }
-            public double UsedHeight { get; set; }
-
             public Wrap(Zone zone) : base(zone)
             {
 
@@ -240,7 +244,7 @@ namespace DevApps.PythonExtends
                 double y = 0;
                 if (String.IsNullOrEmpty(text))
                     return;
-                var glyphRun = GUI.ConvertTextToGlyphRun(GUI.glyphTypeface, GUI.renderingEmSize, GUI.advanceWidth, GUI.advanceHeight, GUI.baselineOrigin, text, ref x, ref y);
+                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
                 gui.drawingContext?.DrawGlyphRun(gui.ForegroundBrush, glyphRun);
             }
 
@@ -286,7 +290,7 @@ namespace DevApps.PythonExtends
                 double y = Top;
                 if (String.IsNullOrEmpty(text))
                     return;
-                var glyphRun = GUI.ConvertTextToGlyphRun(GUI.glyphTypeface, GUI.renderingEmSize, GUI.advanceWidth, GUI.advanceHeight, GUI.baselineOrigin, text, ref x, ref y);
+                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
                 gui.drawingContext?.DrawGlyphRun(gui.ForegroundBrush, glyphRun);
 
                 CurrentColumn++;
@@ -321,21 +325,101 @@ namespace DevApps.PythonExtends
     /// </summary>
     public class GUI
     {
-        public Brush GetBackground() { return BackgroundBrush; }
+        internal bool gradient = false;
+        internal Color color = Colors.Black;
+        internal double thickness = 2.0;
+        internal Pen? foregroundPen;
+        internal Brush? foregroundBrush;
+        internal Pen? backgroundPen;
+        internal Brush? backgroundBrush;
 
-        internal Brush BackgroundBrush = new SolidColorBrush(Colors.LightGray);
-        internal Brush ForegroundBrush { get { return new SolidColorBrush(Foreground); } }    
-        internal Color Foreground = Colors.Black;
+        internal static Brush defaultForegroundBrush = new SolidColorBrush(Colors.LightGray);
+        internal static Pen defaultForegroundPen = new Pen(defaultForegroundBrush, 2.0);
+        internal static Brush defaultBackgroundBrush = new SolidColorBrush(Colors.LightGray);
+        internal static Pen defaultBackgroundPen = new Pen(defaultBackgroundBrush, 2.0);
+
+        internal void InvalidateForeground()
+        {
+            if (gradient)
+            {
+                foregroundBrush = new LinearGradientBrush(
+                    AdjustColorBrightness(color, 1.2),// Teinte plus claire
+                    AdjustColorBrightness(color, 0.8),// Teinte plus sombre
+                    new Point(0, 0), // Dégradé du coin supérieur gauche
+                    new Point(1, 1)  // vers le coin inférieur droit
+                );
+            }
+            else
+            {
+                foregroundBrush = new SolidColorBrush(color);
+            }
+            foregroundPen = new Pen(foregroundBrush, thickness);
+        }
+
+        internal void InvalidateBackground()
+        {
+            if (gradient)
+            {
+                backgroundBrush = new LinearGradientBrush(
+                    AdjustColorBrightness(color, 1.2),// Teinte plus claire
+                    AdjustColorBrightness(color, 0.8),// Teinte plus sombre
+                    new Point(0, 0), // Dégradé du coin supérieur gauche
+                    new Point(1, 1)  // vers le coin inférieur droit
+                );
+            }
+            else
+            {
+                backgroundBrush = new SolidColorBrush(color);
+            }
+            backgroundPen = new Pen(backgroundBrush, thickness);
+        }
+
+        public Pen ForegroundPen { 
+            get {
+                return foregroundPen ?? defaultForegroundPen;
+            }
+        }
+
+        public Brush ForegroundBrush
+        {
+            get
+            {
+                return foregroundBrush ?? defaultForegroundBrush;
+            }
+        }
+
+        public Pen BackgroundPen
+        {
+            get
+            {
+                return backgroundPen ?? defaultBackgroundPen;
+            }
+        }
+
+        public Brush BackgroundBrush
+        {
+            get
+            {
+                return backgroundBrush ?? defaultBackgroundBrush;
+            }
+        }
+
 
         internal DrawingContext? drawingContext;
 
         public Layout layout { get; set; } = new Layout(new Rect(0, 0, 100, 100));
 
-        internal static Zone baseZone = new Zone { Rect = new Rect(0, 0, 100, 100) };
-        internal Fill filling { get; set; } = new Fill(baseZone);
+        internal Zone baseZone = new Zone { Rect = new Rect(0, 0, 100, 100) };
+        internal Fill filling { get; set; }
         internal Zone current { get { return zones.First(); } }
 
-        internal Stack<Zone> zones = new Stack<Zone>([baseZone]);
+        internal Stack<Zone> zones { get; set; }
+
+        public GUI()
+        {
+            filling = new Fill(baseZone);
+            zones = new Stack<Zone>([baseZone]);
+        }
 
         // Méthode pour limiter les valeurs entre min et max
         internal static double Clamp(double value, double min, double max)
@@ -435,19 +519,29 @@ namespace DevApps.PythonExtends
         }
         #endregion
         #region painting
-        public GUI foreground(byte R, byte G, byte B)
+        public GUI foreground()
         {
-            Foreground = Color.FromRgb(R, G, B);
+            InvalidateForeground();
             return this;
         }
-        public GUI gray()
+        public GUI background()
         {
-            Foreground = Colors.Gray;
+            InvalidateBackground();
             return this;
         }
-        public GUI white()
+        public GUI style(byte R, byte G, byte B, double thickness, bool gradient)
         {
-            Foreground = Colors.White;
+            this.color = Color.FromRgb(R, G, B);
+            this.thickness = thickness;
+            this.gradient = gradient;
+            return this;
+        }
+        public GUI style(string colorName, double thickness, bool gradient)
+        {
+            System.Drawing.Color systemColor = System.Drawing.Color.FromName(colorName);
+            this.color = Color.FromRgb(systemColor.R, systemColor.G, systemColor.B);
+            this.thickness = thickness;
+            this.gradient = gradient;
             return this;
         }
         public GUI text()
@@ -464,7 +558,7 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI level(Output content, string unit, float min, float max, float step)
         {
-            //fill.level(this, content, unit, min, max, step);
+            //filling.level(this, content, unit, min, max, step);
             return this;
         }
         /// <summary>
@@ -472,7 +566,7 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI state(Output content, string titleA, string stateA, string titleB, string stateB)
         {
-            //fill.state(this, content, titleA, stateA, titleB, stateB);
+            //filling.state(this, content, titleA, stateA, titleB, stateB);
             return this;
         }
         /// <summary>
@@ -480,7 +574,7 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI separator()
         {
-            //fill.separator(this);
+            filling.separator(this);
             return this;
         }
         /// <summary>
@@ -488,7 +582,7 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI edit(Output content)
         {
-            //fill.edit(this, content);
+            //filling.edit(this, content);
             return this;
         }
         /// <summary>
@@ -645,7 +739,7 @@ namespace DevApps.PythonExtends
 
         }
 
-        internal static GlyphRun ConvertTextToGlyphRun(GlyphTypeface glyphTypeface, double renderingEmSize, double advanceWidth, double advanceHeight, Point baselineOrigin, string line, ref double x, ref double y)
+        internal static GlyphRun ConvertTextToGlyphRun(string line, ref double x, ref double y)
         {
             var glyphIndices = new List<ushort>();
             var advanceWidths = new List<double>();
@@ -656,12 +750,13 @@ namespace DevApps.PythonExtends
                 var glyphIndex = glyphTypeface.CharacterToGlyphMap[line[j]];
                 glyphIndices.Add(glyphIndex);
                 advanceWidths.Add(0);
-                glyphOffsets.Add(new Point(x, y));
+                glyphOffsets.Add(new Point(x, y - advanceHeight));
 
                 x += advanceWidth;
 
             }
-            y -= baselineOrigin.Y;
+
+            y += advanceHeight;
 
             return new GlyphRun(
                 glyphTypeface,
@@ -678,7 +773,7 @@ namespace DevApps.PythonExtends
                 null,
                 null);
         }
-        internal static GlyphRun ConvertTextLinesToGlyphRun(GlyphTypeface glyphTypeface, double renderingEmSize, double advanceWidth, double advanceHeight, Point baselineOrigin, string[] lines, Layout layout)
+        internal static GlyphRun ConvertTextLinesToGlyphRun(string[] lines, Layout layout)
         {
             var glyphIndices = new List<ushort>();
             var advanceWidths = new List<double>();
@@ -697,13 +792,13 @@ namespace DevApps.PythonExtends
                     var glyphIndex = glyphTypeface.CharacterToGlyphMap[line[j]];
                     glyphIndices.Add(glyphIndex);
                     advanceWidths.Add(0);
-                    glyphOffsets.Add(new Point(x, y));
+                    glyphOffsets.Add(new Point(x, y - advanceHeight));
 
                     x += advanceWidth;
 
                 }
 
-                y -= advanceHeight;
+                y += advanceHeight;
             }
 
             return new GlyphRun(
