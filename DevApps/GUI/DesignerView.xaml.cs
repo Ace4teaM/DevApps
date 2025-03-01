@@ -52,7 +52,7 @@ namespace DevApps.GUI
 
         internal void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            if (selectedElement == null) return;
+            //if (selectedElement == null) return;
 
             Point currentMousePosition = e.GetPosition(MyCanvas);
 

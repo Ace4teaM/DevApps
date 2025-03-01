@@ -100,7 +100,7 @@ namespace DevApps.PythonExtends
         internal virtual void rectangle(GUI gui, double cornerRadius)
         {
             // Dessiner un rectangle avec des coins arrondis
-            Rect rect = new Rect(Top, Left, Width, Height);
+            Rect rect = new Rect(Left, Top, Width, Height);
             gui.drawingContext?.DrawRoundedRectangle(gui.backgroundBrush, gui.backgroundPen, rect, cornerRadius, cornerRadius);
         }
         internal virtual void circle(GUI gui)
@@ -149,11 +149,10 @@ namespace DevApps.PythonExtends
                  );*/
 
                 // Dessiner un rectangle avec des coins arrondis
-                Rect rect = new Rect(Top, Left, Width, Height);
+                Rect rect = new Rect(Left, Top, Width, Height);
                 gui.drawingContext?.DrawRoundedRectangle(gui.backgroundBrush, gui.backgroundPen, rect, cornerRadius, cornerRadius);
 
                 Top += Height;
-                Bottom += Height;
             }
 
             internal override void circle(GUI gui)

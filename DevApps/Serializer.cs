@@ -22,42 +22,16 @@ namespace Serializer
         /// Description de l'objet (optionnel)
         /// </summary>
         public String Description { get { return content.Description; } set { content.Description = value; } }
-        /// <summary>
-        /// Pointeurs vers des objets existants
-        /// </summary>
         public KeyValuePair<string, string?>[] Pointers { get { return content.GetPointers().ToArray(); } set { content.SetPointers(value); } }
-        /// <summary>
-        /// Fonctions internes
-        /// </summary>
         public KeyValuePair<string, string?>[] Functions { get { return content.GetFunctions().ToArray(); } set { content.SetFunctions(value); } }
-        /// <summary>
-        /// Fonctions internes
-        /// </summary>
         public KeyValuePair<string, string?>[] Properties { get { return content.GetProperties().ToArray(); } set { content.SetProperties(value); } }
-        /// <summary>
-        /// Commandes utilisateur
-        /// </summary>
         public KeyValuePair<string, string?>[] Commands { get { return content.GetUserActions().ToArray(); } set { content.SetUserActions(value); } }
-        /// <summary>
-        /// Méthode de simulation (timer)
-        /// </summary>
         public string? LoopMethod { get { return content.GetLoopMethod(); } set { content.SetLoopMethod(value); } }
-        /// <summary>
-        /// Méthode de simulation (initialisation)
-        /// </summary>
         public string? InitMethod { get { return content.GetInitMethod(); } set { content.SetInitMethod(value); } }
-        /// <summary>
-        /// Méthode de construction (generation code, ...)
-        /// </summary>
         public string? BuildMethod { get { return content.GetBuildMethod(); } set { content.SetBuildMethod(value); } }
-        /// <summary>
-        /// Code/Données de l'objet
-        /// </summary>
         public string? ObjectCode { get { return content.GetCode(); } set { content.SetCode(value); } }
-        /// <summary>
-        /// Code/Données de l'objet
-        /// </summary>
-        public System.Windows.Rect? Zone { get { return content.GetZone(); } set { content.SetZone(value); } }
+        public string? DrawCode { get { return content.GetDrawCode(); } set { content.SetDrawCode(value); } }
+        public System.Windows.Rect Zone { get { return content.GetZone(); } set { content.SetZone(value); } }
     }
 
     internal class DevProject

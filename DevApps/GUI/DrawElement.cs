@@ -32,6 +32,7 @@ namespace DevApps.GUI
                 {
                     reference.mutexReadOutput.WaitOne();
 
+                    reference.zone = new Rect(System.Windows.Controls.Canvas.GetLeft(this), System.Windows.Controls.Canvas.GetTop(this), ContentWidth, ContentHeight);
                     reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = new Rect(0, 0, ContentWidth, ContentHeight) };
 
                     var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !

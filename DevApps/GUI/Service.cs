@@ -1,18 +1,9 @@
 ﻿using DevApps.GUI;
-using Newtonsoft.Json.Linq;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using static IronPython.Modules._ast;
-using static System.Net.Mime.MediaTypeNames;
+using System.Xml.Linq;
 
 namespace GUI
 {
@@ -78,27 +69,7 @@ namespace GUI
                         host.InvalidateVisual();
                     }
                 })));
-
         }
-
-        /*internal static void Draw(string name, Func<DrawingContext,bool> func)
-        {
-            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
-                DispatcherPriority.Render,
-                new Action(() => {
-                    var canvas = (WindowContent?.Content as Canvas);
-
-                    var host = canvas.Children.OfType<MyVisualHost>().FirstOrDefault(p => p.Name == name);
-                    if (host != null)
-                    {
-                        var drawContext = host.drawingVisual.RenderOpen();
-                        func.Invoke(drawContext);
-                        drawContext.Close();
-                        host.InvalidateVisual();
-                        host.InvalidateMeasure();
-                    }
-
-        }*/
 
         static double X = 10;
         static double Y = 10;
@@ -108,7 +79,7 @@ namespace GUI
                 DispatcherPriority.Render,
                 new Action(() => {
                     var canvas = (WindowContent?.Content as Canvas);
-
+     
                     var element = new DrawElement();
                     element.Name = name;
                     element.Width = 100;
@@ -122,51 +93,26 @@ namespace GUI
                         Y += element.ActualHeight + 10;
                     }
                     canvas.Children.Add(element);
-                    
-
-                    /*
-                    var host = new MyVisualHost();
-                    host.Name = name;
-                    Canvas.SetTop(host, Y);
-                    Y += host.Height + 10;
-                    //host.CreateDrawingVisualRectangle();
-
-                    canvas.Children.Add(host);*/
-
-                    // render the visual on a bitmap
-                    /*var bmp = new RenderTargetBitmap(
-                        pixelWidth: (int)200,
-                        pixelHeight: (int)200,
-                        dpiX: 0, dpiY: 0, pixelFormat: PixelFormats.Pbgra32);
-                    //bmp.Render(drawingVisual);
-
-                    // create a new Image to display the bitmap, then add it to the canvas
-                    Image image = new Image();
-                    image.Source = bmp;
-                    image.Name = name;
-                    image.Width = 200;
-                    image.Height = 200;
-                    image.Visibility = Visibility.Visible;
-                    Canvas.SetTop(image, Y);
-                    Y += image.Height + 10;
-
-                    canvas.Children.Add(image);*/
                 }));
         }
 
-        // Fonction qui crée un DrawingContext et dessine un rectangle
-        private static void Draw(DrawingVisual drawingVisual)
+        internal static void SetRect(string name, Rect rect)
         {
-            using (DrawingContext dc = drawingVisual.RenderOpen())
-            {
-                // Dessiner un rectangle
-                dc.DrawRectangle(Brushes.Blue, null, new Rect(50, 50, 200, 100));
-                // Dessiner une ligne
-                dc.DrawLine(new Pen(Brushes.Red, 2), new Point(50, 50), new Point(250, 150));
-            }
+            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+                    var canvas = (WindowContent?.Content as Canvas);
 
-            // Rafraîchir le Canvas pour afficher les nouveaux dessins
-            //drawingVisual.InvalidateVisual();
+                    var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                    if (host != null)
+                    {
+                        Canvas.SetLeft(host, rect.Left);
+                        Canvas.SetTop(host, rect.Top);
+                        host.Width = rect.Width;
+                        host.Height = rect.Height;
+                        host.InvalidateVisual();
+                    }
+                })));
         }
 
         internal static void CloseEditor()

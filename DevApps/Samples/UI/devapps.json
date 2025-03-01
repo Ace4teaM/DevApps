@@ -1,1 +1,102 @@
-{"Objects":[{"Key":"List","Value":{"Description":"Exemple de liste","Pointers":[],"Functions":[],"Properties":[],"Commands":[],"LoopMethod":"","InitMethod":"","BuildMethod":"","ObjectCode":"","Zone":"0,0,100,100"}},{"Key":"Text","Value":{"Description":"Exemple de saisie","Pointers":[],"Functions":[],"Properties":[],"Commands":[],"LoopMethod":"","InitMethod":"","BuildMethod":"","ObjectCode":"","Zone":"0,0,100,100"}},{"Key":"Dialog","Value":{"Description":"Exemple de boite à outils","Pointers":[{"Key":"login","Value":""},{"Key":"password","Value":""}],"Functions":[],"Properties":[],"Commands":[{"Key":"log","Value":"out.write('ok')"},{"Key":"cancel","Value":"out.write('nok')"}],"LoopMethod":"","InitMethod":"","BuildMethod":"","ObjectCode":"","Zone":"0,0,187,210"}},{"Key":"State","Value":{"Description":"Exemple de bouton à état","Pointers":[],"Functions":[],"Properties":[],"Commands":[],"LoopMethod":"","InitMethod":"","BuildMethod":"","ObjectCode":"","Zone":"0,0,100,100"}},{"Key":"Level","Value":{"Description":"Exemple de sélection numérique","Pointers":[],"Functions":[],"Properties":[],"Commands":[],"LoopMethod":"","InitMethod":"","BuildMethod":"","ObjectCode":"","Zone":"0,0,100,100"}}]}
+{
+  "Objects": [
+    {
+      "Key": "List",
+      "Value": {
+        "Description": "Exemple de liste",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "Commands": [],
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.list(out)",
+        "Zone": "25,18,100,100"
+      }
+    },
+    {
+      "Key": "Text",
+      "Value": {
+        "Description": "Exemple de saisie",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "Commands": [],
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.wrap().icon('search').edit(out).pop()",
+        "Zone": "163,32,100,100"
+      }
+    },
+    {
+      "Key": "Dialog",
+      "Value": {
+        "Description": "Exemple de boite à outils",
+        "Pointers": [
+          {
+            "Key": "login",
+            "Value": ""
+          },
+          {
+            "Key": "password",
+            "Value": ""
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "Commands": [
+          {
+            "Key": "log",
+            "Value": "out.write('ok')"
+          },
+          {
+            "Key": "cancel",
+            "Value": "out.write('nok')"
+          }
+        ],
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.fill()\r\ngui.style('Gray', 2, True).background()\r\ngui.style('White', 2, False).foreground()\r\ngui.rectangle(6).inflate(-10)\r\ngui.stack()\r\ngui.text('LOGIN')\r\ngui.separator()\r\ngui.wrap().icon('user').edit(login).pop()\r\ngui.wrap().icon('lock').edit(password).pop()\r\ngui.separator()\r\n# gui.wrap().button('LOGIN', log).button('CANCEL', cancel).pop()",
+        "Zone": "52,175,248,189"
+      }
+    },
+    {
+      "Key": "State",
+      "Value": {
+        "Description": "Exemple de bouton à état",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "Commands": [],
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.state(out, 'ON', '1', 'OFF', '0')",
+        "Zone": "395,198,321,197"
+      }
+    },
+    {
+      "Key": "Level",
+      "Value": {
+        "Description": "Exemple de sélection numérique",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "Commands": [],
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.level(out, '%', 0, 100, 1)",
+        "Zone": "310,24,100,100"
+      }
+    }
+  ]
+}
