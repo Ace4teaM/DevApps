@@ -22,6 +22,7 @@ internal partial class Program
         internal Mutex mutexReadOutput = new Mutex();
         internal static bool run = false;
         internal static Thread? thread;
+        internal System.Windows.Rect zone = new System.Windows.Rect(10,10,100,100);
         public MemoryStream buildStream = new MemoryStream();
 
         public DevApps.PythonExtends.GUI gui = new DevApps.PythonExtends.GUI();
@@ -387,7 +388,12 @@ internal partial class Program
             }
         }
 
-        public DevObject SetDrawCode(string code)
+        public string? GetDrawCode()
+        {
+            return DrawCode.Item1;
+        }
+
+        public DevObject SetDrawCode(string? code)
         {
             DrawCode = (RemoveIdent(code), null);
             return this;
@@ -407,14 +413,14 @@ internal partial class Program
             return this;
         }
 
-        public System.Windows.Rect? GetZone()
+        public System.Windows.Rect GetZone()
         {
-            return gui.baseZone.Rect;
+            return zone;
         }
 
-        public DevObject SetZone(System.Windows.Rect? rect)
+        public DevObject SetZone(System.Windows.Rect rect)
         {
-            gui.baseZone.Rect = rect ?? new System.Windows.Rect();
+            zone = rect;
             return this;
         }
 

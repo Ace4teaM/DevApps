@@ -1,7 +1,7 @@
-﻿//#define LOAD // sinon SAVE
+﻿#define LOAD // sinon SAVE
 //#define Sample_CodeGen
 //#define Sample_InputCheck
-#define Sample_UI
+//#define Sample_UI
 
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
@@ -36,7 +36,11 @@ internal partial class Program
     {
         using TextWriter writer = new StreamWriter(Filename);
 
-        JsonSerializer serializer = JsonSerializer.CreateDefault();
+        var settings = new JsonSerializerSettings
+        {
+            Formatting = Formatting.Indented
+        };
+        JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
 
         serializer.Serialize(writer, new Serializer.DevProject());
     }
@@ -58,13 +62,6 @@ internal partial class Program
 
     private static void Main(string[] args)
     {
-#if Sample_CodeGen
-        Directory.SetCurrentDirectory(@"CodeGen");
-#elif Sample_InputCheck
-        Directory.SetCurrentDirectory(@"InputCheck");
-#elif Sample_UI
-        Directory.SetCurrentDirectory(@"UI");
-#endif
         try
         {
             if (Directory.Exists(DataDir) == false)
@@ -105,13 +102,12 @@ internal partial class Program
 #if LOAD
         LoadProject();
 #else
-#if Sample_CodeGen
-        DevApps.Samples.CodeGen.Create();
-#elif Sample_InputCheck
-        DevApps.Samples.InputCheck.Create();
-#elif Sample_UI
-        DevApps.Samples.UI.Create();
-#endif
+        if (Directory.GetCurrentDirectory().EndsWith("CodeGen"))
+            DevApps.Samples.CodeGen.Create();
+        else if (Directory.GetCurrentDirectory().EndsWith("InputCheck"))
+            DevApps.Samples.InputCheck.Create();
+        else if (Directory.GetCurrentDirectory().EndsWith("UI"))
+            DevApps.Samples.UI.Create();
 #endif
 
         if (GUI.Service.IsInitialized)
@@ -119,6 +115,7 @@ internal partial class Program
             foreach (var o in DevObject.References)
             {
                 GUI.Service.AddShape(o.Key);
+                GUI.Service.SetRect(o.Key, o.Value.GetZone());
             }
         }
 
@@ -141,9 +138,6 @@ internal partial class Program
         // Attend la fermeture de la fenêtre
         GUI.Service.WaitWindowClosed();
 
-#if !LOAD
         SaveProject();
-#endif
-
     }
 }
