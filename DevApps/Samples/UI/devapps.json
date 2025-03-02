@@ -13,7 +13,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.list(out)",
-        "Zone": "10,10,100,100"
+        "Zone": "109,61,100,100"
       }
     },
     {
@@ -29,7 +29,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.wrap().icon('search').edit(out).pop()",
-        "Zone": "10,10,100,100"
+        "Zone": "249,114,100,100"
       }
     },
     {
@@ -79,7 +79,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.state(out, 'ON', '1', 'OFF', '0')",
-        "Zone": "49,184,100,100"
+        "Zone": "77,224,100,100"
       }
     },
     {
@@ -95,7 +95,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.level(out, '%', 0, 100, 1)",
-        "Zone": "210,109,100,100"
+        "Zone": "473,323,263,36"
       }
     }
   ]

@@ -101,6 +101,9 @@ internal partial class Program
 
 #if LOAD
         LoadProject();
+
+        // Sauvegarde les données permanentes
+        DevObject.LoadOutput();
 #else
         if (Directory.GetCurrentDirectory().EndsWith("CodeGen"))
             DevApps.Samples.CodeGen.Create();
