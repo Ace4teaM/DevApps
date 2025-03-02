@@ -196,7 +196,7 @@ internal partial class Program
 
                 try
                 {
-                    var path = Path.Combine("data", o.Key);
+                    var path = Path.Combine(DataDir, o.Key);
                     using var file = File.Open(path, File.Exists(path) ? FileMode.Truncate : FileMode.Create, FileAccess.Write);
                     o.Value.buildStream.Seek(0, SeekOrigin.Begin);
                     o.Value.buildStream.CopyTo(file);

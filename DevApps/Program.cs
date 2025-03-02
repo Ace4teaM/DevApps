@@ -132,11 +132,11 @@ internal partial class Program
         // Construit les données permanentes
         DevFacet.Get("Model")?.Build();
 
-        // Sauvegarde les données permanentes
-        DevObject.SaveOutput();
-
         // Attend la fermeture de la fenêtre
         GUI.Service.WaitWindowClosed();
+
+        // Sauvegarde les données permanentes
+        DevObject.SaveOutput();
 
         SaveProject();
     }

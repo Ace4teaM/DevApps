@@ -13,7 +13,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.list(out)",
-        "Zone": "25,18,100,100"
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -29,7 +29,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.wrap().icon('search').edit(out).pop()",
-        "Zone": "163,32,100,100"
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -63,7 +63,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.fill()\r\ngui.style('Gray', 2, True).background()\r\ngui.style('White', 2, False).foreground()\r\ngui.rectangle(6).inflate(-10)\r\ngui.stack()\r\ngui.text('LOGIN')\r\ngui.separator()\r\ngui.wrap().icon('user').edit(login).pop()\r\ngui.wrap().icon('lock').edit(password).pop()\r\ngui.separator()\r\n# gui.wrap().button('LOGIN', log).button('CANCEL', cancel).pop()",
-        "Zone": "52,175,248,189"
+        "Zone": "557,42,283,179"
       }
     },
     {
@@ -79,7 +79,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.state(out, 'ON', '1', 'OFF', '0')",
-        "Zone": "395,198,321,197"
+        "Zone": "49,184,100,100"
       }
     },
     {
@@ -95,7 +95,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.level(out, '%', 0, 100, 1)",
-        "Zone": "310,24,100,100"
+        "Zone": "210,109,100,100"
       }
     }
   ]
