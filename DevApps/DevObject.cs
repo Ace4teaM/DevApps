@@ -184,6 +184,35 @@ internal partial class Program
         }
 
         /// <summary>
+        /// Charge la sortie standard des objets
+        /// </summary>
+        public static void LoadOutput()
+        {
+            mutexExecuteObjects.WaitOne();
+            foreach (var o in References)
+            {
+                try
+                {
+                    var path = Path.Combine(DataDir, o.Key);
+
+                    if (File.Exists(path))
+                    {
+                        using var file = File.Open(path, FileMode.Open);
+                        o.Value.buildStream.Seek(0, SeekOrigin.Begin);
+                        file.CopyTo(o.Value.buildStream);
+                        o.Value.buildStream.SetLength(file.Length);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine("load object data " + o.Key + " failed");
+                    System.Console.WriteLine(ex.Message);
+                }
+            }
+            mutexExecuteObjects.ReleaseMutex();
+        }
+
+        /// <summary>
         /// Sauvegarde la sortie standard des objets
         /// </summary>
         public static void SaveOutput()
@@ -403,6 +432,7 @@ internal partial class Program
         {
             var data = Encoding.UTF8.GetBytes(removeIdent ? RemoveIdent(text) : text);
             buildStream.Write(data);
+            buildStream.SetLength(data.Length);
             return this;
         }
 
@@ -410,6 +440,7 @@ internal partial class Program
         {
             var data = File.ReadAllBytes(Path.Combine(DataDir, name));
             buildStream.Write(data);
+            buildStream.SetLength(data.Length);
             return this;
         }
 

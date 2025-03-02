@@ -3,6 +3,8 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using static IronPython.Modules._ast;
+using System.Windows.Media.Media3D;
 
 namespace DevApps.PythonExtends
 {
@@ -79,6 +81,22 @@ namespace DevApps.PythonExtends
             this.Bottom = zone.Rect.Bottom;
         }
 
+        internal virtual void level(GUI gui, Output content, string unit, float min, float max, float step)
+        {
+            var _progress = (1.0 / (max - min)) * (step * content.number());
+
+            // Dessiner le fond de la barre de progression
+            Rect backgroundRect = new Rect(0, 0, Width, Height);
+            gui.drawingContext?.DrawRectangle(gui.BackgroundBrush, gui.BackgroundPen, backgroundRect);
+
+            // Dessiner la barre de progression
+            Rect progressRect = new Rect(0, 0, Width * _progress, Height);
+            gui.drawingContext?.DrawRectangle(gui.ForegroundBrush, gui.ForegroundPen, progressRect);
+
+            // Dessiner une bordure
+            Pen borderPen = new Pen(Brushes.Black, 2);
+            gui.drawingContext?.DrawRectangle(null, gui.BackgroundPen, backgroundRect);
+        }
         internal virtual void image(GUI gui, Output data, string format = "auto")
         {
 
@@ -101,7 +119,7 @@ namespace DevApps.PythonExtends
         {
             // Dessiner un rectangle avec des coins arrondis
             Rect rect = new Rect(Left, Top, Width, Height);
-            gui.drawingContext?.DrawRoundedRectangle(gui.backgroundBrush, gui.backgroundPen, rect, cornerRadius, cornerRadius);
+            gui.drawingContext?.DrawRoundedRectangle(gui.BackgroundBrush, gui.BackgroundPen, rect, cornerRadius, cornerRadius);
         }
         internal virtual void circle(GUI gui)
         {
@@ -118,6 +136,22 @@ namespace DevApps.PythonExtends
             {
             }
 
+            internal override void level(GUI gui, Output content, string unit, float min, float max, float step)
+            {
+                var _progress = (1.0 / (max - min)) * (step * content.number());
+
+                // Dessiner le fond de la barre de progression
+                Rect backgroundRect = new Rect(0, 0, Width, Height);
+                gui.drawingContext?.DrawRectangle(gui.BackgroundBrush, gui.BackgroundPen, backgroundRect);
+
+                // Dessiner la barre de progression
+                Rect progressRect = new Rect(0, 0, Width * _progress, Height);
+                gui.drawingContext?.DrawRectangle(gui.ForegroundBrush, gui.ForegroundPen, progressRect);
+
+                // Dessiner une bordure
+                Pen borderPen = new Pen(Brushes.Black, 2);
+                gui.drawingContext?.DrawRectangle(null, gui.BackgroundPen, backgroundRect);
+            }
             internal override void text(GUI gui, string text)
             {
                 double x = Left;
@@ -332,11 +366,6 @@ namespace DevApps.PythonExtends
         internal Pen? backgroundPen;
         internal Brush? backgroundBrush;
 
-        internal static Brush defaultForegroundBrush = new SolidColorBrush(Colors.LightGray);
-        internal static Pen defaultForegroundPen = new Pen(defaultForegroundBrush, 2.0);
-        internal static Brush defaultBackgroundBrush = new SolidColorBrush(Colors.LightGray);
-        internal static Pen defaultBackgroundPen = new Pen(defaultBackgroundBrush, 2.0);
-
         internal void InvalidateForeground()
         {
             if (gradient)
@@ -375,7 +404,12 @@ namespace DevApps.PythonExtends
 
         public Pen ForegroundPen { 
             get {
-                return foregroundPen ?? defaultForegroundPen;
+                if(foregroundPen == null)
+                {// créé ici dans le thread de l'appelant
+                    foregroundBrush = new SolidColorBrush(Colors.LightGray);
+                    foregroundPen = new Pen(foregroundBrush, 2.0);
+                }
+                return foregroundPen;
             }
         }
 
@@ -383,7 +417,12 @@ namespace DevApps.PythonExtends
         {
             get
             {
-                return foregroundBrush ?? defaultForegroundBrush;
+                if (foregroundBrush == null)
+                {// créé ici dans le thread de l'appelant
+                    foregroundBrush = new SolidColorBrush(Colors.LightGray);
+                    foregroundPen = new Pen(foregroundBrush, 2.0);
+                }
+                return foregroundBrush;
             }
         }
 
@@ -391,7 +430,12 @@ namespace DevApps.PythonExtends
         {
             get
             {
-                return backgroundPen ?? defaultBackgroundPen;
+                if (backgroundPen == null)
+                {// créé ici dans le thread de l'appelant
+                    backgroundBrush = new SolidColorBrush(Colors.Gray);
+                    backgroundPen = new Pen(backgroundBrush, 2.0);
+                }
+                return backgroundPen;
             }
         }
 
@@ -399,7 +443,12 @@ namespace DevApps.PythonExtends
         {
             get
             {
-                return backgroundBrush ?? defaultBackgroundBrush;
+                if (backgroundBrush == null)
+                {// créé ici dans le thread de l'appelant
+                    backgroundBrush = new SolidColorBrush(Colors.Gray);
+                    backgroundPen = new Pen(backgroundBrush, 2.0);
+                }
+                return backgroundBrush;
             }
         }
 
@@ -557,7 +606,7 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI level(Output content, string unit, float min, float max, float step)
         {
-            //filling.level(this, content, unit, min, max, step);
+            filling.level(this, content, unit, min, max, step);
             return this;
         }
         /// <summary>

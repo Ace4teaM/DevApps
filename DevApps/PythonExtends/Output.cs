@@ -28,6 +28,14 @@ namespace DevApps.PythonExtends
         {
             return stream.GetBuffer();
         }
+        public double number()
+        {
+            double val = 0;
+            if (cachedText == null)
+                cachedText = Encoding.UTF8.GetString(stream.GetBuffer());
+            double.TryParse(cachedText, out val);
+            return val;
+        }
         public string text()
         {
             if (cachedText != null)
