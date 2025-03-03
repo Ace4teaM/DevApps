@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using static IronPython.Modules._ast;
 using System.Windows.Media.Media3D;
+using IronPython.Runtime;
 
 namespace DevApps.PythonExtends
 {
@@ -129,6 +130,18 @@ namespace DevApps.PythonExtends
         {
 
         }
+        internal virtual void state(GUI gui, Output content, string titleA, string stateA, string titleB, string stateB)
+        {
+            var _isOn = content.text() == stateA;
+
+            double targetPosition = _isOn ? Width - Height : 0;
+
+            // Fond du bouton
+            gui.drawingContext?.DrawRoundedRectangle(gui.BackgroundBrush, gui.BackgroundPen, new Rect(0, 0, Width, Height), 25, 25);
+
+            // Curseur glissant
+            gui.drawingContext?.DrawEllipse(gui.ForegroundBrush, gui.ForegroundPen, new Point(targetPosition + Height / 2, Height / 2), Height / 2 - 2, Height / 2 - 2);
+        }
 
         public class Stack : Fill
         {
@@ -136,22 +149,6 @@ namespace DevApps.PythonExtends
             {
             }
 
-            internal override void level(GUI gui, Output content, string unit, float min, float max, float step)
-            {
-                var _progress = (1.0 / (max - min)) * (step * content.number());
-
-                // Dessiner le fond de la barre de progression
-                Rect backgroundRect = new Rect(0, 0, Width, Height);
-                gui.drawingContext?.DrawRectangle(gui.BackgroundBrush, gui.BackgroundPen, backgroundRect);
-
-                // Dessiner la barre de progression
-                Rect progressRect = new Rect(0, 0, Width * _progress, Height);
-                gui.drawingContext?.DrawRectangle(gui.ForegroundBrush, gui.ForegroundPen, progressRect);
-
-                // Dessiner une bordure
-                Pen borderPen = new Pen(Brushes.Black, 2);
-                gui.drawingContext?.DrawRectangle(null, gui.BackgroundPen, backgroundRect);
-            }
             internal override void text(GUI gui, string text)
             {
                 double x = Left;
@@ -614,7 +611,7 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI state(Output content, string titleA, string stateA, string titleB, string stateB)
         {
-            //filling.state(this, content, titleA, stateA, titleB, stateB);
+            filling.state(this, content, titleA, stateA, titleB, stateB);
             return this;
         }
         /// <summary>
