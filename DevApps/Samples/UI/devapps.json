@@ -79,7 +79,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.state(out, 'ON', '1', 'OFF', '0')",
-        "Zone": "77,224,100,100"
+        "Zone": "423,208,85,38"
       }
     },
     {
