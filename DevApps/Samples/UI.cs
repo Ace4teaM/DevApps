@@ -39,11 +39,13 @@ namespace DevApps.Samples
             DevObject.Create("login", "login")
                 .SetUserAction(@"out.write(gui.getline(out, r'^([A-z0-9]+)$'))")
                 .SetOutput(@"UserName")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(name)");
             ;
 
             DevObject.Create("password", "password")
                 .SetUserAction(@"out.write(gui.getline(out, r'^([A-z0-9]+)$'))")
                 .SetOutput(@"*****")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(name)");
             ;
 
             DevObject.Create("Dialog", "Exemple de boite à outils")
@@ -65,13 +67,13 @@ namespace DevApps.Samples
 
             DevObject.Create("State", "Exemple de bouton à état")
                 .SetOutput(@"0")
-                .SetUserAction(@"out.write(gui.select({0:'0',1:'1'}, out))")
+                .SetUserAction(@"out.write('1' if out.text() == '0' else '0')")
                 .SetDrawCode(@"
                     gui.state(out, 'ON', '1', 'OFF', '0')
                 ");
 
             DevObject.Create("Level", "Exemple de sélection numérique")
-                .SetOutput(@"50")
+                .SetOutput(@"33")
                 .SetDrawCode(@"
                     gui.level(out, '%', 0, 100, 1)
                 ");

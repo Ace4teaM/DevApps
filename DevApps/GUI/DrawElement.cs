@@ -37,6 +37,8 @@ namespace DevApps.GUI
                     reference.UserAction.Item2?.Execute(pyScope);
 
                     reference.mutexReadOutput.ReleaseMutex();
+
+                    this.InvalidateVisual();
                 }
             }
         }

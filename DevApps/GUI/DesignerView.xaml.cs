@@ -33,7 +33,7 @@ namespace DevApps.GUI
         {
             InitializeComponent();
 
-            lastClickTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(200));
+            lastClickTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(400));
             lastClickTimer.AutoReset = false;
         }
 
@@ -209,7 +209,7 @@ namespace DevApps.GUI
             double top = Canvas.GetTop(selectedElement);
             double right = left + selectedElement.Width;
             double bottom = top + selectedElement.Height;
-            double margin = 10; // Zone de redimensionnement
+            double margin = 5; // Zone de redimensionnement
 
             bool nearLeft = mousePosition.X >= left - margin && mousePosition.X <= left + margin;
             bool nearRight = mousePosition.X >= right - margin && mousePosition.X <= right + margin;
