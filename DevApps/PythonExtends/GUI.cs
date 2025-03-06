@@ -680,14 +680,6 @@ namespace DevApps.PythonExtends
             return this;
         }
         /// <summary>
-        /// Permet d'éditer un contenu
-        /// </summary>
-        public GUI edit(Output content)
-        {
-            //filling.edit(this, content);
-            return this;
-        }
-        /// <summary>
         /// Dessine une icone connue avec un font transparent et une couleur d'avant plan
         /// </summary>
         public GUI icon(string name)
