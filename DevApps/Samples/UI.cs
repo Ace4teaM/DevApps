@@ -35,11 +35,20 @@ namespace DevApps.Samples
                     gui.wrap().icon('search').edit(out).pop()
                 ");
 
+
+            DevObject.Create("login", "login")
+                .SetUserAction(@"out.write(gui.getline(out, r'^([A-z0-9]+)$'))")
+                .SetOutput(@"UserName")
+            ;
+
+            DevObject.Create("password", "password")
+                .SetUserAction(@"out.write(gui.getline(out, r'^([A-z0-9]+)$'))")
+                .SetOutput(@"*****")
+            ;
+
             DevObject.Create("Dialog", "Exemple de boite à outils")
-                .AddPointer("login", String.Empty)
-                .AddPointer("password", String.Empty)
-                .AddUserAction("log", "out.write('ok')")
-                .AddUserAction("cancel", "out.write('nok')")
+                .AddPointer("login", "login")
+                .AddPointer("password", "password")
                 .SetDrawCode(@"
                     gui.fill()
                     gui.style('Gray', 2, True).background()
@@ -56,6 +65,7 @@ namespace DevApps.Samples
 
             DevObject.Create("State", "Exemple de bouton à état")
                 .SetOutput(@"0")
+                .SetUserAction(@"out.write(gui.select({0:'0',1:'1'}, out))")
                 .SetDrawCode(@"
                     gui.state(out, 'ON', '1', 'OFF', '0')
                 ");

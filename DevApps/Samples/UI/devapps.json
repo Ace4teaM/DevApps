@@ -7,13 +7,13 @@
         "Pointers": [],
         "Functions": [],
         "Properties": [],
-        "Commands": [],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.list(out)",
-        "Zone": "109,61,100,100"
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -23,13 +23,45 @@
         "Pointers": [],
         "Functions": [],
         "Properties": [],
-        "Commands": [],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.wrap().icon('search').edit(out).pop()",
-        "Zone": "249,114,100,100"
+        "Zone": "10,10,100,100"
+      }
+    },
+    {
+      "Key": "login",
+      "Value": {
+        "Description": "login",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "out.write(gui.getline(out, r'^([A-z0-9]+)$'))",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "",
+        "Zone": "10,10,100,100"
+      }
+    },
+    {
+      "Key": "password",
+      "Value": {
+        "Description": "password",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "out.write(gui.getline(out, r'^([A-z0-9]+)$'))",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "",
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -39,31 +71,22 @@
         "Pointers": [
           {
             "Key": "login",
-            "Value": ""
+            "Value": "login"
           },
           {
             "Key": "password",
-            "Value": ""
+            "Value": "password"
           }
         ],
         "Functions": [],
         "Properties": [],
-        "Commands": [
-          {
-            "Key": "log",
-            "Value": "out.write('ok')"
-          },
-          {
-            "Key": "cancel",
-            "Value": "out.write('nok')"
-          }
-        ],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.fill()\r\ngui.style('Gray', 2, True).background()\r\ngui.style('White', 2, False).foreground()\r\ngui.rectangle(6).inflate(-10)\r\ngui.stack()\r\ngui.text('LOGIN')\r\ngui.separator()\r\ngui.wrap().icon('user').edit(login).pop()\r\ngui.wrap().icon('lock').edit(password).pop()\r\ngui.separator()\r\n# gui.wrap().button('LOGIN', log).button('CANCEL', cancel).pop()",
-        "Zone": "557,42,283,179"
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -73,13 +96,13 @@
         "Pointers": [],
         "Functions": [],
         "Properties": [],
-        "Commands": [],
+        "UserAction": "out.write(gui.select({0:'0',1:'1'}, out))",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.state(out, 'ON', '1', 'OFF', '0')",
-        "Zone": "423,208,85,38"
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -89,13 +112,13 @@
         "Pointers": [],
         "Functions": [],
         "Properties": [],
-        "Commands": [],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.level(out, '%', 0, 100, 1)",
-        "Zone": "473,323,263,36"
+        "Zone": "10,10,100,100"
       }
     }
   ]

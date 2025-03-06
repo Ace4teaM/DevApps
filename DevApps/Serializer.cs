@@ -25,7 +25,7 @@ namespace Serializer
         public KeyValuePair<string, string?>[] Pointers { get { return content.GetPointers().ToArray(); } set { content.SetPointers(value); } }
         public KeyValuePair<string, string?>[] Functions { get { return content.GetFunctions().ToArray(); } set { content.SetFunctions(value); } }
         public KeyValuePair<string, string?>[] Properties { get { return content.GetProperties().ToArray(); } set { content.SetProperties(value); } }
-        public KeyValuePair<string, string?>[] Commands { get { return content.GetUserActions().ToArray(); } set { content.SetUserActions(value); } }
+        public string? UserAction { get { return content.GetUserAction(); } set { content.SetUserAction(value); } }
         public string? LoopMethod { get { return content.GetLoopMethod(); } set { content.SetLoopMethod(value); } }
         public string? InitMethod { get { return content.GetInitMethod(); } set { content.SetInitMethod(value); } }
         public string? BuildMethod { get { return content.GetBuildMethod(); } set { content.SetBuildMethod(value); } }

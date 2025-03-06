@@ -23,9 +23,19 @@ namespace DevApps.GUI
     {
         internal bool isDragging = false;
         internal bool isResizing = false;
+        internal bool isDoubleClick = false;
+        internal System.Timers.Timer lastClickTimer;//timer entre 2 click
         internal Point startMousePosition;
         internal DrawElement? selectedElement;
         internal ResizeDirection resizeDirection;
+
+        public DesignerView()
+        {
+            InitializeComponent();
+
+            lastClickTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(200));
+            lastClickTimer.AutoReset = false;
+        }
 
         internal enum ResizeDirection { None, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight }
 
@@ -34,6 +44,16 @@ namespace DevApps.GUI
             selectedElement = Mouse.DirectlyOver as DrawElement;
 
             if (selectedElement == null) return;
+
+            if(lastClickTimer.Enabled)
+            {
+                isDoubleClick = true;
+                return;
+            }
+            else
+            {
+                lastClickTimer.Start();
+            }
 
             startMousePosition = e.GetPosition(MyCanvas);
             resizeDirection = GetResizeDirection(startMousePosition);
@@ -72,6 +92,10 @@ namespace DevApps.GUI
 
         internal void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (isDoubleClick)
+                selectedElement?.RunAction(e.GetPosition(MyCanvas));
+
+            isDoubleClick = false;
             isDragging = false;
             isResizing = false;
             selectedElement?.ReleaseMouseCapture();
@@ -202,11 +226,6 @@ namespace DevApps.GUI
             if (nearBottom) return ResizeDirection.Bottom;
 
             return ResizeDirection.None;
-        }
-
-        public DesignerView()
-        {
-            InitializeComponent();
         }
     }
 }

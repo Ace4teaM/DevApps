@@ -46,7 +46,7 @@ internal partial class Program
         /// <summary>
         /// Commandes utilisateur
         /// </summary>
-        public Dictionary<string, (string, CompiledCode?)> UserActions { get; } = new Dictionary<string, (string, CompiledCode?)>(); // name, (code, compiledCode)
+        public (string, CompiledCode?) UserAction { get; set; } = (String.Empty, null);
         /// <summary>
         /// Méthode de simulation (timer)
         /// </summary>
@@ -340,15 +340,12 @@ internal partial class Program
                     }
                 }
 
-                foreach (var f in o.Value.UserActions.ToArray())
+                if (String.IsNullOrWhiteSpace(o.Value.UserAction.Item1) == false)
                 {
-                    string commandCode = f.Value.Item1;
-                    if (String.IsNullOrWhiteSpace(commandCode) == false)
-                    {
-                        ScriptSource commandScript = pyEngine.CreateScriptSourceFromString(commandCode, SourceCodeKind.Statements);
-                        CompiledCode commandCompiled = commandScript.Compile();
-                        o.Value.UserActions[f.Key] = (commandCode, commandCompiled);
-                    }
+                    string sourceCode = o.Value.UserAction.Item1;
+                    ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
+                    CompiledCode compiled = source.Compile();
+                    o.Value.UserAction = (sourceCode, compiled);
                 }
 
                 if (String.IsNullOrWhiteSpace(o.Value.LoopMethod.Item1) == false)
@@ -549,28 +546,14 @@ internal partial class Program
             return this;
         }
 
-        public IEnumerable<KeyValuePair<string, string?>> GetUserActions()
+        public string GetUserAction()
         {
-            return UserActions.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1));
+            return UserAction.Item1;
         }
 
-        public void SetUserActions(IEnumerable<KeyValuePair<string, string?>> items)
+        public DevObject SetUserAction(string code)
         {
-            UserActions.Clear();
-            foreach (var p in items)
-            {
-                AddUserAction(p.Key, p.Value);
-            }
-        }
-
-        public string? GetUserAction(string name)
-        {
-            return UserActions.ContainsKey(name) ? UserActions[name].Item1 : String.Empty;
-        }
-
-        public DevObject AddUserAction(string name, string code)
-        {
-            UserActions[name] = (RemoveIdent(code), null);
+            UserAction = (RemoveIdent(code), null);
             return this;
         }
 
