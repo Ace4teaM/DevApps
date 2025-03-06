@@ -32,7 +32,7 @@ namespace DevApps.Samples
             DevObject.Create("Text", "Exemple de saisie")
                 .SetOutput(@"Search")
                 .SetDrawCode(@"
-                    gui.wrap().icon('search').edit(out).pop()
+                    gui.wrap().icon('search').text(out).pop()
                 ");
 
 
@@ -57,8 +57,8 @@ namespace DevApps.Samples
                     gui.stack()
                     gui.text('LOGIN')
                     gui.separator()
-                    gui.wrap().icon('user').edit(login).pop()
-                    gui.wrap().icon('lock').edit(password).pop()
+                    gui.wrap().icon('user').text(login).pop()
+                    gui.wrap().icon('lock').text(password).pop()
                     gui.separator()
                     # gui.wrap().button('LOGIN', log).button('CANCEL', cancel).pop()
                 ");
