@@ -94,23 +94,6 @@ internal partial class Program
             return this;
         }
 
-        public void SetUserActions(IEnumerable<KeyValuePair<string, string?>> items)
-        {
-            foreach (DevObject devObject in devObjects)
-            {
-                devObject.SetUserActions(items);
-            }
-        }
-
-        public DevSelect AddUserAction(string name, string code)
-        {
-            foreach (DevObject devObject in devObjects)
-            {
-                devObject.AddUserAction(name, code);
-            }
-            return this;
-        }
-
         public void SetPointers(IEnumerable<KeyValuePair<string, string?>> items)
         {
             foreach (DevObject devObject in devObjects)

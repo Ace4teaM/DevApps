@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using static IronPython.Modules._ast;
 using System.Windows.Media.Media3D;
 using IronPython.Runtime;
+using Newtonsoft.Json.Linq;
 
 namespace DevApps.PythonExtends
 {
@@ -494,6 +495,62 @@ namespace DevApps.PythonExtends
         internal void End()
         {
             drawingContext = null;
+        }
+
+        /// <summary>
+        /// Obtient un texte de l'utilisateur
+        /// </summary>
+        /// <param name="values"></param>
+        public string gettext(Output selection, string? format = null)
+        {
+            var wnd = new DevApps.GUI.GetText();
+            wnd.Value = selection.text();
+            if (format != null)
+                wnd.Format = new System.Text.RegularExpressions.Regex(format);
+
+            if (wnd.ShowDialog() == true)
+            {
+                return wnd.Value;
+            }
+
+            return selection.text();
+        }
+
+        /// <summary>
+        /// Obtient un texte de l'utilisateur
+        /// </summary>
+        /// <param name="values"></param>
+        public string getline(Output selection, string? format = null)
+        {
+            var wnd = new DevApps.GUI.GetText();
+            wnd.Value = selection.text();
+            wnd.IsMultiline = false;
+            if(format != null)
+                wnd.Format = new System.Text.RegularExpressions.Regex(format);
+
+            if (wnd.ShowDialog() == true)
+            {
+                return wnd.Value;
+            }
+
+            return selection.text();
+        }
+
+        /// <summary>
+        /// Obtient une sélection de valeur de l'utilisateur
+        /// </summary>
+        /// <param name="values"></param>
+        public string select(IronPython.Runtime.PythonDictionary values, Output selection)
+        {
+            var wnd = new DevApps.GUI.Select();
+            wnd.Items = values.ToDictionary();
+
+            if (wnd.ShowDialog() == true && wnd.SelectedItem != null)
+            {
+                return wnd.SelectedItem.ToString();
+            }
+
+            return selection.text();
         }
 
         #region zoning

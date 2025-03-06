@@ -26,13 +26,13 @@ namespace DevApps.PythonExtends
         }
         public byte[] bytes()
         {
-            return stream.GetBuffer();
+            return stream.ToArray();
         }
         public double number()
         {
             double val = 0;
             if (cachedText == null)
-                cachedText = Encoding.UTF8.GetString(stream.GetBuffer());
+                cachedText = Encoding.UTF8.GetString(stream.ToArray());
             double.TryParse(cachedText, out val);
             return val;
         }
@@ -40,7 +40,7 @@ namespace DevApps.PythonExtends
         {
             if (cachedText != null)
                 return cachedText;
-            cachedText = Encoding.UTF8.GetString(stream.GetBuffer());
+            cachedText = Encoding.UTF8.GetString(stream.ToArray());
             //new IronPython.Runtime.PythonEnumerable.Create(stream.GetBuffer());
             return cachedText;
         }
@@ -48,7 +48,7 @@ namespace DevApps.PythonExtends
         {
             if (cachedText != null)
                 return Regex.Split(cachedText, "\r\n|\r|\n");
-            cachedText = Encoding.UTF8.GetString(stream.GetBuffer());
+            cachedText = Encoding.UTF8.GetString(stream.ToArray());
             //new IronPython.Runtime.PythonEnumerable.Create(stream.GetBuffer());
             return Regex.Split(cachedText, "\r\n|\r|\n");
         }
