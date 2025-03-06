@@ -138,7 +138,7 @@ namespace DevApps.PythonExtends
             double targetPosition = _isOn ? Width - Height : 0;
 
             // Fond du bouton
-            gui.drawingContext?.DrawRoundedRectangle(gui.BackgroundBrush, gui.BackgroundPen, new Rect(0, 0, Width, Height), 25, 25);
+            gui.drawingContext?.DrawRoundedRectangle(gui.BackgroundBrush, gui.BackgroundPen, new Rect(0, 0, Width, Height), 10, 10);
 
             // Curseur glissant
             gui.drawingContext?.DrawEllipse(gui.ForegroundBrush, gui.ForegroundPen, new Point(targetPosition + Height / 2, Height / 2), Height / 2 - 2, Height / 2 - 2);
@@ -547,7 +547,7 @@ namespace DevApps.PythonExtends
 
             if (wnd.ShowDialog() == true && wnd.SelectedItem != null)
             {
-                return wnd.SelectedItem.ToString();
+                return (wnd.SelectedItem as KeyValuePair<object,object>?).Value.Key.ToString();
             }
 
             return selection.text();

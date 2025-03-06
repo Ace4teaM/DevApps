@@ -13,7 +13,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.list(out)",
-        "Zone": "18,23,100,100"
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -29,7 +29,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.wrap().icon('search').text(out.text()).pop()",
-        "Zone": "151,122,100,100"
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -44,7 +44,7 @@
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
-        "DrawCode": "",
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(name)",
         "Zone": "10,10,100,100"
       }
     },
@@ -60,7 +60,7 @@
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
-        "DrawCode": "",
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(name)",
         "Zone": "10,10,100,100"
       }
     },
@@ -86,7 +86,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.fill()\r\ngui.style('Gray', 2, True).background()\r\ngui.style('White', 2, False).foreground()\r\ngui.rectangle(6).inflate(-10)\r\ngui.stack()\r\ngui.text('LOGIN')\r\ngui.separator()\r\ngui.wrap().icon('user').text(login.text()).pop()\r\ngui.wrap().icon('lock').text(password.text()).pop()\r\ngui.separator()\r\n# gui.wrap().button('LOGIN', log).button('CANCEL', cancel).pop()",
-        "Zone": "431,162,100,100"
+        "Zone": "10,10,100,100"
       }
     },
     {
@@ -96,13 +96,13 @@
         "Pointers": [],
         "Functions": [],
         "Properties": [],
-        "UserAction": "out.write(gui.select({0:'0',1:'1'}, out))",
+        "UserAction": "out.write('1' if out.text() == '0' else '0')",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.state(out, 'ON', '1', 'OFF', '0')",
-        "Zone": "363,261,100,100"
+        "Zone": "776,67,69,28"
       }
     },
     {
@@ -118,7 +118,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.level(out, '%', 0, 100, 1)",
-        "Zone": "90,261,100,100"
+        "Zone": "288,196,116,27"
       }
     }
   ]
