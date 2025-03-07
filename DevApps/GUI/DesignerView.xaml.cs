@@ -1,7 +1,11 @@
 ﻿using GUI;
+using IronPython.Runtime.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Security.RightsManagement;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,8 +23,11 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerView.xaml
     /// </summary>
-    public partial class DesignerView : UserControl
+    public partial class DesignerView : UserControl, INotifyPropertyChanged
     {
+        internal string statusText { get; set; }
+        public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("StatusText")); } }
+
         internal bool isDragging = false;
         internal bool isResizing = false;
         internal bool isDoubleClick = false;
@@ -29,9 +36,16 @@ namespace DevApps.GUI
         internal DrawElement? selectedElement;
         internal ResizeDirection resizeDirection;
 
+        private List<ConnectorElement> connectorElements = new List<ConnectorElement>();
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public DesignerView()
         {
             InitializeComponent();
+            this.DataContext = this;
+
+            StatusText = "Ready";
 
             lastClickTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(400));
             lastClickTimer.AutoReset = false;
@@ -74,6 +88,50 @@ namespace DevApps.GUI
         {
             //if (selectedElement == null) return;
 
+            var overElement = Mouse.DirectlyOver as DrawElement;
+            var text = overElement != null ? overElement.Name : "Ready";
+            if (text != StatusText)
+            {
+                StatusText = text;
+
+                // supprime les connecteurs
+                foreach (var c in connectorElements)
+                    MyCanvas.Children.Remove(c);
+                connectorElements.Clear();
+
+                if (overElement != null)
+                {
+                    // ajoute les nouveaux connecteurs
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    Program.DevObject.References.TryGetValue(overElement.Name, out var reference);
+                    if (reference != null)
+                    {
+                        foreach (var pointer in reference.GetPointers())
+                        {
+                            var connector = new ConnectorElement(
+                                overElement,
+                                MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value)
+                            );
+                            connectorElements.Add(connector);
+                            MyCanvas.Children.Add(connector);
+                        }
+                    }
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                }
+            }
+            else
+            {
+                if (overElement != null && (isDragging || isResizing))
+                {
+                    //actualise les connecteurs existants
+                    foreach (var c in connectorElements)
+                    {
+                        c.UpdatePosition();
+                        c.InvalidateVisual();
+                    }
+                }
+            }
+
             Point currentMousePosition = e.GetPosition(MyCanvas);
 
             if (isDragging)
@@ -86,7 +144,7 @@ namespace DevApps.GUI
             }
             else
             {
-                UpdateCursor(e.GetPosition(MyCanvas));
+                UpdateCursor(currentMousePosition);
             }
         }
 

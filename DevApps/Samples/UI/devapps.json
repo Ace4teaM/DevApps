@@ -13,7 +13,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.list(out)",
-        "Zone": "10,10,100,100"
+        "Zone": "329,145,166,163"
       }
     },
     {
@@ -29,7 +29,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.wrap().icon('search').text(out.text()).pop()",
-        "Zone": "10,10,100,100"
+        "Zone": "147,41,133,39"
       }
     },
     {
@@ -44,8 +44,8 @@
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(name)",
-        "Zone": "10,10,100,100"
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.text())",
+        "Zone": "308,51,106,47"
       }
     },
     {
@@ -60,8 +60,8 @@
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(name)",
-        "Zone": "10,10,100,100"
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.text())",
+        "Zone": "464,25,118,44"
       }
     },
     {
@@ -85,8 +85,8 @@
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
-        "DrawCode": "gui.fill()\r\ngui.style('Gray', 2, True).background()\r\ngui.style('White', 2, False).foreground()\r\ngui.rectangle(6).inflate(-10)\r\ngui.stack()\r\ngui.text('LOGIN')\r\ngui.separator()\r\ngui.wrap().icon('user').text(login.text()).pop()\r\ngui.wrap().icon('lock').text(password.text()).pop()\r\ngui.separator()\r\n# gui.wrap().button('LOGIN', log).button('CANCEL', cancel).pop()",
-        "Zone": "10,10,100,100"
+        "DrawCode": "gui.fill()\r\ngui.style('Gray', 2, True).background()\r\ngui.style('White', 2, False).foreground()\r\ngui.rectangle(6).inflate(-10)\r\ngui.stack()\r\ngui.text('LOGIN')\r\ngui.separator()\r\ngui.wrap().icon('user').text(login.text()).pop()\r\ngui.wrap().icon('lock').text(password.text()).pop()\r\ngui.separator()\r\n# gui.div(2).rectangle('LOGIN').rectangle('CANCEL').pop()",
+        "Zone": "702,160,209,174"
       }
     },
     {
@@ -102,7 +102,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.state(out, 'ON', '1', 'OFF', '0')",
-        "Zone": "776,67,69,28"
+        "Zone": "10,120,100,35"
       }
     },
     {
@@ -118,7 +118,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.level(out, '%', 0, 100, 1)",
-        "Zone": "288,196,116,27"
+        "Zone": "120,120,100,34"
       }
     }
   ]
