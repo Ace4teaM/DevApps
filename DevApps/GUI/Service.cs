@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml.Linq;
 
@@ -73,7 +74,23 @@ namespace GUI
 
         static double X = 10;
         static double Y = 10;
-        internal static void AddShape(string name)
+
+        internal static Rect GenerateNextPosition(double width, double height)
+        {
+            var rect = new Rect(X, Y, width, height);
+
+            X += width + 10;
+            if (X > 500)
+            {
+                X = 10;
+                Y += height + 10;
+            }
+
+            return rect;
+        }
+
+        static Typeface typeface = new Typeface("Verdana");
+        internal static void AddShape(string name, Rect position)
         {
             EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
@@ -81,17 +98,12 @@ namespace GUI
                     var canvas = (WindowContent?.Content as Canvas);
      
                     var element = new DrawElement();
+                    element.Title = new FormattedText(name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
                     element.Name = name;
-                    element.Width = 100;
-                    element.Height = 100;
-                    Canvas.SetLeft(element, X);
-                    Canvas.SetTop(element, Y);
-                    X += element.ActualWidth + 10;
-                    if(X > 500)
-                    {
-                        X = 10;
-                        Y += element.ActualHeight + 10;
-                    }
+                    element.Width = position.Width;
+                    element.Height = position.Height;
+                    Canvas.SetLeft(element, position.Left);
+                    Canvas.SetTop(element, position.Top);
                     canvas.Children.Add(element);
                 }));
         }

@@ -11,12 +11,14 @@ namespace DevApps.GUI
 {
     public class DrawElement : FrameworkElement
     {
+        internal FormattedText? Title;
+
         internal void RunAction(Point position)
         {
             Program.DevObject.mutexCheckObjectList.WaitOne();
             Program.DevObject.References.TryGetValue(this.Name, out var reference);
             Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
+            
             if (reference != null)
             {
                 if (String.IsNullOrEmpty(reference.GetUserAction()) == false)
@@ -47,6 +49,9 @@ namespace DevApps.GUI
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
+
+            if(Title != null)
+                drawingContext.DrawText(Title, new Point(0, -Title.Height));
 
             Program.DevObject.mutexCheckObjectList.WaitOne();
             Program.DevObject.References.TryGetValue(this.Name, out var reference);
