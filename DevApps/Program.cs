@@ -117,8 +117,7 @@ internal partial class Program
         {
             foreach (var o in DevObject.References)
             {
-                GUI.Service.AddShape(o.Key);
-                GUI.Service.SetRect(o.Key, o.Value.GetZone());
+                GUI.Service.AddShape(o.Key, o.Value.GetZone());
             }
         }
 
