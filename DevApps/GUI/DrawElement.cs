@@ -1,17 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
+﻿using System.IO;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace DevApps.GUI
 {
     public class DrawElement : FrameworkElement
     {
         internal FormattedText? Title;
+
+        public double X
+        {
+            get
+            {
+                var canvas = this.Parent as Canvas;
+                if(canvas != null)
+                    return Canvas.GetLeft(this);
+                return 0;
+            }
+        }
+
+        public double Y
+        {
+            get
+            {
+                var canvas = this.Parent as Canvas;
+                if (canvas != null)
+                    return Canvas.GetTop(this);
+                return 0;
+            }
+        }
 
         internal void RunAction(Point position)
         {
@@ -45,9 +63,14 @@ namespace DevApps.GUI
             }
         }
 
+        internal static Typeface typeface = new Typeface("Arial");
+        internal static Pen connectorPen = new Pen(Brushes.Linen, 3);
+
         // Cette méthode gère le rendu
         protected override void OnRender(DrawingContext drawingContext)
         {
+            var canvas = this.Parent as Canvas;
+
             base.OnRender(drawingContext);
 
             if(Title != null)
@@ -64,19 +87,20 @@ namespace DevApps.GUI
 
                 // Dessiner un rectangle pour illustrer
                 Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
-                drawingContext.DrawRectangle(/*reference.gui.GetBackground()*/Brushes.LightGray, null, rect);
+                drawingContext.DrawRectangle(Brushes.WhiteSmoke, null, rect);
                 if (reference.DrawCode.Item2 != null)
                 {
                     reference.mutexReadOutput.WaitOne();
 
-                    reference.zone = new Rect(System.Windows.Controls.Canvas.GetLeft(this), System.Windows.Controls.Canvas.GetTop(this), ContentWidth, ContentHeight);
-                    reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = new Rect(0, 0, ContentWidth, ContentHeight) };
+                    reference.zone = new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight);
+                    reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = rect };
 
                     var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
                     pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream));// mise en cache dans l'objet ?
                     pyScope.SetVariable("gui", reference.gui);
                     pyScope.SetVariable("name", this.Name);
                     pyScope.SetVariable("desc", reference.Description);
+
                     foreach (var pointer in reference.GetPointers())
                     {
                         Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);

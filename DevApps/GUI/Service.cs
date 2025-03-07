@@ -62,7 +62,7 @@ namespace GUI
             dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
-                    var canvas = (WindowContent?.Content as Canvas);
+                    var canvas = (WindowContent?.MyCanvas);
 
                     var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
                     if (host != null)
@@ -89,13 +89,14 @@ namespace GUI
             return rect;
         }
 
-        static Typeface typeface = new Typeface("Verdana");
+        internal static Typeface typeface = new Typeface("Verdana");
+
         internal static void AddShape(string name, Rect position)
         {
             EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
-                    var canvas = (WindowContent?.Content as Canvas);
+                    var canvas = (WindowContent?.MyCanvas);
      
                     var element = new DrawElement();
                     element.Title = new FormattedText(name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
@@ -113,7 +114,7 @@ namespace GUI
             dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
-                    var canvas = (WindowContent?.Content as Canvas);
+                    var canvas = (WindowContent?.MyCanvas);
 
                     var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
                     if (host != null)

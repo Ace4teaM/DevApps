@@ -6,7 +6,11 @@
              xmlns:local="clr-namespace:DevApps.GUI"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Canvas x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
-            
-    </Canvas>
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Background="LightGray">
+            <TextBlock Foreground="Black" Text="{Binding StatusText}" Margin="6,0,0,0"></TextBlock>
+        </Border>
+        <Canvas x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
+        </Canvas>
+    </DockPanel>
 </UserControl>
