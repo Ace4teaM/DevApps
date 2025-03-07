@@ -74,6 +74,9 @@ internal partial class Program
             var o = new DevObject();
             o.Description = desc;
             References.Add(name, o);
+
+            o.zone = GUI.Service.GenerateNextPosition(100,100);
+
             return o;
         }
 
