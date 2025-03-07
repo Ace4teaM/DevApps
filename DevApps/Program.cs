@@ -1,7 +1,4 @@
 ﻿//#define LOAD // sinon SAVE
-//#define Sample_CodeGen
-//#define Sample_InputCheck
-#define Sample_UI
 
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
