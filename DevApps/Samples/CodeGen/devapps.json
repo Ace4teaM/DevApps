@@ -150,7 +150,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "120,120,100,100"
+        "Zone": "633,91,293,364"
       }
     },
     {
