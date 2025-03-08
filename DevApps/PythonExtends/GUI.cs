@@ -841,16 +841,25 @@ namespace DevApps.PythonExtends
 
             for (int j = 0; j < line.Length; ++j)
             {
-                var glyphIndex = glyphTypeface.CharacterToGlyphMap[line[j]];
+                ushort glyphIndex = 0;
+                try
+                {
+                    glyphIndex = glyphTypeface.CharacterToGlyphMap[line[j]];
+                }
+                catch (System.Collections.Generic.KeyNotFoundException ex)
+                {
+                    var c = line[j];
+                    throw new NotImplementedException("Obtenir le glyph depuis un autre Typeface et l'ajouter au cache");
+                }
+
                 glyphIndices.Add(glyphIndex);
                 advanceWidths.Add(0);
-                glyphOffsets.Add(new Point(x, y - advanceHeight));
+                glyphOffsets.Add(new Point(x, y));
 
                 x += advanceWidth;
-
             }
 
-            y += advanceHeight;
+            y -= advanceHeight;
 
             return new GlyphRun(
                 glyphTypeface,
