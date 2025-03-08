@@ -503,10 +503,14 @@ namespace DevApps.PythonExtends
         /// <param name="values"></param>
         public string gettext(Output selection, string? format = null)
         {
+            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
             var wnd = new DevApps.GUI.GetText();
             wnd.Value = selection.text();
             if (format != null)
                 wnd.Format = new System.Text.RegularExpressions.Regex(format);
+            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+            wnd.Left = mousePos.X + 10;
+            wnd.Top = mousePos.Y + 10;
 
             if (wnd.ShowDialog() == true)
             {
@@ -522,11 +526,15 @@ namespace DevApps.PythonExtends
         /// <param name="values"></param>
         public string getline(Output selection, string? format = null)
         {
+            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
             var wnd = new DevApps.GUI.GetText();
             wnd.Value = selection.text();
             wnd.IsMultiline = false;
             if(format != null)
                 wnd.Format = new System.Text.RegularExpressions.Regex(format);
+            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+            wnd.Left = mousePos.X + 10;
+            wnd.Top = mousePos.Y + 10;
 
             if (wnd.ShowDialog() == true)
             {
@@ -542,8 +550,12 @@ namespace DevApps.PythonExtends
         /// <param name="values"></param>
         public string select(IronPython.Runtime.PythonDictionary values, Output selection)
         {
+            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
             var wnd = new DevApps.GUI.Select();
             wnd.Items = values.ToDictionary();
+            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+            wnd.Left = mousePos.X + 10;
+            wnd.Top = mousePos.Y + 10;
 
             if (wnd.ShowDialog() == true && wnd.SelectedItem != null)
             {
