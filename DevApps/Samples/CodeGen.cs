@@ -12,8 +12,8 @@ namespace DevApps.Samples
         internal static void Create()
         {
             DevObject.Create("insocket", "System socket buffer in")
-                    .SetLoopMethod(@"")
-                    .SetCode(@"");
+                .SetLoopMethod(@"")
+                .SetCode(@"");
 
             DevObject.Create("outsocket", "System socket buffer out")
                 .SetLoopMethod(@"")
@@ -30,9 +30,7 @@ namespace DevApps.Samples
                     buffer.data.append(0x14)
                     buffer.data.append(5)
                 ")
-                .AddFunction(@"send", @"
-
-                ")
+                .AddFunction(@"send", @"")
                 .SetCode(@"");
 
             DevObject.Create("buffer", "Receive Buffer")
@@ -55,7 +53,8 @@ namespace DevApps.Samples
                     print(binascii.hexlify(buffer.data))
                 ")
                 .AddProperty(@"isvalid", @"len(buffer.data) > 0")
-                .AddProperty(@"value", @"buffer.name");
+                .AddProperty(@"value", @"buffer.name")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
             DevObject.Create("cstemplate", "Template")
                 .SetInitMethod(@"
@@ -64,18 +63,60 @@ namespace DevApps.Samples
 
                 cstemplate = CsTemplate()
                 ")
-                .AddProperty(@"base", @"cstemplate.base");
+                .AddProperty(@"base", @"cstemplate.base")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
-            var oCode = DevObject.Create("cscode", "CSharp Code generator")
-                .SetInitMethod(@"
-                    out = """"
-                    print('hello world!')
-                ")
+            DevObject.Create("code", "Code")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
+            ;
+
+            DevObject.Create("datamodel", "Data Model")
+                .SetOutput(@"
+[Commande]
++ numero : integer
++ date : date
+[Client]
++ numero : integer
++ nom : string
++ prenom : string
++ adresse : string
++ ville : string
++ code_postal : string
++ telephone : string
++ email : string
+[Produit]
++ numero : integer
++ nom : string
++ description : string
++ prix : decimal
++ quantite : integer
+[DetailCommande]
++ numero : integer
++ quantite : integer
++ prix : decimal
++ total : decimal
++ commande : Commande
++ produit : Produit
+(Commande) 1..1 (DetailCommande)
+(Commande) *..1 (Client)
+(Commande) *..* (Produit)
+")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
+            ;
+
+            var oCode = DevObject.Create("codegen", "Code generator")
+                .SetUserAction(@"out.write(gui.select({'entities_to_cs_classes':'Entities UML > C# classes','entities_to_sql_tables':'Entities UML > SQL Tables','entities_to_cs_sql_model':'Entities UML > C# Database Model'},out))")
+                .SetOutput(@"UserName")
+                .AddPointer("output_code", "code")
+                .AddPointer("input_template", "cstemplate")
+                .AddPointer("input_data", "datamodel")
                 .SetBuildMethod(@"
-                    print('using namespace System;')
-                    print()
-                    print('public class { ... }')
-                ");
+                    if out.text() == 'entities_to_cs_classes':
+                        print('using namespace System;')
+                        print()
+                        print('public class { ... }')
+                ")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
         }
     }

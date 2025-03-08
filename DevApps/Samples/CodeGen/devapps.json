@@ -4,36 +4,32 @@
       "Key": "insocket",
       "Value": {
         "Description": "System socket buffer in",
-        "Pointers": [
-        ],
-        "Functions": [
-        ],
-        "Properties": [
-        ],
-        "Commands": [
-        ],
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
-        "ObjectCode": ""
+        "ObjectCode": "",
+        "DrawCode": "",
+        "Zone": "10,10,100,100"
       }
     },
     {
       "Key": "outsocket",
       "Value": {
         "Description": "System socket buffer out",
-        "Pointers": [
-        ],
-        "Functions": [
-        ],
-        "Properties": [
-        ],
-        "Commands": [
-        ],
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
-        "ObjectCode": ""
+        "ObjectCode": "",
+        "DrawCode": "",
+        "Zone": "120,10,100,100"
       }
     },
     {
@@ -64,22 +60,21 @@
             "Value": ""
           }
         ],
-        "Properties": [
-        ],
-        "Commands": [
-        ],
+        "Properties": [],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
-        "ObjectCode": ""
+        "ObjectCode": "",
+        "DrawCode": "",
+        "Zone": "230,10,100,100"
       }
     },
     {
       "Key": "buffer",
       "Value": {
         "Description": "Receive Buffer",
-        "Pointers": [
-        ],
+        "Pointers": [],
         "Functions": [
           {
             "Key": "control",
@@ -96,52 +91,95 @@
             "Value": "buffer.name"
           }
         ],
-        "Commands": [
-        ],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "import array\r\nclass Buffer:\r\n    name = \"Ignored\"\r\n    data = bytearray()\r\nbuffer = Buffer()",
         "BuildMethod": "import binascii\r\nprint(binascii.hexlify(buffer.data))",
-        "ObjectCode": ""
+        "ObjectCode": "",
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
+        "Zone": "340,10,100,100"
       }
     },
     {
       "Key": "cstemplate",
       "Value": {
         "Description": "Template",
-        "Pointers": [
-        ],
-        "Functions": [
-        ],
+        "Pointers": [],
+        "Functions": [],
         "Properties": [
           {
             "Key": "base",
             "Value": "cstemplate.base"
           }
         ],
-        "Commands": [
-        ],
+        "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "class CsTemplate:\r\n    base = \"{namespace}\\n\\n{class def}\\n\\n{footer}\"\r\ncstemplate = CsTemplate()",
         "BuildMethod": "",
-        "ObjectCode": ""
+        "ObjectCode": "",
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
+        "Zone": "450,10,100,100"
       }
     },
     {
-      "Key": "cscode",
+      "Key": "code",
       "Value": {
-        "Description": "CSharp Code generator",
-        "Pointers": [
-        ],
-        "Functions": [
-        ],
-        "Properties": [
-        ],
-        "Commands": [
-        ],
+        "Description": "Code",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
         "LoopMethod": "",
-        "InitMethod": "out = \"\"\r\nprint('hello world!')",
-        "BuildMethod": "print('using namespace System;')\r\nprint()\r\nprint('public class { ... }')",
-        "ObjectCode": ""
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
+        "Zone": "10,120,100,100"
+      }
+    },
+    {
+      "Key": "datamodel",
+      "Value": {
+        "Description": "Data Model",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
+        "Zone": "120,120,100,100"
+      }
+    },
+    {
+      "Key": "codegen",
+      "Value": {
+        "Description": "Code generator",
+        "Pointers": [
+          {
+            "Key": "output_code",
+            "Value": "code"
+          },
+          {
+            "Key": "input_template",
+            "Value": "cstemplate"
+          },
+          {
+            "Key": "input_data",
+            "Value": "datamodel"
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "out.write(gui.select({'entities_to_cs_classes':'Entities UML > C# classes','entities_to_sql_tables':'Entities UML > SQL Tables','entities_to_cs_sql_model':'Entities UML > C# Database Model'},out))",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "if out.text() == 'entities_to_cs_classes':\r\n    print('using namespace System;')\r\n    print()\r\n    print('public class { ... }')",
+        "ObjectCode": "",
+        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
+        "Zone": "230,120,100,100"
       }
     }
   ]

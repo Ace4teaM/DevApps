@@ -3,7 +3,7 @@
     "DevApps": {
       "commandName": "Project",
       "commandLineArgs": "-w",
-      "workingDirectory": "Samples\\UI"
+      "workingDirectory": "Samples\\CodeGen"
     }
   }
 }
