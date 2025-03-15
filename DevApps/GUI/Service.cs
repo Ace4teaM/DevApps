@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Xml.Linq;
 
 namespace GUI
 {
@@ -313,7 +314,7 @@ namespace GUI
 
         internal static Typeface typeface = new Typeface("Verdana");
 
-        internal static void AddShape(string name, Rect position)
+        internal static void AddShape(string name, string? desc, Rect position)
         {
             EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
@@ -321,7 +322,7 @@ namespace GUI
                     var canvas = (WindowContent?.MyCanvas);
      
                     var element = new DrawElement();
-                    element.Title = new FormattedText(name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
+                    element.Title = new FormattedText(desc ?? name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
                     element.Name = name;
                     element.Width = position.Width;
                     element.Height = position.Height;
@@ -345,6 +346,22 @@ namespace GUI
                         Canvas.SetTop(host, rect.Top);
                         host.Width = rect.Width;
                         host.Height = rect.Height;
+                        host.InvalidateVisual();
+                    }
+                })));
+        }
+
+        internal static void SetDescription(string name, string desc)
+        {
+            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+                    var canvas = (WindowContent?.MyCanvas);
+
+                    var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                    if (host != null)
+                    {
+                        host.Title = new FormattedText(desc, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
                         host.InvalidateVisual();
                     }
                 })));

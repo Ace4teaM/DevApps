@@ -43,8 +43,6 @@ namespace DevApps.GUI
                 , ParsePoint(DestinationPosition + DestinationVector * 50)
                 , ParsePoint(DestinationPosition)
             ));
-
-            Console.WriteLine(ParsePoint(SourcePosition) + "," + ParsePoint(DestinationPosition));
         }
 
         public enum AnchorPoint

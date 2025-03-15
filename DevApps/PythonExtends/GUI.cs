@@ -569,7 +569,7 @@ namespace DevApps.PythonExtends
                 System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
                 startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
                 startInfo.FileName = "cmd.exe";
-                startInfo.Arguments = "/C \"" + editorPath.Replace("%1", Path.GetFullPath(output.Filename)) + "\"";
+                startInfo.Arguments = "/C \"" + ((editorPath.Contains("%1") == false) ? editorPath + " \"" + Path.GetFullPath(output.Filename) + "\"" : editorPath.Replace("%1", Path.GetFullPath(output.Filename))) + "\"";
                 //startInfo.WorkingDirectory = path;
                 process.StartInfo = startInfo;
                 process.Start();
