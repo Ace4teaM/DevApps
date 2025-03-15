@@ -144,13 +144,13 @@
         "Pointers": [],
         "Functions": [],
         "Properties": [],
-        "UserAction": "",
+        "UserAction": "gui.edit('code', out)",
         "LoopMethod": "",
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "633,91,293,364"
+        "Zone": "120,120,100,100"
       }
     },
     {

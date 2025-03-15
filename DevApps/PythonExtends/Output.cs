@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace DevApps.PythonExtends
 {
@@ -14,9 +15,27 @@ namespace DevApps.PythonExtends
     {
         MemoryStream stream;
         string? cachedText;
-        public Output(MemoryStream stream)
+        internal string Filename;
+
+        internal void Flush()
+        {
+            using var file = File.Open(Filename, FileMode.OpenOrCreate);
+            stream.Seek(0, SeekOrigin.Begin);
+            stream.CopyTo(file);
+        }
+
+        internal void Reload()
+        {
+            using var file = File.Open(Filename, FileMode.Open);
+            stream.Seek(0, SeekOrigin.Begin);
+            file.CopyTo(stream);
+            stream.SetLength(file.Length);
+        }
+
+        public Output(MemoryStream stream, string filename)
         {
             this.stream = stream;
+            Filename = filename;
         }
         public void write(string text)
         {

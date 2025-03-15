@@ -7,6 +7,9 @@ using static IronPython.Modules._ast;
 using System.Windows.Media.Media3D;
 using IronPython.Runtime;
 using Newtonsoft.Json.Linq;
+using static IronPython.Modules.PythonWeakRef;
+using GUI;
+using IronPython.Runtime.Operations;
 
 namespace DevApps.PythonExtends
 {
@@ -542,6 +545,42 @@ namespace DevApps.PythonExtends
             }
 
             return selection.text();
+        }
+
+        /// <summary>
+        /// Edit le contenu 
+        /// </summary>
+        /// <param name="values"></param>
+        public void edit(string editor, Output output)
+        {
+            // exécute l'environnement de commandes
+            try
+            {
+                // enregistre le contenu dans le fichier si ce n'est pas déjà le cas
+                output.Flush();
+
+                var editorName = Service.associatedEditors[editor];
+                var editorPath = Service.externalsEditors[editorName];
+
+                var path = Path.GetDirectoryName(editorPath).Replace(@"""","");
+
+                // creation de l'environnement de commandes
+                using System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = "cmd.exe";
+                startInfo.Arguments = "/C \"" + editorPath.Replace("%1", Path.GetFullPath(output.Filename)) + "\"";
+                //startInfo.WorkingDirectory = path;
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
+
+                output.Reload();
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.ToString());
+            }
         }
 
         /// <summary>

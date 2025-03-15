@@ -44,14 +44,14 @@ namespace DevApps.GUI
                     reference.mutexReadOutput.WaitOne();
 
                     var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream));// mise en cache dans l'objet ?
+                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
                     pyScope.SetVariable("gui", reference.gui);
                     pyScope.SetVariable("name", this.Name);
                     pyScope.SetVariable("desc", reference.Description);
                     foreach (var pointer in reference.GetPointers())
                     {
                         Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
-                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream()));// mise en cache dans l'objet ?
+                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
                     }
 
                     reference.UserAction.Item2?.Execute(pyScope);
@@ -96,7 +96,7 @@ namespace DevApps.GUI
                     reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = rect };
 
                     var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream));// mise en cache dans l'objet ?
+                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
                     pyScope.SetVariable("gui", reference.gui);
                     pyScope.SetVariable("name", this.Name);
                     pyScope.SetVariable("desc", reference.Description);
@@ -104,7 +104,7 @@ namespace DevApps.GUI
                     foreach (var pointer in reference.GetPointers())
                     {
                         Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
-                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream()));// mise en cache dans l'objet ?
+                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
                     }
 
                     reference.gui.Begin(drawingContext);
