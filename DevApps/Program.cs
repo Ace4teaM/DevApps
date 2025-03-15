@@ -5,7 +5,6 @@ using Microsoft.Scripting.Hosting;
 using Newtonsoft.Json;
 using System.IO;
 using System.Windows.Threading;
-using static System.Net.Mime.MediaTypeNames;
 
 internal partial class Program
 {

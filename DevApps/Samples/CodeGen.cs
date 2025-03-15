@@ -71,6 +71,7 @@ namespace DevApps.Samples
             ;
 
             DevObject.Create("datamodel", "Data Model")
+                .SetUserAction("gui.edit('code', out)")
                 .SetOutput(@"
 [Commande]
 + numero : integer

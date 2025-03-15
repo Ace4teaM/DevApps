@@ -285,5 +285,18 @@ namespace DevApps.GUI
 
             return ResizeDirection.None;
         }
+
+        private void Settings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var wnd = new App.ExternalEditors();
+            wnd.Owner = Window.GetWindow(this);
+            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            wnd.ShowDialog();
+        }
+
+        private void Menu_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+
+        }
     }
 }

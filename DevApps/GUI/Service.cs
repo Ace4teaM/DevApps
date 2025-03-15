@@ -1,10 +1,11 @@
 ﻿using DevApps.GUI;
+using Microsoft.Win32;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Xml.Linq;
 
 namespace GUI
 {
@@ -16,6 +17,227 @@ namespace GUI
         internal static Thread? WindowThread;
         internal static DesignerView? WindowContent;
         internal static List<DispatcherOperation> dispatcherOperations = new List<DispatcherOperation>();
+
+        /// <summary>
+        /// Liste commandes d'éditions avec leurs applications associées
+        /// </summary>
+        internal static Dictionary<string, string> associatedEditors = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Liste des applications avec leurs lignes de commandes
+        /// </summary>
+        internal static Dictionary<string, string> externalsEditors = new Dictionary<string, string>();
+
+        static Service()
+        {
+            // charge la liste des editeurs
+            LoadEditors();
+
+            // detection
+            if (externalsEditors.Count == 0)
+            {
+                string[] editors =
+                {
+                    "Typora.exe",
+                    "notepad.exe",
+                    "devenv.exe",
+                    "Code.exe",
+                    "sublime_text.exe",
+                    "cmd.exe",
+                    "paint.exe",
+                    "7zFM.exe",
+                };
+
+                ResolveExternalEditors(editors);
+            }
+
+            if (associatedEditors.Count == 0)
+            {
+                string? name;
+
+                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("Code", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["code"] = name;
+                else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("Visual Studio", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["code"] = name;
+                else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("sublime text", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["code"] = name;
+                else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("notepad", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["code"] = name;
+
+                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("cmd", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["cmd"] = name;
+
+                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("paint", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["image"] = name;
+
+                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("7-Zip", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["archive"] = name;
+
+                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("Typora", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["markdown"] = name;
+            }
+        }
+
+        internal static void ResolveExternalEditors(string[] editors)
+        {
+            // possibilité pour l'utilisateur de renseigner plus de mots clés puis choisir les éditeurs à lier aux mots clés
+
+            try
+            {
+                var registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+
+                using (RegistryKey? key = Registry.LocalMachine.OpenSubKey(registryKey))
+                {
+                    if (key != null)
+                    {
+                        foreach (string subKeyName in key.GetSubKeyNames())
+                        {
+                            using (RegistryKey subKey = key.OpenSubKey(subKeyName))
+                            {
+                                string displayName = subKey.GetValue("DisplayName") as string;
+                                string displayIcon = subKey.GetValue("DisplayIcon") as string;
+
+                                if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                {
+                                    externalsEditors.Add(displayName, displayIcon);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                registryKey = @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
+
+                using (RegistryKey? key = Registry.LocalMachine.OpenSubKey(registryKey))
+                {
+                    if (key != null)
+                    {
+                        foreach (string subKeyName in key.GetSubKeyNames())
+                        {
+                            using (RegistryKey subKey = key.OpenSubKey(subKeyName))
+                            {
+                                string displayName = subKey.GetValue("DisplayName") as string;
+                                string displayIcon = subKey.GetValue("DisplayIcon") as string;
+
+                                if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                {
+                                    externalsEditors.Add(displayName, displayIcon);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                registryKey = @"Applications";
+
+                using (RegistryKey? key = Registry.ClassesRoot.OpenSubKey(registryKey))
+                {
+                    if (key != null)
+                    {
+                        foreach (string subKeyName in key.GetSubKeyNames())
+                        {
+                            if (editors.Contains(subKeyName))
+                            {
+                                using (RegistryKey? subKey = key.OpenSubKey(subKeyName + @"\shell\open\command"))
+                                {
+                                    if (subKey != null)
+                                    {
+                                        var path = subKey.GetValue("") as string;
+
+                                        if (path != null)
+                                        {
+                                            externalsEditors.Add(subKeyName.Replace(".exe",null), path);
+                                            Console.WriteLine($"Path : {path}");
+                                            Console.WriteLine();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur : " + ex.Message);
+            }
+        }
+
+        internal static void SaveEditors()
+        {
+            try
+            {
+                var registryKey = @"SOFTWARE\DevApps";
+
+                using (RegistryKey? key = Registry.CurrentUser.CreateSubKey(registryKey))
+                {
+                    if (key != null)
+                    {
+                        key.DeleteSubKeyTree("Editors", false);
+
+                        using (RegistryKey? subKey = key.CreateSubKey(@"Editors\Apps"))
+                        {
+                            foreach (var item in externalsEditors)
+                            {
+                                subKey.SetValue(item.Key, item.Value);
+                            }
+                        }
+                        using (RegistryKey? subKey = key.CreateSubKey(@"Editors\Assoc"))
+                        {
+                            foreach (var item in associatedEditors)
+                            {
+                                subKey.SetValue(item.Key, item.Value);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur : " + ex.Message);
+            }
+        }
+
+        internal static void LoadEditors()
+        {
+            try
+            {
+                var registryKey = @"SOFTWARE\DevApps";
+
+                using (RegistryKey? key = Registry.CurrentUser.OpenSubKey(registryKey))
+                {
+                    if (key != null)
+                    {
+                        using (RegistryKey? subKey = key.OpenSubKey(@"Editors\Apps"))
+                        {
+                            if (subKey != null)
+                            {
+                                externalsEditors.Clear();
+                                foreach (var name in subKey.GetValueNames())
+                                {
+                                    externalsEditors[name] = subKey?.GetValue(name)?.ToString() ?? String.Empty;
+                                }
+                            }
+                        }
+                        using (RegistryKey? subKey = key.OpenSubKey(@"Editors\Assoc"))
+                        {
+                            if (subKey != null)
+                            {
+                                associatedEditors.Clear();
+                                foreach (var name in subKey.GetValueNames())
+                                {
+                                    associatedEditors[name] = subKey?.GetValue(name)?.ToString() ?? String.Empty;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur : " + ex.Message);
+            }
+        }
 
         public static bool IsInitialized { get { return EditorWindow != null; } }
 
@@ -166,5 +388,36 @@ namespace GUI
         {
             ShowWindowEvent?.Set();
         }
+
+        internal static void OpenExternalEditor(string name, string filename)
+        {
+            //todo maintenir un event sur changement de fichiers pour chaque objet
+            var exePath = String.Empty;
+
+            if (externalsEditors.ContainsKey(name) == true)
+            {
+                exePath = externalsEditors[name];
+            }
+            else if(name.Contains("."))
+            {
+                name = name.Substring(name.IndexOf("."));
+
+                if (externalsEditors.ContainsKey(name) == true)
+                {
+                    exePath = externalsEditors[name];
+                }
+            }
+
+            if(String.IsNullOrEmpty(exePath) == false)
+            {
+                Process process = new Process();
+                // Configure the process using the StartInfo properties.
+                process.StartInfo.FileName = exePath;
+                process.StartInfo.Arguments = filename;
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+                process.Start();
+            }
+        }
+
     }
 }
