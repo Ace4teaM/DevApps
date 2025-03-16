@@ -1,13 +1,7 @@
-﻿using ComponentAce.Compression.Libs.ZLib;
-using System;
-using System.Collections.Generic;
+﻿using IronPython.Runtime;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace DevApps.PythonExtends
 {
@@ -42,6 +36,13 @@ namespace DevApps.PythonExtends
             cachedText = text;
             stream.Seek(0, SeekOrigin.Begin);
             stream.Write(Encoding.UTF8.GetBytes(text));
+        }
+        public void write_bytes(IronPython.Runtime.Bytes _bytes)
+        {
+           var bytes = _bytes.ToArray();
+           cachedText = Encoding.UTF8.GetString(bytes);
+           stream.Seek(0, SeekOrigin.Begin);
+           stream.Write(bytes);
         }
         public byte[] bytes()
         {

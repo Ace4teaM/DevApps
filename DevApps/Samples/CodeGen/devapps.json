@@ -138,6 +138,27 @@
       }
     },
     {
+      "Key": "visual",
+      "Value": {
+        "Description": "Visualisation (kroki.io)",
+        "Pointers": [
+          {
+            "Key": "data",
+            "Value": "datamodel"
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "import sys\r\nimport base64\r\nimport zlib\r\nfrom urllib.request import urlopen\r\n# prepare les données à être envoyé dans l'url\r\ncmp_data = zlib.compress(data.bytes(), 9)\r\nb64_data = base64.urlsafe_b64encode(cmp_data)\r\n# lie le contenu depuis kroki.io\r\nlink = 'https://kroki.io/erd/svg/' + b64_data.decode('utf-8')\r\nf = urlopen(link).read()\r\nout.write_bytes(f)\r\n# supprime l'en-tete HTML\r\n#idx = f.index(b'<svg ')\r\n#str = f[idx:]\r\n#str = '<?xml version=\"1.0\" standalone=\"no\"?>\\n' + str.decode('utf-8')\r\n#out.write(str)",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)",
+        "Zone": "716,168,444,420"
+      }
+    },
+    {
       "Key": "datamodel",
       "Value": {
         "Description": "Data Model",
@@ -150,7 +171,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "120,120,100,100"
+        "Zone": "230,120,100,100"
       }
     },
     {
@@ -179,7 +200,7 @@
         "BuildMethod": "if out.text() == 'entities_to_cs_classes':\r\n    print('using namespace System;')\r\n    print()\r\n    print('public class { ... }')",
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "230,120,100,100"
+        "Zone": "340,120,100,100"
       }
     }
   ]
