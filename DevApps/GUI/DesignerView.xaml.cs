@@ -1,5 +1,6 @@
 ﻿using GUI;
 using IronPython.Runtime.Types;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -17,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static Community.CsharpSqlite.Sqlite3;
 
 namespace DevApps.GUI
 {
@@ -59,29 +62,80 @@ namespace DevApps.GUI
 
             if (selectedElement == null) return;
 
-            if(lastClickTimer.Enabled)
+            // redimensionnement / déplacement
+            if (e.LeftButton == MouseButtonState.Pressed && e.RightButton == MouseButtonState.Released)
             {
-                isDoubleClick = true;
-                return;
-            }
-            else
-            {
-                lastClickTimer.Start();
+                if (lastClickTimer.Enabled)
+                {
+                    isDoubleClick = true;
+                    return;
+                }
+                else
+                {
+                    lastClickTimer.Start();
+                }
+
+                startMousePosition = e.GetPosition(MyCanvas);
+                resizeDirection = GetResizeDirection(startMousePosition);
+
+                if (resizeDirection != DesignerView.ResizeDirection.None)
+                {
+                    isResizing = true;
+                }
+                else
+                {
+                    isDragging = true;
+                }
+
+                selectedElement?.CaptureMouse();
             }
 
-            startMousePosition = e.GetPosition(MyCanvas);
-            resizeDirection = GetResizeDirection(startMousePosition);
-
-            if (resizeDirection != DesignerView.ResizeDirection.None)
+            // outils
+            if (e.RightButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Released)
             {
-                isResizing = true;
-            }
-            else
-            {
-                isDragging = true;
-            }
+                ContextMenu menu = new ContextMenu();
+                menu.Items.Add(new MenuItem { Header = "Supprimer" });
+                menu.Items.Add(new MenuItem { Header = "Propriétés" });
+                menu.Items.Add(new MenuItem { Header = "Copier" });
+                menu.Items.Add(new MenuItem { Header = "Coller" });
+                menu.Items.Add(new MenuItem { Header = "Couper" });
+                menu.Items.Add(new MenuItem { Header = "Dupliquer" });
+                menu.Items.Add(new MenuItem { Header = "Verrouiller" });
+                menu.Items.Add(new MenuItem { Header = "Déverrouiller" });
+                menu.Items.Add(new MenuItem { Header = "Envoyer en arrière" });
+                menu.Items.Add(new MenuItem { Header = "Envoyer en avant" });
+                menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });
+                var m = new MenuItem { Header = "Ajouter à la bibliothèque" };
+                m.Click += (s, e) =>
+                {
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
 
-            selectedElement?.CaptureMouse();
+                    if (reference != null)
+                    {
+                        reference.mutexReadOutput.WaitOne();
+
+                        using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjDir, selectedElement?.Name));
+
+                        var settings = new JsonSerializerSettings
+                        {
+                            Formatting = Formatting.Indented
+                        };
+                        JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+
+                        serializer.Serialize(writer, new Serializer.DevObject(reference));
+
+                        reference.SaveOutput(selectedElement?.Name, Program.CommonDataDir);
+
+                        reference.mutexReadOutput.ReleaseMutex();
+                    }
+                };
+                menu.Items.Add(m);
+                menu.Placement = PlacementMode.Mouse;
+                menu.IsOpen = true;
+
+            }
         }
 
         internal void Canvas_MouseMove(object sender, MouseEventArgs e)

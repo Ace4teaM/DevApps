@@ -11,6 +11,8 @@ internal partial class Program
     internal static readonly string DevBranch = "devapps";
     internal static readonly string Filename = "devapps.json";
     internal static readonly string DataDir = ".devapps";
+    internal static readonly string CommonDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Data");
+    internal static readonly string CommonObjDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Objects");
     internal static ScriptEngine pyEngine = null;
     internal static ScriptRuntime pyRuntime = null;
     internal static ScriptScope pyScope = null;
@@ -62,6 +64,10 @@ internal partial class Program
         {
             if (Directory.Exists(DataDir) == false)
                 Directory.CreateDirectory(DataDir);
+            if (Directory.Exists(Program.CommonDataDir) == false)
+                Directory.CreateDirectory(Program.CommonDataDir);
+            if (Directory.Exists(Program.CommonObjDir) == false)
+                Directory.CreateDirectory(Program.CommonObjDir);
         }
         catch (Exception ex)
         {
