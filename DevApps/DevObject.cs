@@ -452,11 +452,23 @@ internal partial class Program
             return this;
         }
 
-        public DevObject LoadOutput(string name)
+        public DevObject LoadOutput(string name, string? path = null)
         {
-            var data = File.ReadAllBytes(Path.Combine(DataDir, name));
+            if (path == null)
+                path = DataDir;
+
+            var data = File.ReadAllBytes(Path.Combine(path, name));
             buildStream.Write(data);
             buildStream.SetLength(data.Length);
+            return this;
+        }
+
+        public DevObject SaveOutput(string name, string? path = null)
+        {
+            if (path == null)
+                path = DataDir;
+
+            File.WriteAllBytes(Path.Combine(path, name), buildStream.GetBuffer());
             return this;
         }
 

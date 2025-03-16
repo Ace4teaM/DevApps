@@ -140,7 +140,7 @@
     {
       "Key": "visual",
       "Value": {
-        "Description": "Visualisation (kroki.io)",
+        "Description": "ERD Visualisation (kroki.io)",
         "Pointers": [
           {
             "Key": "data",
@@ -155,13 +155,13 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.svg(out)",
-        "Zone": "120,120,306,485"
+        "Zone": "120,120,328,438"
       }
     },
     {
       "Key": "datamodel",
       "Value": {
-        "Description": "Data Model",
+        "Description": "ERD Data Model",
         "Pointers": [],
         "Functions": [],
         "Properties": [],
@@ -171,22 +171,14 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "279,180,326,398"
+        "Zone": "296,194,322,381"
       }
     },
     {
       "Key": "codegen",
       "Value": {
-        "Description": "Code generator",
+        "Description": "ERD Code generator",
         "Pointers": [
-          {
-            "Key": "output_code",
-            "Value": "code"
-          },
-          {
-            "Key": "input_template",
-            "Value": "cstemplate"
-          },
           {
             "Key": "input_data",
             "Value": "datamodel"
@@ -200,7 +192,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "890,189,431,349"
+        "Zone": "656,171,445,348"
       }
     }
   ]
