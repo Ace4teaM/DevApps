@@ -1,29 +1,33 @@
 
 [Commande]
-+ numero : integer
-+ date : date
+*numero
+*date
+
 [Client]
-+ numero : integer
-+ nom : string
-+ prenom : string
-+ adresse : string
-+ ville : string
-+ code_postal : string
-+ telephone : string
-+ email : string
+*numero
+*nom
+*prenom
+*adresse
+*ville
+*code_postal
+*telephone
+*email
+
 [Produit]
-+ numero : integer
-+ nom : string
-+ description : string
-+ prix : decimal
-+ quantite : integer
+*numero
+*nom
+*description
+*prix
+*quantite
+
 [DetailCommande]
-+ numero : integer
-+ quantite : integer
-+ prix : decimal
-+ total : decimal
-+ commande : Commande
-+ produit : Produit
-(Commande) 1..1 (DetailCommande)
-(Commande) *..1 (Client)
-(Commande) *..* (Produit)
+*numero
+*quantite
+*prix
+*total
+*commande
+*produit
+
+Commande 1--1 DetailCommande
+Commande *--1 Client
+Commande *--* Produit

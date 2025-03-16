@@ -1,15 +1,14 @@
-﻿using System.IO;
+﻿using GUI;
+using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using static IronPython.Modules._ast;
+using SharpVectors.Converters;
+using SharpVectors.Renderers.Wpf;
+using ComponentAce.Compression.Libs.ZLib;
 using System.Windows.Media.Media3D;
-using IronPython.Runtime;
-using Newtonsoft.Json.Linq;
-using static IronPython.Modules.PythonWeakRef;
-using GUI;
-using IronPython.Runtime.Operations;
+
 
 namespace DevApps.PythonExtends
 {
@@ -104,7 +103,23 @@ namespace DevApps.PythonExtends
         }
         internal virtual void image(GUI gui, Output data, string format = "auto")
         {
+            if(data.bytes().Length == 0)
+                return;
+            try
+            {
+                // Créer une instance de BitmapImage
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = new MemoryStream(data.bytes());
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad; // Charge l'image dans la mémoire
+                bitmapImage.EndInit();
 
+                gui.drawingContext?.DrawImage(bitmapImage, new Rect(Top, Left, Right, Bottom));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
         }
         internal virtual void text(GUI gui, string text)
         {
@@ -695,6 +710,30 @@ namespace DevApps.PythonExtends
             this.color = Color.FromRgb(systemColor.R, systemColor.G, systemColor.B);
             this.thickness = thickness;
             this.gradient = gradient;
+            return this;
+        }
+        public GUI svg(Output output)
+        {
+            if (output.Stream.Length == 0)
+                return this;
+
+            var settings = new WpfDrawingSettings();
+            settings.IncludeRuntime = true;
+            settings.TextAsGeometry = false;
+
+            var svgReader = new FileSvgReader(settings);
+            output.Stream.Seek(0, SeekOrigin.Begin);
+            var drawing = svgReader.Read(output.Stream);
+
+            var fHeight = (1.0 / drawing.Bounds.Height) * filling.Height;
+
+            var mx = new Matrix();
+            mx.Translate(-drawing.Bounds.X, -drawing.Bounds.Y);
+            mx.Scale(fHeight, fHeight);
+
+            drawing.Transform = new MatrixTransform(mx);
+            drawingContext?.DrawDrawing(drawing);
+
             return this;
         }
         public GUI text()

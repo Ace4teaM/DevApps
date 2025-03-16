@@ -250,7 +250,23 @@ internal partial class Program
             mutexExecuteObjects.WaitOne();
             foreach (var o in References)
             {
-                var result = o.Value.InitMethod.Item2?.Execute(pyScope);
+                try
+                {
+                    var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                    pyScope.SetVariable("name", o.Key);
+                    pyScope.SetVariable("desc", o.Value.Description);
+                    foreach (var pointer in o.Value.GetPointers())
+                    {
+                        Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
+                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                    }
+                    var result = o.Value.InitMethod.Item2?.Execute(pyScope);
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine(ex.Message);
+                }
             }
             mutexExecuteObjects.ReleaseMutex();
         }
