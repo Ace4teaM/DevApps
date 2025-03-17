@@ -280,7 +280,7 @@ namespace GUI
             dispatcherOperations.Clear();
         }
 
-        internal static void Invalidate(string name, MemoryStream output)
+        internal static void Invalidate(string name)
         {
             dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,

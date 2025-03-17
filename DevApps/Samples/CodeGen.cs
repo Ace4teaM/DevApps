@@ -73,7 +73,7 @@ namespace DevApps.Samples
             DevObject.Create("visual", "ERD Visualisation (kroki.io)")
                 .AddPointer("data", "datamodel")
                 .SetDrawCode(@"gui.svg(out)")
-                .SetInitMethod(@"
+                .SetBuildMethod(@"
 import sys
 import base64
 import zlib
@@ -147,7 +147,7 @@ Commande *--* Produit
                 .SetUserAction(@"out.write(gui.select({'entities_to_cs_classes':'Entities UML > C# classes','entities_to_sql_tables':'Entities UML > SQL Tables','entities_to_cs_sql_model':'Entities UML > C# Database Model'},out))")
                 .SetOutput(@"UserName")
                 .AddPointer("input_data", "datamodel")
-                .SetInitMethod(@"
+                .SetBuildMethod(@"
 def generate_csharp_code(erd_text):
     # Dictionnaire pour stocker les entités et leurs attributs
     entities = {}

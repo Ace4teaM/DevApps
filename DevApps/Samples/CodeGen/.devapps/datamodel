@@ -1,4 +1,12 @@
 
+[Hello]
+*numero
+*date
+
+[World]
+*numero
+*date
+
 [Commande]
 *numero
 *date
@@ -31,3 +39,5 @@
 Commande 1--1 DetailCommande
 Commande *--1 Client
 Commande *--* Produit
+Client *--* Hello
+Produit *--* World

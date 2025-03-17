@@ -1,4 +1,6 @@
-﻿using DevApps.PythonExtends;
+﻿using DevApps.GUI;
+using DevApps.PythonExtends;
+using GUI;
 using IronPython.Compiler.Ast;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
@@ -9,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Media;
+using System.Windows.Threading;
 using static IronPython.Modules._ast;
 using static IronPython.Modules.PythonCsvModule;
 
@@ -182,7 +185,7 @@ internal partial class Program
 
             foreach (var o in list)
             {
-                GUI.Service.Invalidate(o.Key, o.Value.buildStream); // appeler uniquement si le contenu de out a changé
+                GUI.Service.Invalidate(o.Key); // appeler uniquement si le contenu de out a changé
             }
         }
 
@@ -262,6 +265,37 @@ internal partial class Program
                         pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                     }
                     var result = o.Value.InitMethod.Item2?.Execute(pyScope);
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine(ex.Message);
+                }
+            }
+            mutexExecuteObjects.ReleaseMutex();
+        }
+
+        /// <summary>
+        /// Construit la sortie des objets
+        /// </summary>
+        public static void Build()
+        {
+            mutexExecuteObjects.WaitOne();
+            foreach (var o in References)
+            {
+                try
+                {
+                    var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                    pyScope.SetVariable("name", o.Key);
+                    pyScope.SetVariable("desc", o.Value.Description);
+                    foreach (var pointer in o.Value.GetPointers())
+                    {
+                        Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
+                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                    }
+                    var result = o.Value.BuildMethod.Item2?.Execute(pyScope);
+
+                    Service.Invalidate(o.Key);
                 }
                 catch (Exception ex)
                 {

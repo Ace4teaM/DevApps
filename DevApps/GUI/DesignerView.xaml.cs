@@ -352,5 +352,10 @@ namespace DevApps.GUI
         {
 
         }
+
+        private void Build_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Program.DevObject.Build();
+        }
     }
 }
