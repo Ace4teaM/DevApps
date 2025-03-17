@@ -11,6 +11,7 @@
             <DockPanel>
                 <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Settings_MouseLeftButtonUp">⚙️</TextBlock>
                 <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Menu_MouseLeftButtonUp">🡅</TextBlock>
+                <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Build_MouseLeftButtonUp">⩸</TextBlock>
                 <TextBlock Foreground="Black" Text="{Binding StatusText}" Margin="6,0,0,0"></TextBlock>
             </DockPanel>
         </Border>
