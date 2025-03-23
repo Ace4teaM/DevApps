@@ -348,9 +348,53 @@ namespace DevApps.GUI
             wnd.ShowDialog();
         }
 
+        private void AddRecursiveSharedMenu(string path, MenuItem menu)
+        {
+            try
+            {
+                // liste les objets partagés
+                foreach (var dir in Directory.EnumerateDirectories(path))
+                {
+                    if (File.Exists(System.IO.Path.Combine(dir, Program.Filename)) == true)
+                    {
+                        var m = new MenuItem { Header = System.IO.Path.GetFileName(dir) };
+                        m.Click += (s, e) =>
+                        {
+                            // Ajoute les objets au projet dans une nouvelle facette 
+                        };
+                        menu.Items.Add(m);
+                    }
+                    else
+                    {
+                        var m = new MenuItem { Header = System.IO.Path.GetFileName(dir) };
+                        menu.Items.Add(m);
+                        AddRecursiveSharedMenu(dir, m);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }   
+        }
+
         private void Menu_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-
+            try
+            {
+                // liste les objets partagés
+                ContextMenu menu = new ContextMenu();
+                var m = new MenuItem { Header = "Shared models" };
+                AddRecursiveSharedMenu(Program.CommonDataDir, m);
+                menu.Items.Add(m);
+                menu.Placement = PlacementMode.Top;
+                menu.PlacementTarget = sender as UIElement;
+                menu.IsOpen = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private void Build_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

@@ -2,6 +2,7 @@
 
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
+using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
 using System.IO;
 using System.Windows.Threading;
@@ -11,7 +12,7 @@ internal partial class Program
     internal static readonly string DevBranch = "devapps";
     internal static readonly string Filename = "devapps.json";
     internal static readonly string DataDir = ".devapps";
-    internal static readonly string CommonDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Data");
+    internal static string CommonDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Shared");
     internal static readonly string CommonObjDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Objects");
     internal static ScriptEngine pyEngine = null;
     internal static ScriptRuntime pyRuntime = null;
@@ -95,6 +96,21 @@ internal partial class Program
         //pyScope.ImportModule("requests");
         pyScope.ImportModule("json");
 
+        // change le chemin par défaut de la bibliothèque
+        if (args.Contains("-b"))
+        {
+            try
+            {
+                var path = Path.GetFullPath(args[args.FindIndex(p => p == "-b") + 1]);
+                CommonDataDir = path;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        // ouvre l'éditeur
         if (args.Contains("-w"))
         {
             GUI.Service.OpenEditor();
