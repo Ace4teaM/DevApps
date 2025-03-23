@@ -2,7 +2,7 @@
   "profiles": {
     "DevApps": {
       "commandName": "Project",
-      "commandLineArgs": "-w",
+      "commandLineArgs": "-w -b ../../Shared",
       "workingDirectory": "Samples\\CodeGen"
     }
   }

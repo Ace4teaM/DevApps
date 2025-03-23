@@ -19,6 +19,9 @@
 
   <ItemGroup>
     <Folder Include="Samples\UI\" />
+    <Folder Include="Shared\Commons\Markdown\" />
+    <Folder Include="Shared\Commons\Tips\" />
+    <Folder Include="Shared\Diagrams\Entities Relational Diagram %28ERD%29\" />
   </ItemGroup>
 
 </Project>

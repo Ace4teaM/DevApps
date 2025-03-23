@@ -1,143 +1,6 @@
 {
   "Objects": [
     {
-      "Key": "insocket",
-      "Value": {
-        "Description": "System socket buffer in",
-        "Pointers": [],
-        "Functions": [],
-        "Properties": [],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "",
-        "BuildMethod": "",
-        "ObjectCode": "",
-        "DrawCode": "",
-        "Zone": "10,10,100,100"
-      }
-    },
-    {
-      "Key": "outsocket",
-      "Value": {
-        "Description": "System socket buffer out",
-        "Pointers": [],
-        "Functions": [],
-        "Properties": [],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "",
-        "BuildMethod": "",
-        "ObjectCode": "",
-        "DrawCode": "",
-        "Zone": "120,10,100,100"
-      }
-    },
-    {
-      "Key": "socket",
-      "Value": {
-        "Description": "System socket",
-        "Pointers": [
-          {
-            "Key": "IN",
-            "Value": "insocket"
-          },
-          {
-            "Key": "OUT",
-            "Value": "outsocket"
-          },
-          {
-            "Key": "RECEIVE",
-            "Value": "buffer"
-          }
-        ],
-        "Functions": [
-          {
-            "Key": "recv",
-            "Value": "buffer.name = \"Kiki\"\r\nbuffer.data.append(5)\r\nbuffer.data.append(21)\r\nbuffer.data.append(0x14)\r\nbuffer.data.append(5)"
-          },
-          {
-            "Key": "send",
-            "Value": ""
-          }
-        ],
-        "Properties": [],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "",
-        "BuildMethod": "",
-        "ObjectCode": "",
-        "DrawCode": "",
-        "Zone": "230,10,100,100"
-      }
-    },
-    {
-      "Key": "buffer",
-      "Value": {
-        "Description": "Receive Buffer",
-        "Pointers": [],
-        "Functions": [
-          {
-            "Key": "control",
-            "Value": "name != \"Ignored\""
-          }
-        ],
-        "Properties": [
-          {
-            "Key": "isvalid",
-            "Value": "len(buffer.data) > 0"
-          },
-          {
-            "Key": "value",
-            "Value": "buffer.name"
-          }
-        ],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "import array\r\nclass Buffer:\r\n    name = \"Ignored\"\r\n    data = bytearray()\r\nbuffer = Buffer()",
-        "BuildMethod": "import binascii\r\nprint(binascii.hexlify(buffer.data))",
-        "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "340,10,100,100"
-      }
-    },
-    {
-      "Key": "cstemplate",
-      "Value": {
-        "Description": "Template",
-        "Pointers": [],
-        "Functions": [],
-        "Properties": [
-          {
-            "Key": "base",
-            "Value": "cstemplate.base"
-          }
-        ],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "class CsTemplate:\r\n    base = \"{namespace}\\n\\n{class def}\\n\\n{footer}\"\r\ncstemplate = CsTemplate()",
-        "BuildMethod": "",
-        "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "450,10,100,100"
-      }
-    },
-    {
-      "Key": "code",
-      "Value": {
-        "Description": "Code",
-        "Pointers": [],
-        "Functions": [],
-        "Properties": [],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "",
-        "BuildMethod": "",
-        "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "10,120,100,100"
-      }
-    },
-    {
       "Key": "visual",
       "Value": {
         "Description": "ERD Visualisation (kroki.io)",
@@ -155,7 +18,7 @@
         "BuildMethod": "import sys\r\nimport base64\r\nimport zlib\r\nfrom urllib.request import urlopen\r\n# prepare les données à être envoyé dans l'url\r\ncmp_data = zlib.compress(data.bytes(), 9)\r\nb64_data = base64.urlsafe_b64encode(cmp_data)\r\n# lie le contenu depuis kroki.io\r\nlink = 'https://kroki.io/erd/svg/' + b64_data.decode('utf-8')\r\nf = urlopen(link).read()\r\nout.write_bytes(f)\r\n# supprime l'en-tete HTML\r\n#idx = f.index(b'<svg ')\r\n#str = f[idx:]\r\n#str = '<?xml version=\"1.0\" standalone=\"no\"?>\\n' + str.decode('utf-8')\r\n#out.write(str)",
         "ObjectCode": "",
         "DrawCode": "gui.svg(out)",
-        "Zone": "392,254,206,378"
+        "Zone": "120,120,100,100"
       }
     },
     {
@@ -171,7 +34,7 @@
         "BuildMethod": "",
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "533,199,241,372"
+        "Zone": "230,120,100,100"
       }
     },
     {
@@ -192,7 +55,7 @@
         "BuildMethod": "def generate_csharp_code(erd_text):\r\n    # Dictionnaire pour stocker les entités et leurs attributs\r\n    entities = {}\r\n    relationships = []\r\n    # Diviser le texte en lignes pour le traitement\r\n    lines = erd_text.strip().split('\\n')\r\n    current_entity = None\r\n    for line in lines:\r\n        line = line.strip()\r\n        if line.startswith('[') and line.endswith(']'):\r\n            # Nouvelle entité\r\n            current_entity = line[1:-1]\r\n            entities[current_entity] = {'primary_key': None, 'attributes': [], 'foreign_keys': []}\r\n        elif line.startswith('*'):\r\n            # Clé primaire\r\n            entities[current_entity]['primary_key'] = line[1:]\r\n        elif line.startswith('+'):\r\n            # Clé étrangère\r\n            entities[current_entity]['foreign_keys'].append(line[1:])\r\n        elif line:\r\n            # Attribut standard\r\n            entities[current_entity]['attributes'].append(line)\r\n        elif '--' in line:\r\n            # Relation\r\n            relationships.append(line)\r\n    # Générer le code C#\r\n    csharp_code = \"\"\"\r\nusing System;\r\nusing System.Collections.Generic;\r\nnamespace ERDiagram\r\n{\r\n\"\"\"\r\n    # Ajouter les classes pour chaque entité\r\n    for entity, details in entities.items():\r\n        csharp_code += f\"    public class {entity}\\n    {{\\n\"\r\n        # Ajouter les attributs\r\n        for attr in details['attributes']:\r\n            csharp_code += f\"        public string {attr} {{ get; set; }}\\n\"\r\n        # Ajouter la clé primaire\r\n        if details['primary_key']:\r\n            csharp_code += f\"        public string {details['primary_key']} {{ get; set; }}\\n\"\r\n        # Ajouter les clés étrangères\r\n        for fk in details['foreign_keys']:\r\n            csharp_code += f\"        public string {fk} {{ get; set; }}\\n\"\r\n        csharp_code += \"    }\\n\"\r\n    # Ajouter les relations (simplifié pour l'exemple)\r\n    for relation in relationships:\r\n        csharp_code += f\"    // Relation: {relation}\\n\"\r\n    csharp_code += \"}\"\r\n    return csharp_code\r\n# Exemple d'utilisation\r\nerd_content = input_data.text()\r\n# Générer le code C# à partir du contenu ERD\r\ncsharp_code = generate_csharp_code(erd_content)\r\nout.write(csharp_code)",
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())",
-        "Zone": "922,88,373,307"
+        "Zone": "340,120,100,100"
       }
     }
   ]
