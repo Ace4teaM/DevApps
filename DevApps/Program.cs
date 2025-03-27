@@ -1,5 +1,6 @@
 ﻿//#define LOAD // sinon SAVE
 
+using GUI;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
@@ -138,6 +139,9 @@ internal partial class Program
                 GUI.Service.AddShape(o.Key, o.Value.Description, o.Value.GetZone());
             }
         }
+
+
+        GUI.Service.InvalidateFacets();
 
         DevObject.MakeReferences();
 

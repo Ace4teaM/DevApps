@@ -1,25 +1,12 @@
 ﻿using GUI;
-using IronPython.Runtime.Types;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Security.RightsManagement;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using static Community.CsharpSqlite.Sqlite3;
+using static Program;
 
 namespace DevApps.GUI
 {
@@ -28,13 +15,11 @@ namespace DevApps.GUI
     /// </summary>
     public partial class DesignerView : UserControl, INotifyPropertyChanged
     {
-        internal string statusText { get; set; }
-        public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("StatusText")); } }
-
+        internal string facette = String.Empty;
         internal bool isDragging = false;
         internal bool isResizing = false;
         internal bool isDoubleClick = false;
-        internal System.Timers.Timer lastClickTimer;//timer entre 2 click
+        internal System.Timers.Timer lastClickTimer;//timer entre 2 clics
         internal Point startMousePosition;
         internal DrawElement? selectedElement;
         internal ResizeDirection resizeDirection;
@@ -43,15 +28,15 @@ namespace DevApps.GUI
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public DesignerView()
+        public DesignerView(string facette)
         {
             InitializeComponent();
             this.DataContext = this;
 
-            StatusText = "Ready";
-
             lastClickTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(400));
             lastClickTimer.AutoReset = false;
+
+            this.facette = facette;
         }
 
         internal enum ResizeDirection { None, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight }
@@ -144,9 +129,9 @@ namespace DevApps.GUI
 
             var overElement = Mouse.DirectlyOver as DrawElement;
             var text = overElement != null ? overElement.Name : "Ready";
-            if (text != StatusText)
+            if (text != Service.GetStatusText())
             {
-                StatusText = text;
+                Service.SetStatusText(text);
 
                 // supprime les connecteurs
                 foreach (var c in connectorElements)
@@ -340,66 +325,16 @@ namespace DevApps.GUI
             return ResizeDirection.None;
         }
 
-        private void Settings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            var wnd = new App.ExternalEditors();
-            wnd.Owner = Window.GetWindow(this);
-            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            wnd.ShowDialog();
-        }
-
-        private void AddRecursiveSharedMenu(string path, MenuItem menu)
-        {
-            try
+            if (Service.IsInitialized)
             {
-                // liste les objets partagés
-                foreach (var dir in Directory.EnumerateDirectories(path))
+                foreach (var obj in DevFacet.References[this.facette].Objects.devObjects)
                 {
-                    if (File.Exists(System.IO.Path.Combine(dir, Program.Filename)) == true)
-                    {
-                        var m = new MenuItem { Header = System.IO.Path.GetFileName(dir) };
-                        m.Click += (s, e) =>
-                        {
-                            // Ajoute les objets au projet dans une nouvelle facette 
-                        };
-                        menu.Items.Add(m);
-                    }
-                    else
-                    {
-                        var m = new MenuItem { Header = System.IO.Path.GetFileName(dir) };
-                        menu.Items.Add(m);
-                        AddRecursiveSharedMenu(dir, m);
-                    }
+                    var o = DevObject.References.FirstOrDefault(p=>p.Value == obj);
+                    Service.AddShape(o.Key, o.Value.Description, o.Value.GetZone());
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }   
-        }
-
-        private void Menu_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            try
-            {
-                // liste les objets partagés
-                ContextMenu menu = new ContextMenu();
-                var m = new MenuItem { Header = "Shared models" };
-                AddRecursiveSharedMenu(Program.CommonDataDir, m);
-                menu.Items.Add(m);
-                menu.Placement = PlacementMode.Top;
-                menu.PlacementTarget = sender as UIElement;
-                menu.IsOpen = true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        private void Build_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            Program.DevObject.Build();
         }
     }
 }

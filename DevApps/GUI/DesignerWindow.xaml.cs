@@ -1,0 +1,164 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+
+namespace DevApps.GUI
+{
+    /// <summary>
+    /// Logique d'interaction pour DesignerWindow.xaml
+    /// </summary>
+    public partial class DesignerWindow : Window, INotifyPropertyChanged
+    {
+        internal string statusText { get; set; }
+        public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("StatusText")); } }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public new object Content
+        {
+            get
+            {
+                return this.content.Content;
+            }
+            set
+            {
+                this.content.Content = value;
+            }
+        }
+
+        public IEnumerable<TabItem> FacettesTabItems
+        {
+            get
+            {
+                return Program.DevFacet.References.Select(p => new TabItem { Header = p.Key, Tag = p.Value });
+            }
+        }
+
+        public DesignerWindow()
+        {
+            InitializeComponent();
+            this.DataContext = this;
+
+            StatusText = "Ready";
+        }
+
+
+        private void Settings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var wnd = new App.ExternalEditors();
+            wnd.Owner = Window.GetWindow(this);
+            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            wnd.ShowDialog();
+        }
+
+        private void AddRecursiveSharedMenu(string path, MenuItem menu)
+        {
+            try
+            {
+                // liste les objets partagés
+                foreach (var dir in Directory.EnumerateDirectories(path))
+                {
+                    if (File.Exists(System.IO.Path.Combine(dir, Program.Filename)) == true)
+                    {
+                        var m = new MenuItem { Header = System.IO.Path.GetFileName(dir) };
+                        m.Click += (s, e) =>
+                        {
+                            // Ajoute les objets au projet dans une nouvelle facette 
+                        };
+                        menu.Items.Add(m);
+                    }
+                    else
+                    {
+                        var m = new MenuItem { Header = System.IO.Path.GetFileName(dir) };
+                        menu.Items.Add(m);
+                        AddRecursiveSharedMenu(dir, m);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void Menu_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                // liste les objets partagés
+                ContextMenu menu = new ContextMenu();
+                var m = new MenuItem { Header = "Shared models" };
+                AddRecursiveSharedMenu(Program.CommonDataDir, m);
+                menu.Items.Add(m);
+                menu.Placement = PlacementMode.Top;
+                menu.PlacementTarget = sender as UIElement;
+                menu.IsOpen = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void Build_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Program.DevObject.Build();
+        }
+
+        internal void InvalidateFacets()
+        {
+            tabFacettes.Children.Clear();
+            foreach (var item in FacettesTabItems)
+            {
+                var tab = new TabItem { Header = item.Header, Tag = item.Tag, Cursor = Cursors.Hand };
+                tab.MouseLeftButtonUp += Tab_MouseLeftButtonUp;
+                tabFacettes.Children.Add(tab);
+            }
+        }
+
+        private void Tab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var tab = (sender as TabItem);
+            foreach (var item in tabFacettes.Children.OfType<TabItem>())
+            {
+                item.Background = null;
+            }
+            tab.Background = Brushes.BlueViolet;
+            this.Content = new DesignerView(tab.Header.ToString());
+        }
+
+        private void Objects_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this.Content = new DesignerDataView();
+            foreach (var item in tabFacettes.Children.OfType<TabItem>())
+            {
+                item.Background = null;
+            }
+        }
+
+        private void Add_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var wnd = new NewFacette();
+            wnd.Owner = Window.GetWindow(this);
+            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            if (wnd.ShowDialog() == true)
+            {
+                Program.DevFacet.Create(wnd.Value, Program.DevSelect.Empty);
+                InvalidateFacets();
+            }
+        }
+    }
+}

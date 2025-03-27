@@ -219,6 +219,7 @@ out.write(csharp_code)
                 ")
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
+            DevFacet.Create("ERD", DevObject.Select(["codegen", "datamodel", "visual"]));
         }
     }
 }

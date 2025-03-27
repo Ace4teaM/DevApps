@@ -5,17 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DevApps.GUI"
              mc:Ignorable="d" 
+             Loaded="UserControl_Loaded"
              d:DesignHeight="450" d:DesignWidth="800">
-    <DockPanel>
-        <Border DockPanel.Dock="Bottom" Background="LightGray">
-            <DockPanel>
-                <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Settings_MouseLeftButtonUp">⚙️</TextBlock>
-                <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Menu_MouseLeftButtonUp">🡅</TextBlock>
-                <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Build_MouseLeftButtonUp">⩸</TextBlock>
-                <TextBlock Foreground="Black" Text="{Binding StatusText}" Margin="6,0,0,0"></TextBlock>
-            </DockPanel>
-        </Border>
-        <Canvas x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
-        </Canvas>
-    </DockPanel>
+    <Canvas x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
+    </Canvas>
 </UserControl>
