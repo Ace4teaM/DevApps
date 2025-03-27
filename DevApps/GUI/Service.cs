@@ -14,9 +14,8 @@ namespace GUI
     {
         internal static ManualResetEvent? ShowWindowEvent;
         internal static ManualResetEvent? CloseWindowEvent;
-        internal static Window? EditorWindow;
+        internal static DesignerWindow? EditorWindow;
         internal static Thread? WindowThread;
-        internal static DesignerView? WindowContent;
         internal static List<DispatcherOperation> dispatcherOperations = new List<DispatcherOperation>();
 
         /// <summary>
@@ -246,9 +245,7 @@ namespace GUI
         {
             try
             {
-                EditorWindow = new Window();
-                WindowContent = new DesignerView();
-                EditorWindow.Content = WindowContent;
+                EditorWindow = new DesignerWindow();
                 EditorWindow.Closed += EditorWindow_Closed;
                 EditorWindow.Loaded += EditorWindow_Loaded;
                 EditorWindow.Show();
@@ -284,14 +281,41 @@ namespace GUI
         {
             dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
-                new Action(() => {
-                    var canvas = (WindowContent?.MyCanvas);
-
-                    var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
-                    if (host != null)
+                new Action(() =>
+                {
+                    if (EditorWindow?.Content is DesignerView)
                     {
-                        host.InvalidateVisual();
+                        var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
+
+                        var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                        if (host != null)
+                        {
+                            host.InvalidateVisual();
+                        }
                     }
+                })));
+        }
+
+        internal static void SetStatusText(string text)
+        {
+            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+                    EditorWindow.StatusText = text;
+                })));
+        }
+
+        internal static string? GetStatusText()
+        {
+            return EditorWindow?.StatusText;
+        }
+
+        internal static void InvalidateFacets()
+        {
+            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+                    EditorWindow?.InvalidateFacets();
                 })));
         }
 
@@ -319,16 +343,19 @@ namespace GUI
             EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
-                    var canvas = (WindowContent?.MyCanvas);
-     
-                    var element = new DrawElement();
-                    element.Title = new FormattedText(desc ?? name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
-                    element.Name = name;
-                    element.Width = position.Width;
-                    element.Height = position.Height;
-                    Canvas.SetLeft(element, position.Left);
-                    Canvas.SetTop(element, position.Top);
-                    canvas.Children.Add(element);
+                    if (EditorWindow?.Content is DesignerView)
+                    {
+                        var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
+
+                        var element = new DrawElement();
+                        element.Title = new FormattedText(desc ?? name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
+                        element.Name = name;
+                        element.Width = position.Width;
+                        element.Height = position.Height;
+                        Canvas.SetLeft(element, position.Left);
+                        Canvas.SetTop(element, position.Top);
+                        canvas.Children.Add(element);
+                    }
                 }));
         }
 
@@ -337,16 +364,19 @@ namespace GUI
             dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
-                    var canvas = (WindowContent?.MyCanvas);
-
-                    var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
-                    if (host != null)
+                    if (EditorWindow?.Content is DesignerView)
                     {
-                        Canvas.SetLeft(host, rect.Left);
-                        Canvas.SetTop(host, rect.Top);
-                        host.Width = rect.Width;
-                        host.Height = rect.Height;
-                        host.InvalidateVisual();
+                        var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
+
+                        var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                        if (host != null)
+                        {
+                            Canvas.SetLeft(host, rect.Left);
+                            Canvas.SetTop(host, rect.Top);
+                            host.Width = rect.Width;
+                            host.Height = rect.Height;
+                            host.InvalidateVisual();
+                        }
                     }
                 })));
         }
@@ -356,13 +386,17 @@ namespace GUI
             dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
-                    var canvas = (WindowContent?.MyCanvas);
-
-                    var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
-                    if (host != null)
+                    if (EditorWindow?.Content is DesignerView)
                     {
-                        host.Title = new FormattedText(desc, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
-                        host.InvalidateVisual();
+                        var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
+
+
+                        var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                        if (host != null)
+                        {
+                            host.Title = new FormattedText(desc, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
+                            host.InvalidateVisual();
+                        }
                     }
                 })));
         }

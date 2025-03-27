@@ -15,6 +15,8 @@ internal partial class Program
     {
         internal List<DevObject> devObjects = new List<DevObject>();
 
+        internal static readonly DevSelect Empty = new DevSelect();
+
         public DevSelect SetOutput(string text)
         {
             foreach (DevObject devObject in devObjects)

@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 namespace ERDiagram
 {
-    public class Client
+    public class Produit
     {
-        public string email { get; set; }
+        public string quantite { get; set; }
     }
     public class DetailCommande
     {
@@ -14,12 +14,12 @@ namespace ERDiagram
         public string Commande *--* Produit { get; set; }
         public string produit { get; set; }
     }
+    public class Client
+    {
+        public string email { get; set; }
+    }
     public class Commande
     {
         public string date { get; set; }
-    }
-    public class Produit
-    {
-        public string quantite { get; set; }
     }
 }
