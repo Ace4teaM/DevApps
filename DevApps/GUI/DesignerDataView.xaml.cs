@@ -1,9 +1,13 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.Scripting.Utils;
+using System.ComponentModel;
 using System.Globalization;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using static System.Windows.Forms.DataFormats;
 
 namespace DevApps.GUI
 {
@@ -109,6 +113,59 @@ namespace DevApps.GUI
                 Console.WriteLine(ex.Message);
             }
             Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+        }
+
+        private void MenuItem_Click_CreateFacet(object sender, RoutedEventArgs e)
+        {
+            var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
+
+            var wnd = new NewFacette();
+            wnd.Owner = Window.GetWindow(this);
+            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            if (wnd.ShowDialog() == true)
+            {
+                Program.DevFacet.Create(wnd.Value, selection ?? Array.Empty<string>());
+                Service.InvalidateFacets();
+            }
+        }
+
+        private void MenuItem_Click_EditOutput(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var selection = (dataGrid.SelectedItem as TabItem)?.Name;
+
+                if (selection != null)
+                {
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    Program.DevObject.References.TryGetValue(selection, out var reference);
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                    if (reference != null)
+                    {
+                        reference.mutexReadOutput.WaitOne();
+
+                        var wnd = new DevApps.GUI.GetText();
+                        wnd.Value = Encoding.UTF8.GetString(reference.buildStream.GetBuffer());//reference.GetOutput()
+                        wnd.IsMultiline = true;
+                        wnd.Owner = Window.GetWindow(this);
+                        wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+                        if (wnd.ShowDialog() == true)
+                        {
+                            reference.SetOutput(wnd.Value);
+                        }
+
+                        reference.mutexReadOutput.ReleaseMutex();
+
+                        //DrawObject.InvalidateVisual();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

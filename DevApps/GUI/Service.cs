@@ -1,14 +1,12 @@
-﻿using DevApps.GUI;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Xml.Linq;
 
-namespace GUI
+namespace DevApps.GUI
 {
     internal static class Service
     {

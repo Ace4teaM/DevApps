@@ -1,19 +1,9 @@
 ﻿using DevApps.GUI;
 using DevApps.PythonExtends;
-using GUI;
-using IronPython.Compiler.Ast;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
-using Newtonsoft.Json.Linq;
-using System;
-using System.ComponentModel.Design;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Windows.Media;
-using System.Windows.Threading;
-using static IronPython.Modules._ast;
-using static IronPython.Modules.PythonCsvModule;
 
 internal partial class Program
 {
@@ -140,7 +130,7 @@ internal partial class Program
                     mutexExecuteObjects.ReleaseMutex();
 
                     // Attend la fin des opérations de dessin
-                    GUI.Service.WaitDrawOperations();
+                    Service.WaitDrawOperations();
                 }
             }
             catch (Exception e )
@@ -173,7 +163,7 @@ internal partial class Program
         /// </summary>
         private static void Draw()
         {
-            if (GUI.Service.IsInitialized == false)
+            if (Service.IsInitialized == false)
                 return;
 
             mutexCheckObjectList.WaitOne();
@@ -182,7 +172,7 @@ internal partial class Program
 
             foreach (var o in list)
             {
-                GUI.Service.Invalidate(o.Key); // appeler uniquement si le contenu de out a changé
+                Service.Invalidate(o.Key); // appeler uniquement si le contenu de out a changé
             }
         }
 
@@ -478,6 +468,7 @@ internal partial class Program
         public DevObject SetOutput(string text, bool removeIdent = false)
         {
             var data = Encoding.UTF8.GetBytes(removeIdent ? RemoveIdent(text) : text);
+            buildStream.Seek(0, SeekOrigin.Begin);
             buildStream.Write(data);
             buildStream.SetLength(data.Length);
             return this;

@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using static Program;
 
 namespace DevApps.GUI
 {
@@ -40,8 +41,12 @@ namespace DevApps.GUI
         {
             if (String.IsNullOrEmpty(Value))
                 ValidationMessage = "Veuillez saisir un nom de facette";
+            else if (Format.IsMatch(Value) == false)
+                ValidationMessage = "Format invalide";
+            else if(DevFacet.References.ContainsKey(Value))
+                ValidationMessage = "Ce nom est déjà utilisé";
             else
-                ValidationMessage = (Format.IsMatch(Value) == false) ? "Format invalide" : "";
+                ValidationMessage = String.Empty;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ValidationMessage"));
         }

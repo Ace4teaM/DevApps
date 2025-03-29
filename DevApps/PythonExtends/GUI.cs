@@ -1,13 +1,11 @@
-﻿using GUI;
+﻿using DevApps.GUI;
+using SharpVectors.Converters;
+using SharpVectors.Renderers.Wpf;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SharpVectors.Converters;
-using SharpVectors.Renderers.Wpf;
-using ComponentAce.Compression.Libs.ZLib;
-using System.Windows.Media.Media3D;
 
 
 namespace DevApps.PythonExtends
