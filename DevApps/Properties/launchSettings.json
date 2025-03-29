@@ -3,7 +3,7 @@
     "DevApps": {
       "commandName": "Project",
       "commandLineArgs": "-w -b ../../Shared",
-      "workingDirectory": "Samples\\CodeGen"
+      "workingDirectory": "Samples\\ERD"
     }
   }
 }

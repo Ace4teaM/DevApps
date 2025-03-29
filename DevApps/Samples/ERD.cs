@@ -7,68 +7,12 @@ using static Program;
 
 namespace DevApps.Samples
 {
-    internal static class CodeGen
+    internal static class ERD
     {
         internal static void Create()
         {
-            DevObject.Create("insocket", "System socket buffer in")
-                .SetLoopMethod(@"")
-                .SetCode(@"");
+            // Entity Relational Model
 
-            DevObject.Create("outsocket", "System socket buffer out")
-                .SetLoopMethod(@"")
-                .SetCode(@"");
-
-            DevObject.Create("socket", "System socket")
-                .AddPointer("IN", "insocket")
-                .AddPointer("OUT", "outsocket")
-                .AddPointer("RECEIVE", "buffer")
-                .AddFunction(@"recv", @"
-                    buffer.name = ""Kiki""
-                    buffer.data.append(5)
-                    buffer.data.append(21)
-                    buffer.data.append(0x14)
-                    buffer.data.append(5)
-                ")
-                .AddFunction(@"send", @"")
-                .SetCode(@"");
-
-            DevObject.Create("buffer", "Receive Buffer")
-                .SetLoopMethod(@"")
-                .SetInitMethod(@"
-                import array
-
-                class Buffer:
-                    name = ""Ignored""
-                    data = bytearray()
-
-                buffer = Buffer()
-                ")
-                .AddFunction(@"control", @"
-                    name != ""Ignored""
-                ")
-                .SetBuildMethod(@"
-                    import binascii
-
-                    print(binascii.hexlify(buffer.data))
-                ")
-                .AddProperty(@"isvalid", @"len(buffer.data) > 0")
-                .AddProperty(@"value", @"buffer.name")
-                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
-
-            DevObject.Create("cstemplate", "Template")
-                .SetInitMethod(@"
-                class CsTemplate:
-                    base = ""{namespace}\n\n{class def}\n\n{footer}""
-
-                cstemplate = CsTemplate()
-                ")
-                .AddProperty(@"base", @"cstemplate.base")
-                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
-
-            DevObject.Create("code", "Code")
-                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
-            ;
 
             DevObject.Create("visual", "ERD Visualisation (kroki.io)")
                 .AddPointer("data", "datamodel")

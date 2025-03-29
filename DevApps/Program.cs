@@ -124,10 +124,14 @@ internal partial class Program
         // Sauvegarde les données permanentes
         DevObject.LoadOutput();
 #else
-        if (Directory.GetCurrentDirectory().EndsWith("CodeGen"))
-            DevApps.Samples.CodeGen.Create();
+        if (Directory.GetCurrentDirectory().EndsWith("ERD"))
+            DevApps.Samples.ERD.Create();
         else if (Directory.GetCurrentDirectory().EndsWith("InputCheck"))
             DevApps.Samples.InputCheck.Create();
+        else if (Directory.GetCurrentDirectory().EndsWith("CodeTemplate"))
+            DevApps.Samples.CodeTemplate.Create();
+        else if (Directory.GetCurrentDirectory().EndsWith("SocketExchange"))
+            DevApps.Samples.SocketExchange.Create();
         else if (Directory.GetCurrentDirectory().EndsWith("UI"))
             DevApps.Samples.UI.Create();
 #endif
