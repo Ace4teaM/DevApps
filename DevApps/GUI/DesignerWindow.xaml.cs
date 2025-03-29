@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -125,6 +126,7 @@ namespace DevApps.GUI
             {
                 var tab = new TabItem { Header = item.Header, Tag = item.Tag, Cursor = Cursors.Hand };
                 tab.MouseLeftButtonUp += Tab_MouseLeftButtonUp;
+                tab.MouseRightButtonUp += Tab_MouseRightButtonUp;
                 tabFacettes.Children.Add(tab);
             }
         }
@@ -138,6 +140,24 @@ namespace DevApps.GUI
             }
             tab.Background = Brushes.BlueViolet;
             this.Content = new DesignerView(Program.DevFacet.References.First(p=>p.Key == tab.Header.ToString()).Value);
+        }
+
+        private void Tab_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ContextMenu menu = new ContextMenu();
+            var m = new MenuItem { Header = "Supprimer" };
+            m.Click += (s, e) =>
+            {
+                var tab = (sender as TabItem);
+                tabFacettes.Children.Remove(tab);
+
+                Program.DevFacet.References.Remove(tab.Header.ToString());
+
+                this.Content = new UserControl();
+            };
+            menu.Items.Add(m);
+            menu.Placement = PlacementMode.Mouse;
+            menu.IsOpen = true;
         }
 
         private void Objects_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
