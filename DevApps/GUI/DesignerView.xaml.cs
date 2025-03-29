@@ -188,6 +188,9 @@ namespace DevApps.GUI
 
         internal void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (selectedElement != null && isDragging || isResizing)
+                SaveDisposition(selectedElement);
+
             if (isDoubleClick)
                 selectedElement?.RunAction(e.GetPosition(MyCanvas));
 
@@ -333,6 +336,25 @@ namespace DevApps.GUI
                     var o = DevObject.References.FirstOrDefault(p=>p.Key == obj.Key);
                     Service.AddShape(this.facette, o.Key, o.Value.Description, obj.Value.GetZone());
                 }
+            }
+        }
+        private void SaveDisposition()
+        {
+            if (Service.IsInitialized)
+            {
+                foreach (var element in MyCanvas.Children.OfType<DrawElement>())
+                {
+                    if(this.facette.Objects.TryGetValue(element.Name, out var props))
+                        props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
+                }
+            }
+        }
+        private void SaveDisposition(DrawElement element)
+        {
+            if (Service.IsInitialized)
+            {
+                if (this.facette.Objects.TryGetValue(element.Name, out var props))
+                    props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
             }
         }
     }
