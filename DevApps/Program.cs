@@ -132,18 +132,11 @@ internal partial class Program
             DevApps.Samples.UI.Create();
 #endif
 
-        if (GUI.Service.IsInitialized)
-        {
-            foreach (var o in DevObject.References)
-            {
-                GUI.Service.AddShape(o.Key, o.Value.Description, o.Value.GetZone());
-            }
-        }
-
-
         GUI.Service.InvalidateFacets();
 
         DevObject.MakeReferences();
+
+        DevObject.LoadOutput();
 
         DevObject.Init();
 

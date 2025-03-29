@@ -25,7 +25,6 @@ internal partial class Program
         internal Mutex mutexReadOutput = new Mutex();
         internal static bool run = false;
         internal static Thread? thread;
-        internal System.Windows.Rect zone = new System.Windows.Rect(10,10,100,100);
         public MemoryStream buildStream = new MemoryStream();
 
         public DevApps.PythonExtends.GUI gui = new DevApps.PythonExtends.GUI();
@@ -77,8 +76,6 @@ internal partial class Program
             var o = new DevObject();
             o.Description = desc;
             References.Add(name, o);
-
-            o.zone = GUI.Service.GenerateNextPosition(100,100);
 
             return o;
         }
@@ -503,17 +500,6 @@ internal partial class Program
                 path = DataDir;
 
             File.WriteAllBytes(Path.Combine(path, name), buildStream.GetBuffer());
-            return this;
-        }
-
-        public System.Windows.Rect GetZone()
-        {
-            return zone;
-        }
-
-        public DevObject SetZone(System.Windows.Rect rect)
-        {
-            zone = rect;
             return this;
         }
 

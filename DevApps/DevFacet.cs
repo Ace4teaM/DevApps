@@ -1,22 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using static IronPython.Modules._ast;
+using System.Windows;
 
 internal partial class Program
 {
-    internal class DevFacet
+    public class DevFacet
     {
-        public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
-        public DevSelect Objects { get; set; } = new DevSelect();
+        public class ObjectProperties
+        {
+            static double X = 10;
+            static double Y = 10;
 
-        public static DevFacet Create(string name, DevSelect select)
+            public static Rect GenerateNextPosition(double width, double height)
+            {
+                var rect = new Rect(X, Y, width, height);
+
+                X += width + 10;
+                if (X > 500)
+                {
+                    X = 10;
+                    Y += height + 10;
+                }
+
+                return rect;
+            }
+
+            public ObjectProperties()
+            {
+                zone = GenerateNextPosition(100, 100);
+            }
+
+            public System.Windows.Rect GetZone()
+            {
+                return zone;
+            }
+
+            public ObjectProperties SetZone(System.Windows.Rect rect)
+            {
+                zone = rect;
+                return this;
+            }
+
+            public System.Windows.Rect zone;
+        }
+        public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
+        internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
+
+        public IEnumerable<KeyValuePair<string, ObjectProperties?>> GetObjects()
+        {
+            return Objects.Select(p => new KeyValuePair<string, ObjectProperties?>(p.Key, p.Value));
+        }
+
+        public void SetObjects(IEnumerable<KeyValuePair<string, ObjectProperties?>> items)
+        {
+            Objects.Clear();
+            foreach (var p in items)
+            {
+                if(p.Value != null)
+                    Objects.Add(p.Key, p.Value);
+            }
+        }
+
+        public static DevFacet Create(string name, string[] objectNames)
         {
             var o = new DevFacet();
-            o.Objects = select;
+            foreach(var obj in objectNames)
+            {
+                o.Objects.Add(obj, new ObjectProperties());
+            }
             References.Add(name, o);
             return o;
         }

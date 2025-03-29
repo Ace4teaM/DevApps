@@ -219,7 +219,11 @@ out.write(csharp_code)
                 ")
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
-            DevFacet.Create("ERD", DevObject.Select(["codegen", "datamodel", "visual"]));
+            DevFacet.Create("ERD", ["codegen", "datamodel", "visual"]);
+
+            DevFacet.Get("ERD")?.Objects["codegen"].SetZone(new System.Windows.Rect(20, 20, 400, 400));
+            DevFacet.Get("ERD")?.Objects["datamodel"].SetZone(new System.Windows.Rect(500, 20, 200, 400));
+            DevFacet.Get("ERD")?.Objects["visual"].SetZone(new System.Windows.Rect(800, 20, 250, 400));
         }
     }
 }

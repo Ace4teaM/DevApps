@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DevApps.GUI"
         mc:Ignorable="d"
-        Title="DesignerWindow" Height="450" Width="800">
+        Title="DesignerWindow" Height="509" Width="979">
     <DockPanel>
         <Grid DockPanel.Dock="Top" Background="#EEEEEE">
             <Grid.ColumnDefinitions>

@@ -15,7 +15,7 @@ namespace DevApps.GUI
     /// </summary>
     public partial class DesignerView : UserControl, INotifyPropertyChanged
     {
-        internal string facette = String.Empty;
+        internal DevFacet facette;
         internal bool isDragging = false;
         internal bool isResizing = false;
         internal bool isDoubleClick = false;
@@ -28,7 +28,7 @@ namespace DevApps.GUI
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public DesignerView(string facette)
+        internal DesignerView(DevFacet facette)
         {
             InitializeComponent();
             this.DataContext = this;
@@ -329,10 +329,10 @@ namespace DevApps.GUI
         {
             if (Service.IsInitialized)
             {
-                foreach (var obj in DevFacet.References[this.facette].Objects.devObjects)
+                foreach (var obj in this.facette.Objects)
                 {
-                    var o = DevObject.References.FirstOrDefault(p=>p.Value == obj);
-                    Service.AddShape(o.Key, o.Value.Description, o.Value.GetZone());
+                    var o = DevObject.References.FirstOrDefault(p=>p.Key == obj.Key);
+                    Service.AddShape(this.facette, o.Key, o.Value.Description, obj.Value.GetZone());
                 }
             }
         }

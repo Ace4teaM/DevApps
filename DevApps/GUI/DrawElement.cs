@@ -2,12 +2,19 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using static Program;
 
 namespace DevApps.GUI
 {
     public class DrawElement : FrameworkElement
     {
         internal FormattedText? Title;
+        internal DevFacet? facet;
+
+        internal DrawElement(DevFacet facet)
+        {
+            this.facet = facet;
+        }
 
         public double X
         {
@@ -33,6 +40,8 @@ namespace DevApps.GUI
 
         internal void RunAction(Point position)
         {
+            var facette = DevFacet.References[this.Name];
+
             Program.DevObject.mutexCheckObjectList.WaitOne();
             Program.DevObject.References.TryGetValue(this.Name, out var reference);
             Program.DevObject.mutexCheckObjectList.ReleaseMutex();
@@ -92,7 +101,7 @@ namespace DevApps.GUI
                 {
                     reference.mutexReadOutput.WaitOne();
 
-                    reference.zone = new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight);
+                    facet.Objects[this.Name].SetZone(new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight));
                     reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = rect };
 
                     var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
