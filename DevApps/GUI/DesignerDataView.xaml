@@ -13,7 +13,14 @@
         <local:EditConverter x:Key="editConverter"/>
     </UserControl.Resources>
     <Grid>
-        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False">
+        <DataGrid x:Name="dataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Header="Nouvelle facette..." Click="MenuItem_Click_CreateFacet"></MenuItem>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="200" />
                 <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" />

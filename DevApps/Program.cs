@@ -1,6 +1,6 @@
 ﻿//#define LOAD // sinon SAVE
 
-using GUI;
+using DevApps.GUI;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
@@ -114,8 +114,8 @@ internal partial class Program
         // ouvre l'éditeur
         if (args.Contains("-w"))
         {
-            GUI.Service.OpenEditor();
-            GUI.Service.WaitWindowLoaded();
+            Service.OpenEditor();
+            Service.WaitWindowLoaded();
         }
 
 #if LOAD
@@ -133,7 +133,7 @@ internal partial class Program
             DevApps.Samples.UI.Create();
 #endif
 
-        GUI.Service.InvalidateFacets();
+        Service.InvalidateFacets();
 
         DevObject.MakeReferences();
 
@@ -151,7 +151,7 @@ internal partial class Program
         DevFacet.Get("Model")?.Build();
 
         // Attend la fermeture de la fenêtre
-        GUI.Service.WaitWindowClosed();
+        Service.WaitWindowClosed();
 
         // Sauvegarde les données permanentes
         DevObject.SaveOutput();

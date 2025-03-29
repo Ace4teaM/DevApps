@@ -40,7 +40,6 @@ namespace DevApps.GUI
         {
             if(IsMultiline == false && e.Key == Key.Enter)
             {
-                this.DialogResult = true;
                 this.Close();
             }
 
@@ -49,9 +48,14 @@ namespace DevApps.GUI
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ValidationMessage = (Format != null && Format.IsMatch(Value) == false) ? "Format invalide" : "";
+            ValidationMessage = (Format != null && Format.IsMatch(Value) == false) ? "Format invalide" : String.Empty;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ValidationMessage"));
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            this.DialogResult = String.IsNullOrEmpty(ValidationMessage);
         }
     }
 }

@@ -40,8 +40,6 @@ namespace DevApps.GUI
 
         internal void RunAction(Point position)
         {
-            var facette = DevFacet.References[this.Name];
-
             Program.DevObject.mutexCheckObjectList.WaitOne();
             Program.DevObject.References.TryGetValue(this.Name, out var reference);
             Program.DevObject.mutexCheckObjectList.ReleaseMutex();

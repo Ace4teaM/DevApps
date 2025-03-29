@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DevApps.GUI"
         mc:Ignorable="d"
+        Closing="Window_Closing"
         Title="GetText" Height="184" Width="403">
     <DockPanel>
         <TextBlock DockPanel.Dock="Bottom" Text="{Binding ValidationMessage}" Background="LightGray"></TextBlock>
-        <TextBox Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="{Binding IsMultiline}" KeyDown="TextBox_KeyDown" TextChanged="TextBox_TextChanged">
+        <TextBox Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalScrollBarVisibility="Auto" AcceptsReturn="{Binding IsMultiline}" KeyDown="TextBox_KeyDown" TextChanged="TextBox_TextChanged">
 
         </TextBox>
     </DockPanel>
