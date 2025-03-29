@@ -137,7 +137,7 @@ namespace DevApps.GUI
                 item.Background = null;
             }
             tab.Background = Brushes.BlueViolet;
-            this.Content = new DesignerView(tab.Header.ToString());
+            this.Content = new DesignerView(Program.DevFacet.References.First(p=>p.Key == tab.Header.ToString()).Value);
         }
 
         private void Objects_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -156,7 +156,7 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                Program.DevFacet.Create(wnd.Value, Program.DevSelect.Empty);
+                Program.DevFacet.Create(wnd.Value, []);
                 InvalidateFacets();
             }
         }

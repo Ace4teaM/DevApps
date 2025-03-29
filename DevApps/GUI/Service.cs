@@ -319,26 +319,9 @@ namespace GUI
                 })));
         }
 
-        static double X = 10;
-        static double Y = 10;
-
-        internal static Rect GenerateNextPosition(double width, double height)
-        {
-            var rect = new Rect(X, Y, width, height);
-
-            X += width + 10;
-            if (X > 500)
-            {
-                X = 10;
-                Y += height + 10;
-            }
-
-            return rect;
-        }
-
         internal static Typeface typeface = new Typeface("Verdana");
 
-        internal static void AddShape(string name, string? desc, Rect position)
+        internal static void AddShape(Program.DevFacet facet, string name, string? desc, Rect position)
         {
             EditorWindow?.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
@@ -347,7 +330,7 @@ namespace GUI
                     {
                         var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
 
-                        var element = new DrawElement();
+                        var element = new DrawElement(facet);
                         element.Title = new FormattedText(desc ?? name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
                         element.Name = name;
                         element.Width = position.Width;

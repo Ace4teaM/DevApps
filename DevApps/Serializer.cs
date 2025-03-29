@@ -31,7 +31,23 @@ namespace Serializer
         public string? BuildMethod { get { return content.GetBuildMethod(); } set { content.SetBuildMethod(value); } }
         public string? ObjectCode { get { return content.GetCode(); } set { content.SetCode(value); } }
         public string? DrawCode { get { return content.GetDrawCode(); } set { content.SetDrawCode(value); } }
-        public System.Windows.Rect Zone { get { return content.GetZone(); } set { content.SetZone(value); } }
+    }
+
+    internal class DevFacet
+    {
+        [Newtonsoft.Json.JsonIgnore]
+        internal Program.DevFacet content;
+
+        public DevFacet()
+        {
+            this.content = new Program.DevFacet();
+        }
+        public DevFacet(Program.DevFacet content)
+        {
+            this.content = content;
+        }
+
+        public KeyValuePair<string, Program.DevFacet.ObjectProperties?>[] Objects { get { return content.GetObjects().ToArray(); } set { content.SetObjects(value); } }
     }
 
     internal class DevProject

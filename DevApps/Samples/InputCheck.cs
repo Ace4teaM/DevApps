@@ -122,7 +122,7 @@ public class {name}
              * J'intègre les commandes de générations des fichiers
             */
 
-            DevFacet.Create("Model", DevObject.SelectAll())
+            DevFacet.Create("Model", DevObject.References.Keys.ToArray())
                 /*.AddInstallCommand(@"
     py -m pip install openai
     ")*/
