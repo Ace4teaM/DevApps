@@ -55,5 +55,57 @@
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())"
       }
     }
+  ],
+  "Facets": [
+    {
+      "Key": "ERD",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "codegen",
+            "Value": {
+              "zone": "20,20,400,400"
+            }
+          },
+          {
+            "Key": "datamodel",
+            "Value": {
+              "zone": "500,20,200,400"
+            }
+          },
+          {
+            "Key": "visual",
+            "Value": {
+              "zone": "800,20,267,400"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Key": "test",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "visual",
+            "Value": {
+              "zone": "701,30,248,388"
+            }
+          },
+          {
+            "Key": "datamodel",
+            "Value": {
+              "zone": "399,51,201,383"
+            }
+          },
+          {
+            "Key": "codegen",
+            "Value": {
+              "zone": "29,32,354,373"
+            }
+          }
+        ]
+      }
+    }
   ]
 }

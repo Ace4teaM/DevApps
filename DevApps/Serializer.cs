@@ -69,5 +69,21 @@ namespace Serializer
                 }
             }
         }
+        public KeyValuePair<string, DevFacet>[] Facets
+        {
+            get
+            {
+                return Program.DevFacet.References.Select(p => new KeyValuePair<string, DevFacet>(p.Key, new DevFacet(p.Value))).ToArray();
+            }
+            set
+            {
+                Program.DevFacet.References.Clear();
+
+                foreach (var o in value)
+                {
+                    Program.DevFacet.References.Add(o.Key, o.Value.content);
+                }
+            }
+        }
     }
 }
