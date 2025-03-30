@@ -1,10 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using IronPython.Runtime.Types;
+using Newtonsoft.Json;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
+using static IronPython.Modules._ast;
 using static Program;
 
 namespace DevApps.GUI
@@ -15,6 +18,7 @@ namespace DevApps.GUI
     public partial class DesignerView : UserControl, INotifyPropertyChanged
     {
         internal DevFacet facette;
+        internal bool isPanning = false;
         internal bool isDragging = false;
         internal bool isResizing = false;
         internal bool isDoubleClick = false;
@@ -22,6 +26,11 @@ namespace DevApps.GUI
         internal Point startMousePosition;
         internal DrawElement? selectedElement;
         internal ResizeDirection resizeDirection;
+
+        // Transformation de la vue
+        private ScaleTransform _scaleTransform = new ScaleTransform();
+        private TranslateTransform _translateTransform = new TranslateTransform();
+        private TransformGroup _transformGroup = new TransformGroup();
 
         private List<ConnectorElement> connectorElements = new List<ConnectorElement>();
 
@@ -36,6 +45,9 @@ namespace DevApps.GUI
             lastClickTimer.AutoReset = false;
 
             this.facette = facette;
+
+            _transformGroup.Children.Add(_translateTransform);
+            MyCanvas.LayoutTransform = _scaleTransform;
         }
 
         internal enum ResizeDirection { None, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight }
@@ -44,10 +56,8 @@ namespace DevApps.GUI
         {
             selectedElement = Mouse.DirectlyOver as DrawElement;
 
-            if (selectedElement == null) return;
-
             // redimensionnement / déplacement
-            if (e.LeftButton == MouseButtonState.Pressed && e.RightButton == MouseButtonState.Released)
+            if (selectedElement != null && e.LeftButton == MouseButtonState.Pressed && e.RightButton == MouseButtonState.Released && e.MiddleButton == MouseButtonState.Released)
             {
                 if (lastClickTimer.Enabled)
                 {
@@ -75,7 +85,7 @@ namespace DevApps.GUI
             }
 
             // outils
-            if (e.RightButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Released)
+            if (selectedElement != null && e.RightButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Released && e.MiddleButton == MouseButtonState.Released)
             {
                 ContextMenu menu = new ContextMenu();
                 menu.Items.Add(new MenuItem { Header = "Supprimer" });
@@ -120,6 +130,15 @@ namespace DevApps.GUI
                 menu.IsOpen = true;
 
             }
+
+            // vue
+            if (e.MiddleButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Released && e.RightButton == MouseButtonState.Released)
+            {
+                startMousePosition = e.GetPosition(MyCanvas);
+                MyCanvas.CaptureMouse();
+
+                isPanning = true;
+            }
         }
 
         internal void Canvas_MouseMove(object sender, MouseEventArgs e)
@@ -150,6 +169,7 @@ namespace DevApps.GUI
                                 overElement,
                                 MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value)
                             );
+                            connector.RenderTransform = _transformGroup;
                             connectorElements.Add(connector);
                             MyCanvas.Children.Add(connector);
                         }
@@ -180,6 +200,10 @@ namespace DevApps.GUI
             {
                 ResizeRectangle(currentMousePosition);
             }
+            else if(isPanning)
+            {
+                PanScroll(currentMousePosition);
+            }
             else
             {
                 UpdateCursor(currentMousePosition);
@@ -194,6 +218,12 @@ namespace DevApps.GUI
             if (isDoubleClick)
                 selectedElement?.RunAction(e.GetPosition(MyCanvas));
 
+            if (isPanning)
+            {
+                MyCanvas.ReleaseMouseCapture();
+            }
+
+            isPanning = false;
             isDoubleClick = false;
             isDragging = false;
             isResizing = false;
@@ -210,6 +240,17 @@ namespace DevApps.GUI
 
             Canvas.SetLeft(selectedElement, newLeft);
             Canvas.SetTop(selectedElement, newTop);
+
+            startMousePosition = mousePosition;
+        }
+
+        internal void PanScroll(Point mousePosition)
+        {
+            double offsetX = mousePosition.X - startMousePosition.X;
+            double offsetY = mousePosition.Y - startMousePosition.Y;
+
+            _translateTransform.X += offsetX;
+            _translateTransform.Y += offsetY;
 
             startMousePosition = mousePosition;
         }
@@ -304,6 +345,9 @@ namespace DevApps.GUI
             if (selectedElement == null)
                 return ResizeDirection.None;
 
+            mousePosition.X -= _translateTransform.X;
+            mousePosition.Y -= _translateTransform.Y;
+
             double left = Canvas.GetLeft(selectedElement);
             double top = Canvas.GetTop(selectedElement);
             double right = left + selectedElement.Width;
@@ -334,7 +378,18 @@ namespace DevApps.GUI
                 foreach (var obj in this.facette.Objects)
                 {
                     var o = DevObject.References.FirstOrDefault(p=>p.Key == obj.Key);
-                    Service.AddShape(this.facette, o.Key, o.Value.Description, obj.Value.GetZone());
+
+                    var position = obj.Value.GetZone();
+
+                    var element = new DrawElement(this.facette);
+                    element.Title = new FormattedText(o.Value.Description ?? o.Key, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue);
+                    element.Name = o.Key;
+                    element.Width = position.Width;
+                    element.Height = position.Height;
+                    element.RenderTransform = _transformGroup;
+                    Canvas.SetLeft(element, position.Left);
+                    Canvas.SetTop(element, position.Top);
+                    MyCanvas.Children.Add(element);
                 }
             }
         }
@@ -357,5 +412,17 @@ namespace DevApps.GUI
                     props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
             }
         }
+
+        private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            Point mousePosition = e.GetPosition(MyCanvas);
+            double scale = e.Delta > 0 ? 1.1 : (1.0 / 1.1);
+
+            _scaleTransform.ScaleX *= scale;
+            _scaleTransform.ScaleY *= scale;
+
+            MyCanvas.LayoutTransform = _scaleTransform;
+        }
+
     }
 }

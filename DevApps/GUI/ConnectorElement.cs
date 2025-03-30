@@ -7,7 +7,7 @@ namespace DevApps.GUI
 {
     internal class ConnectorElement : ContentControl
     {
-        Path path = new Path();
+        internal Path path = new Path();
         public DrawElement Source { get; set; }
         public DrawElement? Destination { get; set; }
 
