@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Samples\CodeTemplate\" />
     <Folder Include="Samples\UI\" />
     <Folder Include="Shared\Commons\Markdown\" />
     <Folder Include="Shared\Commons\Tips\" />
