@@ -53,90 +53,11 @@
         "ObjectCode": "",
         "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())"
       }
-    },
-    {
-      "Key": "template2",
-      "Value": {
-        "Description": "Template",
-        "Pointers": [],
-        "Functions": [],
-        "Properties": [],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "",
-        "BuildMethod": "",
-        "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())"
-      }
-    },
-    {
-      "Key": "data2",
-      "Value": {
-        "Description": "Data",
-        "Pointers": [],
-        "Functions": [],
-        "Properties": [],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "",
-        "BuildMethod": "",
-        "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())"
-      }
-    },
-    {
-      "Key": "code2",
-      "Value": {
-        "Description": "Code",
-        "Pointers": [
-          {
-            "Key": "template",
-            "Value": "template"
-          },
-          {
-            "Key": "data",
-            "Value": "data"
-          }
-        ],
-        "Functions": [],
-        "Properties": [],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "",
-        "BuildMethod": "import string\r\nimport json\r\n# Définir un template avec des variables\r\ntemplate_str = template.text()\r\n# Créer un dictionnaire de données à insérer dans le template\r\ndonnees = json.loads(data.text())\r\n# Créer un objet Template à partir du template\r\ntemplate = string.Template(template_str)\r\n# Remplacer les variables par les valeurs correspondantes\r\nresultat = template.safe_substitute(donnees)\r\n# Afficher le résultat\r\nout.write(resultat)",
-        "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())"
-      }
     }
   ],
   "Facets": [
     {
       "Key": "Template",
-      "Value": {
-        "Objects": [
-          {
-            "Key": "template",
-            "Value": {
-              "zone": "20,20,200,400"
-            }
-          },
-          {
-            "Key": "code",
-            "Value": {
-              "zone": "300,20,200,400"
-            }
-          },
-          {
-            "Key": "data",
-            "Value": {
-              "zone": "600,20,200,400"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "Key": "Template2",
       "Value": {
         "Objects": [
           {
