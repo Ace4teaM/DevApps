@@ -18,7 +18,7 @@ ${footer}
 
             DevObject.Create("data", "Data")
                 .SetOutput(@"
-{\n""namespace"":""Program"",\n""class_def"":""class HelloWorld { }"",\n""footer"":""// endo of code""\n}
+{\n""namespace"":""Program"",\n""class_def"":""class HelloWorld { }"",\n""footer"":""// end of code""\n}
 ")
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
