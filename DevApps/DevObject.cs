@@ -60,6 +60,23 @@ internal partial class Program
         /// </summary>
         public (string, CompiledCode?) DrawCode { get; set; } = (String.Empty, null);
 
+        /// <summary>
+        /// trouve un nom unique
+        /// </summary>
+        /// <param name="name"></param>
+        public static void MakeUniqueName(ref string name)
+        {
+            var newName = name;
+            int n = 2;
+            while(References.ContainsKey(newName))
+            {
+                newName = name + n;
+                n++;
+            }
+
+            name = newName;
+        }
+
 
         public static DevObject Create(string name, string desc)
         {

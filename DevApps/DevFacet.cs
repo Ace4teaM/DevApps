@@ -46,6 +46,23 @@ internal partial class Program
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
         internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
 
+        /// <summary>
+        /// trouve un nom unique
+        /// </summary>
+        /// <param name="name"></param>
+        public static void MakeUniqueName(ref string name)
+        {
+            var newName = name;
+            int n = 2;
+            while (References.ContainsKey(newName))
+            {
+                newName = name + n;
+                n++;
+            }
+
+            name = newName;
+        }
+
         public IEnumerable<KeyValuePair<string, ObjectProperties?>> GetObjects()
         {
             return Objects.Select(p => new KeyValuePair<string, ObjectProperties?>(p.Key, p.Value));
