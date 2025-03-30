@@ -1,0 +1,6 @@
+
+namespace ${namespace}
+{
+    ${class_def}
+}
+${footer}

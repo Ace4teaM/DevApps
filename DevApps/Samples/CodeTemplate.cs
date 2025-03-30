@@ -6,24 +6,51 @@ namespace DevApps.Samples
     {
         internal static void Create()
         {
-            DevObject.Create("cstemplate", "Template")
-                .SetInitMethod(@"
-                class CsTemplate:
-                    base = ""{namespace}\n\n{class def}\n\n{footer}""
+            DevObject.Create("template", "Template")
+                .SetOutput(@"
+namespace ${namespace}
+{
+    ${class_def}
+}
+${footer}
+")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
-                cstemplate = CsTemplate()
-                ")
-                .AddProperty(@"base", @"cstemplate.base")
+            DevObject.Create("data", "Data")
+                .SetOutput(@"
+{\n""namespace"":""Program"",\n""class_def"":""class HelloWorld { }"",\n""footer"":""// endo of code""\n}
+")
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
             DevObject.Create("code", "Code")
-                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
-            ;
+                .AddPointer("template", "template")
+                .AddPointer("data", "data")
+                .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())")
+            .SetBuildMethod(@"
+import string
+import json
 
-            DevFacet.Create("Template", ["cstemplate", "code"]);
+# Définir un template avec des variables
+template_str = template.text()
 
-            DevFacet.Get("Template")?.Objects["cstemplate"].SetZone(new System.Windows.Rect(20, 20, 400, 400));
-            DevFacet.Get("Template")?.Objects["code"].SetZone(new System.Windows.Rect(500, 20, 200, 400));
+# Créer un dictionnaire de données à insérer dans le template
+donnees = json.loads(data.text())
+
+# Créer un objet Template à partir du template
+template = string.Template(template_str)
+
+# Remplacer les variables par les valeurs correspondantes
+resultat = template.safe_substitute(donnees)
+
+# Afficher le résultat
+out.write(resultat)
+                ");
+
+            DevFacet.Create("Template", ["template", "code", "data"]);
+
+            DevFacet.Get("Template")?.Objects["template"].SetZone(new System.Windows.Rect(20, 20, 200, 400));
+            DevFacet.Get("Template")?.Objects["code"].SetZone(new System.Windows.Rect(300, 20, 200, 400));
+            DevFacet.Get("Template")?.Objects["data"].SetZone(new System.Windows.Rect(600, 20, 200, 400));
         }
     }
 }
