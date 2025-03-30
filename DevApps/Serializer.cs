@@ -86,4 +86,45 @@ namespace Serializer
             }
         }
     }
+    internal class DevExternalProject
+    {
+        public Dictionary<string, Program.DevObject> ReferencesO = new Dictionary<string, Program.DevObject>();
+        public Dictionary<string, Program.DevFacet> ReferencesF = new Dictionary<string, Program.DevFacet>();
+
+        public DevExternalProject()
+        {
+        }
+        public KeyValuePair<string, DevObject>[] Objects
+        {
+            get
+            {
+                return ReferencesO.Select(p => new KeyValuePair<string, DevObject>(p.Key, new DevObject(p.Value))).ToArray();
+            }
+            set
+            {
+                ReferencesO.Clear();
+
+                foreach (var o in value)
+                {
+                    ReferencesO.Add(o.Key, o.Value.content);
+                }
+            }
+        }
+        public KeyValuePair<string, DevFacet>[] Facets
+        {
+            get
+            {
+                return ReferencesF.Select(p => new KeyValuePair<string, DevFacet>(p.Key, new DevFacet(p.Value))).ToArray();
+            }
+            set
+            {
+                ReferencesF.Clear();
+
+                foreach (var o in value)
+                {
+                    ReferencesF.Add(o.Key, o.Value.content);
+                }
+            }
+        }
+    }
 }

@@ -15,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static Community.CsharpSqlite.Sqlite3;
 
 namespace DevApps.GUI
 {
@@ -72,12 +73,43 @@ namespace DevApps.GUI
                 // liste les objets partagés
                 foreach (var dir in Directory.EnumerateDirectories(path))
                 {
-                    if (File.Exists(System.IO.Path.Combine(dir, Program.Filename)) == true)
+                    var filename = System.IO.Path.Combine(dir, Program.Filename);
+                    if (File.Exists(filename) == true)
                     {
                         var m = new MenuItem { Header = System.IO.Path.GetFileName(dir) };
                         m.Click += (s, e) =>
                         {
-                            // Ajoute les objets au projet dans une nouvelle facette 
+                            using StreamReader reader = new StreamReader(filename);
+
+                            JsonSerializer serializer = JsonSerializer.CreateDefault();
+                            serializer.Error += (sender, e) =>
+                            {
+                                System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                            };
+
+                            var proj = new Serializer.DevExternalProject();
+
+                            serializer.Populate(reader, proj);
+
+                            // Ajoute les objets au projet
+
+                            foreach(var o in proj.Objects)
+                            {
+                                var name = o.Key;
+                                if (Program.DevObject.References.ContainsKey(name) == true)
+                                    Program.DevObject.MakeUniqueName(ref name);
+                                Program.DevObject.References.Add(name, o.Value.content);
+                            }
+
+                            foreach (var o in proj.Facets)
+                            {
+                                var name = o.Key;
+                                if (Program.DevFacet.References.ContainsKey(name) == true)
+                                    Program.DevFacet.MakeUniqueName(ref name);
+                                Program.DevFacet.References.Add(name, o.Value.content);
+                            }
+
+                            Service.InvalidateFacets();
                         };
                         menu.Items.Add(m);
                     }
