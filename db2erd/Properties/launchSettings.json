@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "db2erd": {
+      "commandName": "Project",
+      "commandLineArgs": "sqlserver \"Server=AceTeaM;Database=test;Integrated Security=true;TrustServerCertificate=true;\""
+    }
+  }
+}
