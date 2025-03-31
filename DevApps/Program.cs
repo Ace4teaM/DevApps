@@ -13,8 +13,8 @@ internal partial class Program
     internal static readonly string DevBranch = "devapps";
     internal static readonly string Filename = "devapps.json";
     internal static readonly string DataDir = ".devapps";
-    internal static string CommonDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Shared");
-    internal static readonly string CommonObjDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Objects");
+    internal static string CommonDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Shared");
+    internal static readonly string CommonObjPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Objects");
     internal static ScriptEngine pyEngine = null;
     internal static ScriptRuntime pyRuntime = null;
     internal static ScriptScope pyScope = null;
@@ -66,10 +66,10 @@ internal partial class Program
         {
             if (Directory.Exists(DataDir) == false)
                 Directory.CreateDirectory(DataDir);
-            if (Directory.Exists(Program.CommonDataDir) == false)
-                Directory.CreateDirectory(Program.CommonDataDir);
-            if (Directory.Exists(Program.CommonObjDir) == false)
-                Directory.CreateDirectory(Program.CommonObjDir);
+            if (Directory.Exists(Program.CommonDataPath) == false)
+                Directory.CreateDirectory(Program.CommonDataPath);
+            if (Directory.Exists(Program.CommonObjPath) == false)
+                Directory.CreateDirectory(Program.CommonObjPath);
         }
         catch (Exception ex)
         {
@@ -103,7 +103,7 @@ internal partial class Program
             try
             {
                 var path = Path.GetFullPath(args[args.FindIndex(p => p == "-b") + 1]);
-                CommonDataDir = path;
+                CommonDataPath = path;
             }
             catch (Exception ex)
             {

@@ -1,0 +1,36 @@
+[TEST]
+un
+deux
+
+[Commande]
+*numero
+*date
+
+[Client]
+*numero
+*nom
+*prenom
+*adresse
+*ville
+*code_postal
+*telephone
+*email
+
+[Produit]
+*numero
+*nom
+*description
+*prix
+*quantite
+
+[DetailCommande]
+*numero
+*quantite
+*prix
+*total
+*commande
+*produit
+
+Commande 1--1 DetailCommande
+Commande *--1 Client
+Commande *--* Produit

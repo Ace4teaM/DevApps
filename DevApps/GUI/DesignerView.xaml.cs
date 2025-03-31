@@ -110,7 +110,7 @@ namespace DevApps.GUI
                     {
                         reference.mutexReadOutput.WaitOne();
 
-                        using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjDir, selectedElement?.Name));
+                        using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, selectedElement?.Name));
 
                         var settings = new JsonSerializerSettings
                         {
@@ -120,7 +120,7 @@ namespace DevApps.GUI
 
                         serializer.Serialize(writer, new Serializer.DevObject(reference));
 
-                        reference.SaveOutput(selectedElement?.Name, Program.CommonDataDir);
+                        reference.SaveOutput(selectedElement?.Name, Program.CommonDataPath);
 
                         reference.mutexReadOutput.ReleaseMutex();
                     }
