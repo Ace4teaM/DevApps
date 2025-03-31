@@ -1,21 +1,11 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static Community.CsharpSqlite.Sqlite3;
 
 namespace DevApps.GUI
 {
@@ -99,6 +89,20 @@ namespace DevApps.GUI
                                 if (Program.DevObject.References.ContainsKey(name) == true)
                                     Program.DevObject.MakeUniqueName(ref name);
                                 Program.DevObject.References.Add(name, o.Value.content);
+
+                                // importe les données
+                                try
+                                {
+                                    var src_filename = Path.Combine(dir, Program.DataDir, o.Key);
+                                    if (File.Exists(src_filename) == true)
+                                    {
+                                        o.Value.content.LoadOutput(src_filename);
+                                    }
+                                }
+                                catch (Exception ex2)
+                                {
+                                    Console.WriteLine(ex2.Message);
+                                }
                             }
 
                             foreach (var o in proj.Facets)
@@ -109,6 +113,8 @@ namespace DevApps.GUI
                                 Program.DevFacet.References.Add(name, o.Value.content);
                             }
 
+                            Program.DevObject.MakeReferences(proj.Objects.Select(p=>p.Value.content));
+                            Program.DevObject.Init();
                             Service.InvalidateFacets();
                         };
                         menu.Items.Add(m);
@@ -134,7 +140,7 @@ namespace DevApps.GUI
                 // liste les objets partagés
                 ContextMenu menu = new ContextMenu();
                 var m = new MenuItem { Header = "Shared models" };
-                AddRecursiveSharedMenu(Program.CommonDataDir, m);
+                AddRecursiveSharedMenu(Program.CommonDataPath, m);
                 menu.Items.Add(m);
                 menu.Placement = PlacementMode.Top;
                 menu.PlacementTarget = sender as UIElement;

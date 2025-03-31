@@ -19,6 +19,8 @@ internal partial class Program
 
         public DevApps.PythonExtends.GUI gui = new DevApps.PythonExtends.GUI();
 
+        internal bool IsInitialized = false;
+
         /// <summary>
         /// Description de l'objet (optionnel)
         /// </summary>
@@ -252,10 +254,11 @@ internal partial class Program
         /// <summary>
         /// Execute le script d'initialisation
         /// </summary>
+        /// <remarks>Initialise uniquement les objets non initialisé</remarks>
         public static void Init()
         {
             mutexExecuteObjects.WaitOne();
-            foreach (var o in References)
+            foreach (var o in References.Where(p=>p.Value.IsInitialized == false))
             {
                 try
                 {
@@ -269,6 +272,8 @@ internal partial class Program
                         pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                     }
                     var result = o.Value.InitMethod.Item2?.Execute(pyScope);
+
+                    o.Value.IsInitialized = true;
                 }
                 catch (Exception ex)
                 {
@@ -355,78 +360,78 @@ internal partial class Program
         /// <summary>
         /// Lie les objets externes par leurs noms
         /// </summary>
-        public static void MakeReferences()
+        public static void MakeReferences(IEnumerable<DevObject>? objects = null)
         {
-            foreach (var o in References)
+            foreach (var o in objects ?? References.Values)
             {
-                if (String.IsNullOrWhiteSpace(o.Value.DrawCode.Item1) == false)
+                if (String.IsNullOrWhiteSpace(o.DrawCode.Item1) == false)
                 {
-                    string sourceCode = o.Value.DrawCode.Item1;
+                    string sourceCode = o.DrawCode.Item1;
                     ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
                     CompiledCode compiled = source.Compile();
-                    o.Value.DrawCode = (sourceCode, compiled);
+                    o.DrawCode = (sourceCode, compiled);
                 }
 
-                if (String.IsNullOrWhiteSpace(o.Value.ObjectCode.Item1) == false)
+                if (String.IsNullOrWhiteSpace(o.ObjectCode.Item1) == false)
                 {
-                    string sourceCode = o.Value.ObjectCode.Item1;
+                    string sourceCode = o.ObjectCode.Item1;
                     ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
                     CompiledCode compiled = source.Compile();
-                    o.Value.ObjectCode = (sourceCode, compiled);
+                    o.ObjectCode = (sourceCode, compiled);
                 }
 
-                foreach (var f in o.Value.Functions.ToArray())
+                foreach (var f in o.Functions.ToArray())
                 {
                     string functionCode = f.Value.Item1;
                     if (String.IsNullOrWhiteSpace(functionCode) == false)
                     {
                         ScriptSource functionScript = pyEngine.CreateScriptSourceFromString(functionCode, SourceCodeKind.Statements);
                         CompiledCode functionCompiled = functionScript.Compile();
-                        o.Value.Functions[f.Key] = (functionCode, functionCompiled);
+                        o.Functions[f.Key] = (functionCode, functionCompiled);
                     }
                 }
 
-                foreach (var f in o.Value.Properties.ToArray())
+                foreach (var f in o.Properties.ToArray())
                 {
                     string propertyCode = f.Value.Item1;
                     if (String.IsNullOrWhiteSpace(propertyCode) == false)
                     {
                         ScriptSource propertyScript = pyEngine.CreateScriptSourceFromString(propertyCode, SourceCodeKind.Expression);
                         CompiledCode propertyCompiled = propertyScript.Compile();
-                        o.Value.Properties[f.Key] = (propertyCode, propertyCompiled);
+                        o.Properties[f.Key] = (propertyCode, propertyCompiled);
                     }
                 }
 
-                if (String.IsNullOrWhiteSpace(o.Value.UserAction.Item1) == false)
+                if (String.IsNullOrWhiteSpace(o.UserAction.Item1) == false)
                 {
-                    string sourceCode = o.Value.UserAction.Item1;
+                    string sourceCode = o.UserAction.Item1;
                     ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
                     CompiledCode compiled = source.Compile();
-                    o.Value.UserAction = (sourceCode, compiled);
+                    o.UserAction = (sourceCode, compiled);
                 }
 
-                if (String.IsNullOrWhiteSpace(o.Value.LoopMethod.Item1) == false)
+                if (String.IsNullOrWhiteSpace(o.LoopMethod.Item1) == false)
                 {
-                    string sampleCode = o.Value.LoopMethod.Item1;
+                    string sampleCode = o.LoopMethod.Item1;
                     ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
                     CompiledCode sampleCompiled = sampleScript.Compile();
-                    o.Value.LoopMethod = (sampleCode, sampleCompiled);
+                    o.LoopMethod = (sampleCode, sampleCompiled);
                 }
 
-                if (String.IsNullOrWhiteSpace(o.Value.InitMethod.Item1) == false)
+                if (String.IsNullOrWhiteSpace(o.InitMethod.Item1) == false)
                 {
-                    string sampleCode = o.Value.InitMethod.Item1;
+                    string sampleCode = o.InitMethod.Item1;
                     ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
                     CompiledCode sampleCompiled = sampleScript.Compile();
-                    o.Value.InitMethod = (sampleCode, sampleCompiled);
+                    o.InitMethod = (sampleCode, sampleCompiled);
                 }
 
-                if (String.IsNullOrWhiteSpace(o.Value.BuildMethod.Item1) == false)
+                if (String.IsNullOrWhiteSpace(o.BuildMethod.Item1) == false)
                 {
-                    string sampleCode = o.Value.BuildMethod.Item1;
+                    string sampleCode = o.BuildMethod.Item1;
                     ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
                     CompiledCode sampleCompiled = sampleScript.Compile();
-                    o.Value.BuildMethod = (sampleCode, sampleCompiled);
+                    o.BuildMethod = (sampleCode, sampleCompiled);
                 }
             }
         }

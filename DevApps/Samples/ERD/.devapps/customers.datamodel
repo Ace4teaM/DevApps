@@ -1,0 +1,13 @@
+[customers]
+*customer_id
+customer_name
+
+[contacts]
+*contact_id
+*customer_id
+contact_name
+phone
+email
+
+
+contacts-->customers
