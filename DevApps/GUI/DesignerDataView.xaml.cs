@@ -61,6 +61,11 @@ namespace DevApps.GUI
             }
         }
 
+        internal void InvalidateObjects()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Items"));
+        }
+
         public DesignerDataView()
         {
             InitializeComponent();
@@ -126,6 +131,18 @@ namespace DevApps.GUI
             {
                 Program.DevFacet.Create(wnd.Value, selection ?? Array.Empty<string>());
                 Service.InvalidateFacets();
+            }
+        }
+
+        private void MenuItem_Click_CreateObject(object sender, RoutedEventArgs e)
+        {
+            var wnd = new NewObject();
+            wnd.Owner = Window.GetWindow(this);
+            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            if (wnd.ShowDialog() == true)
+            {
+                Program.DevObject.Create(wnd.Value, String.Empty);
+                InvalidateObjects();
             }
         }
 
