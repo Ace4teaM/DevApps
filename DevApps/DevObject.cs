@@ -2,8 +2,10 @@
 using DevApps.PythonExtends;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
+using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 internal partial class Program
 {
@@ -62,21 +64,47 @@ internal partial class Program
         /// </summary>
         public (string, CompiledCode?) DrawCode { get; set; } = (String.Empty, null);
 
+        static string RemoveDiacritics(string text)
+        {
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString.EnumerateRunes())
+            {
+                var unicodeCategory = Rune.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
+
         /// <summary>
         /// trouve un nom unique
         /// </summary>
         /// <param name="name"></param>
         public static void MakeUniqueName(ref string name)
         {
-            var newName = name;
+            var newName = RemoveDiacritics(name);
             int n = 2;
-            while(References.ContainsKey(newName))
+
+            var allowedChars = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+
+            newName = newName.Replace(' ', '_');
+            newName = newName.Replace('\t', '_');
+            newName = newName.Replace('-', '_');
+
+            newName = Regex.Replace(newName, "[^" + allowedChars + "]", "");
+
+            while (References.ContainsKey(newName))
             {
                 newName = name + n;
                 n++;
             }
 
-            name = newName;
+            name = newName.ToLower();
         }
 
 
@@ -484,6 +512,14 @@ internal partial class Program
         public DevObject SetDrawCode(string? code)
         {
             DrawCode = (RemoveIdent(code), null);
+            return this;
+        }
+
+        public DevObject SetOutput(byte[] data)
+        {
+            buildStream.Seek(0, SeekOrigin.Begin);
+            buildStream.Write(data);
+            buildStream.SetLength(data.Length);
             return this;
         }
 
