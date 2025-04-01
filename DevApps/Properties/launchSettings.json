@@ -4,6 +4,11 @@
       "commandName": "Project",
       "commandLineArgs": "-w -b ../../Shared",
       "workingDirectory": "Samples\\CodeTemplate"
+    },
+    "User": {
+      "commandName": "Project",
+      "commandLineArgs": "-w",
+      "workingDirectory": "E:\\devs\\Detection voiture portail\\BLE tag"
     }
   }
 }

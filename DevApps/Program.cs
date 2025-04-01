@@ -1,4 +1,8 @@
-﻿//#define LOAD // sinon SAVE
+﻿#if DEBUG
+#define CREATE
+#else
+#define LOAD
+#endif
 
 using DevApps.GUI;
 using IronPython.Hosting;
@@ -47,6 +51,11 @@ internal partial class Program
 
     private static void LoadProject()
     {
+        if(File.Exists(Filename) == false)
+        {
+            return;
+        }
+
         using StreamReader reader = new StreamReader(Filename);
 
         JsonSerializer serializer = JsonSerializer.CreateDefault();
@@ -118,6 +127,7 @@ internal partial class Program
             Service.WaitWindowLoaded();
         }
 
+        LoadProject();/*
 #if LOAD
         LoadProject();
 #else
@@ -131,7 +141,7 @@ internal partial class Program
             DevApps.Samples.SocketExchange.Create();
         else if (Directory.GetCurrentDirectory().EndsWith("UI"))
             DevApps.Samples.UI.Create();
-#endif
+#endif*/
 
         Service.InvalidateFacets();
 

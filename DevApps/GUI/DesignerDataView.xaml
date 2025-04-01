@@ -18,6 +18,7 @@
                 <ContextMenu>
                     <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>
                     <Separator></Separator>
+                    <MenuItem Header="Nouvel objet..." Click="MenuItem_Click_CreateObject"></MenuItem>
                     <MenuItem Header="Nouvelle facette..." Click="MenuItem_Click_CreateFacet"></MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
