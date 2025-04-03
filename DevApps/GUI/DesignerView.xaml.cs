@@ -371,25 +371,30 @@ namespace DevApps.GUI
             return ResizeDirection.None;
         }
 
+        private void AddElement(string name, DevFacet.ObjectProperties properties)
+        {
+            var o = DevObject.References.FirstOrDefault(p => p.Key == name);
+
+            var position = properties.GetZone();
+
+            var element = new DrawElement(this.facette);
+            element.Title = new FormattedText(o.Value.Description ?? o.Key, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue);
+            element.Name = o.Key;
+            element.Width = position.Width;
+            element.Height = position.Height;
+            element.RenderTransform = _transformGroup;
+            Canvas.SetLeft(element, position.Left);
+            Canvas.SetTop(element, position.Top);
+            MyCanvas.Children.Add(element);
+        }
+
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (Service.IsInitialized)
             {
                 foreach (var obj in this.facette.Objects)
                 {
-                    var o = DevObject.References.FirstOrDefault(p=>p.Key == obj.Key);
-
-                    var position = obj.Value.GetZone();
-
-                    var element = new DrawElement(this.facette);
-                    element.Title = new FormattedText(o.Value.Description ?? o.Key, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue);
-                    element.Name = o.Key;
-                    element.Width = position.Width;
-                    element.Height = position.Height;
-                    element.RenderTransform = _transformGroup;
-                    Canvas.SetLeft(element, position.Left);
-                    Canvas.SetTop(element, position.Top);
-                    MyCanvas.Children.Add(element);
+                    AddElement(obj.Key, obj.Value);
                 }
             }
         }
@@ -424,5 +429,47 @@ namespace DevApps.GUI
             MyCanvas.LayoutTransform = _scaleTransform;
         }
 
+        internal void InvalidateObjects()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Items"));
+        }
+
+        private void dataGrid_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                var objects = new List<Program.DevObject>();
+
+                try
+                {
+                    foreach (string file in files)
+                    {
+                        var o = Program.DevObject.CreateFromFile(file, out string name);
+                        if (o != null)
+                        {
+                            objects.Add(o);
+                            var pos = e.GetPosition(MyCanvas);
+                            var prop = new DevFacet.ObjectProperties { zone = new Rect(pos, new Size(100, 100)) };
+                            facette.Objects.Add(name, prop);
+                            AddElement(name, prop);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
+                if (objects.Count > 0)
+                {
+                    Program.DevObject.MakeReferences(objects);
+                    Program.DevObject.Init();
+
+                    InvalidateObjects();
+                }
+            }
+        }
     }
 }

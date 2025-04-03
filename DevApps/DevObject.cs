@@ -117,6 +117,31 @@ internal partial class Program
             return o;
         }
 
+        public static DevObject? CreateFromFile(string file, out string name)
+        {
+            var cp = StringComparison.InvariantCultureIgnoreCase;
+
+            name = Path.GetFileNameWithoutExtension(file);
+            DevObject.MakeUniqueName(ref name);
+            var obj = DevObject.Create(name, Path.GetFileNameWithoutExtension(file));
+            obj.SetOutput(File.ReadAllBytes(file));
+
+            if (file.EndsWith(".svg", cp))
+            {
+                obj.SetDrawCode(@"gui.svg(out)");
+            }
+            else if (file.EndsWith(".png", cp) || file.EndsWith(".bmp", cp) || file.EndsWith(".jpg", cp) || file.EndsWith(".jpeg", cp) || file.EndsWith(".gif", cp))
+            {
+                obj.SetDrawCode(@"gui.image(out)");
+            }
+            else if (file.EndsWith(".cs", cp) || file.EndsWith(".cpp", cp) || file.EndsWith(".h", cp) || file.EndsWith(".c", cp) || file.EndsWith(".txt", cp) || file.EndsWith(".erd", cp))
+            {
+                obj.SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
+            }
+
+            return obj;
+        }
+
         public static DevSelect Select(params string[] names)
         {
             return new DevSelect { devObjects = References.Where(p => names.Contains(p.Key)).Select(p=>p.Value).ToList() };
