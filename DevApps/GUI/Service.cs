@@ -25,6 +25,7 @@ namespace DevApps.GUI
         /// Liste des applications avec leurs lignes de commandes
         /// </summary>
         internal static Dictionary<string, string> externalsEditors = new Dictionary<string, string>();
+        internal static Dictionary<string, string> externalsTools = new Dictionary<string, string>();
 
         static Service()
         {
@@ -34,6 +35,12 @@ namespace DevApps.GUI
             // detection
             if (externalsEditors.Count == 0)
             {
+                string[] tools =
+                {
+                    "canvas2pdf.exe",
+                    "db2erd.exe",
+                };
+
                 string[] editors =
                 {
                     "Typora.exe",
@@ -46,7 +53,8 @@ namespace DevApps.GUI
                     "7zFM.exe",
                 };
 
-                ResolveExternalEditors(editors);
+                ResolveExternalEditors(editors, externalsEditors);
+                ResolveExternalEditors(tools, externalsTools);
             }
 
             if (associatedEditors.Count == 0)
@@ -76,7 +84,7 @@ namespace DevApps.GUI
             }
         }
 
-        internal static void ResolveExternalEditors(string[] editors)
+        internal static void ResolveExternalEditors(string[] editors, Dictionary<string,string> paths)
         {
             // possibilité pour l'utilisateur de renseigner plus de mots clés puis choisir les éditeurs à lier aux mots clés
 
@@ -97,7 +105,7 @@ namespace DevApps.GUI
 
                                 if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
                                 {
-                                    externalsEditors.Add(displayName, displayIcon);
+                                    paths.Add(displayName, displayIcon);
                                 }
                             }
                         }
@@ -119,7 +127,7 @@ namespace DevApps.GUI
 
                                 if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
                                 {
-                                    externalsEditors.Add(displayName, displayIcon);
+                                    paths.Add(displayName, displayIcon);
                                 }
                             }
                         }
@@ -144,7 +152,7 @@ namespace DevApps.GUI
 
                                         if (path != null)
                                         {
-                                            externalsEditors.Add(subKeyName.Replace(".exe",null), path);
+                                            paths.Add(subKeyName.Replace(".exe",null), path);
                                             Console.WriteLine($"Path : {path}");
                                             Console.WriteLine();
                                         }
