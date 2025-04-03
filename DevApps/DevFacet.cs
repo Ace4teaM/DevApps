@@ -68,6 +68,16 @@ internal partial class Program
             return Objects.Select(p => new KeyValuePair<string, ObjectProperties?>(p.Key, p.Value));
         }
 
+        public System.Windows.Rect GetZone()
+        {
+            var rect = Objects.First().Value.GetZone();
+            foreach(var o in Objects.Skip(1))
+            {
+                rect.Union(o.Value.GetZone());
+            }
+            return rect;
+        }
+
         public void SetObjects(IEnumerable<KeyValuePair<string, ObjectProperties?>> items)
         {
             Objects.Clear();

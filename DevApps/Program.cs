@@ -4,13 +4,16 @@
 #define LOAD
 #endif
 
+using DevApps;
 using DevApps.GUI;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Threading;
+using static IronPython.Modules.PythonWeakRef;
 
 internal partial class Program
 {
@@ -71,6 +74,21 @@ internal partial class Program
 
     private static void Main(string[] args)
     {
+        // affiche un résumé
+        if (args.Contains("-s"))
+        {
+            LoadProject();
+            DevObject.LoadOutput();
+            var pdf = ToPDF.Make();
+            var tmpFile = Path.GetTempFileName()+".pdf";
+            using var file = File.OpenWrite(tmpFile);
+            pdf.CopyTo(file);
+
+            Process.Start(new ProcessStartInfo(tmpFile) { UseShellExecute = true });
+
+            return;
+        }
+
         try
         {
             if (Directory.Exists(DataDir) == false)
