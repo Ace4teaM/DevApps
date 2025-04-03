@@ -186,50 +186,27 @@ namespace DevApps.GUI
             }
         }
 
-        internal Program.DevObject? AddObjectFromFile(string file)
-        {
-            try
-            {
-                var name = Path.GetFileNameWithoutExtension(file);
-                Program.DevObject.MakeUniqueName(ref name);
-                var obj = Program.DevObject.Create(name, Path.GetFileNameWithoutExtension(file));
-                obj.SetOutput(File.ReadAllBytes(file));
-
-                if(file.EndsWith(".svg"))
-                {
-                    obj.SetDrawCode(@"gui.svg(out)");
-                }
-                else if (file.EndsWith(".png") || file.EndsWith(".bmp") || file.EndsWith(".jpg") || file.EndsWith(".jpeg") || file.EndsWith(".gif"))
-                {
-                    obj.SetDrawCode(@"gui.image(out)");
-                }
-                else if(file.EndsWith(".cs") || file.EndsWith(".cpp") || file.EndsWith(".h") || file.EndsWith(".c") || file.EndsWith(".txt") || file.EndsWith(".erd"))
-                {
-                    obj.SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
-                }
-
-                return obj;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
-        }
-
         private void dataGrid_Drop(object sender, DragEventArgs e)
         {
+
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
                 var objects = new List<Program.DevObject>();
 
-                foreach (string file in files)
+                try
                 {
-                    var o = AddObjectFromFile(file);
-                    if(o != null)
-                        objects.Add(o);
+                    foreach (string file in files)
+                    {
+                        var o = Program.DevObject.CreateFromFile(file, out string name);
+                        if (o != null)
+                            objects.Add(o);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
 
                 if(objects.Count > 0)
