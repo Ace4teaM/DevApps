@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using DevApps.GUI;
+using System.IO;
 using System.Text;
 using System.Windows;
 
@@ -148,23 +149,7 @@ internal partial class Program
 
             var refs = DevObject.References.Where(p=>Objects.ContainsKey(p.Key)).ToArray();
 
-            // génère les variables
-            // note les variables sont générées avec un build de retard
-            foreach (var o in refs)
-            {
-                // ajoute la sortie aux variables
-                var value = o.Value.buildStream.ToString();
-                pyScope.SetVariable(o.Key.ToLower(), value);
-            }
-
-
-            // génère le contenu de chaque objet
-            foreach (var o in refs)
-            {
-                // la phase de build utilise la sortie standard pour récupérer les données
-                pyEngine.Runtime.IO.SetOutput(o.Value.buildStream, Encoding.UTF8);
-                var result = o.Value.BuildMethod.Item2?.Execute(pyScope);
-            }
+            DevObject.Build(refs);
 
             // on rétablie la sortie standard vers la console
             pyEngine.Runtime.IO.RedirectToConsole();
@@ -174,6 +159,7 @@ internal partial class Program
             {
                 var shellPath = "powershell.exe";
                 var shellSet = @"set {0} ""{1}""";
+                var shellEnv = @"$Env:PATH += "";{0}""";
                 var shellExit = @"exit";
 
                 // creation de l'environnement de commandes
@@ -194,14 +180,18 @@ internal partial class Program
 
                     ws.WriteLine(String.Format(shellSet, "dir", Path.GetFullPath(".")));
 
+                    // ajout les chemins d'accès aux outils
+                    foreach (var o in Service.externalsTools)
+                        ws.WriteLine(String.Format(shellEnv, o.Value.Replace("\"","")));
+
                     // ajout lien vers les objets
                     foreach (var o in refs)
-                        ws.WriteLine(String.Format(shellSet, o.Key, Path.GetFullPath(Path.Combine(DataDir, "data", o.Key))));
+                        ws.WriteLine(String.Format(shellSet, o.Key, Path.GetFullPath(Path.Combine(DataDir, o.Key))));
 
                     // on execute les commandes
                     foreach (var c in BuildCommands)
                     {
-                        ws.WriteLine(c);
+                        ws.WriteLine(c.Value);
                     }
 
                     ws.WriteLine(shellExit);

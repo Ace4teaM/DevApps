@@ -55,10 +55,21 @@ namespace DevApps.GUI
         private void Settings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             ContextMenu menu = new ContextMenu();
+
             var m = new MenuItem { Header = "Applications externes..." };
             m.Click += (s, e) =>
             {
                 var wnd = new App.ExternalEditors();
+                wnd.Owner = Window.GetWindow(this);
+                wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                wnd.ShowDialog();
+            };
+            menu.Items.Add(m);
+
+            m = new MenuItem { Header = "Outils externes..." };
+            m.Click += (s, e) =>
+            {
+                var wnd = new App.ExternalTools();
                 wnd.Owner = Window.GetWindow(this);
                 wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 wnd.ShowDialog();

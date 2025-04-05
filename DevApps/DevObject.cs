@@ -339,10 +339,10 @@ internal partial class Program
         /// <summary>
         /// Construit la sortie des objets
         /// </summary>
-        public static void Build()
+        public static void Build(IEnumerable<KeyValuePair<string,DevObject>>? objects = null)
         {
             mutexExecuteObjects.WaitOne();
-            foreach (var o in References)
+            foreach (var o in objects ?? References)
             {
                 try
                 {
