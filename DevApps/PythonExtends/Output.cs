@@ -33,9 +33,11 @@ namespace DevApps.PythonExtends
         }
         public void write(string text)
         {
+            var bytes = Encoding.UTF8.GetBytes(text);
             cachedText = text;
             stream.Seek(0, SeekOrigin.Begin);
-            stream.Write(Encoding.UTF8.GetBytes(text));
+            stream.Write(bytes);
+            stream.SetLength(bytes.Length);
         }
         public void write_bytes(IronPython.Runtime.Bytes _bytes)
         {
