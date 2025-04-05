@@ -48,6 +48,7 @@ namespace Serializer
         }
 
         public KeyValuePair<string, Program.DevFacet.ObjectProperties?>[] Objects { get { return content.GetObjects().ToArray(); } set { content.SetObjects(value); } }
+        public KeyValuePair<string, string>[] Commands { get { return content.GetCommands().ToArray(); } set { content.SetCommands(value); } }
     }
 
     internal class DevProject

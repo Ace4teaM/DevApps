@@ -1,5 +1,7 @@
 ﻿using IronPython.Runtime.Types;
+using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -17,6 +19,13 @@ namespace DevApps.GUI
     /// </summary>
     public partial class DesignerView : UserControl, INotifyPropertyChanged
     {
+        public class CommandItem
+        {
+            public string? Status { get; set; }
+            public string? Description { get; set; }
+            public string? CommandLine { get; set; }
+        }
+        
         internal DevFacet facette;
         internal bool isPanning = false;
         internal bool isDragging = false;
@@ -33,6 +42,7 @@ namespace DevApps.GUI
         private TransformGroup _transformGroup = new TransformGroup();
 
         private List<ConnectorElement> connectorElements = new List<ConnectorElement>();
+        public ObservableCollection<CommandItem> CommandsItems { get; set; } = new ObservableCollection<CommandItem>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -396,6 +406,8 @@ namespace DevApps.GUI
                 {
                     AddElement(obj.Key, obj.Value);
                 }
+
+                CommandsItems.AddRange(this.facette.BuildCommands.Select(p => new CommandItem { Status = "Ready", Description = p.Key, CommandLine = p.Value }));
             }
         }
         private void SaveDisposition()
@@ -470,6 +482,11 @@ namespace DevApps.GUI
                     InvalidateObjects();
                 }
             }
+        }
+
+        private void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 }
