@@ -31,16 +31,11 @@ namespace DevApps.GUI
         {
             // charge la liste des editeurs
             LoadEditors();
+            LoadTools();
 
             // detection
             if (externalsEditors.Count == 0)
             {
-                string[] tools =
-                {
-                    "canvas2pdf.exe",
-                    "db2erd.exe",
-                };
-
                 string[] editors =
                 {
                     "Typora.exe",
@@ -53,8 +48,18 @@ namespace DevApps.GUI
                     "7zFM.exe",
                 };
 
-                ResolveExternalEditors(editors, externalsEditors);
-                ResolveExternalEditors(tools, externalsTools);
+                ResolveApplicationNames(editors, externalsEditors);
+            }
+
+            if (externalsTools.Count == 0)
+            {
+                string[] tools =
+                {
+                    "canvas2pdf.exe",
+                    "db2erd.exe",
+                };
+
+                ResolveApplicationNames(tools, externalsTools);
             }
 
             if (associatedEditors.Count == 0)
@@ -84,7 +89,7 @@ namespace DevApps.GUI
             }
         }
 
-        internal static void ResolveExternalEditors(string[] editors, Dictionary<string,string> paths)
+        internal static void ResolveApplicationNames(string[] editors, Dictionary<string,string> paths)
         {
             // possibilité pour l'utilisateur de renseigner plus de mots clés puis choisir les éditeurs à lier aux mots clés
 
@@ -204,6 +209,34 @@ namespace DevApps.GUI
             }
         }
 
+        internal static void SaveTools()
+        {
+            try
+            {
+                var registryKey = @"SOFTWARE\DevApps";
+
+                using (RegistryKey? key = Registry.CurrentUser.CreateSubKey(registryKey))
+                {
+                    if (key != null)
+                    {
+                        key.DeleteSubKeyTree("Tools", false);
+
+                        using (RegistryKey? subKey = key.CreateSubKey(@"Tools\Apps"))
+                        {
+                            foreach (var item in externalsTools)
+                            {
+                                subKey.SetValue(item.Key, item.Value);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur : " + ex.Message);
+            }
+        }
+
         internal static void LoadEditors()
         {
             try
@@ -233,6 +266,36 @@ namespace DevApps.GUI
                                 foreach (var name in subKey.GetValueNames())
                                 {
                                     associatedEditors[name] = subKey?.GetValue(name)?.ToString() ?? String.Empty;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur : " + ex.Message);
+            }
+        }
+
+        internal static void LoadTools()
+        {
+            try
+            {
+                var registryKey = @"SOFTWARE\DevApps";
+
+                using (RegistryKey? key = Registry.CurrentUser.OpenSubKey(registryKey))
+                {
+                    if (key != null)
+                    {
+                        using (RegistryKey? subKey = key.OpenSubKey(@"Tools\Apps"))
+                        {
+                            if (subKey != null)
+                            {
+                                externalsTools.Clear();
+                                foreach (var name in subKey.GetValueNames())
+                                {
+                                    externalsTools[name] = subKey?.GetValue(name)?.ToString() ?? String.Empty;
                                 }
                             }
                         }
