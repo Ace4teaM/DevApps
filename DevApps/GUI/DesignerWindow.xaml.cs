@@ -1,6 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using DevApps.App;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -50,10 +54,52 @@ namespace DevApps.GUI
 
         private void Settings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            var wnd = new App.ExternalEditors();
-            wnd.Owner = Window.GetWindow(this);
-            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            wnd.ShowDialog();
+            ContextMenu menu = new ContextMenu();
+            var m = new MenuItem { Header = "Applications externes..." };
+            m.Click += (s, e) =>
+            {
+                var wnd = new App.ExternalEditors();
+                wnd.Owner = Window.GetWindow(this);
+                wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                wnd.ShowDialog();
+            };
+            menu.Items.Add(m);
+
+            m = new MenuItem { Header = "Définir le raccourci dans le menu contextuel Windows" };
+            m.Click += (s, e) =>
+            {
+                try
+                {
+                    var registryKey = @"Software\DevAppsSetup";
+
+                    using (RegistryKey? key = Registry.LocalMachine.OpenSubKey(registryKey))
+                    {
+                        if (key != null)
+                        {
+                            var path = key.GetValue(null, null)?.ToString();
+                            if(path == null)
+                            {
+                                Console.WriteLine("DevAppsSetup n'est pas installé ou n'est pas enregistré au registre");
+                                Console.WriteLine("Veuillez d'abord executer DevAppsSetup.exe");
+                                return;
+                            }
+                            else
+                            {
+                                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true, Arguments = "--add-shell" });
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+            };
+            menu.Items.Add(m);
+
+            menu.Placement = PlacementMode.Mouse;
+            menu.IsOpen = true;
         }
 
         private void AddRecursiveSharedMenu(string path, MenuItem menu)
