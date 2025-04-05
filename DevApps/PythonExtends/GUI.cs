@@ -1,4 +1,6 @@
 ﻿using DevApps.GUI;
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
 using SharpVectors.Converters;
 using SharpVectors.Renderers.Wpf;
 using System.IO;
@@ -733,6 +735,26 @@ namespace DevApps.PythonExtends
 
                 drawing.Transform = new MatrixTransform(mx);
                 drawingContext?.DrawDrawing(drawing);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+
+            return this;
+        }
+        public GUI pdf(Output output)
+        {
+            if (output.Stream.Length == 0)
+                return this;
+
+            try
+            {
+                PdfDocument document = PdfReader.Open(output.Stream);
+                foreach(var item in document.Pages[0].ToArray())
+                {
+                    var i = item.Value;
+                }
             }
             catch (Exception ex)
             {

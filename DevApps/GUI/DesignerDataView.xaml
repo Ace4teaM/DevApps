@@ -20,6 +20,9 @@
                     <Separator></Separator>
                     <MenuItem Header="Nouvel objet..." Click="MenuItem_Click_CreateObject"></MenuItem>
                     <MenuItem Header="Nouvelle facette..." Click="MenuItem_Click_CreateFacet"></MenuItem>
+                    <MenuItem Header="Ajouter à la facette" SubmenuOpened="MenuItem_ContextMenuOpening">
+                        <MenuItem></MenuItem>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>

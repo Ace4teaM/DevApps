@@ -218,5 +218,38 @@ namespace DevApps.GUI
                 }
             }
         }
+
+        private void MenuItem_Click_AddFacet_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var facet = menuItem?.Tag as Program.DevFacet;
+            var objects = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
+
+            if (facet != null)
+            {
+                foreach(var o in objects)
+                {
+                    if(!facet.Objects.ContainsKey(o) && Program.DevObject.References.ContainsKey(o))
+                        facet.Objects.Add(o, new Program.DevFacet.ObjectProperties());
+                }
+            }
+        }
+
+        private void MenuItem_ContextMenuOpening(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            if (menuItem != null)
+            {
+                menuItem.Items.Clear();
+                foreach (var facet in Program.DevFacet.References)
+                {
+                    var item = new MenuItem();
+                    item.Header = facet.Key;
+                    item.Tag = facet.Value;
+                    item.Click += MenuItem_Click_AddFacet_Click;
+                    menuItem.Items.Add(item);
+                }
+            }
+        }
     }
 }
