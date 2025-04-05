@@ -247,6 +247,9 @@ namespace DevApps.GUI
 
         public static bool IsInitialized { get { return EditorWindow != null; } }
 
+        public static bool IsObjectsView { get { return EditorWindow?.Content is DesignerDataView; } }
+        public static bool IsFacetsView { get { return EditorWindow?.Content is DesignerView; } }
+
         internal static void ThreadStartingPoint()
         {
             try
@@ -459,5 +462,13 @@ namespace DevApps.GUI
             }
         }
 
+        internal static Program.DevFacet? GetSelectedFacet()
+        {
+            return EditorWindow?.Dispatcher.Invoke(
+                DispatcherPriority.Render,
+                new Func<Program.DevFacet>(() => {
+                    return (EditorWindow?.Content as DesignerView).facette;
+                })) as Program.DevFacet;
+        }
     }
 }
