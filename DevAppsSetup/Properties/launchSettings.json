@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DevAppsSetup": {
+      "commandName": "Project",
+      "commandLineArgs": "--add-shell"
+    }
+  }
+}

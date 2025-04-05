@@ -75,6 +75,12 @@ internal partial class Program
     private static void Main(string[] args)
     {
         // affiche un résumé
+        if (args.Length > 0 && Path.Exists(args[0]))
+        {
+            Environment.CurrentDirectory = args[0];
+        }
+
+        // affiche un résumé
         if (args.Contains("-s"))
         {
             LoadProject();
