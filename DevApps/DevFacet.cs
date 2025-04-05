@@ -47,6 +47,16 @@ internal partial class Program
         internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
 
         /// <summary>
+        /// Commandes systèmes
+        /// </summary>
+        /// <remarks>
+        /// $out = chemin vers le fichier contenant la sortie standard de cet objet
+        /// $dir = dossier du projet
+        /// $<obj> = la valeur de la sortie standard d'un objet. <obj> est le nom de l'objet ciblé
+        /// </remarks>
+        internal Dictionary<string, string> BuildCommands { get; } = new Dictionary<string, string>();
+
+        /// <summary>
         /// trouve un nom unique
         /// </summary>
         /// <param name="name"></param>
@@ -66,6 +76,20 @@ internal partial class Program
         public IEnumerable<KeyValuePair<string, ObjectProperties?>> GetObjects()
         {
             return Objects.Select(p => new KeyValuePair<string, ObjectProperties?>(p.Key, p.Value));
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> GetCommands()
+        {
+            return BuildCommands.Select(p => new KeyValuePair<string, string>(p.Key, p.Value));
+        }
+
+        public void SetCommands(IEnumerable<KeyValuePair<string, string>> items)
+        {
+            BuildCommands.Clear();
+            foreach (var p in items)
+            {
+                BuildCommands.Add(p.Key, p.Value);
+            }
         }
 
         public System.Windows.Rect GetZone()
@@ -104,19 +128,9 @@ internal partial class Program
             return References.GetValueOrDefault(name);
         }
 
-        /// <summary>
-        /// Commandes systèmes
-        /// </summary>
-        /// <remarks>
-        /// $out = chemin vers le fichier contenant la sortie standard de cet objet
-        /// $dir = dossier du projet
-        /// $<obj> = la valeur de la sortie standard d'un objet. <obj> est le nom de l'objet ciblé
-        /// </remarks>
-        public List<string> BuildCommands { get; } = new List<string>();
-
-        public DevFacet AddBuildCommand(string command)
+        public DevFacet AddBuildCommand(string libelle, string command)
         {
-            BuildCommands.Add(command);
+            BuildCommands.Add(libelle, command);
             return this;
         }
 

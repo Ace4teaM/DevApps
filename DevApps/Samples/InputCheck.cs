@@ -126,10 +126,9 @@ public class {name}
                 /*.AddInstallCommand(@"
     py -m pip install openai
     ")*/
-                .AddBuildCommand(@"
-cat $build1 > .\bdd\sql\model.sql
-cat $build2 > .\ui\cs\model\entities.cs
-");
+                .AddBuildCommand("Sortie model.sql", @"cat $build1 > .\bdd\sql\model.sql")
+                .AddBuildCommand("Sortie entities.sql", @"cat $build2 > .\ui\cs\model\entities.cs")
+            ;
 
             /*
              * Fusion de code
