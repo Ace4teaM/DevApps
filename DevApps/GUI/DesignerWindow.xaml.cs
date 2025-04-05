@@ -200,7 +200,25 @@ namespace DevApps.GUI
 
         private void Build_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Program.DevObject.Build();
+            if(Program.DevObject.References.Count == 0)
+            {
+                MessageBox.Show("Aucun objet à construire !", "Build", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (Service.IsObjectsView)
+            {
+                Console.WriteLine("Construit tous les objets...");
+                Program.DevObject.Build();
+                Console.WriteLine("Terminé");
+            }
+            else if (Service.IsFacetsView)
+            {
+                Console.WriteLine("Construit la facette active...");
+                var facet = Service.GetSelectedFacet();
+                facet.Build();
+                Console.WriteLine("Terminé");
+            }
         }
 
         internal void InvalidateFacets()

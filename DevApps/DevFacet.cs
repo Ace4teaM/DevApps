@@ -132,7 +132,7 @@ internal partial class Program
         {
             DevObject.mutexExecuteObjects.WaitOne();
 
-            var refs = DevObject.References.ToArray();
+            var refs = DevObject.References.Where(p=>Objects.ContainsKey(p.Key)).ToArray();
 
             // génère les variables
             // note les variables sont générées avec un build de retard
