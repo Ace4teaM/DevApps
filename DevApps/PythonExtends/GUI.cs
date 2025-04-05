@@ -715,22 +715,29 @@ namespace DevApps.PythonExtends
             if (output.Stream.Length == 0)
                 return this;
 
-            var settings = new WpfDrawingSettings();
-            settings.IncludeRuntime = true;
-            settings.TextAsGeometry = false;
+            try
+            {
+                var settings = new WpfDrawingSettings();
+                settings.IncludeRuntime = true;
+                settings.TextAsGeometry = false;
 
-            var svgReader = new FileSvgReader(settings);
-            output.Stream.Seek(0, SeekOrigin.Begin);
-            var drawing = svgReader.Read(output.Stream);
+                var svgReader = new FileSvgReader(settings);
+                output.Stream.Seek(0, SeekOrigin.Begin);
+                var drawing = svgReader.Read(output.Stream);
 
-            var fHeight = (1.0 / drawing.Bounds.Height) * filling.Height;
+                var fHeight = (1.0 / drawing.Bounds.Height) * filling.Height;
 
-            var mx = new Matrix();
-            mx.Translate(-drawing.Bounds.X, -drawing.Bounds.Y);
-            mx.Scale(fHeight, fHeight);
+                var mx = new Matrix();
+                mx.Translate(-drawing.Bounds.X, -drawing.Bounds.Y);
+                mx.Scale(fHeight, fHeight);
 
-            drawing.Transform = new MatrixTransform(mx);
-            drawingContext?.DrawDrawing(drawing);
+                drawing.Transform = new MatrixTransform(mx);
+                drawingContext?.DrawDrawing(drawing);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
 
             return this;
         }

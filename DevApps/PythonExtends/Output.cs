@@ -43,6 +43,7 @@ namespace DevApps.PythonExtends
            cachedText = Encoding.UTF8.GetString(bytes);
            stream.Seek(0, SeekOrigin.Begin);
            stream.Write(bytes);
+           stream.SetLength(bytes.Length);
         }
         public byte[] bytes()
         {
