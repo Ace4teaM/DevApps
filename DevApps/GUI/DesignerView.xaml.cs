@@ -53,6 +53,9 @@ namespace DevApps.GUI
         public static double commandPanelMaxHeight = 600;
         public double CommandPanelHeight { get { return commandPanelHeight; } set { commandPanelHeight = value; } }
         
+        public static bool showCommandsLines = false;
+        public bool ShowCommandsLines { get { return showCommandsLines; } set { showCommandsLines = value; } }
+        
         internal DesignerView(DevFacet facette)
         {
             InitializeComponent();
@@ -543,6 +546,12 @@ namespace DevApps.GUI
 
             element?.ReleaseMouseCapture();
             isResizingPanel = false;
+        }
+
+        private void ViewCommandsLines_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ShowCommandsLines = !ShowCommandsLines;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowCommandsLines"));
         }
     }
 }
