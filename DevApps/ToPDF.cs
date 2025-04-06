@@ -181,6 +181,16 @@ namespace DevApps
 
             return (count == expected_header.Length && header.SequenceEqual(expected_header));
         }
+        internal static bool IsBMP(Stream stream)
+        {
+            var expected_header = new byte[] { 0xF6, 0x04, 0x00, 0x00 };
+            var header = new byte[expected_header.Length];
+            stream.Seek(0, SeekOrigin.Begin);
+            var count = stream.Read(header, 0, expected_header.Length);
+            stream.Seek(0, SeekOrigin.Begin);
+
+            return (count == expected_header.Length && header.SequenceEqual(expected_header));
+        }
         internal static bool IsPNG(Stream stream)
         {
             var expected_header = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };

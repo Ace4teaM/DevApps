@@ -163,16 +163,7 @@ namespace DevApps.GUI
                     {
                         reference.mutexReadOutput.WaitOne();
 
-                        var wnd = new DevApps.GUI.GetText();
-                        wnd.Value = Encoding.UTF8.GetString(reference.buildStream.GetBuffer());//reference.GetOutput()
-                        wnd.IsMultiline = true;
-                        wnd.Owner = Window.GetWindow(this);
-                        wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-                        if (wnd.ShowDialog() == true)
-                        {
-                            reference.SetOutput(wnd.Value);
-                        }
+                        Service.OpenEditorOrDefault(reference.buildStream);
 
                         reference.mutexReadOutput.ReleaseMutex();
 

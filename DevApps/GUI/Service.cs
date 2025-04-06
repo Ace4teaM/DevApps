@@ -75,6 +75,9 @@ namespace DevApps.GUI
                 else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("notepad", StringComparison.InvariantCultureIgnoreCase))) != null)
                     associatedEditors["code"] = name;
 
+                else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("notepad", StringComparison.InvariantCultureIgnoreCase))) != null)
+                    associatedEditors["text"] = name;
+
                 if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("cmd", StringComparison.InvariantCultureIgnoreCase))) != null)
                     associatedEditors["cmd"] = name;
 
@@ -532,6 +535,92 @@ namespace DevApps.GUI
                 new Func<Program.DevFacet>(() => {
                     return (EditorWindow?.Content as DesignerView).facette;
                 })) as Program.DevFacet;
+        }
+
+        internal static bool OpenEditorOrDefault(MemoryStream stream)
+        {
+            string? editorPath = null;
+            string? fileExt = null;
+            string? editorKey = null;
+
+            if (ToPDF.IsPNG(stream))
+            {
+                editorKey = "image";
+                fileExt = ".png";
+            }
+            else if (ToPDF.IsBMP(stream))
+            {
+                editorKey = "image";
+                fileExt = ".bmp";
+            }
+            else if (ToPDF.IsJPEG(stream))
+            {
+                editorKey = "image";
+                fileExt = ".jpeg";
+            }
+            else if (ToPDF.IsUTF8(stream))
+            {
+                editorKey = "text";
+                fileExt = ".txt";
+            }
+
+            // récupère l'éditeur associé
+            if (editorKey != null)
+            {
+                var editor = Service.associatedEditors.Where(p => p.Key == editorKey).Select(p => p.Value).FirstOrDefault();
+                if (editor != null)
+                    editorPath = Service.externalsEditors[editor];
+                else
+                {
+                    MessageBox.Show("L'éditeur \""+ editorKey + "\" est introuvable, veuillez spécifier l'éditeur associé à cet objet ou renseigner l'éditeur dans les préférences", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+            }
+
+            // exécute l'environnement de commandes
+            if (editorPath == null)
+            {
+                MessageBox.Show("Le type de donnée n'est pas reconnu ou l'éditeur est introuvable, veuillez spécifier l'éditeur associé à cet objet", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            try
+            {
+                // crée un fichier temporaire
+                var tmpFile = Path.GetTempFileName() + fileExt;
+                var file = File.OpenWrite(tmpFile);
+                stream.Seek(0, SeekOrigin.Begin);
+                stream.CopyTo(file);
+                stream.Seek(0, SeekOrigin.Begin);
+                file.Close();
+
+                // ouvre l'éditeur
+                using System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = "cmd.exe";
+                startInfo.Arguments = "/C \"" + ((editorPath.Contains("%1") == false) ? editorPath + " \"" + tmpFile + "\"" : editorPath.Replace("%1", tmpFile)) + "\"";
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
+
+                if (MessageBox.Show("Voulez vous appliquer les modifications ?", "Edition des données", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                {
+                    // récupère les données
+                    file = File.OpenRead(tmpFile);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    file.CopyTo(stream);
+                    stream.SetLength(file.Length);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.ToString());
+            }
+
+            return false;
         }
     }
 }
