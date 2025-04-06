@@ -48,8 +48,8 @@ namespace DevApps.GUI
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public static double commandPanelHeight = 300;
-        public static double savedCommandPanelHeight = commandPanelHeight;
+        public static double commandPanelHeight = 0;
+        public static double savedCommandPanelHeight = 300;
         public static double commandPanelMaxHeight = 600;
         public double CommandPanelHeight { get { return commandPanelHeight; } set { commandPanelHeight = value; } }
         
