@@ -1,6 +1,7 @@
 ﻿using IronPython.Runtime.Types;
 using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
+using SharpVectors.Dom;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -31,6 +32,7 @@ namespace DevApps.GUI
         internal bool isDragging = false;
         internal bool isResizing = false;
         internal bool isDoubleClick = false;
+        internal bool isResizingPanel = false;
         internal System.Timers.Timer lastClickTimer;//timer entre 2 clics
         internal Point startMousePosition;
         internal DrawElement? selectedElement;
@@ -46,6 +48,11 @@ namespace DevApps.GUI
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        public static double commandPanelHeight = 300;
+        public static double savedCommandPanelHeight = commandPanelHeight;
+        public static double commandPanelMaxHeight = 600;
+        public double CommandPanelHeight { get { return commandPanelHeight; } set { commandPanelHeight = value; } }
+        
         internal DesignerView(DevFacet facette)
         {
             InitializeComponent();
@@ -484,9 +491,58 @@ namespace DevApps.GUI
             }
         }
 
-        private void Border_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void Slider_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if(e.ClickCount == 2)
+            {
+                if (CommandPanelHeight == 0)
+                    CommandPanelHeight = savedCommandPanelHeight;
+                else
+                {
+                    savedCommandPanelHeight = commandPanelHeight;
+                    CommandPanelHeight = 0;
+                }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CommandPanelHeight"));
+            }
 
+            var element = sender as FrameworkElement;
+            element?.CaptureMouse();
+            startMousePosition = e.GetPosition(MyCanvas);
+            isResizingPanel = true;
+        }
+
+        private void Slider_MouseMove(object sender, MouseEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+
+            if (isResizingPanel == false)
+                return;
+
+            Point mousePosition = e.GetPosition(MyCanvas);
+            double offsetY = mousePosition.Y - startMousePosition.Y;
+
+            CommandPanelHeight -= offsetY;
+
+            if(CommandPanelHeight < 0)
+                CommandPanelHeight = 0;
+
+            if(CommandPanelHeight > commandPanelMaxHeight)
+                CommandPanelHeight = commandPanelMaxHeight;
+
+            startMousePosition = mousePosition;
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CommandPanelHeight"));
+        }
+
+        private void Slider_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+
+            if (isResizingPanel == false)
+                return;
+
+            element?.ReleaseMouseCapture();
+            isResizingPanel = false;
         }
     }
 }
