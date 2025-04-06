@@ -13,7 +13,7 @@
         <local:EditConverter x:Key="editConverter"/>
     </UserControl.Resources>
     <Grid>
-        <DataGrid x:Name="dataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False" AllowDrop="True" Drop="dataGrid_Drop">
+        <DataGrid x:Name="dataGrid" CellEditEnding="dataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False" AllowDrop="True" Drop="dataGrid_Drop">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>
@@ -32,8 +32,8 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="200" />
                 <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" />
-                <DataGridTextColumn Header="Facettes" Binding="{Binding Facettes}" MinWidth="100" Width="auto" />
-                <DataGridTextColumn Header="Selections" Binding="{Binding Selections}" MinWidth="100" Width="auto" />
+                <DataGridTextColumn Header="Facettes" Binding="{Binding Facettes}" MinWidth="100" Width="auto" IsReadOnly="True" />
+                <DataGridTextColumn Header="Selections" Binding="{Binding Selections}" MinWidth="100" Width="auto" IsReadOnly="True" />
                 <DataGridTemplateColumn Header="A" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                     <DataGridTemplateColumn.CellStyle>
                         <Style TargetType="DataGridCell">
