@@ -1,4 +1,5 @@
-﻿using Microsoft.Scripting.Utils;
+﻿using ICSharpCode.AvalonEdit.Editing;
+using Microsoft.Scripting.Utils;
 using Serializer;
 using System.ComponentModel;
 using System.Globalization;
@@ -49,6 +50,21 @@ namespace DevApps.GUI
             public string? InitMethod { get; set; }
             public string? BuildMethod { get; set; }
             public string? DrawCode { get; set; }
+            public string? Facettes
+            {
+                get
+                {
+                    var facettes = Program.DevFacet.References.Where(p => p.Value.Objects.Keys.Contains(Name)).Select(p => p.Key).ToList();
+                    return String.Join(',', facettes);
+                }
+            }
+            public string? Selections
+            {
+                get
+                {
+                    return String.Empty;
+                }
+            }
         }
 
         public IEnumerable<TabItem> Items
@@ -291,6 +307,78 @@ namespace DevApps.GUI
                     menuItem.Items.Add(item);
                 }
 
+            }
+        }
+
+        private void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            if (e.EditAction == DataGridEditAction.Commit)
+            {
+                var item = e.Row.DataContext as TabItem;
+                var text = (e.EditingElement as TextBox)?.Text;
+                if (text != null && item != null)
+                {
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    try
+                    {
+                        Program.DevObject.References.TryGetValue(item.Name, out var reference);
+
+                        if (reference != null)
+                        {
+                            if (e.Column.Header.ToString() == "Nom")
+                            {
+                                if (text != item.Name)
+                                {
+                                    Program.DevObject.MakeUniqueName(ref text);
+                                    var value = Program.DevObject.References[item.Name];
+                                    Program.DevObject.References.Remove(item.Name);
+                                    Program.DevObject.References[text] = value;
+
+                                    // renomme l'objet dans les references des autres objets
+                                    foreach(var obj in Program.DevObject.References)
+                                    {
+                                        foreach(var pointer in obj.Value.Pointers.Where(p=>p.Value == item.Name).ToArray())
+                                        {
+                                            obj.Value.Pointers.Remove(pointer.Key);
+                                            obj.Value.Pointers.Add(pointer.Key, text);
+                                            Console.WriteLine($"Renomme {pointer.Key} : {item.Name} => {text}");
+                                        }
+                                    }
+
+                                    // renomme l'objet dans les references des facettes
+                                    foreach(var obj in Program.DevFacet.References)
+                                    {
+                                        foreach(var pointer in obj.Value.Objects.Where(p=>p.Key == item.Name).ToArray())
+                                        {
+                                            var tmp = pointer.Value;
+                                            obj.Value.Objects.Remove(pointer.Key);
+                                            obj.Value.Objects.Add(text, tmp);
+                                            Console.WriteLine($"Renomme {obj.Key} : {pointer.Key} => {text}");
+                                        }
+                                    }
+
+                                    // renomme l'objet
+                                    item.Name = text;//sans effet
+                                    
+                                    InvalidateObjects();
+                                }
+                            }
+                            else if (e.Column.Header.ToString() == "Description")
+                            {
+                                item.Description = text;
+                                reference.Description = text;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+                }
             }
         }
     }
