@@ -537,31 +537,33 @@ namespace DevApps.GUI
                 })) as Program.DevFacet;
         }
 
-        internal static bool OpenEditorOrDefault(MemoryStream stream)
+        internal static bool OpenEditorOrDefault(MemoryStream stream, string? editorKey = null)
         {
-            string? editorPath = null;
             string? fileExt = null;
-            string? editorKey = null;
+            string? editorPath = null;
 
-            if (ToPDF.IsPNG(stream))
+            if (editorKey == null)
             {
-                editorKey = "image";
-                fileExt = ".png";
-            }
-            else if (ToPDF.IsBMP(stream))
-            {
-                editorKey = "image";
-                fileExt = ".bmp";
-            }
-            else if (ToPDF.IsJPEG(stream))
-            {
-                editorKey = "image";
-                fileExt = ".jpeg";
-            }
-            else if (ToPDF.IsUTF8(stream))
-            {
-                editorKey = "text";
-                fileExt = ".txt";
+                if (ToPDF.IsPNG(stream))
+                {
+                    editorKey = "image";
+                    fileExt = ".png";
+                }
+                else if (ToPDF.IsBMP(stream))
+                {
+                    editorKey = "image";
+                    fileExt = ".bmp";
+                }
+                else if (ToPDF.IsJPEG(stream))
+                {
+                    editorKey = "image";
+                    fileExt = ".jpeg";
+                }
+                else if (ToPDF.IsUTF8(stream))
+                {
+                    editorKey = "text";
+                    fileExt = ".txt";
+                }
             }
 
             // récupère l'éditeur associé
@@ -572,7 +574,7 @@ namespace DevApps.GUI
                     editorPath = Service.externalsEditors[editor];
                 else
                 {
-                    MessageBox.Show("L'éditeur \""+ editorKey + "\" est introuvable, veuillez spécifier l'éditeur associé à cet objet ou renseigner l'éditeur dans les préférences", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("L'éditeur \"" + editorKey + "\" est introuvable, veuillez spécifier l'éditeur associé à cet objet ou renseigner l'éditeur dans les préférences", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
             }
@@ -586,6 +588,10 @@ namespace DevApps.GUI
 
             try
             {
+                // si l'éditeur spécifie une extension, l'utiliser pour aider l'éditeur à formater le contenu
+                if(fileExt == null && editorKey != null && editorKey.Contains('.'))
+                    fileExt = Path.GetExtension(editorKey).ToLowerInvariant();
+
                 // crée un fichier temporaire
                 var tmpFile = Path.GetTempFileName() + fileExt;
                 var file = File.OpenWrite(tmpFile);

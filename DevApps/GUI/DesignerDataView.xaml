@@ -23,6 +23,10 @@
                     <MenuItem Header="Ajouter à la facette" SubmenuOpened="MenuItem_ContextMenuOpening">
                         <MenuItem></MenuItem>
                     </MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Header="Définir l'editeur" SubmenuOpened="MenuItemEditor_ContextMenuOpening">
+                        <MenuItem></MenuItem>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>

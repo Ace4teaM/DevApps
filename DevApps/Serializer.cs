@@ -1,8 +1,4 @@
-﻿using Microsoft.Scripting.Hosting;
-using static IronPython.Modules._ast;
-using static IronPython.Modules.PythonCsvModule;
-
-namespace Serializer
+﻿namespace Serializer
 {
     internal class DevObject
     {
@@ -22,6 +18,7 @@ namespace Serializer
         /// Description de l'objet (optionnel)
         /// </summary>
         public String Description { get { return content.Description; } set { content.Description = value; } }
+        public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
         public KeyValuePair<string, string?>[] Pointers { get { return content.GetPointers().ToArray(); } set { content.SetPointers(value); } }
         public KeyValuePair<string, string?>[] Functions { get { return content.GetFunctions().ToArray(); } set { content.SetFunctions(value); } }
         public KeyValuePair<string, string?>[] Properties { get { return content.GetProperties().ToArray(); } set { content.SetProperties(value); } }
