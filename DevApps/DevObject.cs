@@ -1,5 +1,4 @@
 ﻿using DevApps.GUI;
-using DevApps.PythonExtends;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Globalization;
@@ -27,6 +26,12 @@ internal partial class Program
         /// Description de l'objet (optionnel)
         /// </summary>
         public String Description = String.Empty;
+
+        /// <summary>
+        /// Editeur de l'objet (optionnel)
+        /// </summary>
+        public String? Editor = null;
+
         /// <summary>
         /// Pointeurs vers des objets existants
         /// </summary>
