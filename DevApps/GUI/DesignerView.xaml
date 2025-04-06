@@ -7,6 +7,9 @@
              mc:Ignorable="d" 
              Loaded="UserControl_Loaded"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"></BooleanToVisibilityConverter>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="100*"></RowDefinition>
@@ -38,21 +41,26 @@
             </Border>
         </Grid>
         <Grid Grid.Row="2">
-            <DataGrid ItemsSource="{Binding CommandsItems}" AutoGenerateColumns="False" CanUserAddRows="True" VerticalScrollBarVisibility="Visible">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Status" Binding="{Binding Status}"></DataGridTextColumn>
-                    <DataGridTemplateColumn Header="Commande" Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Vertical">
-                                    <TextBlock Text="{Binding Description}"></TextBlock>
-                                    <TextBlock Margin="10,0,0,0" FontFamily="Verdana" FontSize="8pt" Foreground="Gray" Text="{Binding CommandLine}"></TextBlock>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Background="Transparent" VerticalAlignment="Top" Margin="-18,4,0,0" Panel.ZIndex="1">
+                    <TextBlock Cursor="Hand" Width="18" TextAlignment="Center" DockPanel.Dock="Right" MouseLeftButtonUp="ViewCommandsLines_MouseLeftButtonUp">👁</TextBlock>
+                </StackPanel>
+                <DataGrid ItemsSource="{Binding CommandsItems}" AutoGenerateColumns="False" CanUserAddRows="True" VerticalScrollBarVisibility="Visible">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}"></DataGridTextColumn>
+                        <DataGridTemplateColumn Header="Commande" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBlock Text="{Binding Description}"></TextBlock>
+                                        <TextBlock Visibility="{Binding ShowCommandsLines, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Converter={StaticResource booleanToVisibilityConverter}}" Margin="10,0,0,0" FontFamily="Verdana" FontSize="8pt" Foreground="Gray" Text="{Binding CommandLine}"></TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </DockPanel>
         </Grid>
     </Grid>
 </UserControl>
