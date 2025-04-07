@@ -51,6 +51,10 @@ namespace DevApps.PythonExtends
         {
             return stream.ToArray();
         }
+        public long size()
+        {
+            return stream.Length;
+        }
         public double number()
         {
             double val = 0;
