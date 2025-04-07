@@ -58,7 +58,7 @@ namespace DevApps.GUI
         {
             get
             {
-                if (Source != null || Destination != null)
+                if (Source != null && Destination != null)
                 {
                     if (Destination.X < Source.X && ((Destination.Y + Destination.ActualHeight < Source.Y) || (Destination.Y < Source.Y + Source.ActualHeight)))//Left
                         return AnchorPoint.Left;
@@ -117,7 +117,7 @@ namespace DevApps.GUI
         {
             get
             {
-                if (Source != null || Destination != null)
+                if (Source != null && Destination != null)
                 {
                     if (Source.X < Destination.X && ((Source.Y + Source.ActualHeight < Destination.Y) || (Source.Y < Destination.Y + Destination.ActualHeight)))//Left
                         return AnchorPoint.Left;
