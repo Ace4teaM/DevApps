@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 internal partial class Program
 {
@@ -42,7 +43,19 @@ internal partial class Program
                 return this;
             }
 
+            public string? GetBackground()
+            {
+                return background;
+            }
+
+            public ObjectProperties SetBackground(string bg)
+            {
+                background = bg;
+                return this;
+            }
+
             public System.Windows.Rect zone;
+            public string? background;
         }
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
         internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();

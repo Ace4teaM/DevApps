@@ -38,6 +38,8 @@ namespace DevApps.GUI
             }
         }
 
+        public System.Windows.Media.Brush? background = null;
+
         internal void RunAction(Point position)
         {
             Program.DevObject.mutexCheckObjectList.WaitOne();
@@ -92,9 +94,13 @@ namespace DevApps.GUI
                 var ContentWidth = this.ActualWidth;
                 var ContentHeight = this.ActualHeight;
 
+                var bg = facet.Objects[this.Name].background;
+                if (bg != null && background == null)
+                    background = (Brush?)(new BrushConverter().ConvertFromString(bg)) ?? System.Windows.Media.Brushes.Transparent;
+
                 // Dessiner un rectangle pour illustrer
                 Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
-                drawingContext.DrawRectangle(Brushes.WhiteSmoke, null, rect);
+                drawingContext.DrawRectangle(background, null, rect);
                 if (reference.DrawCode.Item2 != null)
                 {
                     reference.mutexReadOutput.WaitOne();
