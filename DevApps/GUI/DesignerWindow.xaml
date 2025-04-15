@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DevApps.GUI"
         mc:Ignorable="d"
+        PreviewKeyDown="Window_PreviewKeyDown"
         Title="DesignerWindow" Height="509" Width="979">
     <DockPanel>
         <Grid DockPanel.Dock="Top" Background="#EEEEEE">

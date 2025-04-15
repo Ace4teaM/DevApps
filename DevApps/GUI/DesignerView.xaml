@@ -4,12 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DevApps.GUI"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              Loaded="UserControl_Loaded"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"></BooleanToVisibilityConverter>
+        <Pen x:Key="shapePen" Brush="Blue" Thickness="0.1" />
     </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="100*"></RowDefinition>
@@ -17,6 +20,80 @@
             <RowDefinition Height="{Binding CommandPanelHeight, Mode=OneWay}"></RowDefinition>
         </Grid.RowDefinitions>
         <Canvas Grid.Row="0" x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" ClipToBounds="True" MouseWheel="Canvas_MouseWheel" AllowDrop="True" Drop="dataGrid_Drop">
+            <Canvas.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Formes">
+                        <MenuItem Header="Rectangle" Click="MenuItem_Rectangle_Click">
+                            <MenuItem.Icon>
+                                <Image Width="16" Height="16">
+                                    <Image.Source>
+                                        <DrawingImage>
+                                            <DrawingImage.Drawing>
+                                                <GeometryDrawing Pen="{StaticResource ResourceKey=shapePen}">
+                                                    <GeometryDrawing.Geometry>
+                                                        <Geometry>M 0,0 H 1 V 1 H 0 Z</Geometry>
+                                                    </GeometryDrawing.Geometry>
+                                                </GeometryDrawing>
+                                            </DrawingImage.Drawing>
+                                        </DrawingImage>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Ellipse" Click="MenuItem_Ellipse_Click">
+                            <MenuItem.Icon>
+                                <Image Width="16" Height="16">
+                                    <Image.Source>
+                                        <DrawingImage>
+                                            <DrawingImage.Drawing>
+                                                <GeometryDrawing Pen="{StaticResource ResourceKey=shapePen}">
+                                                    <GeometryDrawing.Geometry>
+                                                        <Geometry>M -1,0 A 1,1 0 1 1 1,0 M -1,0 A 1,1 0 1 0 1,0</Geometry>
+                                                    </GeometryDrawing.Geometry>
+                                                </GeometryDrawing>
+                                            </DrawingImage.Drawing>
+                                        </DrawingImage>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Polyligne" Click="MenuItem_Line_Click">
+                            <MenuItem.Icon>
+                                <Image Width="16" Height="16">
+                                    <Image.Source>
+                                        <DrawingImage>
+                                            <DrawingImage.Drawing>
+                                                <GeometryDrawing Pen="{StaticResource ResourceKey=shapePen}">
+                                                    <GeometryDrawing.Geometry>
+                                                        <Geometry>M 0,0 L 0.25,1 L 0.5,0 L 0.75,0.5</Geometry>
+                                                    </GeometryDrawing.Geometry>
+                                                </GeometryDrawing>
+                                            </DrawingImage.Drawing>
+                                        </DrawingImage>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Flêche" Click="MenuItem_Arrow_Click">
+                            <MenuItem.Icon>
+                                <Image Width="16" Height="16">
+                                    <Image.Source>
+                                        <DrawingImage>
+                                            <DrawingImage.Drawing>
+                                                <GeometryDrawing Pen="{StaticResource ResourceKey=shapePen}">
+                                                    <GeometryDrawing.Geometry>
+                                                        <Geometry>M 0,0.5 H 1 M 1,0.5 L 0.75,0.25 M 1,0.5 L 0.75,0.75</Geometry>
+                                                    </GeometryDrawing.Geometry>
+                                                </GeometryDrawing>
+                                            </DrawingImage.Drawing>
+                                        </DrawingImage>
+                                    </Image.Source>
+                                </Image>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                </ContextMenu>
+            </Canvas.ContextMenu>
         </Canvas>
         <Grid Grid.Row="1">
             <Border ToolTip="Liste des commandes" Cursor="SizeNS" HorizontalAlignment="Center" Background="Gray" Height="10" Width="60" CornerRadius="5,5,0,0" Margin="0,-10,0,0" MouseDown="Slider_MouseDown" MouseMove="Slider_MouseMove" MouseUp="Slider_MouseUp">

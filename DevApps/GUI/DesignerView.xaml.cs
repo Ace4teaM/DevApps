@@ -1,10 +1,10 @@
-﻿using IronPython.Runtime.Types;
+﻿using DevApps.Samples;
 using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
-using SharpVectors.Dom;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -18,7 +18,7 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerView.xaml
     /// </summary>
-    public partial class DesignerView : UserControl, INotifyPropertyChanged
+    public partial class DesignerView : UserControl, INotifyPropertyChanged, IKeyCommand
     {
         public class CommandItem
         {
@@ -33,9 +33,10 @@ namespace DevApps.GUI
         internal bool isResizing = false;
         internal bool isDoubleClick = false;
         internal bool isResizingPanel = false;
+        internal bool isPointing = false;
         internal System.Timers.Timer lastClickTimer;//timer entre 2 clics
         internal Point startMousePosition;
-        internal DrawElement? selectedElement;
+        internal DrawBase? selectedElement;
         internal ResizeDirection resizeDirection;
 
         // Transformation de la vue
@@ -55,7 +56,7 @@ namespace DevApps.GUI
         
         public static bool showCommandsLines = false;
         public bool ShowCommandsLines { get { return showCommandsLines; } set { showCommandsLines = value; } }
-        
+
         internal DesignerView(DevFacet facette)
         {
             InitializeComponent();
@@ -72,9 +73,77 @@ namespace DevApps.GUI
 
         internal enum ResizeDirection { None, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight }
 
+        internal void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isPointing)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (selectedElement is DrawElement && isDragging || isResizing)
+                SaveDisposition(selectedElement as DrawElement);
+
+            if (selectedElement is DrawGeometry && isDragging || isResizing)
+                SaveDisposition(selectedElement as DrawGeometry);
+
+            if (isDoubleClick && selectedElement is DrawElement)
+                (selectedElement as DrawElement)?.RunAction(e.GetPosition(MyCanvas));
+
+            if (isDoubleClick && selectedElement is DrawGeometry)
+            {
+                var geo = ((selectedElement as DrawGeometry).Tag as DevFacet.Geometry);
+                var wnd = new GetText();
+                wnd.Value = geo.path;
+                wnd.Owner = Window.GetWindow(this);
+
+                if (wnd.ShowDialog() == true)
+                {
+                    if ((selectedElement as DrawGeometry).SetPath(wnd.Value))
+                    {
+                        geo.path = wnd.Value;
+                    }
+                    else
+                        MessageBox.Show("Syntaxe invalide");
+                }
+            }
+
+            if (isPanning)
+            {
+                MyCanvas.ReleaseMouseCapture();
+            }
+
+            isPanning = false;
+            isDoubleClick = false;
+            isDragging = false;
+            isResizing = false;
+            selectedElement?.ReleaseMouseCapture();
+        }
+
         internal void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            selectedElement = Mouse.DirectlyOver as DrawElement;
+            selectedElement = Mouse.DirectlyOver as DrawBase;
+
+            if (isPointing)
+            {
+                if (e.ChangedButton == MouseButton.Right)
+                    StopCapturePositions(false);
+                else if (e.ChangedButton == MouseButton.Left)
+                {
+                    if (capturePointGeometry == null)
+                    {
+                        BeginCapturePositions();
+                    }
+                    else
+                    {
+                        if (NextCapturePositions() == false)
+                            StopCapturePositions(false);
+                    }
+                }
+
+                e.Handled = true;
+                return;
+            }
 
             // redimensionnement / déplacement
             if (selectedElement != null && e.LeftButton == MouseButtonState.Pressed && e.RightButton == MouseButtonState.Released && e.MiddleButton == MouseButtonState.Released)
@@ -119,7 +188,21 @@ namespace DevApps.GUI
                 menu.Items.Add(new MenuItem { Header = "Envoyer en arrière" });
                 menu.Items.Add(new MenuItem { Header = "Envoyer en avant" });
                 menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });
-                var m = new MenuItem { Header = "Ajouter à la bibliothèque" };
+                var m = new MenuItem { Header = "Construire (Build)" };
+                m.Click += (s, e) =>
+                {
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                    if (reference != null)
+                    {
+                        Program.DevObject.Build([new KeyValuePair<string,DevObject>(selectedElement.Name, reference)]);
+                    }
+                };
+                menu.Items.Add(m);
+                
+                m = new MenuItem { Header = "Ajouter à la bibliothèque" };
                 m.Click += (s, e) =>
                 {
                     Program.DevObject.mutexCheckObjectList.WaitOne();
@@ -146,6 +229,7 @@ namespace DevApps.GUI
                     }
                 };
                 menu.Items.Add(m);
+
                 menu.Placement = PlacementMode.Mouse;
                 menu.IsOpen = true;
 
@@ -165,47 +249,64 @@ namespace DevApps.GUI
         {
             //if (selectedElement == null) return;
 
-            var overElement = Mouse.DirectlyOver as DrawElement;
-            var text = overElement != null ? overElement.Name : "Ready";
-            if (text != Service.GetStatusText())
+            if (isPointing)
             {
-                Service.SetStatusText(text);
+                e.Handled = true;
 
-                // supprime les connecteurs
-                foreach (var c in connectorElements)
-                    MyCanvas.Children.Remove(c);
-                connectorElements.Clear();
-
-                if (overElement != null)
+                if (capturePointGeometry != null && capturePath != null)
                 {
-                    // ajoute les nouveaux connecteurs
-                    Program.DevObject.mutexCheckObjectList.WaitOne();
-                    Program.DevObject.References.TryGetValue(overElement.Name, out var reference);
-                    if (reference != null)
-                    {
-                        foreach (var pointer in reference.GetPointers())
-                        {
-                            var connector = new ConnectorElement(
-                                overElement,
-                                MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value)
-                            );
-                            connector.RenderTransform = _transformGroup;
-                            connectorElements.Add(connector);
-                            MyCanvas.Children.Add(connector);
-                        }
-                    }
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    RefreshCapturePositions();
+                    return;
                 }
+
+                return;
             }
-            else
+
+            var overElement = Mouse.DirectlyOver as DrawBase;
+            var text = overElement != null ? overElement.Name : "Ready";
+
+            if (overElement is DrawElement)
             {
-                if (overElement != null && (isDragging || isResizing))
+                if (text != Service.GetStatusText())
                 {
-                    //actualise les connecteurs existants
+                    Service.SetStatusText(text);
+
+                    // supprime les connecteurs
                     foreach (var c in connectorElements)
+                        MyCanvas.Children.Remove(c);
+                    connectorElements.Clear();
+
+                    if (overElement != null)
                     {
-                        c.UpdatePosition();
-                        c.InvalidateVisual();
+                        // ajoute les nouveaux connecteurs
+                        Program.DevObject.mutexCheckObjectList.WaitOne();
+                        Program.DevObject.References.TryGetValue(overElement.Name, out var reference);
+                        if (reference != null)
+                        {
+                            foreach (var pointer in reference.GetPointers())
+                            {
+                                var connector = new ConnectorElement(
+                                    (overElement as DrawElement),
+                                    MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value)
+                                );
+                                connector.RenderTransform = _transformGroup;
+                                connectorElements.Add(connector);
+                                MyCanvas.Children.Add(connector);
+                            }
+                        }
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+                }
+                else
+                {
+                    if (overElement != null && (isDragging || isResizing))
+                    {
+                        //actualise les connecteurs existants
+                        foreach (var c in connectorElements)
+                        {
+                            c.UpdatePosition();
+                            c.InvalidateVisual();
+                        }
                     }
                 }
             }
@@ -230,24 +331,13 @@ namespace DevApps.GUI
             }
         }
 
-        internal void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+
+        public void OnKeyCommand(KeyCommand command)
         {
-            if (selectedElement != null && isDragging || isResizing)
-                SaveDisposition(selectedElement);
-
-            if (isDoubleClick)
-                selectedElement?.RunAction(e.GetPosition(MyCanvas));
-
-            if (isPanning)
+            if (isPointing && command == KeyCommand.Cancel)
             {
-                MyCanvas.ReleaseMouseCapture();
+                StopCapturePositions(true);
             }
-
-            isPanning = false;
-            isDoubleClick = false;
-            isDragging = false;
-            isResizing = false;
-            selectedElement?.ReleaseMouseCapture();
         }
 
         internal void MoveRectangle(Point mousePosition)
@@ -408,6 +498,17 @@ namespace DevApps.GUI
             MyCanvas.Children.Add(element);
         }
 
+        private DrawGeometry AddGeometry(DevFacet.Geometry geometry)
+        {
+            var element = new DrawGeometry(Geometry.Parse(geometry.path));
+            element.Tag = geometry;
+            element.RenderTransform = _transformGroup;
+            Canvas.SetLeft(element, geometry.X);
+            Canvas.SetTop(element, geometry.Y);
+            MyCanvas.Children.Add(element);
+            return element;
+        }
+
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             if (Service.IsInitialized)
@@ -415,6 +516,11 @@ namespace DevApps.GUI
                 foreach (var obj in this.facette.Objects)
                 {
                     AddElement(obj.Key, obj.Value);
+                }
+
+                foreach (var obj in this.facette.Geometries)
+                {
+                    AddGeometry(obj);
                 }
 
                 CommandsItems.AddRange(this.facette.BuildCommands.Select(p => new CommandItem { Status = "Ready", Description = p.Key, CommandLine = p.Value }));
@@ -429,6 +535,12 @@ namespace DevApps.GUI
                     if(this.facette.Objects.TryGetValue(element.Name, out var props))
                         props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
                 }
+                foreach (var element in MyCanvas.Children.OfType<DrawGeometry>())
+                {
+                    var src = element.Tag as DevFacet.Geometry;
+                    src.X = Canvas.GetLeft(element);
+                    src.Y = Canvas.GetTop(element);
+                }
             }
         }
         private void SaveDisposition(DrawElement element)
@@ -437,6 +549,15 @@ namespace DevApps.GUI
             {
                 if (this.facette.Objects.TryGetValue(element.Name, out var props))
                     props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
+            }
+        }
+        private void SaveDisposition(DrawGeometry element)
+        {
+            if (Service.IsInitialized)
+            {
+                var src = element.Tag as DevFacet.Geometry;
+                src.X = Canvas.GetLeft(element);
+                src.Y = Canvas.GetTop(element);
             }
         }
 
@@ -552,6 +673,219 @@ namespace DevApps.GUI
         {
             ShowCommandsLines = !ShowCommandsLines;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowCommandsLines"));
+        }
+
+        /// <summary>
+        /// Gestion du dessin point à point
+        /// </summary>
+        #region CapturePoints
+        internal enum CapturePointMode
+        {
+            None,
+            Arrow,
+            Rectangle,
+            Ellipse,
+            Polygon,
+            Polyline,
+        }
+
+        internal CapturePointMode capturePointMode = CapturePointMode.None;
+        internal bool captureCloseable = false;
+        internal StringBuilder? capturePath = null;
+        internal DevFacet.Geometry? capturePointGeometry = null;
+        internal DrawGeometry? capturePointDrawGeometry = null;
+
+        private void StartCapturePositions(CapturePointMode mode)
+        {
+            MyCanvas.Cursor = Cursors.Cross;
+            capturePointMode = mode;
+            Mouse.Capture(MyCanvas);
+
+            isPointing = true;
+            captureCloseable = false;
+            capturePath = null;
+        }
+
+        private void BeginCapturePositions()
+        {
+            var position = Mouse.GetPosition(MyCanvas);
+            position.X -= _translateTransform.X;
+            position.Y -= _translateTransform.Y;
+
+            switch (capturePointMode)
+            {
+                case CapturePointMode.Rectangle:
+                case CapturePointMode.Ellipse:
+                case CapturePointMode.Arrow:
+                case CapturePointMode.Polyline:
+                case CapturePointMode.Polygon:
+                    capturePath = new StringBuilder("M 0,0");
+                    capturePointGeometry = new DevFacet.Geometry(position.X, position.Y, capturePath.ToString());
+                    capturePointDrawGeometry = AddGeometry(capturePointGeometry);
+                    captureCloseable = false;
+                    break;
+            }
+        }
+
+        private bool NextCapturePositions()
+        {
+            var position = Mouse.GetPosition(MyCanvas);
+            position.X -= _translateTransform.X;
+            position.Y -= _translateTransform.Y;
+
+            switch (capturePointMode)
+            {
+                case CapturePointMode.None:
+                    break;
+                case CapturePointMode.Polyline:
+                    {
+                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        capturePath.Append(String.Format(" L {0},{1}", (int)pos.X, (int)pos.Y));
+                        capturePointGeometry.path = capturePath.ToString();
+                        capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                        captureCloseable = true;
+                    }
+                    return true;
+                case CapturePointMode.Arrow:
+                    {
+                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        capturePath.Clear();
+                        capturePath.Append(String.Format("M 0,0 L {0},{1}", (int)pos.X, (int)pos.Y));
+
+                        double arrowHeadLength = 10;
+                        double arrowHeadWidth = 10;
+                        Point start = new Point( 0, 0 );
+                        Point end = new Point((int)pos.X, (int)pos.Y);
+                        Vector direction = end - start;
+                        direction.Normalize();
+
+                        // Base de la flèche (début de la tête)
+                        Point basePoint = end - direction * arrowHeadLength;
+
+                        // Vecteur perpendiculaire
+                        Vector perp = new Vector(-direction.Y, direction.X);
+
+                        // Points de la tête
+                        Point left = basePoint + perp * (arrowHeadWidth / 2);
+                        Point right = basePoint - perp * (arrowHeadWidth / 2);
+
+                        capturePath.Append(String.Format(" M {0},{1}", (int)left.X, (int)left.Y));
+                        capturePath.Append(String.Format(" L {0},{1}", (int)pos.X, (int)pos.Y));
+                        capturePath.Append(String.Format(" L {0},{1}", (int)right.X, (int)right.Y));
+
+                        capturePointGeometry.path = capturePath.ToString();
+                        capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                        captureCloseable = true;
+                    }
+                    return false;
+                case CapturePointMode.Ellipse:
+                    {
+                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        capturePath.Clear();
+                        capturePath.Append(String.Format("M 0,0 A 1,1 180 1 1 0,{0} M 0,0 A 1,1 180 1 0 0,{0}", (int)pos.X, (int)pos.Y));
+                        capturePointGeometry.path = capturePath.ToString();
+                        capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                        captureCloseable = true;
+                    }
+                    return false;
+                case CapturePointMode.Rectangle:
+                    {
+                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        capturePath.Clear();
+                        capturePath.Append(String.Format("M 0,0 H {0} V {1} H 0 Z", (int)pos.X, (int)pos.Y));
+                        capturePointGeometry.path = capturePath.ToString();
+                        capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                        captureCloseable = true;
+                    }
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void RefreshCapturePositions()
+        {
+            var position = Mouse.GetPosition(MyCanvas);
+            position.X -= _translateTransform.X;
+            position.Y -= _translateTransform.Y;
+
+            switch (capturePointMode)
+            {
+                case CapturePointMode.None:
+                    break;
+                case CapturePointMode.Polyline:
+                    {
+                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        capturePointGeometry.path = capturePath + String.Format(" L {0},{1}", (int)pos.X, (int)pos.Y);
+                        capturePointDrawGeometry?.SetPath(capturePointGeometry.path);
+                    }
+                    break;
+                case CapturePointMode.Arrow:
+                    {
+                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        capturePointGeometry.path = String.Format("M 0,0 L {0},{1}", (int)pos.X, (int)pos.Y);
+                        capturePointDrawGeometry?.SetPath(capturePointGeometry.path);
+                    }
+                    break;
+                case CapturePointMode.Ellipse:
+                    {
+                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        capturePointGeometry.path = String.Format("M 0,0 A 1,1 180 1 1 0,{0} M 0,0 A 1,1 180 1 0 0,{0}", (int)pos.X, (int)pos.Y);
+                        capturePointDrawGeometry?.SetPath(capturePointGeometry.path);
+                    }
+                    break;
+                case CapturePointMode.Rectangle:
+                    {
+                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        capturePointGeometry.path = String.Format("M 0,0 H {0} V {1} H 0 Z", (int)pos.X, (int)pos.Y);
+                        capturePointDrawGeometry?.SetPath(capturePointGeometry.path);
+                    }
+                    break;
+            }
+        }
+
+        private void StopCapturePositions(bool cancel)
+        {
+            if (cancel == false && captureCloseable == true)
+            {
+                capturePointGeometry.path = capturePath.ToString();
+                capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                facette.Geometries.Add(capturePointGeometry);
+            }
+            else
+            {
+                MyCanvas.Children.Remove(capturePointDrawGeometry);
+            }
+
+            capturePointGeometry = null;
+            capturePointDrawGeometry = null;
+            isPointing = false;
+            captureCloseable = false;
+            capturePath = null;
+
+            MyCanvas.ReleaseMouseCapture();
+            MyCanvas.Cursor = Cursors.Arrow;
+        }
+        #endregion
+
+        private void MenuItem_Arrow_Click(object sender, RoutedEventArgs e)
+        {
+            StartCapturePositions(CapturePointMode.Arrow);
+        }
+
+        private void MenuItem_Ellipse_Click(object sender, RoutedEventArgs e)
+        {
+            StartCapturePositions(CapturePointMode.Ellipse);
+        }
+
+        private void MenuItem_Line_Click(object sender, RoutedEventArgs e)
+        {
+            StartCapturePositions(CapturePointMode.Polyline);
+        }
+
+        private void MenuItem_Rectangle_Click(object sender, RoutedEventArgs e)
+        {
+            StartCapturePositions(CapturePointMode.Rectangle);
         }
     }
 }

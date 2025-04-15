@@ -103,14 +103,14 @@ namespace DevApps.PythonExtends
         }
         internal virtual void image(GUI gui, Output data, string format = "auto")
         {
-            if(data.bytes().Length == 0)
+            if(data.size() == 0)
                 return;
             try
             {
                 // Créer une instance de BitmapImage
                 BitmapImage bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
-                bitmapImage.StreamSource = new MemoryStream(data.bytes());
+                bitmapImage.StreamSource = new MemoryStream(data.Stream.ToArray());
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad; // Charge l'image dans la mémoire
                 bitmapImage.EndInit();
 
@@ -224,7 +224,7 @@ namespace DevApps.PythonExtends
                 // Créer une instance de BitmapImage
                 BitmapImage bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
-                bitmapImage.StreamSource = new MemoryStream(data.bytes());
+                bitmapImage.StreamSource = new MemoryStream(data.Stream.ToArray());
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad; // Charge l'image dans la mémoire
                 bitmapImage.EndInit();
 

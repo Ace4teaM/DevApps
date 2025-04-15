@@ -19,10 +19,20 @@
         </StackPanel>
     
     -->
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
-            <Button Content="OK" HorizontalAlignment="Right"
+        <DockPanel DockPanel.Dock="Bottom">
+
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Right" Height="23" Margin="10">
+                <TextBox x:Name="appName" Width="350">Application name or application path</TextBox>
+                <Button Width="150" Click="AppSearch_Click">Rechercher et Ajouter</Button>
+            </StackPanel>
+
+            <Label></Label>
+            
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="OK" HorizontalAlignment="Right"
                 Margin="10" Width="80" Height="30" Click="OK_Click"/>
-        </StackPanel>
+            </StackPanel>
+        </DockPanel>
 
         <DataGrid Name="editorGrid" DockPanel.Dock="Bottom" Height="220" Margin="10" AutoGenerateColumns="False"  CanUserResizeRows="False" CanUserResizeColumns="True"
                   CanUserAddRows="True" CanUserDeleteRows="True" ItemsSource="{Binding AppsList}"

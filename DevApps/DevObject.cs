@@ -1,4 +1,5 @@
 ﻿using DevApps.GUI;
+using IronPython.Runtime.Exceptions;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Globalization;
@@ -335,7 +336,10 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine(ex.Message);
+                    System.Console.WriteLine(o.Key);
+                    ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                    string error = eo.FormatException(ex);
+                    Console.WriteLine(error);
                 }
             }
             mutexExecuteObjects.ReleaseMutex();
@@ -366,7 +370,10 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine(ex.Message);
+                    System.Console.WriteLine(o.Key);
+                    ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                    string error = eo.FormatException(ex);
+                    Console.WriteLine(error);
                 }
             }
             mutexExecuteObjects.ReleaseMutex();
