@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -115,6 +116,11 @@ namespace DevApps.GUI
                                 {
                                     paths.Add(displayName, displayIcon);
                                 }
+
+                                if (!string.IsNullOrEmpty(displayName) && editors.Count(p=> displayName.ToLower().Contains(p.ToLower()) == true) > 0)
+                                {
+                                    paths.Add(displayName, displayIcon);
+                                }
                             }
                         }
                     }
@@ -134,6 +140,11 @@ namespace DevApps.GUI
                                 string displayIcon = subKey.GetValue("DisplayIcon") as string;
 
                                 if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                {
+                                    paths.Add(displayName, displayIcon);
+                                }
+
+                                if (!string.IsNullOrEmpty(displayName) && editors.Count(p => displayName.ToLower().Contains(p.ToLower()) == true) > 0)
                                 {
                                     paths.Add(displayName, displayIcon);
                                 }
@@ -161,8 +172,6 @@ namespace DevApps.GUI
                                         if (path != null)
                                         {
                                             paths.Add(subKeyName.Replace(".exe",null), path);
-                                            Console.WriteLine($"Path : {path}");
-                                            Console.WriteLine();
                                         }
                                     }
                                 }

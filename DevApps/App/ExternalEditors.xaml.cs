@@ -86,5 +86,15 @@ namespace DevApps.App
         {
             editedKeyValuePair = e.Row.DataContext as KeyValuePair;
         }
+
+        private void AppSearch_Click(object sender, RoutedEventArgs e)
+        {
+            var found = new Dictionary<string, string>();
+            var search = new string[] { appName.Text };
+            Service.ResolveApplicationNames(search, found);
+
+            if (found.Count == 0)
+                MessageBox.Show("Aucune application trouvé");
+        }
     }
 }

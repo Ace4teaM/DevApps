@@ -47,7 +47,11 @@ namespace DevApps.PythonExtends
            stream.Write(bytes);
            stream.SetLength(bytes.Length);
         }
-        public byte[] bytes()
+        public IronPython.Runtime.Bytes bytes()
+        {
+            return new IronPython.Runtime.Bytes(stream.ToArray());
+        }
+        public byte[] Bytes()
         {
             return stream.ToArray();
         }

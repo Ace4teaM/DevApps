@@ -6,7 +6,7 @@ using static Program;
 
 namespace DevApps.GUI
 {
-    public class DrawElement : FrameworkElement
+    public class DrawElement : DrawBase
     {
         internal FormattedText? Title;
         internal DevFacet? facet;

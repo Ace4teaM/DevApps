@@ -293,5 +293,13 @@ namespace DevApps.GUI
                 InvalidateFacets();
             }
         }
+        
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if(Content is IKeyCommand)
+            {
+                (Content as IKeyCommand).OnKeyCommand(KeyCommand.Cancel);
+            }
+        }
     }
 }

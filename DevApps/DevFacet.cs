@@ -8,6 +8,19 @@ internal partial class Program
 {
     public class DevFacet
     {
+        public class Geometry
+        {
+            public Geometry(double X, double Y, string path)
+            {
+                this.path = path;
+                this.Y = Y;
+                this.X = X;
+            }
+
+            public string path;
+            public double X, Y;
+        }
+
         public class ObjectProperties
         {
             static double X = 10;
@@ -59,6 +72,7 @@ internal partial class Program
         }
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
         internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
+        internal List<Geometry> Geometries = new List<Geometry>();
 
         /// <summary>
         /// Commandes systèmes
@@ -106,6 +120,20 @@ internal partial class Program
             }
         }
 
+        public IEnumerable<Geometry> GetGeometries()
+        {
+            return Geometries;
+        }
+
+        public void SetGeometries(IEnumerable<Geometry> items)
+        {
+            Geometries.Clear();
+            foreach (var p in items)
+            {
+                Geometries.Add(p);
+            }
+        }
+
         public System.Windows.Rect GetZone()
         {
             var rect = Objects.First().Value.GetZone();
@@ -134,6 +162,7 @@ internal partial class Program
                 o.Objects.Add(obj, new ObjectProperties());
             }
             References.Add(name, o);
+
             return o;
         }
 
