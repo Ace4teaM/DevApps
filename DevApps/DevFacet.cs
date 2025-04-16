@@ -8,6 +8,19 @@ internal partial class Program
 {
     public class DevFacet
     {
+        public class Text
+        {
+            public Text(double X, double Y, string text)
+            {
+                this.text = text;
+                this.Y = Y;
+                this.X = X;
+            }
+
+            public string text;
+            public double X, Y;
+        }
+
         public class Geometry
         {
             public Geometry(double X, double Y, string path)
@@ -73,6 +86,7 @@ internal partial class Program
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
         internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
         internal List<Geometry> Geometries = new List<Geometry>();
+        internal List<Text> Texts = new List<Text>();
 
         /// <summary>
         /// Commandes systèmes
@@ -131,6 +145,20 @@ internal partial class Program
             foreach (var p in items)
             {
                 Geometries.Add(p);
+            }
+        }
+
+        public IEnumerable<Text> GetTexts()
+        {
+            return Texts;
+        }
+
+        public void SetTexts(IEnumerable<Text> items)
+        {
+            Texts.Clear();
+            foreach (var p in items)
+            {
+                Texts.Add(p);
             }
         }
 

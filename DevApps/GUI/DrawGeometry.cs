@@ -10,9 +10,9 @@ namespace DevApps.GUI
         {
             this.path = path;
         }
-        protected Geometry path;
-        protected Pen pen = new Pen(Brushes.Black, 2.0);//contour
-        protected Brush? brush = null;//remplissage
+        internal Geometry path;
+        internal Pen pen = new Pen(Brushes.Black, 2.0);//contour
+        internal Brush? brush = null;//remplissage
 
         public bool SetPath(string data)
         {
