@@ -3,6 +3,7 @@ using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -12,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using static IronPython.Modules._ast;
 using static Program;
+using static Program.DevFacet;
 
 namespace DevApps.GUI
 {
@@ -130,7 +132,7 @@ namespace DevApps.GUI
                     StopCapturePositions(false);
                 else if (e.ChangedButton == MouseButton.Left)
                 {
-                    if (capturePointGeometry == null)
+                    if (captureDraw == null)
                     {
                         BeginCapturePositions();
                     }
@@ -253,7 +255,7 @@ namespace DevApps.GUI
             {
                 e.Handled = true;
 
-                if (capturePointGeometry != null && capturePath != null)
+                if (capturePath != null)
                 {
                     RefreshCapturePositions();
                     return;
@@ -481,14 +483,17 @@ namespace DevApps.GUI
             return ResizeDirection.None;
         }
 
-        private void AddElement(string name, DevFacet.ObjectProperties properties)
+        private DrawElement AddElement(string name, DevFacet.ObjectProperties properties)
         {
             var o = DevObject.References.FirstOrDefault(p => p.Key == name);
 
             var position = properties.GetZone();
 
             var element = new DrawElement(this.facette);
-            element.Title = new FormattedText(o.Value.Description ?? o.Key, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue);
+
+            element.Title = new FormattedText(o.Value.Description ?? o.Key, CultureInfo.InvariantCulture,
+                System.Windows.FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue,
+                VisualTreeHelper.GetDpi(this).PixelsPerDip);
             element.Name = o.Key;
             element.Width = position.Width;
             element.Height = position.Height;
@@ -496,15 +501,28 @@ namespace DevApps.GUI
             Canvas.SetLeft(element, position.Left);
             Canvas.SetTop(element, position.Top);
             MyCanvas.Children.Add(element);
+
+            return element;
         }
 
-        private DrawGeometry AddGeometry(DevFacet.Geometry geometry)
+        private DrawGeometry AddGeometry(System.Windows.Media.Geometry geometry, double x, double y)
         {
-            var element = new DrawGeometry(Geometry.Parse(geometry.path));
+            var element = new DrawGeometry(geometry);
             element.Tag = geometry;
             element.RenderTransform = _transformGroup;
-            Canvas.SetLeft(element, geometry.X);
-            Canvas.SetTop(element, geometry.Y);
+            Canvas.SetLeft(element, x);
+            Canvas.SetTop(element, y);
+            MyCanvas.Children.Add(element);
+            return element;
+        }
+
+        private DrawText AddText(string text, double x, double y)
+        {
+            var element = new DrawText(text);
+            element.Tag = text;
+            element.RenderTransform = _transformGroup;
+            Canvas.SetLeft(element, x);
+            Canvas.SetTop(element, y);
             MyCanvas.Children.Add(element);
             return element;
         }
@@ -515,12 +533,20 @@ namespace DevApps.GUI
             {
                 foreach (var obj in this.facette.Objects)
                 {
-                    AddElement(obj.Key, obj.Value);
+                    var draw = AddElement(obj.Key, obj.Value);
+                    draw.Tag = obj;
                 }
 
                 foreach (var obj in this.facette.Geometries)
                 {
-                    AddGeometry(obj);
+                    var draw = AddGeometry(System.Windows.Media.Geometry.Parse(obj.path), obj.X, obj.Y);
+                    draw.Tag = obj;
+                }
+
+                foreach (var obj in this.facette.Texts)
+                {
+                    var draw = AddText(obj.text, obj.X, obj.Y);
+                    draw.Tag = obj;
                 }
 
                 CommandsItems.AddRange(this.facette.BuildCommands.Select(p => new CommandItem { Status = "Ready", Description = p.Key, CommandLine = p.Value }));
@@ -682,6 +708,7 @@ namespace DevApps.GUI
         internal enum CapturePointMode
         {
             None,
+            Text,
             Arrow,
             Rectangle,
             Ellipse,
@@ -692,18 +719,33 @@ namespace DevApps.GUI
         internal CapturePointMode capturePointMode = CapturePointMode.None;
         internal bool captureCloseable = false;
         internal StringBuilder? capturePath = null;
-        internal DevFacet.Geometry? capturePointGeometry = null;
-        internal DrawGeometry? capturePointDrawGeometry = null;
+        internal DrawBase? captureDraw = null;
 
         private void StartCapturePositions(CapturePointMode mode)
         {
+            var position = Mouse.GetPosition(MyCanvas);
+            position.X -= _translateTransform.X;
+            position.Y -= _translateTransform.Y;
+
             MyCanvas.Cursor = Cursors.Cross;
             capturePointMode = mode;
             Mouse.Capture(MyCanvas);
 
             isPointing = true;
-            captureCloseable = false;
-            capturePath = null;
+
+            switch (capturePointMode)
+            {
+                case CapturePointMode.Text:
+                    capturePath = new StringBuilder();
+                    captureDraw = AddText("Texte", position.X, position.Y);
+                    captureCloseable = true;
+                    break;
+                default:
+                    capturePath = null;
+                    captureDraw = null;
+                    captureCloseable = false;
+                    break;
+            }
         }
 
         private void BeginCapturePositions()
@@ -720,8 +762,7 @@ namespace DevApps.GUI
                 case CapturePointMode.Polyline:
                 case CapturePointMode.Polygon:
                     capturePath = new StringBuilder("M 0,0");
-                    capturePointGeometry = new DevFacet.Geometry(position.X, position.Y, capturePath.ToString());
-                    capturePointDrawGeometry = AddGeometry(capturePointGeometry);
+                    captureDraw = AddGeometry(System.Windows.Media.Geometry.Parse(capturePath.ToString()), position.X, position.Y);
                     captureCloseable = false;
                     break;
             }
@@ -737,18 +778,22 @@ namespace DevApps.GUI
             {
                 case CapturePointMode.None:
                     break;
+                case CapturePointMode.Text:
+                    {
+                        captureCloseable = true;
+                    }
+                    return false;
                 case CapturePointMode.Polyline:
                     {
-                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
-                        capturePath.Append(String.Format(" L {0},{1}", (int)pos.X, (int)pos.Y));
-                        capturePointGeometry.path = capturePath.ToString();
-                        capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                        var pos = position - new Point(captureDraw.X, captureDraw.Y);
+                        capturePath?.Append(String.Format(" L {0},{1}", (int)pos.X, (int)pos.Y));
+                        (captureDraw as DrawGeometry)?.SetPath(capturePath?.ToString());
                         captureCloseable = true;
                     }
                     return true;
                 case CapturePointMode.Arrow:
                     {
-                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        var pos = position - new Point(captureDraw.X, captureDraw.Y);
                         capturePath.Clear();
                         capturePath.Append(String.Format("M 0,0 L {0},{1}", (int)pos.X, (int)pos.Y));
 
@@ -773,28 +818,25 @@ namespace DevApps.GUI
                         capturePath.Append(String.Format(" L {0},{1}", (int)pos.X, (int)pos.Y));
                         capturePath.Append(String.Format(" L {0},{1}", (int)right.X, (int)right.Y));
 
-                        capturePointGeometry.path = capturePath.ToString();
-                        capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                        (captureDraw as DrawGeometry)?.SetPath(capturePath.ToString());
                         captureCloseable = true;
                     }
                     return false;
                 case CapturePointMode.Ellipse:
                     {
-                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        var pos = position - new Point(captureDraw.X, captureDraw.Y);
                         capturePath.Clear();
                         capturePath.Append(String.Format("M 0,0 A 1,1 180 1 1 0,{0} M 0,0 A 1,1 180 1 0 0,{0}", (int)pos.X, (int)pos.Y));
-                        capturePointGeometry.path = capturePath.ToString();
-                        capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                        (captureDraw as DrawGeometry)?.SetPath(capturePath.ToString());
                         captureCloseable = true;
                     }
                     return false;
                 case CapturePointMode.Rectangle:
                     {
-                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
+                        var pos = position - new Point(captureDraw.X, captureDraw.Y);
                         capturePath.Clear();
                         capturePath.Append(String.Format("M 0,0 H {0} V {1} H 0 Z", (int)pos.X, (int)pos.Y));
-                        capturePointGeometry.path = capturePath.ToString();
-                        capturePointDrawGeometry?.SetPath(capturePath.ToString());
+                        (captureDraw as DrawGeometry)?.SetPath(capturePath.ToString());
                         captureCloseable = true;
                     }
                     return false;
@@ -805,40 +847,42 @@ namespace DevApps.GUI
 
         private void RefreshCapturePositions()
         {
+            // position du curseur
             var position = Mouse.GetPosition(MyCanvas);
             position.X -= _translateTransform.X;
             position.Y -= _translateTransform.Y;
+
+            // position du clic relatif à la position de l'objet
+            var pos = position - new Point(captureDraw.X, captureDraw.Y);
 
             switch (capturePointMode)
             {
                 case CapturePointMode.None:
                     break;
+                case CapturePointMode.Text:
+                    {
+                        (captureDraw as DrawText).X = position.X;
+                        (captureDraw as DrawText).Y = position.Y;
+                    }
+                    break;
                 case CapturePointMode.Polyline:
                     {
-                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
-                        capturePointGeometry.path = capturePath + String.Format(" L {0},{1}", (int)pos.X, (int)pos.Y);
-                        capturePointDrawGeometry?.SetPath(capturePointGeometry.path);
+                        (captureDraw as DrawGeometry)?.SetPath(capturePath + String.Format(" L {0},{1}", (int)pos.X, (int)pos.Y));
                     }
                     break;
                 case CapturePointMode.Arrow:
                     {
-                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
-                        capturePointGeometry.path = String.Format("M 0,0 L {0},{1}", (int)pos.X, (int)pos.Y);
-                        capturePointDrawGeometry?.SetPath(capturePointGeometry.path);
+                        (captureDraw as DrawGeometry)?.SetPath(String.Format("M 0,0 L {0},{1}", (int)pos.X, (int)pos.Y));
                     }
                     break;
                 case CapturePointMode.Ellipse:
                     {
-                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
-                        capturePointGeometry.path = String.Format("M 0,0 A 1,1 180 1 1 0,{0} M 0,0 A 1,1 180 1 0 0,{0}", (int)pos.X, (int)pos.Y);
-                        capturePointDrawGeometry?.SetPath(capturePointGeometry.path);
+                        (captureDraw as DrawGeometry)?.SetPath(String.Format("M 0,0 A 1,1 180 1 1 0,{0} M 0,0 A 1,1 180 1 0 0,{0}", (int)pos.X, (int)pos.Y));
                     }
                     break;
                 case CapturePointMode.Rectangle:
                     {
-                        var pos = position - new Point(capturePointGeometry.X, capturePointGeometry.Y);
-                        capturePointGeometry.path = String.Format("M 0,0 H {0} V {1} H 0 Z", (int)pos.X, (int)pos.Y);
-                        capturePointDrawGeometry?.SetPath(capturePointGeometry.path);
+                        (captureDraw as DrawGeometry)?.SetPath(String.Format("M 0,0 H {0} V {1} H 0 Z", (int)pos.X, (int)pos.Y));
                     }
                     break;
             }
@@ -848,17 +892,37 @@ namespace DevApps.GUI
         {
             if (cancel == false && captureCloseable == true)
             {
-                capturePointGeometry.path = capturePath.ToString();
-                capturePointDrawGeometry?.SetPath(capturePath.ToString());
-                facette.Geometries.Add(capturePointGeometry);
+                if (captureDraw is DrawGeometry)
+                {
+                    var obj = new DevFacet.Geometry(captureDraw.X, captureDraw.Y, capturePath.ToString());
+                    captureDraw.Tag = obj;
+                    facette.Geometries.Add(obj);
+                }
+                if (captureDraw is DrawText)
+                {
+                    var wnd = new GetText();
+                    wnd.Value = "Texte";
+                    wnd.Owner = Window.GetWindow(this);
+
+                    if (wnd.ShowDialog() == true && String.IsNullOrWhiteSpace(wnd.Value) == false)
+                    {
+                        var obj = new DevFacet.Text(captureDraw.X, captureDraw.Y, wnd.Value);
+                        captureDraw.Tag = obj;
+                        (captureDraw as DrawText).SetText(wnd.Value);
+                        facette.Texts.Add(obj);
+                    }
+                    else
+                    {
+                        MyCanvas.Children.Remove(captureDraw);
+                    }
+                }
             }
             else
             {
-                MyCanvas.Children.Remove(capturePointDrawGeometry);
+                MyCanvas.Children.Remove(captureDraw);
             }
 
-            capturePointGeometry = null;
-            capturePointDrawGeometry = null;
+            captureDraw = null;
             isPointing = false;
             captureCloseable = false;
             capturePath = null;
@@ -886,6 +950,11 @@ namespace DevApps.GUI
         private void MenuItem_Rectangle_Click(object sender, RoutedEventArgs e)
         {
             StartCapturePositions(CapturePointMode.Rectangle);
+        }
+
+        private void MenuItem_Text_Click(object sender, RoutedEventArgs e)
+        {
+            StartCapturePositions(CapturePointMode.Text);
         }
     }
 }

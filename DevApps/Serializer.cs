@@ -47,6 +47,7 @@
         public KeyValuePair<string, Program.DevFacet.ObjectProperties?>[] Objects { get { return content.GetObjects().ToArray(); } set { content.SetObjects(value); } }
         public KeyValuePair<string, string>[] Commands { get { return content.GetCommands().ToArray(); } set { content.SetCommands(value); } }
         public Program.DevFacet.Geometry[] Geometries { get { return content.GetGeometries().ToArray(); } set { content.SetGeometries(value); } }
+        public Program.DevFacet.Text[] Texts { get { return content.GetTexts().ToArray(); } set { content.SetTexts(value); } }
     }
 
     internal class DevProject

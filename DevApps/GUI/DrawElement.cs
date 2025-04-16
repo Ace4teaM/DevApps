@@ -16,28 +16,6 @@ namespace DevApps.GUI
             this.facet = facet;
         }
 
-        public double X
-        {
-            get
-            {
-                var canvas = this.Parent as Canvas;
-                if(canvas != null)
-                    return Canvas.GetLeft(this);
-                return 0;
-            }
-        }
-
-        public double Y
-        {
-            get
-            {
-                var canvas = this.Parent as Canvas;
-                if (canvas != null)
-                    return Canvas.GetTop(this);
-                return 0;
-            }
-        }
-
         public System.Windows.Media.Brush? background = null;
 
         internal void RunAction(Point position)

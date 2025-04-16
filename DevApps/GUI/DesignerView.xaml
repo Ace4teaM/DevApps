@@ -22,6 +22,7 @@
         <Canvas Grid.Row="0" x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" ClipToBounds="True" MouseWheel="Canvas_MouseWheel" AllowDrop="True" Drop="dataGrid_Drop">
             <Canvas.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="Texte" Click="MenuItem_Text_Click"></MenuItem>
                     <MenuItem Header="Formes">
                         <MenuItem Header="Rectangle" Click="MenuItem_Rectangle_Click">
                             <MenuItem.Icon>
