@@ -1,5 +1,4 @@
-﻿using DevApps.Samples;
-using Microsoft.Scripting.Utils;
+﻿using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,9 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using static IronPython.Modules._ast;
 using static Program;
-using static Program.DevFacet;
 
 namespace DevApps.GUI
 {
@@ -40,6 +37,9 @@ namespace DevApps.GUI
         internal Point startMousePosition;
         internal DrawBase? selectedElement;
         internal ResizeDirection resizeDirection;
+
+        // bordure utilisé pour encadrer l'objet survolé
+        internal System.Windows.Shapes.Rectangle borderOver = new System.Windows.Shapes.Rectangle { StrokeDashArray = [1.0,1.0]  , StrokeThickness = 2, Stroke = System.Windows.Media.Brushes.Gray, Visibility = Visibility.Hidden };
 
         // Transformation de la vue
         private ScaleTransform _scaleTransform = new ScaleTransform();
@@ -71,6 +71,8 @@ namespace DevApps.GUI
 
             _transformGroup.Children.Add(_translateTransform);
             MyCanvas.LayoutTransform = _scaleTransform;
+
+            MyCanvas.Children.Add(borderOver);
         }
 
         internal enum ResizeDirection { None, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight }
@@ -287,6 +289,16 @@ namespace DevApps.GUI
 
             if (overElement is DrawElement)
             {
+                // Affiche le cadre de l'objet
+                double marge = 5.0;
+                borderOver.Visibility = Visibility.Visible;
+                Canvas.SetLeft(borderOver, Canvas.GetLeft(overElement) - marge);
+                Canvas.SetTop(borderOver, Canvas.GetTop(overElement) - marge);
+                borderOver.Width = overElement.Width + marge * 2;
+                borderOver.Height = overElement.Height + marge * 2;
+                Canvas.SetZIndex(borderOver, 1);
+
+                // Affiche les connecteurs et nom de l'objet
                 if (text != Service.GetStatusText())
                 {
                     Service.SetStatusText(text);
@@ -330,6 +342,11 @@ namespace DevApps.GUI
                     }
                 }
             }
+            else
+            {
+                // Cache le cadre de l'objet
+                borderOver.Visibility = Visibility.Hidden;
+            }
 
             Point currentMousePosition = e.GetPosition(MyCanvas);
 
@@ -357,6 +374,11 @@ namespace DevApps.GUI
             if (isPointing && command == KeyCommand.Cancel)
             {
                 StopCapturePositions(true);
+                return;
+            }
+            if (command == KeyCommand.ShowDetails)
+            {
+                return;
             }
         }
 
