@@ -98,6 +98,7 @@ namespace DevApps.GUI
                 var wnd = new GetText();
                 wnd.Value = geo.path;
                 wnd.Owner = Window.GetWindow(this);
+                wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
                 if (wnd.ShowDialog() == true)
                 {
@@ -107,6 +108,26 @@ namespace DevApps.GUI
                     }
                     else
                         MessageBox.Show("Syntaxe invalide");
+                }
+            }
+
+            if (isDoubleClick && selectedElement is DrawText)
+            {
+                var geo = ((selectedElement as DrawText).Tag as DevFacet.Text);
+                var wnd = new GetText();
+                wnd.Value = geo.text;
+                wnd.IsMultiline = true;
+                wnd.Owner = Window.GetWindow(this);
+                wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+                if (wnd.ShowDialog() == true)
+                {
+                    if ((selectedElement as DrawText).SetText(wnd.Value))
+                    {
+                        geo.text = wnd.Value;
+                    }
+                    else
+                        MessageBox.Show("Le texte ne peut pas être vide");
                 }
             }
 
