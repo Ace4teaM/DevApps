@@ -83,11 +83,8 @@ namespace DevApps.GUI
                 return;
             }
 
-            if (selectedElement is DrawElement && isDragging || isResizing)
-                SaveDisposition(selectedElement as DrawElement);
-
-            if (selectedElement is DrawGeometry && isDragging || isResizing)
-                SaveDisposition(selectedElement as DrawGeometry);
+            if (selectedElement is DrawBase && isDragging || isResizing)
+                SaveDisposition(selectedElement);
 
             if (isDoubleClick && selectedElement is DrawElement)
                 (selectedElement as DrawElement)?.RunAction(e.GetPosition(MyCanvas));
@@ -588,23 +585,34 @@ namespace DevApps.GUI
                     src.X = Canvas.GetLeft(element);
                     src.Y = Canvas.GetTop(element);
                 }
+                foreach (var element in MyCanvas.Children.OfType<DrawText>())
+                {
+                    var src = element.Tag as DevFacet.Text;
+                    src.X = Canvas.GetLeft(element);
+                    src.Y = Canvas.GetTop(element);
+                }
             }
         }
-        private void SaveDisposition(DrawElement element)
+        private void SaveDisposition(DrawBase element)
         {
             if (Service.IsInitialized)
             {
-                if (this.facette.Objects.TryGetValue(element.Name, out var props))
+                if (element is DrawElement && this.facette.Objects.TryGetValue(element.Name, out var props))
+                {
                     props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
-            }
-        }
-        private void SaveDisposition(DrawGeometry element)
-        {
-            if (Service.IsInitialized)
-            {
-                var src = element.Tag as DevFacet.Geometry;
-                src.X = Canvas.GetLeft(element);
-                src.Y = Canvas.GetTop(element);
+                }
+                if (element is DrawGeometry)
+                {
+                    var src = element.Tag as DevFacet.Geometry;
+                    src.X = Canvas.GetLeft(element);
+                    src.Y = Canvas.GetTop(element);
+                }
+                if (element is DrawText)
+                {
+                    var src = element.Tag as DevFacet.Text;
+                    src.X = Canvas.GetLeft(element);
+                    src.Y = Canvas.GetTop(element);
+                }
             }
         }
 
