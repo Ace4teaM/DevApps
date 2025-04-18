@@ -291,6 +291,7 @@ namespace DevApps.GUI
             {
                 // Affiche le cadre de l'objet
                 double marge = 5.0;
+                borderOver.RenderTransform = _transformGroup;
                 borderOver.Visibility = Visibility.Visible;
                 Canvas.SetLeft(borderOver, Canvas.GetLeft(overElement) - marge);
                 Canvas.SetTop(borderOver, Canvas.GetTop(overElement) - marge);
