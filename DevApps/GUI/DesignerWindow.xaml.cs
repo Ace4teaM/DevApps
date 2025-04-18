@@ -298,7 +298,33 @@ namespace DevApps.GUI
         {
             if(Content is IKeyCommand)
             {
-                (Content as IKeyCommand).OnKeyCommand(KeyCommand.Cancel);
+                var kc = (Content as IKeyCommand);
+
+                switch (e.Key)
+                {
+                    case Key.Escape:
+                        kc?.OnKeyCommand(KeyCommand.Cancel);
+                        break;
+                    case Key.Left:
+                        kc?.OnKeyCommand(KeyCommand.MoveLeft);
+                        break;
+                    case Key.Right:
+                        kc?.OnKeyCommand(KeyCommand.MoveRight);
+                        break;
+                    case Key.Up:
+                        kc?.OnKeyCommand(KeyCommand.MoveTop);
+                        break;
+                    case Key.Down:
+                        kc?.OnKeyCommand(KeyCommand.MoveBottom);
+                        break;
+                    case Key.LeftAlt:
+                        kc?.OnKeyCommand(KeyCommand.ShowDetails);
+                        break;
+                    case Key.System:
+                        if (e.SystemKey == Key.LeftAlt)
+                        kc?.OnKeyCommand(KeyCommand.ShowDetails);
+                        break;
+                }
             }
         }
     }

@@ -61,7 +61,7 @@ namespace DevApps.GUI
             base.OnRender(drawingContext);
 
             if(Title != null)
-                drawingContext.DrawText(Title, new Point(0, -Title.Height));
+                drawingContext.DrawText(Title, new Point(0, -Title.Height - 6));
 
             Program.DevObject.mutexCheckObjectList.WaitOne();
             Program.DevObject.References.TryGetValue(this.Name, out var reference);

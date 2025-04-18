@@ -12,5 +12,6 @@
         MoveRight,
         MoveTop,
         MoveBottom,
+        ShowDetails,
     }
 }
