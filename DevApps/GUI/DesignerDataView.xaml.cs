@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using static IronPython.Modules._ast;
+using static Program;
 using static System.Windows.Forms.DataFormats;
 
 namespace DevApps.GUI
@@ -282,6 +283,32 @@ namespace DevApps.GUI
                         Service.OpenEditorOrDefault(reference.buildStream, reference.Editor);
 
                         reference.mutexReadOutput.ReleaseMutex();
+
+                        //DrawObject.InvalidateVisual();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void MenuItem_Click_Build(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var selection = (dataGrid.SelectedItem as TabItem)?.Name;
+
+                if (selection != null)
+                {
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    var items = Program.DevObject.References.Where(p=>p.Key == selection);
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                    if (items != null)
+                    {
+                        Program.DevObject.Build(items);
 
                         //DrawObject.InvalidateVisual();
                     }

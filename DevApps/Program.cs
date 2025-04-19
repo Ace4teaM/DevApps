@@ -125,6 +125,7 @@ internal partial class Program
         pyScope.SetVariable("console", new DevApps.PythonExtends.Console());
         pyScope.SetVariable("requests", new DevApps.PythonExtends.Requests());
         pyScope.SetVariable("editor", new DevApps.PythonExtends.CSEditor(""));
+        pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
 
         //pyScope.ImportModule("openai");
         //pyScope.ImportModule("requests");
