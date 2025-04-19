@@ -434,8 +434,22 @@ namespace DevApps.GUI
                                     Program.DevObject.References.Remove(item.Name);
                                     Program.DevObject.References[text] = value;
 
+                                    // renomme l'objet dans les objets de references
+                                    foreach (var obj in Program.DevObject.References)
+                                    {
+                                        if(obj.Value is Program.DevObjectReference)
+                                        {
+                                            var objRef = obj.Value as Program.DevObjectReference;
+                                            if(objRef.baseObjectName == item.Name)
+                                            {
+                                                objRef.baseObjectName = text;
+                                                Console.WriteLine($"Renomme Reference {obj.Key} : {item.Name} => {text}");
+                                            }
+                                        }
+                                    }
+
                                     // renomme l'objet dans les references des autres objets
-                                    foreach(var obj in Program.DevObject.References)
+                                    foreach (var obj in Program.DevObject.References)
                                     {
                                         foreach(var pointer in obj.Value.Pointers.Where(p=>p.Value == item.Name).ToArray())
                                         {
