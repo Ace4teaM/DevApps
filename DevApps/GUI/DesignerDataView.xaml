@@ -9,14 +9,17 @@
     <UserControl.Resources>
         <Style x:Key="CenterGridHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
         <local:EditConverter x:Key="editConverter"/>
+        <local:BoolConverter x:Key="boolConverter"/>
     </UserControl.Resources>
     <Grid>
         <DataGrid x:Name="dataGrid" CellEditEnding="dataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False" AllowDrop="True" Drop="dataGrid_Drop">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>
+                    <MenuItem Header="Créer une référence" Click="MenuItem_Click_CreateReference"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="Nouvel objet..." Click="MenuItem_Click_CreateObject"></MenuItem>
                     <MenuItem Header="Nouvelle facette..." Click="MenuItem_Click_CreateFacet"></MenuItem>
@@ -105,6 +108,21 @@
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
                                 <TextBlock x:Name="DrawCode" Tag="{Binding DrawCode}" Text="{Binding DrawCode,  Converter={StaticResource editConverter}}" Width="30"/>
+                            </ContentControl>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="R" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
+                    <DataGridTemplateColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="ToolTip" Value="Reference" />
+                            <Setter Property="HorizontalAlignment"  Value="Center"/>
+                        </Style>
+                    </DataGridTemplateColumn.CellStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate >
+                            <ContentControl>
+                                <TextBlock x:Name="IsReference" Tag="{Binding IsReference}" Text="{Binding IsReference,  Converter={StaticResource boolConverter}}" Width="30"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

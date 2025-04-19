@@ -1,15 +1,17 @@
-﻿namespace Serializer
+﻿using static IronPython.Modules._ast;
+
+namespace Serializer
 {
-    internal class DevObject
+    internal class DevObjectInstance
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevObject content;
 
-        public DevObject()
+        public DevObjectInstance()
         {
-            this.content = new Program.DevObject();
+            this.content = new Program.DevObjectInstance();
         }
-        public DevObject(Program.DevObject content)
+        public DevObjectInstance(Program.DevObjectInstance content)
         {
             this.content = content;
         }
@@ -28,6 +30,29 @@
         public string? BuildMethod { get { return content.GetBuildMethod(); } set { content.SetBuildMethod(value); } }
         public string? ObjectCode { get { return content.GetCode(); } set { content.SetCode(value); } }
         public string? DrawCode { get { return content.GetDrawCode(); } set { content.SetDrawCode(value); } }
+    }
+
+    internal class DevObjectReference
+    {
+        [Newtonsoft.Json.JsonIgnore]
+        internal Program.DevObjectReference content;
+
+        public DevObjectReference()
+        {
+            this.content = new Program.DevObjectReference();
+        }
+        public DevObjectReference(Program.DevObjectReference content)
+        {
+            this.content = content;
+        }
+
+        /// <summary>
+        /// Description de l'objet (optionnel)
+        /// </summary>
+        public String Description { get { return content.Description; } set { content.Description = value; } }
+        public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
+        public String? BaseObjectName { get { return content.BaseObjectName; } set { content.BaseObjectName = value; } }
+        public KeyValuePair<string, string?>[] Pointers { get { return content.GetPointers().ToArray(); } set { content.SetPointers(value); } }
     }
 
     internal class DevFacet
@@ -55,13 +80,35 @@
         public DevProject()
         {
         }
-        public KeyValuePair<string, DevObject>[] Objects { 
+        public KeyValuePair<string, DevObjectInstance>[] Objects { 
             get {
-                return Program.DevObject.References.Select(p=>new KeyValuePair<string, DevObject>(p.Key, new DevObject(p.Value))).ToArray();
+                return Program.DevObject.References.Where(p => p.Value is Program.DevObjectInstance).Select(p=>new KeyValuePair<string, DevObjectInstance>(p.Key, new DevObjectInstance(p.Value as Program.DevObjectInstance))).ToArray();
             }
             set
             {
-                Program.DevObject.References.Clear();
+                foreach (var s in Program.DevObject.References.Where(p => p.Value is Program.DevObjectInstance).ToArray())
+                {
+                    Program.DevObject.References.Remove(s.Key);
+                }
+
+                foreach (var o in value)
+                {
+                    Program.DevObject.References.Add(o.Key, o.Value.content);
+                }
+            }
+        }
+        public KeyValuePair<string, DevObjectReference>[] References
+        {
+            get
+            {
+                return Program.DevObject.References.Where(p=>p.Value is Program.DevObjectReference).Select(p => new KeyValuePair<string, DevObjectReference>(p.Key, new DevObjectReference(p.Value as Program.DevObjectReference))).ToArray();
+            }
+            set
+            {
+                foreach (var s in Program.DevObject.References.Where(p => p.Value is Program.DevObjectReference).ToArray())
+                {
+                    Program.DevObject.References.Remove(s.Key);
+                }
 
                 foreach (var o in value)
                 {
@@ -94,15 +141,37 @@
         public DevExternalProject()
         {
         }
-        public KeyValuePair<string, DevObject>[] Objects
+        public KeyValuePair<string, DevObjectInstance>[] Objects
         {
             get
             {
-                return ReferencesO.Select(p => new KeyValuePair<string, DevObject>(p.Key, new DevObject(p.Value))).ToArray();
+                return ReferencesO.Where(p => p.Value is Program.DevObjectInstance).Select(p => new KeyValuePair<string, DevObjectInstance>(p.Key, new DevObjectInstance(p.Value as Program.DevObjectInstance))).ToArray();
             }
             set
             {
-                ReferencesO.Clear();
+                foreach (var s in ReferencesO.Where(p => p.Value is Program.DevObjectInstance).ToArray())
+                {
+                    ReferencesO.Remove(s.Key);
+                }
+
+                foreach (var o in value)
+                {
+                    ReferencesO.Add(o.Key, o.Value.content);
+                }
+            }
+        }
+        public KeyValuePair<string, DevObjectReference>[] References
+        {
+            get
+            {
+                return ReferencesO.Where(p => p.Value is Program.DevObjectReference).Where(p => p.Value is Program.DevObjectReference).Select(p => new KeyValuePair<string, DevObjectReference>(p.Key, new DevObjectReference(p.Value as Program.DevObjectReference))).ToArray();
+            }
+            set
+            {
+                foreach (var s in ReferencesO.Where(p => p.Value is Program.DevObjectReference).ToArray())
+                {
+                    ReferencesO.Remove(s.Key);
+                }
 
                 foreach (var o in value)
                 {

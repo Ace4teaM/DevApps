@@ -9,10 +9,32 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using static IronPython.Modules._ast;
 using static System.Windows.Forms.DataFormats;
 
 namespace DevApps.GUI
 {
+    public class BoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return String.Empty;
+            }
+
+            if (value.GetType() == typeof(bool))
+                return ((bool)value) == true ? "✗" : String.Empty;
+
+            return String.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
+    }
+
     public class EditConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -43,13 +65,55 @@ namespace DevApps.GUI
 
         public class TabItem
         {
+            public bool? IsReference { 
+                get
+                {
+                    var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
+                    return obj?.IsReference;
+                } 
+            }
             public string? Name { get; set; }
             public string? Description { get; set; }
-            public string? UserAction { get; set; }
-            public string? LoopMethod { get; set; }
-            public string? InitMethod { get; set; }
-            public string? BuildMethod { get; set; }
-            public string? DrawCode { get; set; }
+            public string? UserAction
+            {
+                get
+                {
+                    var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
+                    return obj?.UserAction.Item1;
+                }
+            }
+            public string? LoopMethod
+            {
+                get
+                {
+                    var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
+                    return obj?.LoopMethod.Item1;
+                }
+            }
+            public string? InitMethod
+            {
+                get
+                {
+                    var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
+                    return obj?.InitMethod.Item1;
+                }
+            }
+            public string? BuildMethod
+            {
+                get
+                {
+                    var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
+                    return obj?.BuildMethod.Item1;
+                }
+            }
+            public string? DrawCode
+            {
+                get
+                {
+                    var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
+                    return obj?.DrawCode.Item1;
+                }
+            }
             public string? Facettes
             {
                 get
@@ -72,7 +136,7 @@ namespace DevApps.GUI
             get
             {
                 Program.DevObject.mutexCheckObjectList.WaitOne();
-                var list = Program.DevObject.References.Select(p => new TabItem { Name = p.Key, Description = p.Value.Description, UserAction = p.Value.UserAction.Item1, LoopMethod = p.Value.LoopMethod.Item1, InitMethod = p.Value.InitMethod.Item1, BuildMethod = p.Value.BuildMethod.Item1, DrawCode = p.Value.DrawCode.Item1 }).ToList();
+                var list = Program.DevObject.References.Select(p => new TabItem { Name = p.Key, Description = p.Value.Description }).ToList();
                 Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                 return list;
             }
@@ -92,8 +156,27 @@ namespace DevApps.GUI
         private void OnDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var item = ((sender as ContentControl)?.Content as FrameworkElement);
-            var content = item?.Tag.ToString();
-            var context = item?.DataContext as TabItem;
+            var content = String.Empty;
+            var context = ((sender as ContentControl)?.DataContext as TabItem);
+
+            switch (item.Name)
+            {
+                case "DrawCode":
+                    content = context.DrawCode;
+                    break;
+                case "BuildMethod":
+                    content = context.BuildMethod;
+                    break;
+                case "LoopMethod":
+                    content = context.LoopMethod;
+                    break;
+                case "InitMethod":
+                    content = context.InitMethod;
+                    break;
+                case "UserAction":
+                    content = context.UserAction;
+                    break;
+            }
 
             Program.DevObject.mutexCheckObjectList.WaitOne();
             try
@@ -109,23 +192,18 @@ namespace DevApps.GUI
                     {
                         case "DrawCode":
                             obj.SetDrawCode(wnd.Value);
-                            context.DrawCode = wnd.Value;
                             break;
                         case "BuildMethod":
                             obj.SetBuildMethod(wnd.Value);
-                            context.BuildMethod = wnd.Value;
                             break;
                         case "LoopMethod":
                             obj.SetLoopMethod(wnd.Value);
-                            context.LoopMethod = wnd.Value;
                             break;
                         case "InitMethod":
                             obj.SetInitMethod(wnd.Value);
-                            context.InitMethod = wnd.Value;
                             break;
                         case "UserAction":
                             obj.SetUserAction(wnd.Value);
-                            context.UserAction = wnd.Value;
                             break;
                     }
                 }
@@ -161,6 +239,28 @@ namespace DevApps.GUI
                 Program.DevObject.Create(wnd.Value, String.Empty);
                 InvalidateObjects();
             }
+        }
+
+        private void MenuItem_Click_CreateReference(object sender, RoutedEventArgs e)
+        {
+            var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
+
+            foreach(var name in selection)
+            {
+                if (Program.DevObject.References.ContainsKey(name))
+                {
+                    var obj = Program.DevObject.References[name];
+                    var newName = name + "Ref";
+                    Program.DevObject.MakeUniqueName(ref newName);
+
+                    if (obj.IsReference)
+                       Program.DevObject.CreateReference(newName, (obj as Program.DevObjectReference).BaseObjectName);
+                    else
+                        Program.DevObject.CreateReference(newName, name);
+                }
+            }
+
+            InvalidateObjects();
         }
 
         private void MenuItem_Click_EditOutput(object sender, RoutedEventArgs e)
