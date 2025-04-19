@@ -18,7 +18,8 @@
             Margin="5,5,0,0"
             FontFamily="Consolas"
             SyntaxHighlighting="Python"
-            FontSize="10pt"/>
+            FontSize="10pt"
+            ShowLineNumbers="True"/>
 
         <!-- <TextBox Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="{Binding IsMultiline}" KeyDown="TextBox_KeyDown" TextChanged="TextBox_TextChanged">
 
