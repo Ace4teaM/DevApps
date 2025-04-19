@@ -1,5 +1,5 @@
-﻿using DevApps.GUI;
-using IronPython.Runtime.Exceptions;
+﻿using DevApps;
+using DevApps.GUI;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Globalization;
@@ -9,14 +9,18 @@ using System.Text.RegularExpressions;
 
 internal partial class Program
 {
-    public class DevObject
+    /// <summary>
+    /// Objet de base
+    /// </summary>
+    public abstract class DevObject
     {
         public static Dictionary<string, DevObject> References = new Dictionary<string, DevObject>();
         internal static Mutex mutexExecuteObjects = new Mutex();
         internal static Mutex mutexCheckObjectList = new Mutex();
-        internal Mutex mutexReadOutput = new Mutex();
         internal static bool run = false;
         internal static Thread? thread;
+
+        internal Mutex mutexReadOutput = new Mutex();
         public MemoryStream buildStream = new MemoryStream();
 
         public DevApps.PythonExtends.GUI gui = new DevApps.PythonExtends.GUI();
@@ -34,41 +38,46 @@ internal partial class Program
         public String? Editor = null;
 
         /// <summary>
+        /// true si l'objet est de type DevObjectReference
+        /// </summary>
+        public bool IsReference { get { return this is DevObjectReference; } }
+
+        /// <summary>
         /// Pointeurs vers des objets existants
         /// </summary>
-        public Dictionary<string, string> Pointers { get; } = new Dictionary<string, string>(); // name, refName
+        public abstract Dictionary<string, string> Pointers { get; }
         /// <summary>
         /// Fonctions internes
         /// </summary>
-        public Dictionary<string, (string, CompiledCode?)> Functions { get; } = new Dictionary<string, (string, CompiledCode?)>(); // name, (code, compiledCode)
+        public abstract Dictionary<string, (string, CompiledCode?)> Functions { get; }
         /// <summary>
         /// Fonctions internes
         /// </summary>
-        public Dictionary<string, (string, CompiledCode?)> Properties { get; } = new Dictionary<string, (string, CompiledCode?)>(); // name, (code, compiledCode)
+        public abstract Dictionary<string, (string, CompiledCode?)> Properties { get; }
         /// <summary>
         /// Commandes utilisateur
         /// </summary>
-        public (string, CompiledCode?) UserAction { get; set; } = (String.Empty, null);
+        public abstract  (string, CompiledCode?) UserAction { get; }
         /// <summary>
         /// Méthode de simulation (timer)
         /// </summary>
-        public (string, CompiledCode?) LoopMethod { get; set; } = (String.Empty, null);
+        public abstract (string, CompiledCode?) LoopMethod { get; }
         /// <summary>
         /// Méthode de simulation (initialisation)
         /// </summary>
-        public (string, CompiledCode?) InitMethod { get; set; } = (String.Empty, null);
+        public abstract (string, CompiledCode?) InitMethod { get; }
         /// <summary>
         /// Méthode de construction (generation code, ...)
         /// </summary>
-        public (string, CompiledCode?) BuildMethod { get; set; } = (String.Empty, null);
+        public abstract (string, CompiledCode?) BuildMethod { get; }
         /// <summary>
         /// Code/Données de l'objet
         /// </summary>
-        public (string, CompiledCode?) ObjectCode { get; set; } = (String.Empty, null);
+        public abstract (string, CompiledCode?) ObjectCode { get; }
         /// <summary>
         /// Dessin de l'objet
         /// </summary>
-        public (string, CompiledCode?) DrawCode { get; set; } = (String.Empty, null);
+        public abstract (string, CompiledCode?) DrawCode { get; }
 
         static string RemoveDiacritics(string text)
         {
@@ -110,14 +119,22 @@ internal partial class Program
                 n++;
             }
 
-            name = newName.ToLower();
+            name = newName;
         }
 
 
-        public static DevObject Create(string name, string desc)
+        public static DevObjectInstance Create(string name, string desc)
         {
-            var o = new DevObject();
+            var o = new DevObjectInstance();
             o.Description = desc;
+            References.Add(name, o);
+
+            return o;
+        }
+
+        public static DevObjectReference CreateReference(string name, string refname)
+        {
+            var o = new DevObjectReference(refname);
             References.Add(name, o);
 
             return o;
@@ -427,14 +444,14 @@ internal partial class Program
         /// </summary>
         public static void MakeReferences(IEnumerable<DevObject>? objects = null)
         {
-            foreach (var o in objects ?? References.Values)
+            foreach (var o in (objects ?? References.Values).OfType<DevObjectInstance>())
             {
                 if (String.IsNullOrWhiteSpace(o.DrawCode.Item1) == false)
                 {
                     string sourceCode = o.DrawCode.Item1;
                     ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
                     CompiledCode compiled = source.Compile();
-                    o.DrawCode = (sourceCode, compiled);
+                    o.drawCode = (sourceCode, compiled);
                 }
 
                 if (String.IsNullOrWhiteSpace(o.ObjectCode.Item1) == false)
@@ -442,7 +459,7 @@ internal partial class Program
                     string sourceCode = o.ObjectCode.Item1;
                     ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
                     CompiledCode compiled = source.Compile();
-                    o.ObjectCode = (sourceCode, compiled);
+                    o.objectCode = (sourceCode, compiled);
                 }
 
                 foreach (var f in o.Functions.ToArray())
@@ -472,7 +489,7 @@ internal partial class Program
                     string sourceCode = o.UserAction.Item1;
                     ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
                     CompiledCode compiled = source.Compile();
-                    o.UserAction = (sourceCode, compiled);
+                    o.userAction = (sourceCode, compiled);
                 }
 
                 if (String.IsNullOrWhiteSpace(o.LoopMethod.Item1) == false)
@@ -480,7 +497,7 @@ internal partial class Program
                     string sampleCode = o.LoopMethod.Item1;
                     ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
                     CompiledCode sampleCompiled = sampleScript.Compile();
-                    o.LoopMethod = (sampleCode, sampleCompiled);
+                    o.loopMethod = (sampleCode, sampleCompiled);
                 }
 
                 if (String.IsNullOrWhiteSpace(o.InitMethod.Item1) == false)
@@ -488,7 +505,7 @@ internal partial class Program
                     string sampleCode = o.InitMethod.Item1;
                     ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
                     CompiledCode sampleCompiled = sampleScript.Compile();
-                    o.InitMethod = (sampleCode, sampleCompiled);
+                    o.initMethod = (sampleCode, sampleCompiled);
                 }
 
                 if (String.IsNullOrWhiteSpace(o.BuildMethod.Item1) == false)
@@ -496,7 +513,7 @@ internal partial class Program
                     string sampleCode = o.BuildMethod.Item1;
                     ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
                     CompiledCode sampleCompiled = sampleScript.Compile();
-                    o.BuildMethod = (sampleCode, sampleCompiled);
+                    o.buildMethod = (sampleCode, sampleCompiled);
                 }
             }
         }
@@ -506,7 +523,7 @@ internal partial class Program
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
-        private static string RemoveIdent(string? code)
+        protected static string RemoveIdent(string? code)
         {
             if (code != null)
             {
@@ -533,191 +550,35 @@ internal partial class Program
             return String.Empty;
         }
 
-        public string Output
-        {
-            get
-            {
-                return Encoding.UTF8.GetString(buildStream.GetBuffer());
-            }
-        }
 
-        public string? GetDrawCode()
-        {
-            return DrawCode.Item1;
-        }
 
-        public DevObject SetDrawCode(string? code)
-        {
-            DrawCode = (RemoveIdent(code), null);
-            return this;
-        }
-
-        public DevObject SetOutput(byte[] data)
-        {
-            buildStream.Seek(0, SeekOrigin.Begin);
-            buildStream.Write(data);
-            buildStream.SetLength(data.Length);
-            return this;
-        }
-
-        public DevObject SetOutput(string text, bool removeIdent = false)
-        {
-            var data = Encoding.UTF8.GetBytes(removeIdent ? RemoveIdent(text) : text);
-            buildStream.Seek(0, SeekOrigin.Begin);
-            buildStream.Write(data);
-            buildStream.SetLength(data.Length);
-            return this;
-        }
-
-        public DevObject LoadOutput(string name, string? path = null)
-        {
-            if (path == null)
-                path = DataDir;
-
-            var data = File.ReadAllBytes(Path.Combine(path, name));
-            buildStream.Write(data);
-            buildStream.SetLength(data.Length);
-            return this;
-        }
-
-        public DevObject SaveOutput(string name, string? path = null)
-        {
-            if (path == null)
-                path = DataDir;
-
-            File.WriteAllBytes(Path.Combine(path, name), buildStream.GetBuffer());
-            return this;
-        }
-
-        public string? GetCode()
-        {
-            return ObjectCode.Item1;
-        }
-
-        public DevObject SetCode(string? code)
-        {
-            ObjectCode = (RemoveIdent(code), null);
-            return this;
-        }
-
-        public string? GetLoopMethod()
-        {
-            return LoopMethod.Item1;
-        }
-
-        public DevObject SetLoopMethod(string? code)
-        {
-            LoopMethod = (RemoveIdent(code), null);
-            return this;
-        }
-
-        public string? GetInitMethod()
-        {
-            return InitMethod.Item1;
-        }
-
-        public DevObject SetInitMethod(string? code)
-        {
-            InitMethod = (RemoveIdent(code), null);
-            return this;
-        }
-
-        public string? GetBuildMethod()
-        {
-            return BuildMethod.Item1;
-        }
-
-        public DevObject SetBuildMethod(string? code)
-        {
-            BuildMethod = (RemoveIdent(code), null);
-            return this;
-        }
-
-        public IEnumerable<KeyValuePair<string, string?>> GetProperties()
-        {
-            return Properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1));
-        }
-
-        public void SetProperties(IEnumerable<KeyValuePair<string, string?>> items)
-        {
-            Properties.Clear();
-            foreach (var p in items)
-            {
-                AddProperty(p.Key, p.Value);
-            }
-        }
-
-        public string? GetProperty(string name)
-        {
-            return Properties.ContainsKey(name) ? Properties[name].Item1 : String.Empty;
-        }
-
-        public DevObject AddProperty(string name, string? code)
-        {
-            Properties[name] = (code != null ? code.Trim() : String.Empty, null);
-            return this;
-        }
-
-        public IEnumerable<KeyValuePair<string, string?>> GetFunctions()
-        {
-            return Functions.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1));
-        }
-
-        public void SetFunctions(IEnumerable<KeyValuePair<string, string?>> items)
-        {
-            Functions.Clear();
-            foreach (var p in items)
-            {
-                AddFunction(p.Key, p.Value);
-            }
-        }
-
-        public string? GetFunction(string name)
-        {
-            return Functions.ContainsKey(name) ? Functions[name].Item1 : String.Empty;
-        }
-
-        public DevObject AddFunction(string name, string code)
-        {
-            Functions[name] = (RemoveIdent(code), null);
-            return this;
-        }
-
-        public string GetUserAction()
-        {
-            return UserAction.Item1;
-        }
-
-        public DevObject SetUserAction(string code)
-        {
-            UserAction = (RemoveIdent(code), null);
-            return this;
-        }
-
-        public IEnumerable<KeyValuePair<string, string?>> GetPointers()
-        {
-            return Pointers.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value));
-        }
-
-        public void SetPointers(IEnumerable<KeyValuePair<string, string?>> items)
-        {
-            Pointers.Clear();
-            foreach (var p in items)
-            {
-                AddPointer(p.Key, p.Value);
-            }
-        }
-
-        public string? GetPointer(string name)
-        {
-            return Pointers.ContainsKey(name) ? Pointers[name] : String.Empty;
-        }
-
-        public DevObject AddPointer(string name, string reference)
-        {
-            Pointers[name] = reference;
-            return this;
-        }
-
+        public abstract string? GetDrawCode();
+        public abstract DevObject SetDrawCode(string? code);
+        public abstract DevObject SetOutput(byte[] data);
+        public abstract DevObject SetOutput(string text, bool removeIdent = false);
+        public abstract DevObject LoadOutput(string name, string? path = null);
+        public abstract DevObject SaveOutput(string name, string? path = null);
+        public abstract string? GetCode();
+        public abstract DevObject SetCode(string? code);
+        public abstract string? GetLoopMethod();
+        public abstract DevObject SetLoopMethod(string? code);
+        public abstract string? GetInitMethod();
+        public abstract DevObject SetInitMethod(string? code);
+        public abstract string? GetBuildMethod();
+        public abstract DevObject SetBuildMethod(string? code);
+        public abstract IEnumerable<KeyValuePair<string, string?>> GetProperties();
+        public abstract void SetProperties(IEnumerable<KeyValuePair<string, string?>> items);
+        public abstract string? GetProperty(string name);
+        public abstract DevObject AddProperty(string name, string? code);
+        public abstract IEnumerable<KeyValuePair<string, string?>> GetFunctions();
+        public abstract void SetFunctions(IEnumerable<KeyValuePair<string, string?>> items);
+        public abstract string? GetFunction(string name);
+        public abstract DevObject AddFunction(string name, string code);
+        public abstract string GetUserAction();
+        public abstract DevObject SetUserAction(string code);
+        public abstract IEnumerable<KeyValuePair<string, string?>> GetPointers();
+        public abstract void SetPointers(IEnumerable<KeyValuePair<string, string?>> items);
+        public abstract string? GetPointer(string name);
+        public abstract DevObject AddPointer(string name, string reference);
     }
 }

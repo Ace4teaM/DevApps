@@ -243,7 +243,13 @@ namespace DevApps.GUI
                         };
                         JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
 
-                        serializer.Serialize(writer, new Serializer.DevObject(reference));
+                        var instance = reference as Program.DevObjectInstance;
+                        if (instance == null && reference is Program.DevObjectReference)
+                            instance = (reference as Program.DevObjectReference).GetBaseObject();
+                        else
+                            return;
+
+                        serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
 
                         reference.SaveOutput(selectedElement?.Name, Program.CommonDataPath);
 
