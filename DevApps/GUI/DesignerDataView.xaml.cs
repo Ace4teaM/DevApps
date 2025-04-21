@@ -4,6 +4,7 @@ using Serializer;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -369,6 +370,31 @@ namespace DevApps.GUI
             }
         }
 
+        private void MenuItem_AddPointer_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var targetObject = menuItem?.Tag as Program.DevObject;
+            var targetName = menuItem?.Header.ToString();
+
+            var wnd = new NewPointer();
+            wnd.Owner = Window.GetWindow(this);
+            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            if (wnd.ShowDialog() == true)
+            {
+                Program.DevObject.mutexCheckObjectList.WaitOne();
+
+                var selection = dataGrid.SelectedItems.OfType<TabItem>().ToArray();
+                var selObjects = Program.DevObject.References.Where(p => selection.FirstOrDefault(pp => pp.Name == p.Key) != null).Select(p => p.Value).ToArray();
+
+                foreach (var o in selObjects)
+                {
+                    o.AddPointer(wnd.Value, targetName);
+                }
+
+                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+            }
+        }
+
         private void MenuItem_ContextMenuOpening(object sender, RoutedEventArgs e)
         {
             var menuItem = sender as MenuItem;
@@ -383,6 +409,46 @@ namespace DevApps.GUI
                     item.Click += MenuItem_AddFacet_Click;
                     menuItem.Items.Add(item);
                 }
+            }
+        }
+
+        private void MenuItem_ContextMenuOpening_Pointer(object sender, RoutedEventArgs e)
+        {
+            var selection = dataGrid.SelectedItems.OfType<TabItem>().ToArray();
+            var selObjects = Program.DevObject.References.Where(p => selection.FirstOrDefault(pp => pp.Name == p.Key) != null).Select(p => p.Value).ToArray();
+            var menuItem = sender as MenuItem;
+            if (menuItem != null && selection.Length > 0)
+            {
+                menuItem.Items.Clear();
+                Program.DevObject.mutexCheckObjectList.WaitOne();
+                foreach (var obj in Program.DevObject.References)
+                {
+                    var item = new MenuItem();
+                    item.Header = obj.Key;
+                    item.Tag = obj;
+                    item.Click += MenuItem_AddPointer_Click;
+                    var a = selObjects[0].Pointers.ContainsValue(obj.Key);//cet objet est pointé par la selection ?
+                    var b = obj.Value.Pointers.ContainsValue(selection[0].Name);//cet objet pointe vers la selection ?
+
+                    if (a && !b)
+                    {
+                        item.ToolTip = "Cet objet pointe déjà vers " + obj.Key;
+                        item.Icon = new TextBlock() { Text = "→", FontSize = 16, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.Black };
+                    }
+                    if (!a && b)
+                    {
+                        item.ToolTip = obj.Key + " pointe déjà vers cet objet";
+                        item.Icon = new TextBlock() { Text = "←", FontSize = 16, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.Black };
+                    }
+                    if (a && b)
+                    {
+                        item.ToolTip = obj.Key + " et " + selection[0].Name + " pointent déjà entre eux";
+                        item.Icon = new TextBlock() { Text = "↔", FontSize = 16, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.Black };
+                    }
+
+                    menuItem.Items.Add(item);
+                }
+                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
             }
         }
 
