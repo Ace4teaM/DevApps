@@ -1,4 +1,4 @@
-﻿<Window x:Class="DevApps.GUI.NewVariable"
+﻿<Window x:Class="DevApps.GUI.NewPointer"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Loaded="Window_Loaded"
         FocusManager.FocusedElement="{Binding ElementName=text}"
-        Title="Nouvel Variable..." Height="92" Width="365">
+        Title="Nouveau Pointeur..." Height="92" Width="365">
     <DockPanel>
         <TextBlock DockPanel.Dock="Bottom" Text="{Binding ValidationMessage}" Background="LightGray"></TextBlock>
         <TextBox x:Name="text" Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="False" KeyDown="TextBox_KeyDown" TextChanged="TextBox_TextChanged">
