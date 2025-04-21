@@ -1,7 +1,31 @@
 ﻿using static IronPython.Modules._ast;
+using static Program;
 
 namespace Serializer
 {
+    internal class DevVariable
+    {
+        [Newtonsoft.Json.JsonIgnore]
+        internal Program.DevVariable content;
+
+        public DevVariable()
+        {
+            this.content = new Program.DevVariable();
+        }
+        public DevVariable(Program.DevVariable content)
+        {
+            this.content = content;
+        }
+
+        /// <summary>
+        /// Description de l'objet (optionnel)
+        /// </summary>
+        public String? Description { get { return content.Description; } set { content.Description = value; } }
+        /// <summary>
+        /// Valeur de l'objet
+        /// </summary>
+        public object Value { get { return content.Value; } set { content.Value = value; } }
+    }
     internal class DevObjectInstance
     {
         [Newtonsoft.Json.JsonIgnore]
@@ -80,6 +104,20 @@ namespace Serializer
         public DevProject()
         {
         }
+        public KeyValuePair<string, DevVariable>[] Variables
+        { 
+            get {
+                return Program.DevVariable.References.Select(p => new KeyValuePair<string, DevVariable>(p.Key, new DevVariable(p.Value as Program.DevVariable))).ToArray();
+            }
+            set
+            {
+                Program.DevVariable.References.Clear();
+                foreach (var o in value)
+                {
+                    Program.DevVariable.References.Add(o.Key, o.Value.content);
+                }
+            }
+        }
         public KeyValuePair<string, DevObjectInstance>[] Objects { 
             get {
                 return Program.DevObject.References.Where(p => p.Value is Program.DevObjectInstance).Select(p=>new KeyValuePair<string, DevObjectInstance>(p.Key, new DevObjectInstance(p.Value as Program.DevObjectInstance))).ToArray();
@@ -137,9 +175,25 @@ namespace Serializer
     {
         public Dictionary<string, Program.DevObject> ReferencesO = new Dictionary<string, Program.DevObject>();
         public Dictionary<string, Program.DevFacet> ReferencesF = new Dictionary<string, Program.DevFacet>();
+        public Dictionary<string, Program.DevVariable> ReferencesV = new Dictionary<string, Program.DevVariable>();
 
         public DevExternalProject()
         {
+        }
+        public KeyValuePair<string, DevVariable>[] Variables
+        {
+            get
+            {
+                return ReferencesV.Select(p => new KeyValuePair<string, DevVariable>(p.Key, new DevVariable(p.Value as Program.DevVariable))).ToArray();
+            }
+            set
+            {
+                ReferencesV.Clear();
+                foreach (var o in value)
+                {
+                    ReferencesV.Add(o.Key, o.Value.content);
+                }
+            }
         }
         public KeyValuePair<string, DevObjectInstance>[] Objects
         {

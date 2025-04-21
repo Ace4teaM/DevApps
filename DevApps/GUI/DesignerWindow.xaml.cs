@@ -282,6 +282,15 @@ namespace DevApps.GUI
             }
         }
 
+        private void Variables_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            this.Content = new DesignerVariablesView();
+            foreach (var item in tabFacettes.Children.OfType<TabItem>())
+            {
+                item.Background = null;
+            }
+        }
+
         private void Add_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var wnd = new NewFacette();
@@ -319,6 +328,12 @@ namespace DevApps.GUI
                         break;
                     case Key.LeftAlt:
                         kc?.OnKeyCommand(KeyCommand.ShowDetails);
+                        break;
+                    case Key.Insert:
+                        kc?.OnKeyCommand(KeyCommand.Create);
+                        break;
+                    case Key.Delete:
+                        kc?.OnKeyCommand(KeyCommand.Delete);
                         break;
                     case Key.System:
                         if (e.SystemKey == Key.LeftAlt)

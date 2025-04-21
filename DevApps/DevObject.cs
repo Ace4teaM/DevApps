@@ -79,30 +79,13 @@ internal partial class Program
         /// </summary>
         public abstract (string, CompiledCode?) DrawCode { get; }
 
-        static string RemoveDiacritics(string text)
-        {
-            var normalizedString = text.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder();
-
-            foreach (var c in normalizedString.EnumerateRunes())
-            {
-                var unicodeCategory = Rune.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
-            }
-
-            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
-        }
-
         /// <summary>
         /// trouve un nom unique
         /// </summary>
         /// <param name="name"></param>
         public static void MakeUniqueName(ref string name)
         {
-            var newName = RemoveDiacritics(name);
+            var newName = Program.RemoveDiacritics(name);
             int n = 2;
 
             var allowedChars = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
@@ -113,7 +96,7 @@ internal partial class Program
 
             newName = Regex.Replace(newName, "[^" + allowedChars + "]", "");
 
-            while (References.ContainsKey(newName))
+            while (References.ContainsKey(newName) || Program.Keywords.Contains(newName))
             {
                 newName = name + n;
                 n++;
@@ -343,10 +326,25 @@ internal partial class Program
                     pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                     pyScope.SetVariable("name", o.Key);
                     pyScope.SetVariable("desc", o.Value.Description);
+
+                    foreach (var variable in DevVariable.References)
+                    {
+                        pyScope.SetVariable(variable.Key, variable.Value);
+                    }
+
+                    foreach (var variable in DevVariable.EnumPrivate())
+                    {
+                        pyScope.SetVariable(variable.Key, variable.Value);
+                    }
+
                     foreach (var pointer in o.Value.GetPointers())
                     {
                         Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
                         pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                    }
+                    foreach (var property in o.Value.Properties)
+                    {
+                        pyScope.SetVariable(property.Key, property.Value.Item2?.Execute(pyScope));
                     }
                     var result = o.Value.InitMethod.Item2?.Execute(pyScope);
 
@@ -378,10 +376,25 @@ internal partial class Program
                     pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                     pyScope.SetVariable("name", o.Key);
                     pyScope.SetVariable("desc", o.Value.Description);
+
+                    foreach (var variable in DevVariable.References)
+                    {
+                        pyScope.SetVariable(variable.Key, variable.Value.Value);
+                    }
+
+                    foreach (var variable in DevVariable.EnumPrivate())
+                    {
+                        pyScope.SetVariable(variable.Key, variable.Value.Value);
+                    }
+
                     foreach (var pointer in o.Value.GetPointers())
                     {
                         Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
                         pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                    }
+                    foreach (var property in o.Value.Properties)
+                    {
+                        pyScope.SetVariable(property.Key, property.Value.Item2?.Execute(pyScope));
                     }
                     var result = o.Value.BuildMethod.Item2?.Execute(pyScope);
 

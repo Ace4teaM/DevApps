@@ -14,9 +14,11 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Objects_MouseLeftButtonUp" Cursor="Hand">Objets</TextBlock>
-            <StackPanel x:Name="tabFacettes" Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Variables_MouseLeftButtonUp" Cursor="Hand">Variables</TextBlock>
+                <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Objects_MouseLeftButtonUp" Cursor="Hand">Objets</TextBlock>
             </StackPanel>
+            <StackPanel x:Name="tabFacettes" Grid.Column="1" Orientation="Horizontal"></StackPanel>
             <TextBlock Grid.Column="2" Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Add_MouseLeftButtonUp" Cursor="Hand">+</TextBlock>
         </Grid>
         <Border DockPanel.Dock="Bottom" Background="LightGray">

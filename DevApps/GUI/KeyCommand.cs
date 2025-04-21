@@ -13,5 +13,7 @@
         MoveTop,
         MoveBottom,
         ShowDetails,
+        Create,
+        Delete,
     }
 }
