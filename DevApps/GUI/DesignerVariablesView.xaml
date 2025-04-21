@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="DevApps.GUI.DesignerVariablesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DevApps.GUI"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <local:BoolConverter x:Key="boolConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100*"></RowDefinition>
+            <RowDefinition Height="auto" MinHeight="160"></RowDefinition>
+        </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0" Header="Variables Publiques">
+        <DataGrid x:Name="dataGrid" CellEditEnding="dataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Nouvelle variable..." Click="MenuItem_Click_CreateVariable"></MenuItem>
+                    <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteVariable"></MenuItem>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="auto" MinWidth="130" />
+                <DataGridTextColumn Header="Valeur" Binding="{Binding Value}" Width="auto" MinWidth="160" />
+                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" />
+                </DataGrid.Columns>
+        </DataGrid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="Variables Privées">
+            <DataGrid x:Name="dataGrid2" CellEditEnding="dataGrid_CellEditEnding2" AutoGenerateColumns="False" ItemsSource="{Binding PrivateItems}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Nouvelle variable..." Click="MenuItem_Click_CreateVariable2"></MenuItem>
+                        <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteVariable2"></MenuItem>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="auto" MinWidth="130" />
+                    <DataGridTextColumn Header="Valeur" Binding="{Binding Value}" Width="auto" MinWidth="160" />
+                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+    </Grid>
+</UserControl>

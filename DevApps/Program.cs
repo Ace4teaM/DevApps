@@ -11,12 +11,16 @@ using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Windows.Threading;
 using static IronPython.Modules.PythonWeakRef;
 
 internal partial class Program
 {
+    internal static string[] Keywords = { "class", "def", "if", "else", "elif", "while", "for", "in", "return", "break", "continue", "try", "except", "finally", "with", "as", "import", "from", "global", "nonlocal", "desc", "name", "out", "gui", "types" };
+
     internal static readonly string DevBranch = "devapps";
     internal static readonly string Filename = "devapps.json";
     internal static readonly string DataDir = ".devapps";
@@ -38,6 +42,22 @@ internal partial class Program
         public static string GetText() { return "Hello"; }
     }
 
+    internal static string RemoveDiacritics(string text)
+    {
+        var normalizedString = text.Normalize(NormalizationForm.FormD);
+        var stringBuilder = new StringBuilder();
+
+        foreach (var c in normalizedString.EnumerateRunes())
+        {
+            var unicodeCategory = Rune.GetUnicodeCategory(c);
+            if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+
+        return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+    }
 
     private static void SaveProject()
     {

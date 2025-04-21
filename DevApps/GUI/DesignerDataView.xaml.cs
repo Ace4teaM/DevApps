@@ -184,7 +184,7 @@ namespace DevApps.GUI
             {
                 var obj = Program.DevObject.References.First(p => p.Key == context.Name).Value;
 
-                var wnd = new ScriptEdit(content);
+                var wnd = new ScriptEdit(String.Format("{0} ({1})", context.Name, item.Name), content, obj.Properties);
                 wnd.Owner = Window.GetWindow(this);
                 wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 if (wnd.ShowDialog() == true)
