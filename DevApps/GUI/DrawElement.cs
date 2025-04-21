@@ -35,6 +35,7 @@ namespace DevApps.GUI
                     pyScope.SetVariable("gui", reference.gui);
                     pyScope.SetVariable("name", this.Name);
                     pyScope.SetVariable("desc", reference.Description);
+                    pyScope.SetVariable("editor", reference.Editor);
                     foreach (var pointer in reference.GetPointers())
                     {
                         Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
