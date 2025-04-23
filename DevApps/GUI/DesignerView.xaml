@@ -19,7 +19,7 @@
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="{Binding CommandPanelHeight, Mode=OneWay}"></RowDefinition>
         </Grid.RowDefinitions>
-        <Canvas Grid.Row="0" x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" ClipToBounds="True" MouseWheel="Canvas_MouseWheel" AllowDrop="True" Drop="dataGrid_Drop">
+        <Canvas Grid.Row="0" x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" ClipToBounds="True" MouseWheel="Canvas_MouseWheel" AllowDrop="True" Drop="dataGrid_Drop" RenderOptions.BitmapScalingMode="NearestNeighbor" SnapsToDevicePixels="True" >
             <Canvas.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Texte" Click="MenuItem_Text_Click"></MenuItem>
