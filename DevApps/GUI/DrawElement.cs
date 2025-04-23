@@ -61,21 +61,40 @@ namespace DevApps.GUI
 
             base.OnRender(drawingContext);
 
-            if(Title != null)
-                drawingContext.DrawText(Title, new Point(0, -Title.Height - 6));
-
             Program.DevObject.mutexCheckObjectList.WaitOne();
             Program.DevObject.References.TryGetValue(this.Name, out var reference);
             Program.DevObject.mutexCheckObjectList.ReleaseMutex();
 
-            if (reference != null)
+            if (facet != null && reference != null)
             {
                 var ContentWidth = this.ActualWidth;
                 var ContentHeight = this.ActualHeight;
+                var DrawProp = facet.Objects[this.Name];
 
-                var bg = facet.Objects[this.Name].background;
-                if (bg != null && background == null)
-                    background = (Brush?)(new BrushConverter().ConvertFromString(bg)) ?? System.Windows.Media.Brushes.Transparent;
+                if (Title != null)
+                {
+                    switch(DrawProp.title)
+                    {
+                        case DevFacet.TitlePlacement.TopLeft:
+                            drawingContext.PushTransform(new TranslateTransform(0, -Title.Height - 6));
+                            drawingContext.DrawText(Title, new Point(0, 0));
+                            drawingContext.Pop();
+                            break;
+                        case DevFacet.TitlePlacement.TopRight:
+                            drawingContext.PushTransform(new TranslateTransform(Width-Title.Width, -Title.Height - 6));
+                            drawingContext.DrawText(Title, new Point(0, 0));
+                            drawingContext.Pop();
+                            break;
+                        case DevFacet.TitlePlacement.Center:
+                            drawingContext.PushTransform(new TranslateTransform((Width / 2.0) - (Title.Width/2.0), -Title.Height - 6));
+                            drawingContext.DrawText(Title, new Point(0, 0));
+                            drawingContext.Pop();
+                            break;
+                    }
+                }
+
+                if (DrawProp.background != null && background == null)
+                    background = (Brush?)(new BrushConverter().ConvertFromString(DrawProp.background)) ?? System.Windows.Media.Brushes.Transparent;
 
                 // Dessiner un rectangle pour illustrer
                 Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
