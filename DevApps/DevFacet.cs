@@ -1,4 +1,5 @@
 ﻿using DevApps.GUI;
+using PdfSharp.Charting;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -8,6 +9,14 @@ internal partial class Program
 {
     public class DevFacet
     {
+        public enum TitlePlacement
+        {
+            None,
+            Center,
+            TopLeft,
+            TopRight
+        }
+
         public class Text
         {
             public Text(double X, double Y, string text)
@@ -56,6 +65,7 @@ internal partial class Program
             public ObjectProperties()
             {
                 zone = GenerateNextPosition(100, 100);
+                title = TitlePlacement.TopLeft;
             }
 
             public System.Windows.Rect GetZone()
@@ -65,7 +75,7 @@ internal partial class Program
 
             public ObjectProperties SetZone(System.Windows.Rect rect)
             {
-                zone = rect;
+                this.zone = rect;
                 return this;
             }
 
@@ -76,12 +86,35 @@ internal partial class Program
 
             public ObjectProperties SetBackground(string bg)
             {
-                background = bg;
+                this.background = bg;
+                return this;
+            }
+
+            public TitlePlacement GetTitle()
+            {
+                return title;
+            }
+
+            public ObjectProperties SetTitle(TitlePlacement title)
+            {
+                this.title = title;
                 return this;
             }
 
             public System.Windows.Rect zone;
             public string? background;
+            internal TitlePlacement title;
+            public string? titlePos
+            {
+                get
+                {
+                    return Enum.GetName(typeof(TitlePlacement), title);
+                }
+                set
+                {
+                    Enum.TryParse<TitlePlacement>(value, out title);
+                }
+            }
         }
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
         internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
