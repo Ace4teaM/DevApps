@@ -61,7 +61,7 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerDataView.xaml
     /// </summary>
-    public partial class DesignerDataView : UserControl, INotifyPropertyChanged
+    public partial class DesignerDataView : UserControl, INotifyPropertyChanged, IKeyCommand
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -231,7 +231,7 @@ namespace DevApps.GUI
             }
         }
 
-        private void MenuItem_Click_CreateObject(object sender, RoutedEventArgs e)
+        private void CreateObject()
         {
             var wnd = new NewObject();
             wnd.Owner = Window.GetWindow(this);
@@ -241,6 +241,11 @@ namespace DevApps.GUI
                 Program.DevObject.Create(wnd.Value, String.Empty);
                 InvalidateObjects();
             }
+        }
+
+        private void MenuItem_Click_CreateObject(object sender, RoutedEventArgs e)
+        {
+            CreateObject();
         }
 
         private void MenuItem_Click_CreateReference(object sender, RoutedEventArgs e)
@@ -263,6 +268,25 @@ namespace DevApps.GUI
             }
 
             InvalidateObjects();
+        }
+        private void DeleteObject()
+        {
+            var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
+
+            foreach (var name in selection)
+            {
+                if (Program.DevObject.References.ContainsKey(name))
+                {
+                    Program.DevObject.DeleteObject(name);
+                }
+            }
+
+            InvalidateObjects();
+        }
+
+        private void MenuItem_Click_DeleteObject(object sender, RoutedEventArgs e)
+        {
+            DeleteObject();
         }
 
         private void MenuItem_Click_EditOutput(object sender, RoutedEventArgs e)
@@ -586,6 +610,20 @@ namespace DevApps.GUI
                         Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                     }
                 }
+            }
+        }
+
+        public void OnKeyCommand(KeyCommand command)
+        {
+            if (command == KeyCommand.Create)
+            {
+                CreateObject();
+                return;
+            }
+            if (command == KeyCommand.Delete)
+            {
+                DeleteObject();
+                return;
             }
         }
     }
