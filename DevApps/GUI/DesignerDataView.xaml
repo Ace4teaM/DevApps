@@ -34,6 +34,8 @@
                     <MenuItem Header="Définir l'editeur" SubmenuOpened="MenuItemEditor_ContextMenuOpening">
                         <MenuItem></MenuItem>
                     </MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteObject"></MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>

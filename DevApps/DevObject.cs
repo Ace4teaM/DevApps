@@ -123,6 +123,21 @@ internal partial class Program
             return o;
         }
 
+        public static void DeleteObject(string name)
+        {
+            mutexExecuteObjects.WaitOne();
+            mutexCheckObjectList.WaitOne();
+            References.Remove(name);
+            foreach (var o in DevFacet.References)
+            {
+                if(o.Value.Objects.ContainsKey(name) == false)
+                    continue;
+                o.Value.Objects.Remove(name);
+            }
+            mutexCheckObjectList.ReleaseMutex();
+            mutexExecuteObjects.ReleaseMutex();
+        }
+
         public static DevObject? CreateFromFile(string file, out string name)
         {
             var cp = StringComparison.InvariantCultureIgnoreCase;
