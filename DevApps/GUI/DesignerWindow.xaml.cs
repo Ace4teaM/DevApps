@@ -170,7 +170,7 @@ namespace DevApps.GUI
                                 Program.DevFacet.References.Add(name, o.Value.content);
                             }
 
-                            Program.DevObject.MakeReferences(proj.Objects.Select(p=>p.Value.content));
+                            Program.DevObject.CompilObjects(proj.Objects.Select(p=>p.Value.content));
                             Program.DevObject.Init();
                             Service.InvalidateFacets();
                         };
