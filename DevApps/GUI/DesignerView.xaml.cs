@@ -199,8 +199,7 @@ namespace DevApps.GUI
             if (selectedElement != null && e.RightButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Released && e.MiddleButton == MouseButtonState.Released)
             {
                 ContextMenu menu = new ContextMenu();
-                menu.Items.Add(new MenuItem { Header = "Supprimer" });
-                menu.Items.Add(new MenuItem { Header = "Propriétés" });
+               /* menu.Items.Add(new MenuItem { Header = "Propriétés" });
                 menu.Items.Add(new MenuItem { Header = "Copier" });
                 menu.Items.Add(new MenuItem { Header = "Coller" });
                 menu.Items.Add(new MenuItem { Header = "Couper" });
@@ -209,54 +208,99 @@ namespace DevApps.GUI
                 menu.Items.Add(new MenuItem { Header = "Déverrouiller" });
                 menu.Items.Add(new MenuItem { Header = "Envoyer en arrière" });
                 menu.Items.Add(new MenuItem { Header = "Envoyer en avant" });
-                menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });
-                var m = new MenuItem { Header = "Construire (Build)" };
-                m.Click += (s, e) =>
+                menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });*/
+
                 {
-                    Program.DevObject.mutexCheckObjectList.WaitOne();
-                    Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                    if (reference != null)
+                    var m = new MenuItem { Header = "Construire (Build)" };
+                    m.Click += (s, e) =>
                     {
-                        Program.DevObject.Build([new KeyValuePair<string,DevObject>(selectedElement.Name, reference)]);
-                    }
-                };
-                menu.Items.Add(m);
-                
-                m = new MenuItem { Header = "Ajouter à la bibliothèque" };
-                m.Click += (s, e) =>
-                {
-                    Program.DevObject.mutexCheckObjectList.WaitOne();
-                    Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                        Program.DevObject.mutexCheckObjectList.WaitOne();
+                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
 
-                    if (reference != null)
-                    {
-                        reference.mutexReadOutput.WaitOne();
-
-                        using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, selectedElement?.Name));
-
-                        var settings = new JsonSerializerSettings
+                        if (reference != null)
                         {
-                            Formatting = Formatting.Indented
-                        };
-                        JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+                            Program.DevObject.Build([new KeyValuePair<string, DevObject>(selectedElement.Name, reference)]);
+                        }
+                    };
+                    menu.Items.Add(m);
+                }
 
-                        var instance = reference as Program.DevObjectInstance;
-                        if (instance == null && reference is Program.DevObjectReference)
-                            instance = (reference as Program.DevObjectReference).GetBaseObject();
-                        else
-                            return;
+                menu.Items.Add(new Separator());
 
-                        serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
+                {
+                    var m = new MenuItem { Header = "Ajouter à la bibliothèque" };
+                    m.Click += (s, e) =>
+                    {
+                        Program.DevObject.mutexCheckObjectList.WaitOne();
+                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
 
-                        reference.SaveOutput(selectedElement?.Name, Program.CommonDataPath);
+                        if (reference != null)
+                        {
+                            reference.mutexReadOutput.WaitOne();
 
-                        reference.mutexReadOutput.ReleaseMutex();
-                    }
-                };
-                menu.Items.Add(m);
+                            using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, selectedElement?.Name));
+
+                            var settings = new JsonSerializerSettings
+                            {
+                                Formatting = Formatting.Indented
+                            };
+                            JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+
+                            var instance = reference as Program.DevObjectInstance;
+                            if (instance == null && reference is Program.DevObjectReference)
+                                instance = (reference as Program.DevObjectReference).GetBaseObject();
+                            else
+                                return;
+
+                            serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
+
+                            reference.SaveOutput(selectedElement?.Name, Program.CommonDataPath);
+
+                            reference.mutexReadOutput.ReleaseMutex();
+                        }
+                    };
+                    menu.Items.Add(m);
+                }
+
+                menu.Items.Add(new Separator());
+
+                {
+                    var m = new MenuItem { Header = "Supprimer" };
+                    m.Click += (s, e) =>
+                    {
+                        if (selectedElement is DrawElement)
+                        {
+                            var name = selectedElement.Name;
+                            MyCanvas.Children.Remove(selectedElement);
+                            selectedElement = null;
+
+                            facette.Objects.Remove(name);
+                        }
+
+                        if (selectedElement is DrawGeometry)
+                        {
+                            var facetGeo = (selectedElement as DrawGeometry).Tag as DevFacet.Geometry;
+
+                            MyCanvas.Children.Remove(selectedElement);
+                            selectedElement = null;
+
+                            facette.Geometries.Remove(facetGeo);
+                        }
+
+                        if (selectedElement is DrawText)
+                        {
+                            var facetText = (selectedElement as DrawText).Tag as DevFacet.Text;
+
+                            MyCanvas.Children.Remove(selectedElement);
+                            selectedElement = null;
+
+                            facette.Texts.Remove(facetText);
+                        }
+                    };
+                    menu.Items.Add(m);
+                }
 
                 menu.Placement = PlacementMode.Mouse;
                 menu.IsOpen = true;
