@@ -1,13 +1,15 @@
 ﻿using Microsoft.Scripting.Hosting;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
+using System.Windows.Input;
 using static Program;
 
 internal partial class Program
 {
     /// <summary>
     /// Référence d'objet
-    /// Un objet de référence utilise le même code mais pointe sur des objets différents
+    /// Un objet de référence utilise le même code mais possède ses propres pointeurs d'objets
     /// </summary>
     public class DevObjectReference : DevObject
     {
@@ -263,6 +265,46 @@ internal partial class Program
         {
             Pointers[name] = reference;
             return this;
+        }
+
+        public override void CompilDraw()
+        {
+            baseObject?.CompilDraw();
+        }
+
+        public override void CompilObject()
+        {
+            baseObject?.CompilObject();
+        }
+
+        public override void CompilFunctions()
+        {
+            baseObject?.CompilFunctions();
+        }
+
+        public override void CompilProperties()
+        {
+            baseObject?.CompilProperties();
+        }
+
+        public override void CompilUserAction()
+        {
+            baseObject?.CompilUserAction();
+        }
+
+        public override void CompilLoop()//periodic
+        {
+            baseObject?.CompilLoop();
+        }
+
+        public override void CompilInit()
+        {
+            baseObject?.CompilInit();
+        }
+
+        public override void CompilBuild()
+        {
+            baseObject?.CompilBuild();
         }
     }
 }

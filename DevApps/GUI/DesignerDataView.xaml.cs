@@ -190,23 +190,35 @@ namespace DevApps.GUI
                 wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 if (wnd.ShowDialog() == true)
                 {
-                    switch(item.Name)
+                    try
                     {
-                        case "DrawCode":
-                            obj.SetDrawCode(wnd.Value);
-                            break;
-                        case "BuildMethod":
-                            obj.SetBuildMethod(wnd.Value);
-                            break;
-                        case "LoopMethod":
-                            obj.SetLoopMethod(wnd.Value);
-                            break;
-                        case "InitMethod":
-                            obj.SetInitMethod(wnd.Value);
-                            break;
-                        case "UserAction":
-                            obj.SetUserAction(wnd.Value);
-                            break;
+                        switch (item.Name)
+                        {
+                            case "DrawCode":
+                                obj.SetDrawCode(wnd.Value);
+                                obj.CompilDraw();
+                                break;
+                            case "BuildMethod":
+                                obj.SetBuildMethod(wnd.Value);
+                                obj.CompilBuild();
+                                break;
+                            case "LoopMethod":
+                                obj.SetLoopMethod(wnd.Value);
+                                obj.CompilLoop();
+                                break;
+                            case "InitMethod":
+                                obj.SetInitMethod(wnd.Value);
+                                obj.CompilInit();
+                                break;
+                            case "UserAction":
+                                obj.SetUserAction(wnd.Value);
+                                obj.CompilUserAction();
+                                break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Erreur de compilation. " + ex.Message, "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     }
                 }
             }
@@ -370,7 +382,7 @@ namespace DevApps.GUI
 
                 if(objects.Count > 0)
                 {
-                    Program.DevObject.MakeReferences(objects);
+                    Program.DevObject.CompilObjects(objects);
                     Program.DevObject.Init();
 
                     InvalidateObjects();

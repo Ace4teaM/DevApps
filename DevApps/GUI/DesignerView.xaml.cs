@@ -691,7 +691,7 @@ namespace DevApps.GUI
 
                 if (objects.Count > 0)
                 {
-                    Program.DevObject.MakeReferences(objects);
+                    Program.DevObject.CompilObjects(objects);
                     Program.DevObject.Init();
 
                     InvalidateObjects();

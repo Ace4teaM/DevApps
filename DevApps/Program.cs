@@ -190,7 +190,7 @@ internal partial class Program
 
         Service.InvalidateFacets();
 
-        DevObject.MakeReferences();
+        DevObject.CompilObjects();
 
         DevObject.LoadOutput();
 
