@@ -9,6 +9,7 @@ namespace DevApps.GUI
     public class DrawElement : DrawBase
     {
         internal FormattedText? Title;
+        internal FormattedText? SubTitle;
         internal DevFacet? facet;
 
         internal DrawElement(DevFacet facet)
@@ -91,6 +92,13 @@ namespace DevApps.GUI
                             drawingContext.Pop();
                             break;
                     }
+                }
+
+                if (SubTitle != null)
+                {
+                    drawingContext.PushTransform(new TranslateTransform(0, 6 + Height));
+                    drawingContext.DrawText(SubTitle, new Point(0, 0));
+                    drawingContext.Pop();
                 }
 
                 if (DrawProp.background != null && background == null)

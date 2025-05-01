@@ -359,22 +359,39 @@ namespace DevApps.GUI
                         MyCanvas.Children.Remove(c);
                     connectorElements.Clear();
 
+                    // supprime les textes
+                    foreach (var c in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
+                        MyCanvas.Children.Remove(c);
+
                     if (overElement != null)
                     {
                         // ajoute les nouveaux connecteurs
                         Program.DevObject.mutexCheckObjectList.WaitOne();
-                        Program.DevObject.References.TryGetValue(overElement.Name, out var reference);
-                        if (reference != null)
+                        if (Program.DevObject.References.TryGetValue(overElement.Name, out var reference))
                         {
                             foreach (var pointer in reference.Pointers)
                             {
+                                var dst = MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value.target);
+                                if (dst == null)
+                                    continue;
+
                                 var connector = new ConnectorElement(
                                     (overElement as DrawElement),
-                                    MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value.target)
+                                    dst
                                 );
                                 connector.RenderTransform = _transformGroup;
                                 connectorElements.Add(connector);
                                 MyCanvas.Children.Add(connector);
+
+                                var textBlock = new ConnectorTextElement(
+                                    connector,
+                                    pointer.Value.tags.Count > 0 ? String.Format("{0}\n{1}", pointer.Key, String.Join(' ', pointer.Value.tags)) : pointer.Key
+                                );
+                                textBlock.RenderTransform = _transformGroup;
+                                Canvas.SetZIndex(textBlock, 1);
+                                Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
+                                Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
+                                MyCanvas.Children.Add(textBlock);
                             }
                         }
                         Program.DevObject.mutexCheckObjectList.ReleaseMutex();
@@ -389,6 +406,14 @@ namespace DevApps.GUI
                         {
                             c.UpdatePosition();
                             c.InvalidateVisual();
+                        }
+                        //actualise les textes existants
+                        foreach (var textBlock in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
+                        {
+                            var connector = textBlock.Tag as ConnectorElement;
+                            Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
+                            Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
+                            textBlock.InvalidateVisual();
                         }
                     }
                 }
@@ -582,8 +607,11 @@ namespace DevApps.GUI
 
             var element = new DrawElement(this.facette);
 
-            element.Title = new FormattedText(o.Value.Description ?? o.Key, CultureInfo.InvariantCulture,
+            element.Title = new FormattedText((o.Value.Description ?? o.Key), CultureInfo.InvariantCulture,
                 System.Windows.FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue,
+                VisualTreeHelper.GetDpi(this).PixelsPerDip);
+            element.SubTitle = new FormattedText(String.Join(' ', o.Value.Tags), CultureInfo.InvariantCulture,
+                System.Windows.FlowDirection.LeftToRight, Service.typeface, 8, Brushes.DarkViolet,
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
             element.Name = o.Key;
             element.Width = position.Width;
