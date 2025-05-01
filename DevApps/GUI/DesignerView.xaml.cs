@@ -46,7 +46,6 @@ namespace DevApps.GUI
         private TranslateTransform _translateTransform = new TranslateTransform();
         private TransformGroup _transformGroup = new TransformGroup();
 
-        private List<ConnectorElement> connectorElements = new List<ConnectorElement>();
         public ObservableCollection<CommandItem> CommandsItems { get; set; } = new ObservableCollection<CommandItem>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -355,9 +354,8 @@ namespace DevApps.GUI
                     Service.SetStatusText(text);
 
                     // supprime les connecteurs
-                    foreach (var c in connectorElements)
+                    foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
                         MyCanvas.Children.Remove(c);
-                    connectorElements.Clear();
 
                     // supprime les textes
                     foreach (var c in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
@@ -380,7 +378,6 @@ namespace DevApps.GUI
                                     dst
                                 );
                                 connector.RenderTransform = _transformGroup;
-                                connectorElements.Add(connector);
                                 MyCanvas.Children.Add(connector);
 
                                 var textBlock = new ConnectorTextElement(
@@ -402,7 +399,7 @@ namespace DevApps.GUI
                     if (overElement != null && (isDragging || isResizing))
                     {
                         //actualise les connecteurs existants
-                        foreach (var c in connectorElements)
+                        foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
                         {
                             c.UpdatePosition();
                             c.InvalidateVisual();
