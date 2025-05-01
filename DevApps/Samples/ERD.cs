@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Program;
+﻿using static Program;
 
 namespace DevApps.Samples
 {
@@ -14,8 +9,8 @@ namespace DevApps.Samples
             // Entity Relational Model
 
 
-            DevObject.Create("visual", "ERD Visualisation (kroki.io)")
-                .AddPointer("data", "datamodel")
+            DevObject.Create("visual", "ERD Visualisation (kroki.io)", ["#svg", "#script"])
+                .AddPointer("data", "datamodel", ["#erd"])
                 .SetDrawCode(@"gui.svg(out)")
                 .SetBuildMethod(@"
 import sys
@@ -47,7 +42,7 @@ out.write_bytes(f)
 );
             ;
 
-            DevObject.Create("datamodel", "ERD Data Model")
+            DevObject.Create("datamodel", "ERD Data Model", ["#erd"])
                 .SetUserAction("gui.edit('code', out)")
                 .SetOutput(@"
 [Commande]
@@ -86,11 +81,11 @@ Commande *--* Produit
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
             ;
 
-            var oCode = DevObject.Create("codegen", "ERD Code generator")
+            var oCode = DevObject.Create("codegen", "ERD Code generator", ["#codegen"])
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())")
                 .SetUserAction(@"out.write(gui.select({'entities_to_cs_classes':'Entities UML > C# classes','entities_to_sql_tables':'Entities UML > SQL Tables','entities_to_cs_sql_model':'Entities UML > C# Database Model'},out))")
                 .SetOutput(@"UserName")
-                .AddPointer("input_data", "datamodel")
+                .AddPointer("input_data", "datamodel", ["#erd"])
                 .SetBuildMethod(@"
 def generate_csharp_code(erd_text):
     # Dictionnaire pour stocker les entités et leurs attributs

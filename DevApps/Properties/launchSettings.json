@@ -8,7 +8,7 @@
     "User": {
       "commandName": "Project",
       "commandLineArgs": "-w",
-      "workingDirectory": "E:\\devs\\Detection voiture portail\\BLE tag"
+      "workingDirectory": "E:\\devs\\CV"
     }
   }
 }

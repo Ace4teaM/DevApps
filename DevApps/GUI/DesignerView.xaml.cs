@@ -366,11 +366,11 @@ namespace DevApps.GUI
                         Program.DevObject.References.TryGetValue(overElement.Name, out var reference);
                         if (reference != null)
                         {
-                            foreach (var pointer in reference.GetPointers())
+                            foreach (var pointer in reference.Pointers)
                             {
                                 var connector = new ConnectorElement(
                                     (overElement as DrawElement),
-                                    MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value)
+                                    MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value.target)
                                 );
                                 connector.RenderTransform = _transformGroup;
                                 connectorElements.Add(connector);

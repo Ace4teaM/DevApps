@@ -250,7 +250,7 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                Program.DevObject.Create(wnd.Value, String.Empty);
+                Program.DevObject.Create(wnd.Value, String.Empty, wnd.Tags);
                 InvalidateObjects();
             }
         }
@@ -424,7 +424,7 @@ namespace DevApps.GUI
 
                 foreach (var o in selObjects)
                 {
-                    o.AddPointer(wnd.Value, targetName);
+                    o.AddPointer(wnd.Value, targetName, []);
                 }
 
                 Program.DevObject.mutexCheckObjectList.ReleaseMutex();
@@ -463,8 +463,8 @@ namespace DevApps.GUI
                     item.Header = obj.Key;
                     item.Tag = obj;
                     item.Click += MenuItem_AddPointer_Click;
-                    var a = selObjects[0].Pointers.ContainsValue(obj.Key);//cet objet est pointé par la selection ?
-                    var b = obj.Value.Pointers.ContainsValue(selection[0].Name);//cet objet pointe vers la selection ?
+                    var a = selObjects[0].Pointers.Count(p=>p.Value.target == obj.Key) > 0;//cet objet est pointé par la selection ?
+                    var b = obj.Value.Pointers.Count(p => p.Value.target == selection[0].Name) > 0;//cet objet pointe vers la selection ?
 
                     if (a && !b)
                     {
@@ -580,10 +580,9 @@ namespace DevApps.GUI
                                     // renomme l'objet dans les references des autres objets
                                     foreach (var obj in Program.DevObject.References)
                                     {
-                                        foreach(var pointer in obj.Value.Pointers.Where(p=>p.Value == item.Name).ToArray())
+                                        foreach(var pointer in obj.Value.Pointers.Where(p=>p.Value.target == item.Name).ToArray())
                                         {
-                                            obj.Value.Pointers.Remove(pointer.Key);
-                                            obj.Value.Pointers.Add(pointer.Key, text);
+                                            obj.Value.Pointers[pointer.Key].target = text;
                                             Console.WriteLine($"Renomme {pointer.Key} : {item.Name} => {text}");
                                         }
                                     }

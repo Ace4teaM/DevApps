@@ -1,4 +1,5 @@
-﻿using static IronPython.Modules._ast;
+﻿using Microsoft.Scripting.Hosting;
+using static IronPython.Modules._ast;
 using static Program;
 
 namespace Serializer
@@ -29,7 +30,7 @@ namespace Serializer
     internal class DevObjectInstance
     {
         [Newtonsoft.Json.JsonIgnore]
-        internal Program.DevObject content;
+        internal Program.DevObjectInstance content;
 
         public DevObjectInstance()
         {
@@ -40,20 +41,18 @@ namespace Serializer
             this.content = content;
         }
 
-        /// <summary>
-        /// Description de l'objet (optionnel)
-        /// </summary>
+        public HashSet<string> Tags { get { return content.tags; } set { content.tags = value; } }
         public String Description { get { return content.Description; } set { content.Description = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
-        public KeyValuePair<string, string?>[] Pointers { get { return content.GetPointers().ToArray(); } set { content.SetPointers(value); } }
-        public KeyValuePair<string, string?>[] Functions { get { return content.GetFunctions().ToArray(); } set { content.SetFunctions(value); } }
-        public KeyValuePair<string, string?>[] Properties { get { return content.GetProperties().ToArray(); } set { content.SetProperties(value); } }
-        public string? UserAction { get { return content.GetUserAction(); } set { content.SetUserAction(value); } }
-        public string? LoopMethod { get { return content.GetLoopMethod(); } set { content.SetLoopMethod(value); } }
-        public string? InitMethod { get { return content.GetInitMethod(); } set { content.SetInitMethod(value); } }
-        public string? BuildMethod { get { return content.GetBuildMethod(); } set { content.SetBuildMethod(value); } }
-        public string? ObjectCode { get { return content.GetCode(); } set { content.SetCode(value); } }
-        public string? DrawCode { get { return content.GetDrawCode(); } set { content.SetDrawCode(value); } }
+        public KeyValuePair<string, Program.DevObjectInstance.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, DevObject.Pointer>(value); } }
+        public KeyValuePair<string, string?>[] Functions { get { return content.functions.Select(p=>new KeyValuePair<string,string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.functions = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value,null)))); } }
+        public KeyValuePair<string, string?>[] Properties { get { return content.properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.properties = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value, null)))); } }
+        public string? UserAction { get { return content.userAction.Item1; } set { content.userAction = (value,null); } }
+        public string? LoopMethod { get { return content.loopMethod.Item1; } set { content.loopMethod = (value, null); ; } }
+        public string? InitMethod { get { return content.initMethod.Item1; } set { content.initMethod = (value, null); ; } }
+        public string? BuildMethod { get { return content.buildMethod.Item1; } set { content.buildMethod = (value, null); } }
+        public string? ObjectCode { get { return content.objectCode.Item1; } set { content.objectCode = (value, null); } }
+        public string? DrawCode { get { return content.drawCode.Item1; } set { content.drawCode = (value, null); } }
     }
 
     internal class DevObjectReference
@@ -70,13 +69,10 @@ namespace Serializer
             this.content = content;
         }
 
-        /// <summary>
-        /// Description de l'objet (optionnel)
-        /// </summary>
         public String Description { get { return content.Description; } set { content.Description = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
         public String? BaseObjectName { get { return content.BaseObjectName; } set { content.BaseObjectName = value; } }
-        public KeyValuePair<string, string?>[] Pointers { get { return content.GetPointers().ToArray(); } set { content.SetPointers(value); } }
+        public KeyValuePair<string, string?>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, string>(value); } }
     }
 
     internal class DevFacet

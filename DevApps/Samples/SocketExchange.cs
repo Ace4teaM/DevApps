@@ -11,18 +11,18 @@ namespace DevApps.Samples
     {
         internal static void Create()
         {
-            DevObject.Create("insocket", "System socket buffer in")
+            DevObject.Create("insocket", "System socket buffer in", [])
                 .SetLoopMethod(@"")
                 .SetCode(@"");
 
-            DevObject.Create("outsocket", "System socket buffer out")
+            DevObject.Create("outsocket", "System socket buffer out", [])
                 .SetLoopMethod(@"")
                 .SetCode(@"");
 
-            DevObject.Create("socket", "System socket")
-                .AddPointer("IN", "insocket")
-                .AddPointer("OUT", "outsocket")
-                .AddPointer("RECEIVE", "buffer")
+            DevObject.Create("socket", "System socket", [])
+                .AddPointer("IN", "insocket", [])
+                .AddPointer("OUT", "outsocket", [])
+                .AddPointer("RECEIVE", "buffer", [])
                 .AddFunction(@"recv", @"
                     buffer.name = ""Kiki""
                     buffer.data.append(5)
@@ -33,7 +33,7 @@ namespace DevApps.Samples
                 .AddFunction(@"send", @"")
                 .SetCode(@"");
 
-            DevObject.Create("buffer", "Receive Buffer")
+            DevObject.Create("buffer", "Receive Buffer", [])
                 .SetLoopMethod(@"")
                 .SetInitMethod(@"
                 import array

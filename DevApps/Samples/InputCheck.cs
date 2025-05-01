@@ -11,23 +11,23 @@ namespace DevApps.Samples
     {
         internal static void Create() {
 
-            DevObject.Create("webapp", "Web Application").SetDrawCode(@"gui.full().foreground(0,0,0).circle().image(out).stack().text(name).text(desc)").LoadOutput("webapp");
-            DevObject.Create("service", "Data Service").SetDrawCode(@"gui.text(name).text(desc)");
-            DevObject.Create("req_getinventory", "GetInventory Request").SetDrawCode(@"gui.text(name).text(desc)");
-            DevObject.Create("in_inventoryid", "Request Input").SetDrawCode(@"gui.text(name).text(desc)");
-            DevObject.Create("in_inventoryitemid", "Request Input").SetDrawCode(@"gui.text(name).text(desc)");
-            DevObject.Create("cmd_listing", "UDP command listing on port 4432").SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("webapp", "Web Application", []).SetDrawCode(@"gui.full().foreground(0,0,0).circle().image(out).stack().text(name).text(desc)").LoadOutput("webapp");
+            DevObject.Create("service", "Data Service", []).SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("req_getinventory", "GetInventory Request", []).SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("in_inventoryid", "Request Input", []).SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("in_inventoryitemid", "Request Input", []).SetDrawCode(@"gui.text(name).text(desc)");
+            DevObject.Create("cmd_listing", "UDP command listing on port 4432", []).SetDrawCode(@"gui.text(name).text(desc)");
 
             /*
              * Par exemple, je souhaite intégrer un modèle de données relationnel.
              * Je vais d'abord créer des entités sous forme d'objets avec comme contenu une liste de membres.
              */
 
-            DevObject.Create("Equipement", "Entité")
+            DevObject.Create("Equipement", "Entité", ["#entity"])
                 .SetOutput(@"
 * code : equip_code
 * desc : string")
-                .AddPointer("0.1", "Emplacement")
+                .AddPointer("0.1", "Emplacement", ["#entity"])
                 .SetDrawCode(@"
                     gui.full().top().stack()
                     gui.text(name)
@@ -40,7 +40,7 @@ namespace DevApps.Samples
                     console.write('HELLo WORLD')
                 ");
 
-            DevObject.Create("Emplacement", "Entité")
+            DevObject.Create("Emplacement", "Entité", ["#entity"])
                 .SetOutput(@"
 * code : empl_code
 * desc : string
@@ -58,7 +58,7 @@ namespace DevApps.Samples
              * J'ajoute un objet template donnant la forme générale pour mes fichiers SQL et C#
             */
 
-            DevObject.Create("SqlModelTemplate", "SQL Code Template")
+            DevObject.Create("SqlModelTemplate", "SQL Code Template", ["#template", "#sql"])
                 .SetOutput(@"
 -- SQL Model
 Create table {name}
@@ -73,7 +73,7 @@ Create table {name}
                     gui.text(out.lines())
                 ");
 
-            DevObject.Create("CsModelTemplate", "C# Code Template")
+            DevObject.Create("CsModelTemplate", "C# Code Template", ["#template", "#cs"])
                 .SetOutput(@"
 // c# Model
 public class {name}
@@ -90,10 +90,10 @@ public class {name}
             //DevObject.Group("MODEL", "SqlModelTemplate", "CsModelTemplate");
 
             DevObject.Get("SqlModelTemplate")
-                .AddPointer("build1", "MODEL");
+                .AddPointer("build1", "MODEL", ["#sql"]);
 
             DevObject.Get("CsModelTemplate")
-                .AddPointer("build2", "MODEL");
+                .AddPointer("build2", "MODEL", ["#cs"]);
 
             DevObject.Select("SqlModelTemplate", "CsModelTemplate")
                 .SetBuildMethod(@"
@@ -153,7 +153,7 @@ public class {name}
                     print(completion.choices[0].message);
     ");*/
 
-            DevObject.Create("CodeMerge", "IA Code Merge")
+            DevObject.Create("CodeMerge", "IA Code Merge", ["#codemerge", "#cs"])
                 .SetBuildMethod(@"
                 url = 'https://api.openai.com/v1/chat/completions'
                 key = ""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""

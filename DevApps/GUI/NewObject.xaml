@@ -5,11 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DevApps.GUI"
         Loaded="Window_Loaded"
+        ResizeMode="CanResizeWithGrip"
+        SizeToContent="Height"
         FocusManager.FocusedElement="{Binding ElementName=text}"
-        Title="Nouvel Objet..." Height="92" Width="365">
+        Title="Nouvel Objet..." MinWidth="233" MinHeight="120" Width="333" Height="120">
     <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="3">
+            <Label DockPanel.Dock="Left" Width="40" VerticalAlignment="Center">Nom</Label>
+            <TextBox x:Name="text" Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="False" KeyDown="TextBox_KeyDown" TextChanged="TextBox_TextChanged"></TextBox>
+        </DockPanel>
         <TextBlock DockPanel.Dock="Bottom" Text="{Binding ValidationMessage}" Background="LightGray"></TextBlock>
-        <TextBox x:Name="text" Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="False" KeyDown="TextBox_KeyDown" TextChanged="TextBox_TextChanged">
-        </TextBox>
+        <DockPanel Margin="3">
+            <Label DockPanel.Dock="Left" Width="40" VerticalAlignment="Center">Tags</Label>
+            <TextBox x:Name="tag" DockPanel.Dock="Right" Width="90" VerticalAlignment="Center" AcceptsReturn="False" KeyDown="TagBox_KeyDown" TextChanged="TagBox_TextChanged"></TextBox>
+            <Popup Name="suggestionsPopup"
+               PlacementTarget="{Binding ElementName=tag}"
+               Placement="Bottom"
+               IsOpen="False"
+               AllowsTransparency="True">
+                <Border Background="LightYellow" BorderBrush="Gray" BorderThickness="0">
+                    <ListBox Name="suggestionsListBox"
+                         Width="{Binding ElementName=tag, Path=ActualWidth}"
+                         FontSize="8pt"
+                         MaxHeight="150"
+                         SelectionChanged="SuggestionsListBox_SelectionChanged"/>
+                </Border>
+            </Popup>
+            <WrapPanel x:Name="tagList" MouseLeftButtonUp="tagList_MouseLeftButtonUp" HorizontalAlignment="Right" Orientation="Horizontal" Margin="3" VerticalAlignment="Center">
+            </WrapPanel>
+        </DockPanel>
     </DockPanel>
 </Window>

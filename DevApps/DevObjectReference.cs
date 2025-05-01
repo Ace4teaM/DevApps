@@ -1,4 +1,5 @@
-﻿using Microsoft.Scripting.Hosting;
+﻿using DevApps.GUI;
+using Microsoft.Scripting.Hosting;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -38,7 +39,7 @@ internal partial class Program
         {
             BaseObjectName = baseObjectName;
             Description = baseObject?.Description ?? String.Empty;
-            pointers = new Dictionary<string, string>( baseObject?.Pointers );
+            pointers = new Dictionary<string, string>( baseObject?.Pointers.Select(p=>new KeyValuePair<string,string>(p.Key, String.Empty)) );
         }
 
         internal DevObjectInstance? GetBaseObject()
@@ -50,10 +51,15 @@ internal partial class Program
         }
 
         /// <summary>
+        /// Tags de l'objet
+        /// </summary>
+        public override string[] Tags { get { return baseObject.Tags; } }
+
+        /// <summary>
         /// Pointeurs vers des objets existants
         /// </summary>
-        protected Dictionary<string, string> pointers = new Dictionary<string, string>(); // name, refName
-        public override Dictionary<string, string> Pointers { get { return pointers; } }
+        internal Dictionary<string, string> pointers = new Dictionary<string, string>(); // name, refName
+        public override Dictionary<string, Pointer> Pointers { get { return baseObject?.Pointers.Select(p => new KeyValuePair<string, Pointer>(p.Key, new Pointer { target = pointers[p.Key], tags = p.Value.tags })).ToDictionary(); } }
         /// <summary>
         /// Fonctions internes
         /// </summary>
@@ -181,20 +187,6 @@ internal partial class Program
             return this;
         }
 
-        public override IEnumerable<KeyValuePair<string, string?>> GetProperties()
-        {
-            return Properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1));
-        }
-
-        public override void SetProperties(IEnumerable<KeyValuePair<string, string?>> items)
-        {
-            Properties.Clear();
-            foreach (var p in items)
-            {
-                AddProperty(p.Key, p.Value);
-            }
-        }
-
         public override string? GetProperty(string name)
         {
             return Properties.ContainsKey(name) ? Properties[name].Item1 : String.Empty;
@@ -242,28 +234,15 @@ internal partial class Program
             return this;
         }
 
-        public override IEnumerable<KeyValuePair<string, string?>> GetPointers()
+        public override Pointer? GetPointer(string name)
         {
-            return Pointers.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value));
+            return Pointers.ContainsKey(name) ? Pointers[name] : null;
         }
 
-        public override void SetPointers(IEnumerable<KeyValuePair<string, string?>> items)
+        public override DevObjectReference AddPointer(string name, string reference, string[] tags)
         {
-            Pointers.Clear();
-            foreach (var p in items)
-            {
-                AddPointer(p.Key, p.Value);
-            }
-        }
-
-        public override string? GetPointer(string name)
-        {
-            return Pointers.ContainsKey(name) ? Pointers[name] : String.Empty;
-        }
-
-        public override DevObjectReference AddPointer(string name, string reference)
-        {
-            Pointers[name] = reference;
+            baseObject.AddPointer(name, reference, tags);
+            pointers[name] = reference;
             return this;
         }
 
