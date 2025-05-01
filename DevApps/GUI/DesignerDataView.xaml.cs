@@ -1,7 +1,9 @@
 ﻿using ICSharpCode.AvalonEdit.Editing;
 using Microsoft.Scripting.Utils;
 using Serializer;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -65,14 +67,20 @@ namespace DevApps.GUI
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public class TabItem
+        public class TabItem : INotifyPropertyChanged
         {
-            public bool? IsReference { 
+            public event PropertyChangedEventHandler? PropertyChanged;
+            private bool isPointed = false;
+            public bool IsPointed { get { return isPointed; } set { isPointed = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPointed))); } }
+            private bool isPointer = false;
+            public bool IsPointer { get { return isPointer; } set { isPointer = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPointer))); } }
+            public bool? IsReference
+            {
                 get
                 {
                     var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
                     return obj?.IsReference;
-                } 
+                }
             }
             public string? Name { get; set; }
             public string? Description { get; set; }
@@ -133,26 +141,35 @@ namespace DevApps.GUI
             }
         }
 
-        public IEnumerable<TabItem> Items
+        private ObservableCollection<TabItem> items = new ObservableCollection<TabItem>();
+        public ObservableCollection<TabItem> Items
         {
             get
             {
-                Program.DevObject.mutexCheckObjectList.WaitOne();
-                var list = Program.DevObject.References.Select(p => new TabItem { Name = p.Key, Description = p.Value.Description }).ToList();
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                return list;
+                return items;
             }
         }
 
         internal void InvalidateObjects()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Items"));
+            Program.DevObject.mutexCheckObjectList.WaitOne();
+            items.Clear();
+            items.AddRange(new ObservableCollection<TabItem>(Program.DevObject.References.Select(p => new TabItem { Name = p.Key, Description = p.Value.Description })));
+            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Items)));
         }
 
         public DesignerDataView()
         {
             InitializeComponent();
             this.DataContext = this;
+            this.Loaded += DesignerDataView_Loaded;
+        }
+
+        private void DesignerDataView_Loaded(object sender, RoutedEventArgs e)
+        {
+            InvalidateObjects();
         }
 
         private void OnDoubleClick(object sender, MouseButtonEventArgs e)
@@ -635,6 +652,37 @@ namespace DevApps.GUI
             {
                 DeleteObject();
                 return;
+            }
+        }
+
+        private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (dataGrid.SelectedItem is TabItem)
+            {
+                Program.DevObject.mutexCheckObjectList.WaitOne();
+                var selectedItem = dataGrid.SelectedItem as TabItem;
+                if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
+                {
+                    selectedItem.IsPointed = false;
+                    selectedItem.IsPointer = false;
+                    foreach (var item in Items)
+                    {
+                        if (item != selectedItem && DevObject.References.TryGetValue(item.Name, out var obj))
+                        {
+                            item.IsPointed = selectedObject.Pointers.Count(p => p.Value.target == item.Name) > 0;//cet objet est pointé par la selection ?
+                            item.IsPointer = obj.Pointers.Count(p => p.Value.target == selectedItem.Name) > 0;//cet objet pointe vers la selection ?
+                        }
+                    }
+                }
+                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+            }
+            else
+            {
+                foreach (var item in Items)
+                {
+                    item.IsPointed = false;
+                    item.IsPointer = false;
+                }
             }
         }
     }
