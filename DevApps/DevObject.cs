@@ -1,4 +1,5 @@
-﻿using DevApps.GUI;
+﻿using DevApps;
+using DevApps.GUI;
 using Microsoft.Scripting.Hosting;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -10,6 +11,11 @@ internal partial class Program
     /// </summary>
     public abstract class DevObject
     {
+        public class Pointer
+        {
+            public string target = string.Empty;
+            public HashSet<string> tags = new HashSet<string>();
+        }
         public static Dictionary<string, DevObject> References = new Dictionary<string, DevObject>();
         internal static Mutex mutexExecuteObjects = new Mutex();
         internal static Mutex mutexCheckObjectList = new Mutex();
@@ -22,6 +28,11 @@ internal partial class Program
         public DevApps.PythonExtends.GUI gui = new DevApps.PythonExtends.GUI();
 
         internal bool IsInitialized = false;
+
+        /// <summary>
+        /// Tags de l'objet
+        /// </summary>
+        public abstract String[] Tags { get; }
 
         /// <summary>
         /// Description de l'objet (optionnel)
@@ -41,7 +52,7 @@ internal partial class Program
         /// <summary>
         /// Pointeurs vers des objets existants
         /// </summary>
-        public abstract Dictionary<string, string> Pointers { get; }
+        public abstract Dictionary<string, Pointer> Pointers { get; }
         /// <summary>
         /// Fonctions internes
         /// </summary>
@@ -102,14 +113,16 @@ internal partial class Program
         }
 
 
-        public static DevObjectInstance Create(string name, string desc)
+        public static DevObjectInstance Create(string name, string desc, string[] tags)
         {
             var o = new DevObjectInstance();
             o.Description = desc;
+            o.tags = new HashSet<string>(tags);
             References.Add(name, o);
 
             return o;
         }
+
 
         public static DevObjectReference CreateReference(string name, string refname)
         {
@@ -140,20 +153,30 @@ internal partial class Program
 
             name = Path.GetFileNameWithoutExtension(file);
             DevObject.MakeUniqueName(ref name);
-            var obj = DevObject.Create(name, Path.GetFileNameWithoutExtension(file));
+            var obj = DevObject.Create(name, Path.GetFileNameWithoutExtension(file), new string[] { });
             obj.SetOutput(File.ReadAllBytes(file));
 
             if (file.EndsWith(".svg", cp))
             {
                 obj.SetDrawCode(@"gui.svg(out)");
+                obj.tags.Add("#image");
             }
             else if (file.EndsWith(".png", cp) || file.EndsWith(".bmp", cp) || file.EndsWith(".jpg", cp) || file.EndsWith(".jpeg", cp) || file.EndsWith(".gif", cp))
             {
                 obj.SetDrawCode(@"gui.image(out)");
+                obj.tags.Add("#image");
             }
             else if (file.EndsWith(".cs", cp) || file.EndsWith(".cpp", cp) || file.EndsWith(".h", cp) || file.EndsWith(".c", cp) || file.EndsWith(".txt", cp) || file.EndsWith(".erd", cp))
             {
                 obj.SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
+                obj.tags.Add("#script");
+            }
+
+            if(file.LastIndexOf('.') != -1)
+            {
+                var tag = "#" + file.Substring(file.LastIndexOf('.'));
+                if(TagService.TagFormat.IsMatch(tag))
+                    obj.tags.Add(tag);
             }
 
             return obj;
@@ -348,9 +371,9 @@ internal partial class Program
                         pyScope.SetVariable(variable.Key, variable.Value);
                     }
 
-                    foreach (var pointer in o.Value.GetPointers())
+                    foreach (var pointer in o.Value.Pointers)
                     {
-                        Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
+                        Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
                         pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                     }
                     foreach (var property in o.Value.Properties)
@@ -398,9 +421,9 @@ internal partial class Program
                         pyScope.SetVariable(variable.Key, variable.Value.Value);
                     }
 
-                    foreach (var pointer in o.Value.GetPointers())
+                    foreach (var pointer in o.Value.Pointers)
                     {
-                        Program.DevObject.References.TryGetValue(pointer.Value, out var pointerRef);
+                        Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
                         pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                     }
                     foreach (var property in o.Value.Properties)
@@ -540,8 +563,6 @@ internal partial class Program
         public abstract DevObject SetInitMethod(string? code);
         public abstract string? GetBuildMethod();
         public abstract DevObject SetBuildMethod(string? code);
-        public abstract IEnumerable<KeyValuePair<string, string?>> GetProperties();
-        public abstract void SetProperties(IEnumerable<KeyValuePair<string, string?>> items);
         public abstract string? GetProperty(string name);
         public abstract DevObject AddProperty(string name, string? code);
         public abstract IEnumerable<KeyValuePair<string, string?>> GetFunctions();
@@ -550,9 +571,7 @@ internal partial class Program
         public abstract DevObject AddFunction(string name, string code);
         public abstract string GetUserAction();
         public abstract DevObject SetUserAction(string code);
-        public abstract IEnumerable<KeyValuePair<string, string?>> GetPointers();
-        public abstract void SetPointers(IEnumerable<KeyValuePair<string, string?>> items);
-        public abstract string? GetPointer(string name);
-        public abstract DevObject AddPointer(string name, string reference);
+        public abstract Pointer? GetPointer(string name);
+        public abstract DevObject AddPointer(string name, string reference, string[] tags);
     }
 }

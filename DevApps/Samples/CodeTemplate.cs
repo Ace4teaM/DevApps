@@ -6,7 +6,7 @@ namespace DevApps.Samples
     {
         internal static void Create()
         {
-            DevObject.Create("template", "Template")
+            DevObject.Create("template", "Template", [ "#cs", "#template"])
                 .SetOutput(@"
 namespace ${namespace}
 {
@@ -16,15 +16,15 @@ ${footer}
 ")
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
-            DevObject.Create("data", "Data")
+            DevObject.Create("data", "Data", ["#json"])
                 .SetOutput(@"
 {\n""namespace"":""Program"",\n""class_def"":""class HelloWorld { }"",\n""footer"":""// end of code""\n}
 ")
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())");
 
-            DevObject.Create("code", "Code")
-                .AddPointer("template", "template")
-                .AddPointer("data", "data")
+            DevObject.Create("code", "Code", ["#cs", "#script"])
+                .AddPointer("template", "template", ["#template"])
+                .AddPointer("data", "data", ["#json"])
                 .SetDrawCode(@"gui.style('Black', 2, False).foreground().stack().text(out.lines())")
             .SetBuildMethod(@"
 import string

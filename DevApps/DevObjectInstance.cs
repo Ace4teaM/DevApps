@@ -14,8 +14,8 @@ internal partial class Program
         /// <summary>
         /// Pointeurs vers des objets existants
         /// </summary>
-        internal Dictionary<string, string> pointers = new Dictionary<string, string>(); // name, refName
-        public override Dictionary<string, string> Pointers { get { return pointers; } }
+        internal Dictionary<string, Pointer> pointers = new Dictionary<string, Pointer>(); // name, refName
+        public override Dictionary<string, Pointer> Pointers { get { return pointers; } }
         /// <summary>
         /// Fonctions internes
         /// </summary>
@@ -57,6 +57,11 @@ internal partial class Program
         internal (string, CompiledCode?) drawCode = (String.Empty, null);
         public override (string, CompiledCode?) DrawCode { get { return drawCode; } }
 
+        /// <summary>
+        /// Tags de l'objet
+        /// </summary>
+        internal HashSet<string> tags = new HashSet<string>();
+        public override string[] Tags { get { return tags.ToArray(); } }
 
         public string Output
         {
@@ -158,20 +163,6 @@ internal partial class Program
             return this;
         }
 
-        public override IEnumerable<KeyValuePair<string, string?>> GetProperties()
-        {
-            return Properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1));
-        }
-
-        public override void SetProperties(IEnumerable<KeyValuePair<string, string?>> items)
-        {
-            Properties.Clear();
-            foreach (var p in items)
-            {
-                AddProperty(p.Key, p.Value);
-            }
-        }
-
         public override string? GetProperty(string name)
         {
             return Properties.ContainsKey(name) ? Properties[name].Item1 : String.Empty;
@@ -219,28 +210,14 @@ internal partial class Program
             return this;
         }
 
-        public override IEnumerable<KeyValuePair<string, string?>> GetPointers()
+        public override Pointer? GetPointer(string name)
         {
-            return Pointers.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value));
+            return Pointers.ContainsKey(name) ? Pointers[name] : null;
         }
 
-        public override void SetPointers(IEnumerable<KeyValuePair<string, string?>> items)
+        public override DevObject AddPointer(string name, string reference, string[] tags)
         {
-            Pointers.Clear();
-            foreach (var p in items)
-            {
-                AddPointer(p.Key, p.Value);
-            }
-        }
-
-        public override string? GetPointer(string name)
-        {
-            return Pointers.ContainsKey(name) ? Pointers[name] : String.Empty;
-        }
-
-        public override DevObject AddPointer(string name, string reference)
-        {
-            Pointers[name] = reference;
+            Pointers[name] = new Pointer { target=reference, tags=new HashSet<string>(tags) };
             return this;
         }
 

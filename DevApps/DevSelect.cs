@@ -62,14 +62,6 @@ internal partial class Program
             return this;
         }
 
-        public void SetProperties(IEnumerable<KeyValuePair<string, string?>> items)
-        {
-            foreach (DevObject devObject in devObjects)
-            {
-                devObject.SetProperties(items);
-            }
-        }
-
         public DevSelect AddProperty(string name, string? code)
         {
             foreach (DevObject devObject in devObjects)
@@ -96,19 +88,11 @@ internal partial class Program
             return this;
         }
 
-        public void SetPointers(IEnumerable<KeyValuePair<string, string?>> items)
+        public DevSelect AddPointer(string name, string reference, string[] tags)
         {
             foreach (DevObject devObject in devObjects)
             {
-                devObject.SetPointers(items);
-            }
-        }
-
-        public DevSelect AddPointer(string name, string reference)
-        {
-            foreach (DevObject devObject in devObjects)
-            {
-                devObject.AddPointer(name, reference);
+                devObject.AddPointer(name, reference, tags);
             }
             return this;
         }
