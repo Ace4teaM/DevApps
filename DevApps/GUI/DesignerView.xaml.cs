@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -198,16 +199,53 @@ namespace DevApps.GUI
             if (selectedElement != null && e.RightButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Released && e.MiddleButton == MouseButtonState.Released)
             {
                 ContextMenu menu = new ContextMenu();
-               /* menu.Items.Add(new MenuItem { Header = "Propriétés" });
-                menu.Items.Add(new MenuItem { Header = "Copier" });
-                menu.Items.Add(new MenuItem { Header = "Coller" });
-                menu.Items.Add(new MenuItem { Header = "Couper" });
-                menu.Items.Add(new MenuItem { Header = "Dupliquer" });
-                menu.Items.Add(new MenuItem { Header = "Verrouiller" });
-                menu.Items.Add(new MenuItem { Header = "Déverrouiller" });
-                menu.Items.Add(new MenuItem { Header = "Envoyer en arrière" });
-                menu.Items.Add(new MenuItem { Header = "Envoyer en avant" });
-                menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });*/
+                /* menu.Items.Add(new MenuItem { Header = "Propriétés" });
+                 menu.Items.Add(new MenuItem { Header = "Copier" });
+                 menu.Items.Add(new MenuItem { Header = "Coller" });
+                 menu.Items.Add(new MenuItem { Header = "Couper" });
+                 menu.Items.Add(new MenuItem { Header = "Dupliquer" });
+                 menu.Items.Add(new MenuItem { Header = "Verrouiller" });
+                 menu.Items.Add(new MenuItem { Header = "Déverrouiller" });
+                 menu.Items.Add(new MenuItem { Header = "Envoyer en arrière" });
+                 menu.Items.Add(new MenuItem { Header = "Envoyer en avant" });
+                 menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });*/
+
+                if(selectedElement is DrawElement)
+                {
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
+                    {
+                        var m = new MenuItem { Header = "Associer à..." };
+
+                        // recherche les objets ayant un pointeur sur un élément avec des tags identiques
+                        foreach (var obj in DevObject.References.Values)
+                        {
+                            if (obj != src)
+                            {
+                                foreach(var ptr in obj.Pointers)
+                                {
+                                    if (ptr.Value.tags.Count > 0 && src.Tags.ContainsAll(ptr.Value.tags))
+                                    {
+                                        var submenu = new MenuItem { Header = String.IsNullOrEmpty(ptr.Value.target) == false ? obj.Description + " -> " + ptr.Key + " (Remplacera: " + ptr.Value.target + ")" : obj.Description + " -> " + ptr.Key };
+                                        m.Click += (s, e) =>
+                                        {
+                                            ptr.Value.target = selectedElement.Name;
+                                        };
+                                        m.Items.Add(submenu);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                        m.IsEnabled = m.Items.Count > 0;
+                        menu.Items.Add(m);
+                    }
+                }
+
+                menu.Items.Add(new Separator());
 
                 {
                     var m = new MenuItem { Header = "Construire (Build)" };
@@ -382,7 +420,7 @@ namespace DevApps.GUI
 
                                 var textBlock = new ConnectorTextElement(
                                     connector,
-                                    pointer.Value.tags.Count > 0 ? String.Format("{0}\n{1}", pointer.Key, String.Join(' ', pointer.Value.tags)) : pointer.Key
+                                    pointer.Key
                                 );
                                 textBlock.RenderTransform = _transformGroup;
                                 Canvas.SetZIndex(textBlock, 1);
