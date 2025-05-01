@@ -3,6 +3,7 @@ using Microsoft.Scripting.Utils;
 using Serializer;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics.Metrics;
 using System.Globalization;
 using System.IO;
@@ -84,6 +85,8 @@ namespace DevApps.GUI
             }
             public string? Name { get; set; }
             public string? Description { get; set; }
+            public string Tags { get { return tags; } set { tags = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Tags))); } }
+            private string tags = String.Empty;
             public string? UserAction
             {
                 get
@@ -140,6 +143,8 @@ namespace DevApps.GUI
                 }
             }
         }
+        
+        private bool IsEditing = false;
 
         private ObservableCollection<TabItem> items = new ObservableCollection<TabItem>();
         public ObservableCollection<TabItem> Items
@@ -154,7 +159,7 @@ namespace DevApps.GUI
         {
             Program.DevObject.mutexCheckObjectList.WaitOne();
             items.Clear();
-            items.AddRange(new ObservableCollection<TabItem>(Program.DevObject.References.Select(p => new TabItem { Name = p.Key, Description = p.Value.Description })));
+            items.AddRange(new ObservableCollection<TabItem>(Program.DevObject.References.Select(p => new TabItem { Name = p.Key, Description = p.Value.Description, Tags = String.Join(' ',p.Value.Tags) })));
             Program.DevObject.mutexCheckObjectList.ReleaseMutex();
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Items)));
@@ -556,93 +561,117 @@ namespace DevApps.GUI
             }
         }
 
+        private void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            IsEditing = true;
+        }
+
         private void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            if (e.EditAction == DataGridEditAction.Commit)
+            try
             {
-                var item = e.Row.DataContext as TabItem;
-                var text = (e.EditingElement as TextBox)?.Text;
-                if (text != null && item != null)
+                if (e.EditAction == DataGridEditAction.Commit)
                 {
-                    Program.DevObject.mutexCheckObjectList.WaitOne();
-                    try
+                    var item = e.Row.DataContext as TabItem;
+                    var text = (e.EditingElement as TextBox)?.Text;
+                    if (text != null && item != null)
                     {
-                        Program.DevObject.References.TryGetValue(item.Name, out var reference);
-
-                        if (reference != null)
+                        Program.DevObject.mutexCheckObjectList.WaitOne();
+                        try
                         {
-                            if (e.Column.Header.ToString() == "Nom")
-                            {
-                                if (text != item.Name)
-                                {
-                                    Program.DevObject.MakeUniqueName(ref text);
-                                    var value = Program.DevObject.References[item.Name];
-                                    Program.DevObject.References.Remove(item.Name);
-                                    Program.DevObject.References[text] = value;
+                            Program.DevObject.References.TryGetValue(item.Name, out var reference);
 
-                                    // renomme l'objet dans les objets de references
-                                    foreach (var obj in Program.DevObject.References)
+                            if (reference != null)
+                            {
+                                if (e.Column.Header.ToString() == "Nom")
+                                {
+                                    if (text != item.Name)
                                     {
-                                        if(obj.Value is Program.DevObjectReference)
+                                        Program.DevObject.MakeUniqueName(ref text);
+                                        var value = Program.DevObject.References[item.Name];
+                                        Program.DevObject.References.Remove(item.Name);
+                                        Program.DevObject.References[text] = value;
+
+                                        // renomme l'objet dans les objets de references
+                                        foreach (var obj in Program.DevObject.References)
                                         {
-                                            var objRef = obj.Value as Program.DevObjectReference;
-                                            if(objRef.baseObjectName == item.Name)
+                                            if (obj.Value is Program.DevObjectReference)
                                             {
-                                                objRef.baseObjectName = text;
-                                                Console.WriteLine($"Renomme Reference {obj.Key} : {item.Name} => {text}");
+                                                var objRef = obj.Value as Program.DevObjectReference;
+                                                if (objRef.baseObjectName == item.Name)
+                                                {
+                                                    objRef.baseObjectName = text;
+                                                    Console.WriteLine($"Renomme Reference {obj.Key} : {item.Name} => {text}");
+                                                }
                                             }
                                         }
-                                    }
 
-                                    // renomme l'objet dans les references des autres objets
-                                    foreach (var obj in Program.DevObject.References)
-                                    {
-                                        foreach(var pointer in obj.Value.Pointers.Where(p=>p.Value.target == item.Name).ToArray())
+                                        // renomme l'objet dans les references des autres objets
+                                        foreach (var obj in Program.DevObject.References)
                                         {
-                                            obj.Value.Pointers[pointer.Key].target = text;
-                                            Console.WriteLine($"Renomme {pointer.Key} : {item.Name} => {text}");
+                                            foreach (var pointer in obj.Value.Pointers.Where(p => p.Value.target == item.Name).ToArray())
+                                            {
+                                                obj.Value.Pointers[pointer.Key].target = text;
+                                                Console.WriteLine($"Renomme {pointer.Key} : {item.Name} => {text}");
+                                            }
                                         }
-                                    }
 
-                                    // renomme l'objet dans les references des facettes
-                                    foreach(var obj in Program.DevFacet.References)
-                                    {
-                                        foreach(var pointer in obj.Value.Objects.Where(p=>p.Key == item.Name).ToArray())
+                                        // renomme l'objet dans les references des facettes
+                                        foreach (var obj in Program.DevFacet.References)
                                         {
-                                            var tmp = pointer.Value;
-                                            obj.Value.Objects.Remove(pointer.Key);
-                                            obj.Value.Objects.Add(text, tmp);
-                                            Console.WriteLine($"Renomme {obj.Key} : {pointer.Key} => {text}");
+                                            foreach (var pointer in obj.Value.Objects.Where(p => p.Key == item.Name).ToArray())
+                                            {
+                                                var tmp = pointer.Value;
+                                                obj.Value.Objects.Remove(pointer.Key);
+                                                obj.Value.Objects.Add(text, tmp);
+                                                Console.WriteLine($"Renomme {obj.Key} : {pointer.Key} => {text}");
+                                            }
                                         }
-                                    }
 
-                                    // renomme l'objet
-                                    item.Name = text;//sans effet
-                                    
-                                    InvalidateObjects();
+                                        // renomme l'objet
+                                        item.Name = text;//sans effet
+
+                                        InvalidateObjects();
+                                    }
+                                }
+                                else if (e.Column.Header.ToString() == "Description")
+                                {
+                                    item.Description = text;
+                                    reference.Description = text;
+                                }
+                                else if (e.Column.Header.ToString() == "Tags")
+                                {
+                                    text = text.Replace("#", " #"); /// s'assure qu'il y a un espace devant chaque #
+                                    var tags = text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Where(p => TagService.TagFormat.IsMatch(p)).ToArray();
+                                    var instance = reference is Program.DevObjectReference ? (reference as Program.DevObjectReference).baseObject : reference as Program.DevObjectInstance;
+                                    instance.tags = new HashSet<string>(tags);
+                                    item.Tags = String.Join(' ', instance.tags);
                                 }
                             }
-                            else if (e.Column.Header.ToString() == "Description")
-                            {
-                                item.Description = text;
-                                reference.Description = text;
-                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            IsEditing = false;
         }
 
         public void OnKeyCommand(KeyCommand command)
         {
+            if (IsEditing == true)
+                return;
+
             if (command == KeyCommand.Create)
             {
                 CreateObject();
