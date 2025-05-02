@@ -1,25 +1,18 @@
-﻿using DevApps.GUI;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using DevApps.GUI;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using SharpVectors.Converters;
 using SharpVectors.Renderers.Wpf;
 using System.Data;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using CsvHelper;
-using static IronPython.Modules.PythonCsvModule;
-using System.Globalization;
-using CsvHelper.Configuration;
-using System.Diagnostics;
-using System.Windows.Data;
-using static IronPython.Modules._ast;
-using static DevApps.PythonExtends.Fill;
-using System.Drawing.Printing;
-using IronPython.Runtime.Operations;
 
 namespace DevApps.PythonExtends
 {
