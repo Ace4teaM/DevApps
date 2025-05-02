@@ -1,13 +1,25 @@
 {
+  "Variables": [],
   "Objects": [
     {
       "Key": "visual",
       "Value": {
-        "Description": "ERD Visualisation (kroki.io)",
+        "Tags": [
+          "#erd",
+          "#svg"
+        ],
+        "Description": "ERD to Svg (kroki.io)",
+        "Editor": null,
         "Pointers": [
           {
             "Key": "data",
-            "Value": "datamodel"
+            "Value": {
+              "target": "datamodel",
+              "tags": [
+                "#erd",
+                "#text"
+              ]
+            }
           }
         ],
         "Functions": [],
@@ -23,7 +35,12 @@
     {
       "Key": "datamodel",
       "Value": {
+        "Tags": [
+          "#erd",
+          "#text"
+        ],
         "Description": "ERD Data Model",
+        "Editor": null,
         "Pointers": [],
         "Functions": [],
         "Properties": [],
@@ -38,11 +55,23 @@
     {
       "Key": "codegen",
       "Value": {
-        "Description": "ERD Code generator",
+        "Tags": [
+          "#erd",
+          "#cs",
+          "#codegen"
+        ],
+        "Description": "ERD to C#",
+        "Editor": null,
         "Pointers": [
           {
             "Key": "input_data",
-            "Value": "datamodel"
+            "Value": {
+              "target": "datamodel",
+              "tags": [
+                "#erd",
+                "#text"
+              ]
+            }
           }
         ],
         "Functions": [],
@@ -56,6 +85,7 @@
       }
     }
   ],
+  "References": [],
   "Facets": [
     {
       "Key": "ERD",
@@ -64,22 +94,31 @@
           {
             "Key": "codegen",
             "Value": {
-              "zone": "20,20,400,400"
+              "zone": "20,20,400,400",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
             }
           },
           {
             "Key": "datamodel",
             "Value": {
-              "zone": "500,20,200,400"
+              "zone": "504.4,23.30000000000001,200,400",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
             }
           },
           {
             "Key": "visual",
             "Value": {
-              "zone": "800,20,250,400"
+              "zone": "831.9,17.799999999999955,250,400",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
             }
           }
-        ]
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
       }
     }
   ]

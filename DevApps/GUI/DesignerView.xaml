@@ -23,6 +23,9 @@
             <Canvas.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Texte" Click="MenuItem_Text_Click"></MenuItem>
+                    <MenuItem Header="Objets" SubmenuOpened="MenuItem_Objects_ContextMenuOpening">
+                        <MenuItem></MenuItem>
+                    </MenuItem>
                     <MenuItem Header="Formes">
                         <MenuItem Header="Rectangle" Click="MenuItem_Rectangle_Click">
                             <MenuItem.Icon>

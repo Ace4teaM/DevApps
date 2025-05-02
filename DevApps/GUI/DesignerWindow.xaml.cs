@@ -150,10 +150,10 @@ namespace DevApps.GUI
                                 // importe les données
                                 try
                                 {
-                                    var src_filename = Path.Combine(dir, Program.DataDir, o.Key);
-                                    if (File.Exists(src_filename) == true)
+                                    o.Value.dataPath = Path.Combine(dir, Program.DataDir, o.Key);
+                                    if (File.Exists(o.Value.dataPath) == true)
                                     {
-                                        o.Value.content.LoadOutput(src_filename);
+                                        o.Value.content.LoadOutput(o.Value.dataPath);
                                     }
                                 }
                                 catch (Exception ex2)
@@ -171,7 +171,7 @@ namespace DevApps.GUI
                             }
 
                             Program.DevObject.CompilObjects(proj.Objects.Select(p=>p.Value.content));
-                            Program.DevObject.Init();
+                            Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
                             Service.InvalidateFacets();
                         };
                         menu.Items.Add(m);
