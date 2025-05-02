@@ -142,8 +142,15 @@ namespace DevApps.GUI
                     return String.Empty;
                 }
             }
+            public bool CanBuild
+            {
+                get
+                {
+                    return BuildMethod != null && String.IsNullOrWhiteSpace(BuildMethod) == false;
+                }
+            }
         }
-        
+
         private bool IsEditing = false;
 
         private ObservableCollection<TabItem> items = new ObservableCollection<TabItem>();

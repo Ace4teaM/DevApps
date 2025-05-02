@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:DevApps.GUI"
              mc:Ignorable="d" 
+             x:Name="window"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <Pen x:Key="shapePen" Brush="Blue" Thickness="0.1" />
@@ -22,7 +23,7 @@
                 <ContextMenu>
                     <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>
                     <MenuItem Header="Créer une référence" Click="MenuItem_Click_CreateReference"></MenuItem>
-                    <MenuItem Header="Construire" Click="MenuItem_Click_Build"></MenuItem>
+                    <MenuItem Header="Construire (Build)" Click="MenuItem_Click_Build" DataContext="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}" IsEnabled="{Binding CanBuild}"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="Nouvel objet..." Click="MenuItem_Click_CreateObject"></MenuItem>
                     <MenuItem Header="Nouvelle facette..." Click="MenuItem_Click_CreateFacet"></MenuItem>
