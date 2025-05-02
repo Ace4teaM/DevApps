@@ -648,8 +648,8 @@ namespace DevApps.PythonExtends
             get {
                 if(foregroundPen == null)
                 {// créé ici dans le thread de l'appelant
-                    foregroundBrush = new SolidColorBrush(Colors.LightGray);
-                    foregroundPen = new Pen(foregroundBrush, 2.0);
+                    foregroundBrush = new SolidColorBrush(color);
+                    foregroundPen = new Pen(foregroundBrush, thickness);
                 }
                 return foregroundPen;
             }
@@ -661,8 +661,8 @@ namespace DevApps.PythonExtends
             {
                 if (foregroundBrush == null)
                 {// créé ici dans le thread de l'appelant
-                    foregroundBrush = new SolidColorBrush(Colors.LightGray);
-                    foregroundPen = new Pen(foregroundBrush, 2.0);
+                    foregroundBrush = new SolidColorBrush(color);
+                    foregroundPen = new Pen(foregroundBrush, thickness);
                 }
                 return foregroundBrush;
             }
