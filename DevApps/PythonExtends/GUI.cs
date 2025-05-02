@@ -19,6 +19,7 @@ using System.Windows.Data;
 using static IronPython.Modules._ast;
 using static DevApps.PythonExtends.Fill;
 using System.Drawing.Printing;
+using IronPython.Runtime.Operations;
 
 namespace DevApps.PythonExtends
 {
@@ -133,7 +134,14 @@ namespace DevApps.PythonExtends
         }
         internal virtual void text(GUI gui, string text)
         {
+            double x = Left;
+            double y = Top;
+            if (String.IsNullOrEmpty(text))
+                return;
+            var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+            gui.drawingContext?.DrawGlyphRun(gui.ForegroundBrush, glyphRun);
 
+            Top = y;
         }
         internal virtual void separator(GUI gui)
         {
@@ -1096,6 +1104,20 @@ namespace DevApps.PythonExtends
 
             return this;
         }
+        public GUI text(Output in1)
+        {
+            if (in1.Stream.Length == 0)
+                return this;
+
+            in1.Stream.Seek(0, SeekOrigin.Begin);
+
+            foreach (var text in Encoding.UTF8.GetString(in1.Stream.ToArray()).Split(new char[] { '\n', '\r' }))
+            {
+                filling.text(this, text);
+            }
+
+            return this;
+        }
         public GUI text(string text, string syntax)
         {
             if (String.IsNullOrEmpty(text))
@@ -1164,13 +1186,11 @@ namespace DevApps.PythonExtends
 
         static GUI()
         {
-
             new Typeface("Consolas").TryGetGlyphTypeface(out glyphTypeface);
             renderingEmSize = 10;
             advanceWidth = glyphTypeface.AdvanceWidths[0] * renderingEmSize;
             advanceHeight = glyphTypeface.Height * renderingEmSize;
             baselineOrigin = new Point(0, glyphTypeface.Baseline * renderingEmSize);
-
         }
 
         internal static GlyphRun ConvertTextToGlyphRun(string line, ref double x, ref double y)
