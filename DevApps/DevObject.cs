@@ -406,6 +406,7 @@ internal partial class Program
                 try
                 {
                     var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                    pyScope.SetVariable("interpreter", DevApps.PythonExtends.Interpreter.Instance);
                     pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
                     pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                     pyScope.SetVariable("name", o.Key);
