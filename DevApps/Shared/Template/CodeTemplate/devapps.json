@@ -1,9 +1,12 @@
 {
+  "Variables": [],
   "Objects": [
     {
       "Key": "template",
       "Value": {
+        "Tags": [],
         "Description": "Template",
+        "Editor": null,
         "Pointers": [],
         "Functions": [],
         "Properties": [],
@@ -18,7 +21,9 @@
     {
       "Key": "data",
       "Value": {
-        "Description": "Data",
+        "Tags": [],
+        "Description": "Template Data",
+        "Editor": null,
         "Pointers": [],
         "Functions": [],
         "Properties": [],
@@ -33,15 +38,29 @@
     {
       "Key": "code",
       "Value": {
-        "Description": "Code",
+        "Tags": [],
+        "Description": "Template to C#",
+        "Editor": null,
         "Pointers": [
           {
             "Key": "template",
-            "Value": "template"
+            "Value": {
+              "target": "template",
+              "tags": [
+                "#template",
+                "#text"
+              ]
+            }
           },
           {
             "Key": "data",
-            "Value": "data"
+            "Value": {
+              "target": "data",
+              "tags": [
+                "#dictionnary",
+                "#text"
+              ]
+            }
           }
         ],
         "Functions": [],
@@ -55,6 +74,7 @@
       }
     }
   ],
+  "References": [],
   "Facets": [
     {
       "Key": "Template",
@@ -63,22 +83,31 @@
           {
             "Key": "template",
             "Value": {
-              "zone": "20,20,200,400"
+              "zone": "41,58,200,400",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
             }
           },
           {
             "Key": "code",
             "Value": {
-              "zone": "300,20,200,400"
+              "zone": "300,20,200,400",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
             }
           },
           {
             "Key": "data",
             "Value": {
-              "zone": "600,20,200,400"
+              "zone": "600,20,200,400",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
             }
           }
-        ]
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
       }
     }
   ]

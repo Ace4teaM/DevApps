@@ -11,7 +11,9 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using static IronPython.Modules._ast;
 using static Program;
+using static Program.DevFacet;
 
 namespace DevApps.GUI
 {
@@ -92,6 +94,8 @@ namespace DevApps.GUI
 
             if (overElement == null)
             {
+                Service.SetStatusText(String.Empty);
+
                 // Cache le cadre de l'objet
                 borderOver.Visibility = Visibility.Hidden;
                 // supprime les connecteurs
@@ -117,6 +121,8 @@ namespace DevApps.GUI
                 // Affiche les connecteurs et nom de l'objet
                 if (selectionChanged)
                 {
+                    Service.SetStatusText(overElement.Name);
+
                     // supprime les connecteurs
                     foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
                         MyCanvas.Children.Remove(c);
@@ -324,14 +330,21 @@ namespace DevApps.GUI
                  menu.Items.Add(new MenuItem { Header = "Envoyer en avant" });
                  menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });*/
 
-                if(selectedElement is DrawElement)
+                if (selectedElement is DrawElement)
                 {
+                    isSelectionMaintained = true;
+                    menu.Closed += Menu_Closed;
+
                     Program.DevObject.mutexCheckObjectList.WaitOne();
                     if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
                     {
                         var m = new MenuItem { Header = "Associer à..." };
 
                         // recherche les objets ayant un pointeur sur un élément avec des tags identiques
+                        var mExists = new MenuItem { Header = "Existant" };
+                        m.Items.Add(mExists);
+
+                        int count = 0;
                         foreach (var obj in DevObject.References.Values)
                         {
                             if (obj != src)
@@ -341,22 +354,55 @@ namespace DevApps.GUI
                                     if (ptr.Value.tags.Count > 0 && src.Tags.ContainsAll(ptr.Value.tags))
                                     {
                                         var submenu = new MenuItem { Header = String.IsNullOrEmpty(ptr.Value.target) == false ? obj.Description + " -> " + ptr.Key + " (Remplacera: " + ptr.Value.target + ")" : obj.Description + " -> " + ptr.Key };
-                                        m.Click += (s, e) =>
+                                        submenu.Click += (s, e) =>
                                         {
                                             ptr.Value.target = selectedElement.Name;
                                         };
-                                        m.Items.Add(submenu);
+                                        mExists.Items.Add(submenu);
+                                        count++;
                                         break;
                                     }
                                 }
                             }
                         }
-                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                        if (count == 0)
+                        {
+                            mExists.IsEnabled = false;
+                            mExists.Header = mExists.Header.ToString() + " (Aucun)";
+                        }
+
+                        m.Items.Add(new Separator());
+
+                        // Nouveaux
+                        var mNew = new MenuItem { Header = "Nouveau" };
+                        m.Items.Add(mNew);
+
+                        count = 0;
+                        var list = new List<Serializer.DevObjectInstance>();
+                        if (SharedServices.EnumerateObjects(p => p.Pointers.Count(pp=>src.Tags.ContainsAll(pp.Value.tags)) > 0/*si compatible avec l'objet*/, Program.CommonDataPath, ref list) > 0)
+                        {
+                            foreach (var obj in list)
+                            {
+                                var item = new MenuItem();
+                                item.Header = "   " + obj.Description;
+                                item.Tag = obj;
+                                item.Click += MenuItem_AddObject_Click;
+                                mNew.Items.Add(item);
+                                count++;
+                            }
+                        }
+
+                        if (count == 0)
+                        {
+                            mNew.IsEnabled = false;
+                            mNew.Header = mNew.Header.ToString() + " (Aucun)";
+                        }
 
                         m.IsEnabled = m.Items.Count > 0;
                         menu.Items.Add(m);
                     }
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                 }
 
                 menu.Items.Add(new Separator());
@@ -455,7 +501,6 @@ namespace DevApps.GUI
 
                 menu.Placement = PlacementMode.Mouse;
                 menu.IsOpen = true;
-
             }
 
             // vue
@@ -468,6 +513,11 @@ namespace DevApps.GUI
             }
 
             DisplayInfos();
+        }
+
+        private void Menu_Closed(object sender, RoutedEventArgs e)
+        {
+            isSelectionMaintained = false;
         }
 
         internal void Canvas_MouseMove(object sender, MouseEventArgs e)
@@ -1159,6 +1209,94 @@ namespace DevApps.GUI
         private void MenuItem_Text_Click(object sender, RoutedEventArgs e)
         {
             StartCapturePositions(CapturePointMode.Text);
+        }
+
+        private void MenuItem_Objects_ContextMenuOpening(object sender, RoutedEventArgs e)
+        {
+            var list = new List<Serializer.DevObjectInstance>();
+            if (SharedServices.EnumerateObjects(p => true, Program.CommonDataPath, ref list) > 0)
+            {
+                var menuItem = sender as MenuItem;
+                if (menuItem != null)
+                {
+                    menuItem.Items.Clear();
+                    foreach (var obj in list)
+                    {
+                        var item = new MenuItem();
+                        item.Header = obj.Description;
+                        item.Tag = obj;
+                        item.Click += MenuItem_AddObject_Click;
+                        menuItem.Items.Add(item);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Ajoute l'objet paramètre dans le layout actif
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MenuItem_AddObject_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var obj = menuItem?.Tag as Serializer.DevObjectInstance;
+            var objects = selectedElement;
+
+            if (obj != null)
+            {
+                // importe l'objet
+                var name = "new";
+                if (Program.DevObject.References.ContainsKey(name) == true)
+                    Program.DevObject.MakeUniqueName(ref name);
+
+                Program.DevObject.mutexCheckObjectList.WaitOne();
+                Program.DevObject.References.Add(name, obj.content);
+                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                // importe les données
+                try
+                {
+                    if (File.Exists(obj.dataPath) == true)
+                    {
+                        obj.content.LoadOutput(obj.dataPath);
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    Console.WriteLine(ex2.Message);
+                }
+
+                // ajoute à la facette
+                var pos = Mouse.GetPosition(MyCanvas);
+                var props = new DevFacet.ObjectProperties { title = TitlePlacement.TopLeft, background = "#FFFFFFFF", zone = new Rect(pos, new Size(100, 100)) };
+                facette.Objects.Add(name, props);
+                AddElement(name, props);
+
+                // associe le nouvel objet à la selection
+                // sélectionne le pointeur qui correspond aux tags de l'objet
+                if(selectedElement is DrawElement)
+                {
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
+                    {
+                        try
+                        {
+                            var ptr = obj.content.Pointers.First(pp => src.Tags.ContainsAll(pp.Value.tags));
+                            ptr.Value.target = selectedElement.Name;
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Console.WriteLine(ex.Message);
+                        }
+                    }
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                }
+
+                Program.DevObject.CompilObjects([obj.content]);
+                Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                Service.InvalidateFacets();
+            }
         }
     }
 }
