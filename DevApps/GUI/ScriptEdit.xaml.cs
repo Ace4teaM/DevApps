@@ -14,6 +14,7 @@ namespace DevApps.GUI
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        public string Infos { get; set; }
         public string Value { get; set; }
         public string ValidationMessage { get; set; }
         public Dictionary<string, (string, CompiledCode?)> Properties { get; set; }
@@ -167,6 +168,12 @@ namespace DevApps.GUI
             }
 
             PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ValidationMessage)));
+        }
+
+        private void ButtonOK_Click(object sender, RoutedEventArgs e)
+        {
+            Value = textEditor.Document.Text;
+            DialogResult = true;
         }
     }
 }
