@@ -210,11 +210,41 @@ namespace DevApps.GUI
             }
 
             Program.DevObject.mutexCheckObjectList.WaitOne();
+            var obj = Program.DevObject.References.First(p => p.Key == context.Name).Value;
+            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
             try
             {
-                var obj = Program.DevObject.References.First(p => p.Key == context.Name).Value;
-
                 var wnd = new ScriptEdit(String.Format("{0} ({1})", context.Name, item.Name), content, obj.Properties);
+                
+                // Infos
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine(String.Format("{0} = {1}", "out", "output"));
+                stringBuilder.AppendLine(String.Format("{0} = {1}", "name", "nom de l'objet"));
+                stringBuilder.AppendLine(String.Format("{0} = {1}", "desc", "description de l'objet"));
+
+                if (obj.Pointers.Count > 0)
+                {
+                    stringBuilder.AppendLine();
+                    stringBuilder.AppendLine(String.Format("Pointeurs:"));
+                    foreach (var pointer in obj.Pointers)
+                    {
+                        stringBuilder.AppendLine(String.Format("{0} => [{1}]", pointer.Key, pointer.Value.target));
+                    }
+                }
+
+                if (obj.Properties.Count > 0)
+                {
+                    stringBuilder.AppendLine();
+                    stringBuilder.AppendLine(String.Format("Propriétés:"));
+                    foreach (var property in obj.Properties)
+                    {
+                        stringBuilder.AppendLine(String.Format("{0} => [{1}]", property.Key, property.Value.Item1));
+                    }
+                }
+                wnd.Infos = stringBuilder.ToString();
+
+
                 wnd.Owner = Window.GetWindow(this);
                 wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 if (wnd.ShowDialog() == true)
@@ -255,7 +285,6 @@ namespace DevApps.GUI
             {
                 Console.WriteLine(ex.Message);
             }
-            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
         }
 
         private void MenuItem_Click_CreateFacet(object sender, RoutedEventArgs e)
