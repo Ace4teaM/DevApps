@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:DevApps.GUI"
         mc:Ignorable="d"
         PreviewKeyDown="Window_PreviewKeyDown"
+        PreviewKeyUp="Window_PreviewKeyUp"
         Title="DesignerWindow" Height="509" Width="979">
     <DockPanel>
         <Grid DockPanel.Dock="Top" Background="#EEEEEE">

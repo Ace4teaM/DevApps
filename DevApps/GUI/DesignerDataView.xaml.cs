@@ -691,6 +691,10 @@ namespace DevApps.GUI
             }
         }
 
+        public void OnKeyState(ModifierKeys modifier)
+        {
+        }
+
         private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (dataGrid.SelectedItem is TabItem)

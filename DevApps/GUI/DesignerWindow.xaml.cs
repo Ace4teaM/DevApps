@@ -302,12 +302,21 @@ namespace DevApps.GUI
                 InvalidateFacets();
             }
         }
-        
+
+        private ModifierKeys lastModifier = ModifierKeys.None;
+
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if(Content is IKeyCommand)
             {
                 var kc = (Content as IKeyCommand);
+
+                if (Keyboard.Modifiers != lastModifier)
+                {
+                    kc?.OnKeyState(Keyboard.Modifiers);
+                }
+
+                lastModifier = Keyboard.Modifiers;
 
                 switch (e.Key)
                 {
@@ -326,21 +335,29 @@ namespace DevApps.GUI
                     case Key.Down:
                         kc?.OnKeyCommand(KeyCommand.MoveBottom);
                         break;
-                    case Key.LeftAlt:
-                        kc?.OnKeyCommand(KeyCommand.ShowDetails);
-                        break;
                     case Key.Insert:
                         kc?.OnKeyCommand(KeyCommand.Create);
                         break;
                     case Key.Delete:
                         kc?.OnKeyCommand(KeyCommand.Delete);
                         break;
-                    case Key.System:
-                        if (e.SystemKey == Key.LeftAlt)
-                        kc?.OnKeyCommand(KeyCommand.ShowDetails);
-                        break;
                 }
             }
+        }
+
+        private void Window_PreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            if (Content is IKeyCommand)
+            {
+                var kc = (Content as IKeyCommand);
+
+                if (Keyboard.Modifiers != lastModifier)
+                {
+                    kc?.OnKeyState(Keyboard.Modifiers);
+                }
+            }
+
+            lastModifier = Keyboard.Modifiers;
         }
     }
 }

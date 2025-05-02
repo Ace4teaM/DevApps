@@ -334,5 +334,9 @@ namespace DevApps.GUI
                 return;
             }
         }
+
+        public void OnKeyState(ModifierKeys modifier)
+        {
+        }
     }
 }

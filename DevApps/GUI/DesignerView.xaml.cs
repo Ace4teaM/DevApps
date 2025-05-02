@@ -33,10 +33,18 @@ namespace DevApps.GUI
         internal bool isResizing = false;
         internal bool isDoubleClick = false;
         internal bool isResizingPanel = false;
+        /// <summary>
+        /// Maintient la sélection actuelle
+        /// </summary>
+        internal bool isSelectionMaintained = false;
+        /// <summary>
+        /// Le curseur est en mode dessin (pointe sur les coordonnées à ajouter à une forme)
+        /// </summary>
         internal bool isPointing = false;
         internal System.Timers.Timer lastClickTimer;//timer entre 2 clics
         internal Point startMousePosition;
         internal DrawBase? selectedElement;
+        internal DrawBase? lastSelectedElement;
         internal ResizeDirection resizeDirection;
 
         // bordure utilisé pour encadrer l'objet survolé
@@ -73,6 +81,106 @@ namespace DevApps.GUI
             MyCanvas.LayoutTransform = _scaleTransform;
 
             MyCanvas.Children.Add(borderOver);
+        }
+
+        internal void DisplayInfos()
+        {
+            bool selectionChanged = selectedElement != lastSelectedElement;
+
+            var overElement = selectedElement as DrawBase;
+            var text = overElement != null ? overElement.Name : "Ready";
+
+            if (overElement == null)
+            {
+                // Cache le cadre de l'objet
+                borderOver.Visibility = Visibility.Hidden;
+                // supprime les connecteurs
+                foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
+                    MyCanvas.Children.Remove(c);
+                // supprime les textes
+                foreach (var c in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
+                    MyCanvas.Children.Remove(c);
+            }
+            else
+            {
+                // Actualise le cadre de l'objet
+                double marge = 5.0;
+                borderOver.Fill = Brushes.Transparent;
+                borderOver.RenderTransform = _transformGroup;
+                borderOver.Visibility = Visibility.Visible;
+                Canvas.SetLeft(borderOver, Canvas.GetLeft(overElement) - marge);
+                Canvas.SetTop(borderOver, Canvas.GetTop(overElement) - marge);
+                borderOver.Width = overElement.Width + marge * 2;
+                borderOver.Height = overElement.Height + marge * 2;
+                Canvas.SetZIndex(borderOver, int.MinValue);
+
+                // Affiche les connecteurs et nom de l'objet
+                if (selectionChanged)
+                {
+                    // supprime les connecteurs
+                    foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
+                        MyCanvas.Children.Remove(c);
+
+                    // supprime les textes
+                    foreach (var c in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
+                        MyCanvas.Children.Remove(c);
+
+                    if (overElement != null)
+                    {
+                        // ajoute les nouveaux connecteurs
+                        Program.DevObject.mutexCheckObjectList.WaitOne();
+                        if (Program.DevObject.References.TryGetValue(overElement.Name, out var reference))
+                        {
+                            foreach (var pointer in reference.Pointers)
+                            {
+                                var dst = MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value.target);
+                                if (dst == null)
+                                    continue;
+
+                                var connector = new ConnectorElement(
+                                    (overElement as DrawElement),
+                                    dst
+                                );
+                                connector.RenderTransform = _transformGroup;
+                                MyCanvas.Children.Add(connector);
+
+                                var textBlock = new ConnectorTextElement(
+                                    connector,
+                                    pointer.Key
+                                );
+                                textBlock.RenderTransform = _transformGroup;
+                                Canvas.SetZIndex(textBlock, 1);
+                                Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
+                                Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
+                                MyCanvas.Children.Add(textBlock);
+                            }
+                        }
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+                }
+                else
+                {
+                    if (overElement != null && (isDragging || isResizing))
+                    {
+                        //actualise les connecteurs existants
+                        foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
+                        {
+                            c.UpdatePosition();
+                            c.InvalidateVisual();
+                        }
+                        //actualise les textes existants
+                        foreach (var textBlock in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
+                        {
+                            var connector = textBlock.Tag as ConnectorElement;
+                            Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
+                            Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
+                            textBlock.InvalidateVisual();
+                        }
+                    }
+                }
+            }
+
+            lastSelectedElement = selectedElement;
         }
 
         internal enum ResizeDirection { None, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight }
@@ -144,8 +252,7 @@ namespace DevApps.GUI
 
         internal void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            selectedElement = Mouse.DirectlyOver as DrawBase;
-
+            // détermine le prochain point à l'écran
             if (isPointing)
             {
                 if (e.ChangedButton == MouseButton.Right)
@@ -165,6 +272,13 @@ namespace DevApps.GUI
 
                 e.Handled = true;
                 return;
+            }
+
+            // Si CTRL est maintenu on conserve la sélection actuelle
+            // Aide au redimensionnement des objets à fond transparent
+            if (isSelectionMaintained == false)
+            {
+                selectedElement = Mouse.DirectlyOver as DrawElement;
             }
 
             // redimensionnement / déplacement
@@ -352,12 +466,13 @@ namespace DevApps.GUI
 
                 isPanning = true;
             }
+
+            DisplayInfos();
         }
 
         internal void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            //if (selectedElement == null) return;
-
+            // détermine le prochain point à l'écran
             if (isPointing)
             {
                 e.Handled = true;
@@ -371,92 +486,11 @@ namespace DevApps.GUI
                 return;
             }
 
-            var overElement = Mouse.DirectlyOver as DrawBase;
-            var text = overElement != null ? overElement.Name : "Ready";
-
-            if (overElement is DrawElement)
+            // Si CTRL est maintenu on conserve la sélection actuelle
+            // Aide au redimensionnement des objets à fond transparent
+            if (isSelectionMaintained == false)
             {
-                // Affiche le cadre de l'objet
-                double marge = 5.0;
-                borderOver.RenderTransform = _transformGroup;
-                borderOver.Visibility = Visibility.Visible;
-                Canvas.SetLeft(borderOver, Canvas.GetLeft(overElement) - marge);
-                Canvas.SetTop(borderOver, Canvas.GetTop(overElement) - marge);
-                borderOver.Width = overElement.Width + marge * 2;
-                borderOver.Height = overElement.Height + marge * 2;
-                Canvas.SetZIndex(borderOver, 1);
-
-                // Affiche les connecteurs et nom de l'objet
-                if (text != Service.GetStatusText())
-                {
-                    Service.SetStatusText(text);
-
-                    // supprime les connecteurs
-                    foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
-                        MyCanvas.Children.Remove(c);
-
-                    // supprime les textes
-                    foreach (var c in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
-                        MyCanvas.Children.Remove(c);
-
-                    if (overElement != null)
-                    {
-                        // ajoute les nouveaux connecteurs
-                        Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (Program.DevObject.References.TryGetValue(overElement.Name, out var reference))
-                        {
-                            foreach (var pointer in reference.Pointers)
-                            {
-                                var dst = MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value.target);
-                                if (dst == null)
-                                    continue;
-
-                                var connector = new ConnectorElement(
-                                    (overElement as DrawElement),
-                                    dst
-                                );
-                                connector.RenderTransform = _transformGroup;
-                                MyCanvas.Children.Add(connector);
-
-                                var textBlock = new ConnectorTextElement(
-                                    connector,
-                                    pointer.Key
-                                );
-                                textBlock.RenderTransform = _transformGroup;
-                                Canvas.SetZIndex(textBlock, 1);
-                                Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
-                                Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
-                                MyCanvas.Children.Add(textBlock);
-                            }
-                        }
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                    }
-                }
-                else
-                {
-                    if (overElement != null && (isDragging || isResizing))
-                    {
-                        //actualise les connecteurs existants
-                        foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
-                        {
-                            c.UpdatePosition();
-                            c.InvalidateVisual();
-                        }
-                        //actualise les textes existants
-                        foreach (var textBlock in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
-                        {
-                            var connector = textBlock.Tag as ConnectorElement;
-                            Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
-                            Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
-                            textBlock.InvalidateVisual();
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Cache le cadre de l'objet
-                borderOver.Visibility = Visibility.Hidden;
+                selectedElement = Mouse.DirectlyOver as DrawElement;
             }
 
             Point currentMousePosition = e.GetPosition(MyCanvas);
@@ -477,6 +511,8 @@ namespace DevApps.GUI
             {
                 UpdateCursor(currentMousePosition);
             }
+
+            DisplayInfos();
         }
 
 
@@ -487,10 +523,14 @@ namespace DevApps.GUI
                 StopCapturePositions(true);
                 return;
             }
-            if (command == KeyCommand.ShowDetails)
-            {
-                return;
-            }
+        }
+
+        public void OnKeyState(ModifierKeys modifier)
+        {
+            // Si CTRL est maintenu on conserve la sélection actuelle
+            // Aide au redimensionnement des objets à fond transparent
+            isSelectionMaintained = (modifier == ModifierKeys.Control);
+            InvalidateVisual();
         }
 
         internal void MoveRectangle(Point mousePosition)
@@ -604,7 +644,6 @@ namespace DevApps.GUI
 
         internal ResizeDirection GetResizeDirection(Point mousePosition)
         {
-            var selectedElement = Mouse.DirectlyOver as DrawElement;
             if (selectedElement == null)
                 return ResizeDirection.None;
 
