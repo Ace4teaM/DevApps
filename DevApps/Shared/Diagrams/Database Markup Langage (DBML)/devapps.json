@@ -1,0 +1,179 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "visual",
+      "Value": {
+        "Tags": [
+          "#dbml",
+          "#svg"
+        ],
+        "Description": "DBML to Svg (kroki.io)",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "data",
+            "Value": {
+              "target": "datamodel",
+              "tags": [
+                "#erd",
+                "#text"
+              ]
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import sys\r\nimport base64\r\nimport zlib\r\nfrom urllib.request import urlopen\r\n# prepare les données à être envoyé dans l'url\r\ncmp_data = zlib.compress(data.bytes(), 9)\r\nb64_data = base64.urlsafe_b64encode(cmp_data)\r\n# lie le contenu depuis kroki.io\r\nlink = 'https://kroki.io/dbml/svg/' + b64_data.decode('utf-8')\r\nf = urlopen(link).read()\r\nout.write_bytes(f)\r\n# supprime l'en-tete HTML\r\n#idx = f.index(b'<svg ')\r\n#str = f[idx:]\r\n#str = '<?xml version=\"1.0\" standalone=\"no\"?>\\n' + str.decode('utf-8')\r\n#out.write(str)",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "datamodel",
+      "Value": {
+        "Tags": [
+          "#dbml",
+          "#text"
+        ],
+        "Description": "DBML Data Model",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "gui.edit('code', out)",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out)"
+      }
+    },
+    {
+      "Key": "codegen",
+      "Value": {
+        "Tags": [
+          "#dbml",
+          "#cs",
+          "#codegen"
+        ],
+        "Description": "DBML to C#",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "input_data",
+            "Value": {
+              "target": "datamodel",
+              "tags": [
+                "#erd",
+                "#text"
+              ]
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "out.write(gui.select({'entities_to_cs_classes':'Entities UML > C# classes','entities_to_sql_tables':'Entities UML > SQL Tables','entities_to_cs_sql_model':'Entities UML > C# Database Model'},out))",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import re\r\n# Mapping DBML types -> C# types\r\nTYPE_MAP = {\r\n    'int': 'int',\r\n    'bigint': 'long',\r\n    'varchar': 'string',\r\n    'text': 'string',\r\n    'datetime': 'DateTime',\r\n    'boolean': 'bool',\r\n    'float': 'float',\r\n    'double': 'double',\r\n    'decimal': 'decimal'\r\n}\r\ndef parse_dbml(dbml_text):\r\n    tables = []\r\n    table_pattern = re.compile(r'Table\\s+(\\w+)\\s*{([^}]*)}', re.MULTILINE | re.DOTALL)\r\n    for table_match in table_pattern.finditer(dbml_text):\r\n        table_name = table_match.group(1)\r\n        table_body = table_match.group(2)\r\n        fields = []\r\n        for line in table_body.strip().splitlines():\r\n            line = line.strip()\r\n            if not line or line.startswith('//'):\r\n                continue\r\n            parts = line.split()\r\n            field_name = parts[0]\r\n            field_type = parts[1]\r\n            fields.append((field_name, field_type))\r\n        tables.append((table_name, fields))\r\n    return tables\r\ndef generate_csharp_class(table_name, fields):\r\n    lines = []\r\n    class_name = table_name[0].upper() + table_name[1:]\r\n    lines.append(f\"public class {class_name}\")\r\n    lines.append(\"{\")\r\n    for field_name, dbml_type in fields:\r\n        csharp_type = TYPE_MAP.get(dbml_type, \"object\")\r\n        prop_name = field_name[0].upper() + field_name[1:]\r\n        lines.append(f\"    public {csharp_type} {prop_name} {{ get; set; }}\")\r\n    lines.append(\"}\")\r\n    return '\\n'.join(lines)\r\ndef dbml_to_csharp(dbml_text):\r\n    tables = parse_dbml(dbml_text)\r\n    return '\\n\\n'.join(generate_csharp_class(name, fields) for name, fields in tables)\r\n    print(\"hello\")\r\n# Exemple d'utilisation\r\ndbml_text = input_data.text()\r\n# Générer le code C# à partir du contenu DBML\r\ncsharp_code = dbml_to_csharp(dbml_text)\r\nout.write(csharp_code)",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out)"
+      }
+    },
+    {
+      "Key": "codegenSQL",
+      "Value": {
+        "Tags": [
+          "#codegen",
+          "#sql",
+          "#dbml"
+        ],
+        "Description": "DBML to SQL",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "IN",
+            "Value": {
+              "target": "datamodel",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import re\r\ndef parse_dbml(dbml_text):\r\n    tables = []\r\n    current_table = None\r\n    lines = dbml_text.splitlines()\r\n    for line in lines:\r\n        line = line.strip()\r\n        if line.startswith(\"Table \"):\r\n            table_name = re.findall(r'Table\\s+(\\w+)', line)\r\n            if table_name:\r\n                current_table = {\"name\": table_name[0], \"columns\": [], \"constraints\": []}\r\n                tables.append(current_table)\r\n        elif line.startswith(\")\"):\r\n            current_table = None\r\n        elif current_table and line and not line.startswith(\"//\"):\r\n            col_match = re.match(r'(\\w+)\\s+(\\w+)(.*)', line)\r\n            if col_match:\r\n                col_name, col_type, rest = col_match.groups()\r\n                col_sql = f\"{col_name} {map_type(col_type)}\"\r\n                if 'not null' in rest:\r\n                    col_sql += \" NOT NULL\"\r\n                if 'pk' in rest:\r\n                    current_table['constraints'].append(f\"PRIMARY KEY ({col_name})\")\r\n                if 'default:' in rest:\r\n                    default_val = re.search(r'default:\\s*(\\S+)', rest)\r\n                    if default_val:\r\n                        col_sql += f\" DEFAULT {default_val.group(1)}\"\r\n                current_table['columns'].append(col_sql)\r\n    return tables\r\ndef map_type(dbml_type):\r\n    type_map = {\r\n        \"int\": \"INT\",\r\n        \"varchar\": \"VARCHAR(255)\",\r\n        \"text\": \"TEXT\",\r\n        \"bool\": \"BIT\",\r\n        \"datetime\": \"DATETIME\",\r\n        \"uuid\": \"UNIQUEIDENTIFIER\"\r\n        # Ajoute d'autres types selon tes besoins\r\n    }\r\n    return type_map.get(dbml_type.lower(), dbml_type.upper())\r\ndef generate_sql(tables):\r\n    sql_output = \"\"\r\n    for table in tables:\r\n        sql_output += f\"CREATE TABLE [{table['name']}](\\n\"\r\n        sql_output += \",\\n\".join(f\"    {col}\" for col in table['columns'])\r\n        if table['constraints']:\r\n            sql_output += \",\\n    \" + \",\\n    \".join(table['constraints'])\r\n        sql_output += \"\\n);\\n\\n\"\r\n    return sql_output\r\ndef convert_dbml_to_sql(dbml_text):\r\n    tables = parse_dbml(dbml_text)\r\n    return generate_sql(tables)\r\ndbml_input = IN.text()\r\nsql_output = convert_dbml_to_sql(dbml_input)\r\nprint(sql_output)\r\nout.write(sql_output)",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out)"
+      }
+    },
+    {
+      "Key": "test",
+      "Value": {
+        "Tags": [],
+        "Description": "",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "def dbml_to_csharp(dbml_text):\r\n    print(\"hello\")\r\nprint('test')",
+        "ObjectCode": "",
+        "DrawCode": ""
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "DBML",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "codegen",
+            "Value": {
+              "zone": "25.24699999999993,72.88799999999995,261.5760000000001,245.6040000000001",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "datamodel",
+            "Value": {
+              "zone": "504.4,23.30000000000001,275.86699999999996,270.8930000000001",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "visual",
+            "Value": {
+              "zone": "831.9,17.799999999999955,370.5160000000002,273.43400000000014",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "codegenSQL",
+            "Value": {
+              "zone": "222.86584100000016,380.9338459999992,262.6615099999999,209.51467999999988",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}
