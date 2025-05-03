@@ -180,7 +180,7 @@ namespace DevApps.PythonExtends
         /// Détermine la taille des textes pour conserver une harmonie entre les différents objets
         /// </summary>
         internal double TextEmSize = 16.0;
-        internal virtual void csv(GUI gui, Output content, bool header)
+        internal virtual void csv(GUI gui, Output content, bool header, string? delimiter)
         {
             try
             {
@@ -194,10 +194,12 @@ namespace DevApps.PythonExtends
                     Debug.WriteLine($"Bad Row '; CSV ERROR: {re.Exception}");
                     return false; // <-- tells process to continue
                 };
-                config.DetectDelimiter = true;
+                config.DetectDelimiter = delimiter == null;
                 config.BadDataFound = null;
                 config.IgnoreBlankLines = true;
                 config.TrimOptions = TrimOptions.Trim;
+                if(String.IsNullOrEmpty(delimiter) == false)
+                    config.Delimiter = delimiter;
 
                 using (var csv = new CsvReader(new StreamReader(content.Stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true), config))
                 {
@@ -931,9 +933,9 @@ namespace DevApps.PythonExtends
             this.gradient = gradient;
             return this;
         }
-        public GUI csv(Output output, bool header)
+        public GUI csv(Output output, bool header, string? delimiter = null)
         {
-            filling.csv(this, output, header);
+            filling.csv(this, output, header, delimiter);
             return this;
         }
         public GUI svg(Output output)

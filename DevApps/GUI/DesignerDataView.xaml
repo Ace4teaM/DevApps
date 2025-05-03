@@ -38,6 +38,9 @@
                         <MenuItem></MenuItem>
                     </MenuItem>
                     <Separator></Separator>
+                    <MenuItem Header="Appliquer la valeur initiale" Click="MenuItem_Click_InitialOutputObject"></MenuItem>
+                    <MenuItem Header="Restaurer la valeur initiale" Click="MenuItem_Click_RestoreInitialOutputObject"></MenuItem>
+                    <Separator></Separator>
                     <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteObject"></MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>

@@ -4,14 +4,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using static IronPython.Modules._ast;
 using static Program;
 using static Program.DevFacet;
 
@@ -330,83 +328,6 @@ namespace DevApps.GUI
                  menu.Items.Add(new MenuItem { Header = "Envoyer en avant" });
                  menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });*/
 
-                if (selectedElement is DrawElement)
-                {
-                    isSelectionMaintained = true;
-                    menu.Closed += Menu_Closed;
-
-                    Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
-                    {
-                        var m = new MenuItem { Header = "Associer à..." };
-
-                        // recherche les objets ayant un pointeur sur un élément avec des tags identiques
-                        var mExists = new MenuItem { Header = "Existant" };
-                        m.Items.Add(mExists);
-
-                        int count = 0;
-                        foreach (var obj in DevObject.References.Values)
-                        {
-                            if (obj != src)
-                            {
-                                foreach(var ptr in obj.Pointers)
-                                {
-                                    if (ptr.Value.tags.Count > 0 && src.Tags.ContainsAll(ptr.Value.tags))
-                                    {
-                                        var submenu = new MenuItem { Header = String.IsNullOrEmpty(ptr.Value.target) == false ? obj.Description + " -> " + ptr.Key + " (Remplacera: " + ptr.Value.target + ")" : obj.Description + " -> " + ptr.Key };
-                                        submenu.Click += (s, e) =>
-                                        {
-                                            ptr.Value.target = selectedElement.Name;
-                                        };
-                                        mExists.Items.Add(submenu);
-                                        count++;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (count == 0)
-                        {
-                            mExists.IsEnabled = false;
-                            mExists.Header = mExists.Header.ToString() + " (Aucun)";
-                        }
-
-                        m.Items.Add(new Separator());
-
-                        // Nouveaux
-                        var mNew = new MenuItem { Header = "Nouveau" };
-                        m.Items.Add(mNew);
-
-                        count = 0;
-                        var list = new List<Serializer.DevObjectInstance>();
-                        if (SharedServices.EnumerateObjects(p => p.Pointers.Count(pp=>src.Tags.ContainsAll(pp.Value.tags)) > 0/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
-                        {
-                            foreach (var obj in list)
-                            {
-                                var item = new MenuItem();
-                                item.Header = "   " + obj.Description;
-                                item.Tag = obj;
-                                item.Click += MenuItem_AddObject_Click;
-                                mNew.Items.Add(item);
-                                count++;
-                            }
-                        }
-
-                        if (count == 0)
-                        {
-                            mNew.IsEnabled = false;
-                            mNew.Header = mNew.Header.ToString() + " (Aucun)";
-                        }
-
-                        m.IsEnabled = m.Items.Count > 0;
-                        menu.Items.Add(m);
-                    }
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                }
-
-                menu.Items.Add(new Separator());
-
                 {
                     var m = new MenuItem { Header = "Construire (Build)" };
                     m.Click += (s, e) =>
@@ -497,6 +418,87 @@ namespace DevApps.GUI
                         }
                     };
                     menu.Items.Add(m);
+                }
+
+                menu.Items.Add(new Separator());
+
+                if (selectedElement is DrawElement)
+                {
+                    isSelectionMaintained = true;
+                    menu.Closed += Menu_Closed;
+
+                    Program.DevObject.mutexCheckObjectList.WaitOne();
+                    if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
+                    {
+                        foreach (var ptr in src.Pointers)
+                        {
+                            var m = new MenuItem();
+                            m.Header = ptr.Key + " -> " + ptr.Value.target;
+                            m.Tag = ptr;
+
+                            // recherche les objets ayant un pointeur sur un élément avec des tags identiques
+                            var mExists = new MenuItem { Header = "Existant" };
+                            m.Items.Add(mExists);
+
+                            int count = 0;
+                            foreach (var dict in DevObject.References)
+                            {
+                                var key = dict.Key;
+                                var obj = dict.Value;
+                                if (obj != src)
+                                {
+                                    if (ptr.Value.tags.Count > 0 && obj.Tags.ContainsAll(ptr.Value.tags))
+                                    {
+                                        var submenu = new MenuItem { Header = String.IsNullOrEmpty(ptr.Value.target) == false ? obj.Description + " (Remplacera: " + ptr.Value.target + ")" : obj.Description };
+                                        submenu.Click += (s, e) =>
+                                        {
+                                            ptr.Value.target = key;
+                                        };
+                                        mExists.Items.Add(submenu);
+                                        count++;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (count == 0)
+                            {
+                                mExists.IsEnabled = false;
+                                mExists.Header = mExists.Header.ToString() + " (Aucun)";
+                            }
+
+                            m.Items.Add(new Separator());
+
+                            // Nouveaux
+                            var mNew = new MenuItem { Header = "Nouveau" };
+                            m.Items.Add(mNew);
+
+                            count = 0;
+                            var list = new List<Serializer.DevObjectInstance>();
+                            if (SharedServices.EnumerateObjects(p => p.Tags.ContainsAll(ptr.Value.tags)/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
+                            {
+                                foreach (var obj in list)
+                                {
+                                    var item = new MenuItem();
+                                    item.Header = "   " + obj.Description;
+                                    item.Tag = obj;
+                                    item.Click += MenuItem_AddObject_Click;
+                                    mNew.Items.Add(item);
+                                    count++;
+                                }
+                            }
+
+                            if (count == 0)
+                            {
+                                mNew.IsEnabled = false;
+                                mNew.Header = mNew.Header.ToString() + " (Aucun)";
+                            }
+
+                            m.IsEnabled = m.Items.Count > 0;
+                            menu.Items.Add(m);
+                        }
+                    }
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                 }
 
                 menu.Placement = PlacementMode.Mouse;
@@ -1257,9 +1259,12 @@ namespace DevApps.GUI
                 // importe les données
                 try
                 {
-                    if (File.Exists(obj.dataPath) == true)
+                    if (String.IsNullOrEmpty(obj.content.InitialDataBase64) == false)
                     {
-                        obj.content.LoadOutput(obj.dataPath);
+                        var data = Convert.FromBase64String(obj.content.InitialDataBase64);
+                        obj.content.buildStream.Seek(0, SeekOrigin.Begin);
+                        obj.content.buildStream.Write(data);
+                        obj.content.buildStream.SetLength(data.Length);
                     }
                 }
                 catch (Exception ex2)

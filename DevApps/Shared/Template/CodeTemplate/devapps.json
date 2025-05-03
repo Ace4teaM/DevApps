@@ -6,7 +6,8 @@
       "Value": {
         "Tags": [],
         "Description": "Template",
-        "Editor": null,
+        "InitialDataBase64": "DQpuYW1lc3BhY2UgJHtuYW1lc3BhY2V9DQp7DQogICAgJHtjbGFzc19kZWZ9DQp9DQoke2Zvb3Rlcn0NCg==",
+        "Editor": "text",
         "Pointers": [],
         "Functions": [],
         "Properties": [],
@@ -23,6 +24,7 @@
       "Value": {
         "Tags": [],
         "Description": "Template Data",
+        "InitialDataBase64": "ew0KDQoibmFtZXNwYWNlIjoiUHJvZ3JhbSIsIA0KImNsYXNzX2RlZiI6ImNsYXNzIEhlbGxvV29ybGQgeyB9IiwgDQoiZm9vdGVyIjoiLy8gZW5kbyBvZiBjb2RlIg0KDQp9DQoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
         "Editor": null,
         "Pointers": [],
         "Functions": [],
@@ -40,7 +42,8 @@
       "Value": {
         "Tags": [],
         "Description": "Template to C#",
-        "Editor": null,
+        "InitialDataBase64": "",
+        "Editor": "text",
         "Pointers": [
           {
             "Key": "template",

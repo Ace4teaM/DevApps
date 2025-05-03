@@ -150,10 +150,12 @@ namespace DevApps.GUI
                                 // importe les données
                                 try
                                 {
-                                    o.Value.dataPath = Path.Combine(dir, Program.DataDir, o.Key);
-                                    if (File.Exists(o.Value.dataPath) == true)
+                                    if (String.IsNullOrEmpty(o.Value.InitialDataBase64) == false)
                                     {
-                                        o.Value.content.LoadOutput(o.Value.dataPath);
+                                        var data = Convert.FromBase64String(o.Value.InitialDataBase64);
+                                        o.Value.content.buildStream.Seek(0, SeekOrigin.Begin);
+                                        o.Value.content.buildStream.Write(data);
+                                        o.Value.content.buildStream.SetLength(data.Length);
                                     }
                                 }
                                 catch (Exception ex2)

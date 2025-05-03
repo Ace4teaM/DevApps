@@ -1,0 +1,128 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "fieldstypes",
+      "Value": {
+        "Tags": [
+          "#csv",
+          "#text",
+          "#fieldlist"
+        ],
+        "Description": "Fields Definition",
+        "InitialDataBase64": "VHlwZQlSZWdFeA0Kc3RyaW5nCVteIiJcblxyXSoNCnVyaVNjaGVtZQlbQS1aYS16XXsxfVtBLVphLXowLTkrXC5cLV0qDQp1cmlQb3J0CVswLTldKw0KdXJpRG9tYWluCVtBLVphLXpdezF9W0EtWmEtejAtOV9cLjpcLV0qDQp1cmlQYXRoCVtBLVphLXowLTlfXC4rJVwtXSoNCnVyaVF1ZXJ5CVtBLVphLXowLTlfXC4mPSs7JVwtXChcKVw6XC9dKg0KdXJpRnJhZ21lbnQJW0EtWmEtejAtOV8rJVwtXSoNCnBhc3N3b3JkCVthLXpBLVowLTlfXC1cQFwjXCZcK1x+XSsNCm51bWVyaWMJKFwtPyg/OjB8WzEtOV17MX1bMC05XSopKXwoXC0/WzAtOV0rKD86W1wuXCxdWzAtOV0qKT8pDQppcHY0CSg/OjB8MVswLTldezAsMn18MlswLTRdWzAtOV18MjVbMC01XSlcLig/OjB8MVswLTldezAsMn18MlswLTRdWzAtOV18MjVbMC01XSlcLig/OjB8MVswLTldezAsMn18MlswLTRdWzAtOV18MjVbMC01XSlcLig/OjB8MVswLTldezAsMn18MlswLTRdWzAtOV18MjVbMC01XSkNCmludGVnZXIJXC0/KD86MHxbMS05XXsxfVswLTldKikNCmlkCVthLXpBLVpfXXsxfVthLXpBLVowLTlfXSoNCnJlYWwJXC0/WzAtOV0rKD86W1wuXCxdWzAtOV0qKT8NCmZhY3RvcgkoPzowfDEpKD86XFwuWzAtOV0rKT8NCmJvb2wJb258b2ZmfDB8MXx5ZXN8bm98dHJ1ZXxmYWxzZQ0KZGF0ZVNlcAlbXC1cL1xcXHNdDQp0aW1lU2VwCVtcOlxzXQ0KZGF0ZURNWUhNUwkoPzooWzAtOV17MSwyfSlbXC1cL1xcXHNdKFswLTldezEsMn0pW1wtXC9cXFxzXShbMC05XSspXHMqKFswLTJdezF9WzAtOV17MX0pW1w6XHNdKFswLTZdezF9WzAtOV17MX0pW1w6XHNdKFswLTZdezF9WzAtOV17MX0pKQ==",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.csv(out,True,'\\t')"
+      }
+    },
+    {
+      "Key": "FieldFormatTemplate",
+      "Value": {
+        "Tags": [
+          "#cs",
+          "#template"
+        ],
+        "Description": "Fields Template (C#)",
+        "InitialDataBase64": "DQoNCiAgICBwdWJsaWMgc3RhdGljIGNsYXNzIEZvcm1hdDxOT00+DQogICAgew0KICAgICAgICBwcml2YXRlIHN0YXRpYyByZWFkb25seSBSZWdleCBleHAgPSBuZXcgUmVnZXgoIjxSRUdFWD4iKTsNCg0KICAgICAgICBwdWJsaWMgc3RhdGljIGJvb2wgSXNNYXRjaChvYmplY3QgdmFsdWUpDQogICAgICAgIHsNCiAgICAgICAgICAgIHJldHVybiBleHAuSXNNYXRjaCh2YWx1ZS5Ub1N0cmluZygpKTsNCiAgICAgICAgfQ0KICAgIH0NCg0K",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out)"
+      }
+    },
+    {
+      "Key": "FieldClassCS",
+      "Value": {
+        "Tags": [
+          "#cs",
+          "#codegen",
+          "#script"
+        ],
+        "Description": "Fields to C#",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "IN",
+            "Value": {
+              "target": "FieldFormatTemplate",
+              "tags": [
+                "#template"
+              ]
+            }
+          },
+          {
+            "Key": "FIELDS",
+            "Value": {
+              "target": "fieldstypes",
+              "tags": [
+                "#csv",
+                "#text",
+                "#fieldlist"
+              ]
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import csv\r\nimport io\r\nflux = io.StringIO(FIELDS.text())\r\nlecteur = csv.DictReader(flux, delimiter='\\t', quotechar='\"')\r\nout.write('using System.Text.RegularExpressions;\\n')\r\nfor ligne in lecteur:\r\n   print(ligne)\r\n   out.append(IN.text().replace(\"<NOM>\", ligne['Type'].capitalize()).replace(\"<REGEX>\", ligne['RegEx']))",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out)"
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "CodeGen",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "fieldstypes",
+            "Value": {
+              "zone": "851.7067757926236,17.801374693419902,1444.6522100000004,504.41205100000013",
+              "background": null,
+              "titlePos": "None"
+            }
+          },
+          {
+            "Key": "FieldFormatTemplate",
+            "Value": {
+              "zone": "-1492.2715486638535,74.48043755808598,100,100",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "FieldClassCS",
+            "Value": {
+              "zone": "-666.1392554302372,-275.31167061100007,1266.0239575408273,1732.9631834745398",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}

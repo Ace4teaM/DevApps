@@ -9,6 +9,7 @@
           "#svg"
         ],
         "Description": "DBML to Svg (kroki.io)",
+        "InitialDataBase64": "",
         "Editor": "text",
         "Pointers": [
           {
@@ -40,6 +41,7 @@
           "#text"
         ],
         "Description": "DBML Data Model",
+        "InitialDataBase64": "VGFibGUgdXNlcnMgew0KICBpZCBpbnRlZ2VyDQogIHVzZXJuYW1lIHZhcmNoYXINCiAgcm9sZSB2YXJjaGFyDQogIGNyZWF0ZWRfYXQgdGltZXN0YW1wDQp9DQoNClRhYmxlIHBvc3RzIHsNCiAgaWQgaW50ZWdlciBbcHJpbWFyeSBrZXldDQogIHRpdGxlIHZhcmNoYXINCiAgYm9keSB0ZXh0IFtub3RlOiAnQ29udGVudCBvZiB0aGUgcG9zdCddDQogIHVzZXJfaWQgaW50ZWdlcg0KICBzdGF0dXMgcG9zdF9zdGF0dXMNCiAgY3JlYXRlZF9hdCB0aW1lc3RhbXANCn0NCg0KRW51bSBwb3N0X3N0YXR1cyB7DQogIGRyYWZ0DQogIHB1Ymxpc2hlZA0KICBwcml2YXRlIFtub3RlOiAndmlzaWJsZSB2aWEgVVJMIG9ubHknXQ0KfQ0KDQpSZWY6IHBvc3RzLnVzZXJfaWQgPiB1c2Vycy5pZCAvLyBtYW55LXRvLW9uZQ==",
         "Editor": "text",
         "Pointers": [],
         "Functions": [],
@@ -61,6 +63,7 @@
           "#codegen"
         ],
         "Description": "DBML to C#",
+        "InitialDataBase64": "",
         "Editor": "text",
         "Pointers": [
           {
@@ -93,6 +96,7 @@
           "#dbml"
         ],
         "Description": "DBML to SQL",
+        "InitialDataBase64": "",
         "Editor": "text",
         "Pointers": [
           {
@@ -111,23 +115,6 @@
         "BuildMethod": "import re\r\ndef parse_dbml(dbml_text):\r\n    tables = []\r\n    current_table = None\r\n    lines = dbml_text.splitlines()\r\n    for line in lines:\r\n        line = line.strip()\r\n        if line.startswith(\"Table \"):\r\n            table_name = re.findall(r'Table\\s+(\\w+)', line)\r\n            if table_name:\r\n                current_table = {\"name\": table_name[0], \"columns\": [], \"constraints\": []}\r\n                tables.append(current_table)\r\n        elif line.startswith(\")\"):\r\n            current_table = None\r\n        elif current_table and line and not line.startswith(\"//\"):\r\n            col_match = re.match(r'(\\w+)\\s+(\\w+)(.*)', line)\r\n            if col_match:\r\n                col_name, col_type, rest = col_match.groups()\r\n                col_sql = f\"{col_name} {map_type(col_type)}\"\r\n                if 'not null' in rest:\r\n                    col_sql += \" NOT NULL\"\r\n                if 'pk' in rest:\r\n                    current_table['constraints'].append(f\"PRIMARY KEY ({col_name})\")\r\n                if 'default:' in rest:\r\n                    default_val = re.search(r'default:\\s*(\\S+)', rest)\r\n                    if default_val:\r\n                        col_sql += f\" DEFAULT {default_val.group(1)}\"\r\n                current_table['columns'].append(col_sql)\r\n    return tables\r\ndef map_type(dbml_type):\r\n    type_map = {\r\n        \"int\": \"INT\",\r\n        \"varchar\": \"VARCHAR(255)\",\r\n        \"text\": \"TEXT\",\r\n        \"bool\": \"BIT\",\r\n        \"datetime\": \"DATETIME\",\r\n        \"uuid\": \"UNIQUEIDENTIFIER\"\r\n        # Ajoute d'autres types selon tes besoins\r\n    }\r\n    return type_map.get(dbml_type.lower(), dbml_type.upper())\r\ndef generate_sql(tables):\r\n    sql_output = \"\"\r\n    for table in tables:\r\n        sql_output += f\"CREATE TABLE [{table['name']}](\\n\"\r\n        sql_output += \",\\n\".join(f\"    {col}\" for col in table['columns'])\r\n        if table['constraints']:\r\n            sql_output += \",\\n    \" + \",\\n    \".join(table['constraints'])\r\n        sql_output += \"\\n);\\n\\n\"\r\n    return sql_output\r\ndef convert_dbml_to_sql(dbml_text):\r\n    tables = parse_dbml(dbml_text)\r\n    return generate_sql(tables)\r\ndbml_input = IN.text()\r\nsql_output = convert_dbml_to_sql(dbml_input)\r\nprint(sql_output)\r\nout.write(sql_output)",
         "ObjectCode": "",
         "DrawCode": "gui.text(out)"
-      }
-    },
-    {
-      "Key": "test",
-      "Value": {
-        "Tags": [],
-        "Description": "",
-        "Editor": null,
-        "Pointers": [],
-        "Functions": [],
-        "Properties": [],
-        "UserAction": "",
-        "LoopMethod": "",
-        "InitMethod": "",
-        "BuildMethod": "def dbml_to_csharp(dbml_text):\r\n    print(\"hello\")\r\nprint('test')",
-        "ObjectCode": "",
-        "DrawCode": ""
       }
     }
   ],
