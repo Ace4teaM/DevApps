@@ -32,9 +32,6 @@ namespace Serializer
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevObjectInstance content;
 
-        [Newtonsoft.Json.JsonIgnore]
-        internal string dataPath;
-
         public DevObjectInstance()
         {
             this.content = new Program.DevObjectInstance();
@@ -63,9 +60,6 @@ namespace Serializer
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevObjectReference content;
-
-        [Newtonsoft.Json.JsonIgnore]
-        internal string dataPath;
 
         public DevObjectReference()
         {

@@ -1,4 +1,5 @@
-﻿using IronPython.Runtime;
+﻿using ComponentAce.Compression.Libs.ZLib;
+using IronPython.Runtime;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -38,6 +39,15 @@ namespace DevApps.PythonExtends
             stream.Seek(0, SeekOrigin.Begin);
             stream.Write(bytes);
             stream.SetLength(bytes.Length);
+        }
+        public void append(string text)
+        {
+            var bytes = Encoding.UTF8.GetBytes(text);
+            var length = stream.Length;
+            stream.Seek(0, SeekOrigin.End);
+            stream.Write(bytes);
+            cachedText = null;
+            stream.SetLength(length + bytes.Length);
         }
         public void write_bytes(IronPython.Runtime.Bytes _bytes)
         {

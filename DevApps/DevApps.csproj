@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Shared\*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="DevApps.ico" />
   </ItemGroup>
 
@@ -27,11 +31,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Samples\CodeTemplate\" />
-    <Folder Include="Samples\UI\" />
-    <Folder Include="Shared\Commons\Markdown\" />
-    <Folder Include="Shared\Commons\Tips\" />
-    <Folder Include="Shared\Diagrams\Entities Relational Diagram %28ERD%29\" />
+    <Folder Include="Samples\" />
+    <Folder Include="Shared\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,6 +43,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Shared\Template\CodeTemplate\devapps.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Shared\Template\FromRepos\devapps.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Shared\Validations\Input Check\devapps.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

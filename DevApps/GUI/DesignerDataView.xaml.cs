@@ -1,4 +1,5 @@
 ﻿using ICSharpCode.AvalonEdit.Editing;
+using IronPython.Runtime;
 using Microsoft.Scripting.Utils;
 using Serializer;
 using System.Collections.ObjectModel;
@@ -752,6 +753,43 @@ namespace DevApps.GUI
                     item.IsPointed = false;
                     item.IsPointer = false;
                 }
+            }
+        }
+
+        private void MenuItem_Click_InitialOutputObject(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Appliquer la valeur actuelle en tant que valeur initiale de l'objet ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                Program.DevObject.mutexCheckObjectList.WaitOne();
+                var selectedItem = dataGrid.SelectedItem as TabItem;
+                if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
+                {
+                    if (selectedObject.buildStream.Length == 0 && MessageBox.Show("L'objet ne contient pas de données, voulez vous tout de même continuer ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                        return;
+
+                    selectedObject.InitialDataBase64 = Convert.ToBase64String(selectedObject.buildStream.ToArray());
+                }
+                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+            }
+        }
+
+        private void MenuItem_Click_RestoreInitialOutputObject(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Restaurer l'état initial de l'objet ?", "Restaurer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                Program.DevObject.mutexCheckObjectList.WaitOne();
+                var selectedItem = dataGrid.SelectedItem as TabItem;
+                if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
+                {
+                    if (selectedObject.InitialDataBase64.Length == 0 && MessageBox.Show("Les données initiales sont vide, voulez vous tout de même continuer ?", "Restaurer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                        return;
+
+                    var bytes = Convert.FromBase64String(selectedObject.InitialDataBase64);
+                    selectedObject.buildStream.Seek(0, SeekOrigin.Begin);
+                    selectedObject.buildStream.Write(bytes);
+                    selectedObject.buildStream.SetLength(bytes.Length);
+                }
+                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
             }
         }
     }

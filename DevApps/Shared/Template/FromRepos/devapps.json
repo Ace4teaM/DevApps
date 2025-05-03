@@ -1,0 +1,84 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "DataModel",
+      "Value": {
+        "Tags": [
+          "#cs",
+          "#script"
+        ],
+        "Description": "Dêpot archive",
+        "InitialDataBase64": "",
+        "Editor": "archive",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "from urllib.request import urlopen\r\n# Dêpot GitHub\r\nlink = 'https://codeload.github.com/Ace4teaM/datamodel/zip/refs/heads/main'\r\nf = urlopen(link).read()\r\nout.write_bytes(f)",
+        "ObjectCode": "",
+        "DrawCode": ""
+      }
+    },
+    {
+      "Key": "TableTemplate",
+      "Value": {
+        "Tags": [
+          "#cs",
+          "#template"
+        ],
+        "Description": "Contenu extrait le l'archive du dêpot",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "IN",
+            "Value": {
+              "target": "DataModel",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import io\r\nimport zlib\r\nimport struct\r\ndef extract_file_from_zip_stream(zip_bytes, filename_to_extract):\r\n    stream = io.BytesIO(zip_bytes)\r\n    while True:\r\n        header = stream.read(4)\r\n        print('len(header)')\r\n        if len(header) < 4:\r\n            break\r\n        # Signature d'en-tête locale de fichier ZIP\r\n        print(header)\r\n        if header != b'PK\\x03\\x04':\r\n            break\r\n        # Lire l'en-tête locale : 26 octets suivants\r\n        local_file_header = stream.read(26)\r\n        (\r\n            version, flag, compression, mod_time, mod_date,\r\n            crc32, compressed_size, uncompressed_size,\r\n            filename_len, extra_len\r\n        ) = struct.unpack('<HHHHHIIIHH', local_file_header)\r\n        filename = stream.read(filename_len).decode('utf-8')\r\n        stream.read(extra_len)  # ignorer les champs supplémentaires\r\n        # Lire les données compressées\r\n        compressed_data = stream.read(compressed_size)\r\n        print(filename)\r\n        if filename == filename_to_extract:\r\n            # Décompression via zlib (compression DEFLATE = méthode 8)\r\n            if compression == 8:\r\n                decompressed_data = zlib.decompress(compressed_data, -15)  # -15 = raw DEFLATE\r\n                print(f\"Contenu de {filename_to_extract} :\\n\")\r\n                out.write_bytes(decompressed_data)\r\n                return decompressed_data\r\n            else:\r\n                print(f\"Compression {compression} non prise en charge\")\r\n    print(f\"Fichier {filename_to_extract} non trouvé dans l'archive\")\r\nextract_file_from_zip_stream(IN.bytes(), \"datamodel-main/Model/BDD/Tables/ALERTES.cs\")",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out)"
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "Fields",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "TableTemplate",
+            "Value": {
+              "zone": "592.2563483,0.2564145000000053,100,100",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "DataModel",
+            "Value": {
+              "zone": "234.7692766,13.89743420000002,100,100",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}

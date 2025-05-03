@@ -9,6 +9,7 @@
           "#svg"
         ],
         "Description": "ERD to Svg (kroki.io)",
+        "InitialDataBase64": "",
         "Editor": null,
         "Pointers": [
           {
@@ -40,6 +41,7 @@
           "#text"
         ],
         "Description": "ERD Data Model",
+        "InitialDataBase64": "W1RFU1RdDQp1bg0KZGV1eA0KDQpbQ29tbWFuZGVdDQoqbnVtZXJvDQoqZGF0ZQ0KDQpbQ2xpZW50XQ0KKm51bWVybw0KKm5vbQ0KKnByZW5vbQ0KKmFkcmVzc2UNCip2aWxsZQ0KKmNvZGVfcG9zdGFsDQoqdGVsZXBob25lDQoqZW1haWwNCg0KW1Byb2R1aXRdDQoqbnVtZXJvDQoqbm9tDQoqZGVzY3JpcHRpb24NCipwcml4DQoqcXVhbnRpdGUNCg0KW0RldGFpbENvbW1hbmRlXQ0KKm51bWVybw0KKnF1YW50aXRlDQoqcHJpeA0KKnRvdGFsDQoqY29tbWFuZGUNCipwcm9kdWl0DQoNCkNvbW1hbmRlIDEtLTEgRGV0YWlsQ29tbWFuZGUNCkNvbW1hbmRlICotLTEgQ2xpZW50DQpDb21tYW5kZSAqLS0qIFByb2R1aXQNCg==",
         "Editor": null,
         "Pointers": [],
         "Functions": [],
@@ -61,6 +63,7 @@
           "#codegen"
         ],
         "Description": "ERD to C#",
+        "InitialDataBase64": "",
         "Editor": null,
         "Pointers": [
           {

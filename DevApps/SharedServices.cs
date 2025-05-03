@@ -34,8 +34,6 @@ namespace DevApps
 
                         foreach (var o in proj.Objects)
                         {
-                            o.Value.dataPath = Path.Combine(dir, Program.DataDir, o.Key);
-
                             foreach (var ptr in o.Value.Pointers)
                                 ptr.Value.target = String.Empty;
 
