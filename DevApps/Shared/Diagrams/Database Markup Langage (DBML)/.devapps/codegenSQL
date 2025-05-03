@@ -1,0 +1,17 @@
+CREATE TABLE [users](
+    id INTEGER,
+    username VARCHAR(255),
+    role VARCHAR(255),
+    created_at TIMESTAMP
+);
+
+CREATE TABLE [posts](
+    id INTEGER,
+    title VARCHAR(255),
+    body TEXT,
+    user_id INTEGER,
+    status POST_STATUS,
+    created_at TIMESTAMP,
+    Enum POST_STATUS
+);
+
