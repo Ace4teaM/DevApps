@@ -380,7 +380,7 @@ namespace DevApps.GUI
 
                         count = 0;
                         var list = new List<Serializer.DevObjectInstance>();
-                        if (SharedServices.EnumerateObjects(p => p.Pointers.Count(pp=>src.Tags.ContainsAll(pp.Value.tags)) > 0/*si compatible avec l'objet*/, Program.CommonDataPath, ref list) > 0)
+                        if (SharedServices.EnumerateObjects(p => p.Pointers.Count(pp=>src.Tags.ContainsAll(pp.Value.tags)) > 0/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
                         {
                             foreach (var obj in list)
                             {
@@ -453,7 +453,7 @@ namespace DevApps.GUI
 
                             serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
 
-                            reference.SaveOutput(selectedElement?.Name, Program.CommonDataPath);
+                            reference.SaveOutput(selectedElement?.Name, Program.CommonSharedPath);
 
                             reference.mutexReadOutput.ReleaseMutex();
                         }
@@ -1214,7 +1214,7 @@ namespace DevApps.GUI
         private void MenuItem_Objects_ContextMenuOpening(object sender, RoutedEventArgs e)
         {
             var list = new List<Serializer.DevObjectInstance>();
-            if (SharedServices.EnumerateObjects(p => true, Program.CommonDataPath, ref list) > 0)
+            if (SharedServices.EnumerateObjects(p => true, Program.CommonSharedPath, ref list) > 0)
             {
                 var menuItem = sender as MenuItem;
                 if (menuItem != null)

@@ -197,7 +197,7 @@ namespace DevApps.GUI
                 // liste les objets partagés
                 ContextMenu menu = new ContextMenu();
                 var m = new MenuItem { Header = "Shared models" };
-                AddRecursiveSharedMenu(Program.CommonDataPath, m);
+                AddRecursiveSharedMenu(Program.CommonSharedPath, m);
                 menu.Items.Add(m);
                 menu.Placement = PlacementMode.Top;
                 menu.PlacementTarget = sender as UIElement;

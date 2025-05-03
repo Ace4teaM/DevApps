@@ -24,8 +24,8 @@ internal partial class Program
     internal static readonly string DevBranch = "devapps";
     internal static readonly string Filename = "devapps.json";
     internal static readonly string DataDir = ".devapps";
-    internal static string CommonDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Shared");
-    internal static readonly string CommonObjPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Devapps", "Objects");
+    internal static string CommonSharedPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Shared");
+    internal static readonly string CommonObjPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Objects");
     internal static ScriptEngine pyEngine = null;
     internal static ScriptRuntime pyRuntime = null;
     internal static ScriptScope pyScope = null;
@@ -119,8 +119,8 @@ internal partial class Program
         {
             if (Directory.Exists(DataDir) == false)
                 Directory.CreateDirectory(DataDir);
-            if (Directory.Exists(Program.CommonDataPath) == false)
-                Directory.CreateDirectory(Program.CommonDataPath);
+            if (Directory.Exists(Program.CommonSharedPath) == false)
+                Directory.CreateDirectory(Program.CommonSharedPath);
             if (Directory.Exists(Program.CommonObjPath) == false)
                 Directory.CreateDirectory(Program.CommonObjPath);
         }
@@ -157,7 +157,7 @@ internal partial class Program
             try
             {
                 var path = Path.GetFullPath(args[args.FindIndex(p => p == "-b") + 1]);
-                CommonDataPath = path;
+                CommonSharedPath = path;
             }
             catch (Exception ex)
             {
