@@ -40,6 +40,11 @@ internal partial class Program
         public String Description = String.Empty;
 
         /// <summary>
+        /// Données persistantes de l'objet (Base64)
+        /// </summary>
+        public String InitialDataBase64 = String.Empty;
+
+        /// <summary>
         /// Editeur de l'objet (optionnel)
         /// </summary>
         public String? Editor = null;

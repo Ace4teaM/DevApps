@@ -46,6 +46,7 @@ namespace Serializer
 
         public HashSet<string> Tags { get { return content.tags; } set { content.tags = value; } }
         public String Description { get { return content.Description; } set { content.Description = value; } }
+        public String InitialDataBase64 { get { return content.InitialDataBase64; } set { content.InitialDataBase64 = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
         public KeyValuePair<string, Program.DevObjectInstance.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, DevObject.Pointer>(value); } }
         public KeyValuePair<string, string?>[] Functions { get { return content.functions.Select(p=>new KeyValuePair<string,string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.functions = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value,null)))); } }
@@ -76,6 +77,7 @@ namespace Serializer
         }
 
         public String Description { get { return content.Description; } set { content.Description = value; } }
+        public String InitialDataBase64 { get { return content.InitialDataBase64; } set { content.InitialDataBase64 = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
         public String? BaseObjectName { get { return content.BaseObjectName; } set { content.BaseObjectName = value; } }
         public KeyValuePair<string, string?>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, string>(value); } }
