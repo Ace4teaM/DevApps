@@ -34,4 +34,13 @@
     <Folder Include="Shared\Diagrams\Entities Relational Diagram %28ERD%29\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Shared\Diagrams\Entities Relational Diagram %28ERD%29\devapps.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Shared\Template\CodeTemplate\devapps.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
