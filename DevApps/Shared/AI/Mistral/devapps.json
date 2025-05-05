@@ -1,0 +1,154 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "AIChat",
+      "Value": {
+        "Tags": [
+          "#codegen",
+          "#ia"
+        ],
+        "Description": "Générateur de contenu IA (Chat Mistral AI)",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "response",
+            "Value": {
+              "target": "AIResponse",
+              "tags": []
+            }
+          },
+          {
+            "Key": "question",
+            "Value": {
+              "target": "AIQuestion",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import clr\r\nimport json\r\nfrom System import Text, Byte, Array\r\nclr.AddReference('System')\r\nfrom System import Text, Byte\r\nfrom System.Net import WebRequest\r\nfrom System.IO import StreamWriter\r\ndata = {\r\n\t\"model\": \"mistral-large-latest\",\r\n    \"messages\": [{\"role\": \"user\", \"content\": question.text()}]\r\n}\r\ndata_bytes = json.dumps(data).encode('utf-8')\r\n# L'URL cible\r\nurl = \"https://api.mistral.ai/v1/chat/completions\"\r\n# Créer la requête\r\nrequest = WebRequest.Create(url)\r\nrequest.Method = \"POST\"\r\nrequest.ContentType = \"application/json\"\r\nrequest.ContentLength = len(data_bytes)\r\nrequest.Headers.Add(\"Authorization\", \"Bearer \" + MISTRAL_API_KEY)\r\n# Écrire les données dans le corps de la requête\r\nstream = request.GetRequestStream()\r\nstream.Write(Array[Byte](data_bytes), 0, len(data_bytes))\r\nstream.Close()\r\n# Récupérer la réponse\r\nresponse_req = request.GetResponse()\r\nresponse_stream = response_req.GetResponseStream()\r\nfrom System.IO import StreamReader\r\nreader = StreamReader(response_stream)\r\nresult = reader.ReadToEnd()\r\nprint(\"Réponse du serveur :\", result)\r\nout.write(result)\r\nresponse.write(json.loads(result)[\"choices\"][0][\"message\"][\"content\"])",
+        "ObjectCode": "",
+        "DrawCode": ""
+      }
+    },
+    {
+      "Key": "AIResponse",
+      "Value": {
+        "Tags": [
+          "#ai"
+        ],
+        "Description": "Réponse de l'IA (Chat Mistral AI)",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    },
+    {
+      "Key": "AIQuestion",
+      "Value": {
+        "Tags": [
+          "#ai"
+        ],
+        "Description": "Question à l'IA (Chat Mistral AI)",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    },
+    {
+      "Key": "ExtractCSV",
+      "Value": {
+        "Tags": [
+          "#ai"
+        ],
+        "Description": "Extrait le contenu de la réponse",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "response",
+            "Value": {
+              "target": "AIResponse",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "def extraire_bloc(text, start_tag=\"```csv\", stop_tag=\"```\"):\r\n    lignes = text.splitlines()\r\n    capturing = False\r\n    extrait = []\r\n    for ligne in lignes:\r\n        if start_tag in ligne:\r\n            capturing = True\r\n            continue  # ne pas inclure la ligne START\r\n        if stop_tag in ligne and capturing:\r\n            break  # ne pas inclure la ligne STOP\r\n        if capturing:\r\n            extrait.append(ligne)\r\n    return \"\\n\".join(extrait)\r\nprint(extraire_bloc(response.text()))\r\nout.write(extraire_bloc(response.text()))",
+        "ObjectCode": "",
+        "DrawCode": "gui.csv(out, False)"
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "Chat",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "AIChat",
+            "Value": {
+              "zone": "389.8357424599999,295,100,100",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "AIResponse",
+            "Value": {
+              "zone": "718,179,452.54063899999994,356.87634499999996",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "AIQuestion",
+            "Value": {
+              "zone": "-69.8306207899999,260.2101705199999,295,25",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "ExtractCSV",
+            "Value": {
+              "zone": "1104.9707330539998,560.4991243400001,189.0691160798342,563.6691919059311",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}
