@@ -8,7 +8,7 @@
     "User": {
       "commandName": "Project",
       "commandLineArgs": "-w -b E:\\devs\\DevApps2\\DevApps\\DevApps\\Shared",
-      "workingDirectory": "E:\\devs\\Application totalement généré"
+      "workingDirectory": "E:\\devs\\DevApps2\\DevApps\\DevApps\\Shared\\CodeMerge\\TSql"
     }
   }
 }

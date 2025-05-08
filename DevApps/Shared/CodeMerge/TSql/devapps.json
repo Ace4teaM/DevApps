@@ -1,0 +1,211 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "ExistingCode",
+      "Value": {
+        "Tags": [
+          "#sql"
+        ],
+        "Description": "Code SQL Existant",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    },
+    {
+      "Key": "NewerCode",
+      "Value": {
+        "Tags": [
+          "#sql"
+        ],
+        "Description": "Code SQL Mise à jour",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    },
+    {
+      "Key": "MergedCode",
+      "Value": {
+        "Tags": [
+          "#sql",
+          "#codemerge"
+        ],
+        "Description": "Code SQL Fusionné",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "base",
+            "Value": {
+              "target": "ExistingCode",
+              "tags": []
+            }
+          },
+          {
+            "Key": "update",
+            "Value": {
+              "target": "NewerCode",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "interpreter.TSql.mergeAll(base,update,out)",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    },
+    {
+      "Key": "UpdateCode",
+      "Value": {
+        "Tags": [
+          "#sql",
+          "#codemerge"
+        ],
+        "Description": "Code SQL Mise à jour",
+        "InitialDataBase64": "",
+        "Editor": null,
+        "Pointers": [
+          {
+            "Key": "base",
+            "Value": {
+              "target": "ExistingCode",
+              "tags": []
+            }
+          },
+          {
+            "Key": "update",
+            "Value": {
+              "target": "NewerCode",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "interpreter.TSql.updateFrom(base,update,out)",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    },
+    {
+      "Key": "ExtractElement",
+      "Value": {
+        "Tags": [
+          "#codegen",
+          "#sql"
+        ],
+        "Description": "Code SQL Extrait",
+        "InitialDataBase64": "",
+        "Editor": null,
+        "Pointers": [
+          {
+            "Key": "base",
+            "Value": {
+              "target": "ExistingCode",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "interpreter.TSql.selectElement(base,'Clients',out)",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "CodeGen",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "ExistingCode",
+            "Value": {
+              "zone": "39,33,320,174",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "NewerCode",
+            "Value": {
+              "zone": "42.22102000000001,314.53632,357.7300000000001,222.21000000000004",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "MergedCode",
+            "Value": {
+              "zone": "585.64142,-29.788250000000026,300.07000000000005,252.57999999999996",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UpdateCode",
+            "Value": {
+              "zone": "579.96599,296.67078000000004,430.1545500000002,180.52550000000008",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "ExtractElement",
+            "Value": {
+              "zone": "-405.7355400000023,146.59772000000004,302.04580000000004,100",
+              "background": null,
+              "titlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [
+          {
+            "path": "M 0,0 H 535 V 660 H 0 Z",
+            "X": -66.30521050000209,
+            "Y": -32.67582641599992
+          }
+        ],
+        "Texts": [
+          {
+            "text": "Base code",
+            "X": -56.38446890000205,
+            "Y": -75.90900105999992
+          }
+        ]
+      }
+    }
+  ]
+}
