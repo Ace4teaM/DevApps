@@ -795,6 +795,27 @@ namespace DevApps.GUI
                 }
 
                 CommandsItems.AddRange(this.facette.BuildCommands.Select(p => new CommandItem { Status = "Ready", Description = p.Key, CommandLine = p.Value }));
+
+                //
+                // calcule le zoom et la position nécessaire pour afficher le dessin en entier
+                //
+
+                // Assure que le layout est fait
+                MyCanvas.UpdateLayout();
+
+                // calcule la zone de dessin
+                var rect = MyCanvas.GetChildrenBoundingBox();
+
+                // calcule le zoom nécessaire pour afficher le dessin en entier
+                var zoom = Math.Min((MyCanvas.ActualWidth / rect.Width),(MyCanvas.ActualHeight / rect.Height));
+
+                _scaleTransform.ScaleX = zoom;
+                _scaleTransform.ScaleY = zoom;
+
+                _translateTransform.X = -rect.X;
+                _translateTransform.Y = -rect.Y;
+
+                //AddPrintZone(rect);
             }
         }
         private void SaveDisposition()
@@ -970,6 +991,7 @@ namespace DevApps.GUI
             Ellipse,
             Polygon,
             Polyline,
+            PrintZone,
         }
 
         internal CapturePointMode capturePointMode = CapturePointMode.None;
@@ -1012,6 +1034,11 @@ namespace DevApps.GUI
 
             switch (capturePointMode)
             {
+                case CapturePointMode.PrintZone:
+                    capturePath = new StringBuilder("M 0,0");
+                    captureDraw = AddGeometry(System.Windows.Media.Geometry.Parse(capturePath.ToString()), position.X, position.Y);
+                    captureCloseable = false;
+                    break;
                 case CapturePointMode.Rectangle:
                 case CapturePointMode.Ellipse:
                 case CapturePointMode.Arrow:
@@ -1088,6 +1115,15 @@ namespace DevApps.GUI
                     }
                     return false;
                 case CapturePointMode.Rectangle:
+                    {
+                        var pos = position - new Point(captureDraw.X, captureDraw.Y);
+                        capturePath.Clear();
+                        capturePath.Append(String.Format("M 0,0 H {0} V {1} H 0 Z", (int)pos.X, (int)pos.Y));
+                        (captureDraw as DrawGeometry)?.SetPath(capturePath.ToString());
+                        captureCloseable = true;
+                    }
+                    return false;
+                case CapturePointMode.PrintZone:
                     {
                         var pos = position - new Point(captureDraw.X, captureDraw.Y);
                         capturePath.Clear();
