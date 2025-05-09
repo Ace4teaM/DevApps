@@ -14,6 +14,14 @@ namespace DevApps.GUI
         internal Pen pen = new Pen(Brushes.Black, 2.0);//contour
         internal Brush? brush = null;//remplissage
 
+        public new System.Windows.Size DesiredSize
+        {
+            get
+            {
+                return new System.Windows.Size(path.Bounds.Width, path.Bounds.Height);
+            }
+        }
+
         public bool SetPath(string data)
         {
             try
@@ -26,6 +34,10 @@ namespace DevApps.GUI
             {
                 return false;
             }
+        }
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            return new System.Windows.Size(path.Bounds.Width, path.Bounds.Height);
         }
 
         protected override void OnRender(DrawingContext drawingContext)
