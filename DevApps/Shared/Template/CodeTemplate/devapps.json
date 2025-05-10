@@ -42,7 +42,7 @@
       "Value": {
         "Tags": [],
         "Description": "Template to C#",
-        "InitialDataBase64": "",
+        "InitialDataBase64": "DQpuYW1lc3BhY2UgUHJvZ3JhbQ0Kew0KICAgIGNsYXNzIEhlbGxvV29ybGQgeyB9DQp9DQovLyBlbmRvIG9mIGNvZGUNCg==",
         "Editor": "text",
         "Pointers": [
           {
