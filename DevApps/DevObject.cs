@@ -95,7 +95,7 @@ internal partial class Program
         /// trouve un nom unique
         /// </summary>
         /// <param name="name"></param>
-        public static void MakeUniqueName(ref string name)
+        public static void MakeUniqueName(ref string name, IEnumerable<string>? anotherNames = null)
         {
             var newName = Program.RemoveDiacritics(name);
             int n = 2;
@@ -108,15 +108,25 @@ internal partial class Program
 
             newName = Regex.Replace(newName, "[^" + allowedChars + "]", "");
 
-            while (References.ContainsKey(newName) || Program.Keywords.Contains(newName))
+            if(anotherNames != null)
             {
-                newName = name + n;
-                n++;
+                while (References.ContainsKey(newName) || Program.Keywords.Contains(newName) || anotherNames.Contains(newName))
+                {
+                    newName = name + n;
+                    n++;
+                }
+            }
+            else
+            {
+                while (References.ContainsKey(newName) || Program.Keywords.Contains(newName))
+                {
+                    newName = name + n;
+                    n++;
+                }
             }
 
             name = newName;
         }
-
 
         public static DevObjectInstance Create(string name, string desc, string[] tags)
         {
