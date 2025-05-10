@@ -9,7 +9,7 @@
           "#ia"
         ],
         "Description": "Générateur de contenu IA (Chat Mistral AI)",
-        "InitialDataBase64": "",
+        "InitialDataBase64": "eyJpZCI6ImY4Y2U4NWFkYzEyOTRjMDBiZTljMTIzNDk5ODE3MTVjIiwib2JqZWN0IjoiY2hhdC5jb21wbGV0aW9uIiwiY3JlYXRlZCI6MTc0NjQ2MzYwMCwibW9kZWwiOiJtaXN0cmFsLWxhcmdlLWxhdGVzdCIsImNob2ljZXMiOlt7ImluZGV4IjowLCJtZXNzYWdlIjp7InJvbGUiOiJhc3Npc3RhbnQiLCJ0b29sX2NhbGxzIjpudWxsLCJjb250ZW50IjoiQmllbiBzw7tyICEgVm9pY2kgdW4gZXhlbXBsZSBkZSB0YWJsZWF1IENTViBjb250ZW5hbnQgMjAgbm9tcyBldCBwcsOpbm9tcyA6XG5cbmBgYGNzdlxuUHLDqW5vbSxOb21cbkplYW4sRHVwb250XG5NYXJpZSxNYXJ0aW5cblBhdWwsRHVyYW5kXG5Tb3BoaWUsTGVmw6h2cmVcblBpZXJyZSxSb3Vzc2VhdVxuQ2xhaXJlLE1vcmVhdVxuTWFyYyxGb3VybmllclxuRW1tYSxHYXV0aGllclxuVGhvbWFzLENoZXZhbGllclxuTGF1cmEsTW9yaW5cbkp1bGllbixMYW1iZXJ0XG5DaGxvw6ksR2lyYXJkXG5OaWNvbGFzLFJvdXhcbkzDqWEsSm91YmVydFxuT2xpdmllcixQZXJyaW5cbkNhbWlsbGUsTGVjbGVyY1xuU8OpYmFzdGllbixSb2Jpblxuw4lsb2RpZSxCcnVuZXRcbkx1Y2FzLEJvdWNoZXJcbkFsaWNlLEJsYW5jaGFyZFxuYGBgXG5cblZvdXMgcG91dmV6IGNvcGllciBjZSB0ZXh0ZSBkYW5zIHVuIGZpY2hpZXIgYXZlYyBsJ2V4dGVuc2lvbiBgLmNzdmAgZXQgbCdvdXZyaXIgYXZlYyB1biBsb2dpY2llbCBkZSB0YWJsZXVyIGNvbW1lIE1pY3Jvc29mdCBFeGNlbCBvdSBHb29nbGUgU2hlZXRzIHBvdXIgdmlzdWFsaXNlciBsZXMgZG9ubsOpZXMuIn0sImZpbmlzaF9yZWFzb24iOiJzdG9wIn1dLCJ1c2FnZSI6eyJwcm9tcHRfdG9rZW5zIjoyMiwidG90YWxfdG9rZW5zIjoyNjMsImNvbXBsZXRpb25fdG9rZW5zIjoyNDF9fQ==",
         "Editor": "text",
         "Pointers": [
           {
@@ -44,7 +44,7 @@
           "#ai"
         ],
         "Description": "Réponse de l'IA (Chat Mistral AI)",
-        "InitialDataBase64": "",
+        "InitialDataBase64": "QmllbiBzw7tyICEgVm9pY2kgdW4gZXhlbXBsZSBkZSB0YWJsZWF1IENTViBjb250ZW5hbnQgMjAgbm9tcyBldCBwcsOpbm9tcyA6CgpgYGBjc3YKUHLDqW5vbSxOb20KSmVhbixEdXBvbnQKTWFyaWUsTWFydGluClBhdWwsRHVyYW5kClNvcGhpZSxMZWbDqHZyZQpQaWVycmUsUm91c3NlYXUKQ2xhaXJlLE1vcmVhdQpNYXJjLEZvdXJuaWVyCkVtbWEsR2F1dGhpZXIKVGhvbWFzLENoZXZhbGllcgpMYXVyYSxNb3JpbgpKdWxpZW4sTGFtYmVydApDaGxvw6ksR2lyYXJkCk5pY29sYXMsUm91eApMw6lhLEpvdWJlcnQKT2xpdmllcixQZXJyaW4KQ2FtaWxsZSxMZWNsZXJjClPDqWJhc3RpZW4sUm9iaW4Kw4lsb2RpZSxCcnVuZXQKTHVjYXMsQm91Y2hlcgpBbGljZSxCbGFuY2hhcmQKYGBgCgpWb3VzIHBvdXZleiBjb3BpZXIgY2UgdGV4dGUgZGFucyB1biBmaWNoaWVyIGF2ZWMgbCdleHRlbnNpb24gYC5jc3ZgIGV0IGwnb3V2cmlyIGF2ZWMgdW4gbG9naWNpZWwgZGUgdGFibGV1ciBjb21tZSBNaWNyb3NvZnQgRXhjZWwgb3UgR29vZ2xlIFNoZWV0cyBwb3VyIHZpc3VhbGlzZXIgbGVzIGRvbm7DqWVzLg==",
         "Editor": "text",
         "Pointers": [],
         "Functions": [],
@@ -64,7 +64,7 @@
           "#ai"
         ],
         "Description": "Question à l'IA (Chat Mistral AI)",
-        "InitialDataBase64": "",
+        "InitialDataBase64": "R8OpbsOpcmUgdW4gdGFibGVhdSBDU1YgY29udGVuYW50IDIwIG5vbXMgZXQgcHLDqW5vbXM=",
         "Editor": "text",
         "Pointers": [],
         "Functions": [],
@@ -84,7 +84,7 @@
           "#ai"
         ],
         "Description": "Extrait le contenu de la réponse",
-        "InitialDataBase64": "",
+        "InitialDataBase64": "UHLDqW5vbSxOb20KSmVhbixEdXBvbnQKTWFyaWUsTWFydGluClBhdWwsRHVyYW5kClNvcGhpZSxMZWbDqHZyZQpQaWVycmUsUm91c3NlYXUKQ2xhaXJlLE1vcmVhdQpNYXJjLEZvdXJuaWVyCkVtbWEsR2F1dGhpZXIKVGhvbWFzLENoZXZhbGllcgpMYXVyYSxNb3JpbgpKdWxpZW4sTGFtYmVydApDaGxvw6ksR2lyYXJkCk5pY29sYXMsUm91eApMw6lhLEpvdWJlcnQKT2xpdmllcixQZXJyaW4KQ2FtaWxsZSxMZWNsZXJjClPDqWJhc3RpZW4sUm9iaW4Kw4lsb2RpZSxCcnVuZXQKTHVjYXMsQm91Y2hlcgpBbGljZSxCbGFuY2hhcmQ=",
         "Editor": "text",
         "Pointers": [
           {
