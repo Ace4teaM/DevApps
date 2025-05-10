@@ -1,0 +1,138 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "visual",
+      "Value": {
+        "Tags": [
+          "#AD",
+          "#svg"
+        ],
+        "Description": "AD to Svg (kroki.io)",
+        "InitialDataBase64": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXMtYXNjaWkiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgaGVpZ2h0PSIyNTJweCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgc3R5bGU9IndpZHRoOjM5MXB4O2hlaWdodDoyNTJweDtiYWNrZ3JvdW5kOiNGRkZGRkY7IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAzOTEgMjUyIiB3aWR0aD0iMzkxcHgiIHpvb21BbmRQYW49Im1hZ25pZnkiPjxkZWZzLz48Zz48IS0tY2xhc3MgQmFzZU9iamVjdC0tPjxnIGlkPSJlbGVtX0Jhc2VPYmplY3QiPjxyZWN0IGNvZGVMaW5lPSIyIiBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9Ijk2Ljg5MDYiIGlkPSJCYXNlT2JqZWN0IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxMjAiIHg9IjE1OSIgeT0iNyIvPjxlbGxpcHNlIGN4PSIxNzcuNiIgY3k9IjIzIiBmaWxsPSIjQUREMUIyIiByeD0iMTEiIHJ5PSIxMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBhdGggZD0iTTE4MC41Njg4LDI4LjY0MDYgUTE3OS45OTA2LDI4LjkzNzUgMTc5LjM1LDI5LjA3ODEgUTE3OC43MDk0LDI5LjIzNDQgMTc4LjAwNjMsMjkuMjM0NCBRMTc1LjUwNjMsMjkuMjM0NCAxNzQuMTc4MSwyNy41OTM4IFExNzIuODY1NiwyNS45Mzc1IDE3Mi44NjU2LDIyLjgxMjUgUTE3Mi44NjU2LDE5LjY4NzUgMTc0LjE3ODEsMTguMDMxMyBRMTc1LjUwNjMsMTYuMzc1IDE3OC4wMDYzLDE2LjM3NSBRMTc4LjcwOTQsMTYuMzc1IDE3OS4zNSwxNi41MzEzIFExODAuMDA2MywxNi42ODc1IDE4MC41Njg4LDE2Ljk4NDQgTDE4MC41Njg4LDE5LjcwMzEgUTE3OS45NDM4LDE5LjEyNSAxNzkuMzUsMTguODU5NCBRMTc4Ljc1NjMsMTguNTc4MSAxNzguMTMxMywxOC41NzgxIFExNzYuNzg3NSwxOC41NzgxIDE3Ni4xLDE5LjY1NjMgUTE3NS40MTI1LDIwLjcxODggMTc1LjQxMjUsMjIuODEyNSBRMTc1LjQxMjUsMjQuOTA2MyAxNzYuMSwyNS45ODQ0IFExNzYuNzg3NSwyNy4wNDY5IDE3OC4xMzEzLDI3LjA0NjkgUTE3OC43NTYzLDI3LjA0NjkgMTc5LjM1LDI2Ljc4MTMgUTE3OS45NDM4LDI2LjUgMTgwLjU2ODgsMjUuOTIxOSBMMTgwLjU2ODgsMjguNjQwNiBaICIgZmlsbD0iIzAwMDAwMCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjgwIiB4PSIxOTIuNCIgeT0iMjcuODQ2NyI+QmFzZU9iamVjdDwvdGV4dD48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHgxPSIxNjAiIHgyPSIyNzgiIHkxPSIzOSIgeTI9IjM5Ii8+PGVsbGlwc2UgY3g9IjE3MCIgY3k9IjUyLjY0ODQiIGZpbGw9Im5vbmUiIHJ4PSIzIiByeT0iMyIgc3R5bGU9InN0cm9rZTojMDM4MDQ4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iODMiIHg9IjE3OSIgeT0iNTUuOTk1MSI+c3RyaW5nIE5hbWU8L3RleHQ+PGVsbGlwc2UgY3g9IjE3MCIgY3k9IjY4Ljk0NTMiIGZpbGw9Im5vbmUiIHJ4PSIzIiByeT0iMyIgc3R5bGU9InN0cm9rZTojMDM4MDQ4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iOTQiIHg9IjE3OSIgeT0iNzIuMjkyIj5wb2ludCBQb3NpdGlvbjwvdGV4dD48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHgxPSIxNjAiIHgyPSIyNzgiIHkxPSI3OS41OTM4IiB5Mj0iNzkuNTkzOCIvPjxlbGxpcHNlIGN4PSIxNzAiIGN5PSI5My4yNDIyIiBmaWxsPSIjODRCRTg0IiByeD0iMyIgcnk9IjMiIHN0eWxlPSJzdHJva2U6IzAzODA0ODtzdHJva2Utd2lkdGg6MS4wOyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjYyIiB4PSIxNzkiIHk9Ijk2LjU4ODkiPnZvaWQgSW5pdCgpPC90ZXh0PjwvZz48IS0tY2xhc3MgV2hlZWwtLT48ZyBpZD0iZWxlbV9XaGVlbCI+PHJlY3QgY29kZUxpbmU9IjgiIGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iNjQuMjk2OSIgaWQ9IldoZWVsIiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxMTgiIHg9IjciIHk9IjE4MC44OSIvPjxlbGxpcHNlIGN4PSI0MS4zNSIgY3k9IjE5Ni44OSIgZmlsbD0iI0FERDFCMiIgcng9IjExIiByeT0iMTEiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MS4wOyIvPjxwYXRoIGQ9Ik00NC4zMTg4LDIwMi41MzA2IFE0My43NDA2LDIwMi44Mjc1IDQzLjEsMjAyLjk2ODEgUTQyLjQ1OTQsMjAzLjEyNDQgNDEuNzU2MywyMDMuMTI0NCBRMzkuMjU2MywyMDMuMTI0NCAzNy45MjgxLDIwMS40ODM4IFEzNi42MTU2LDE5OS44Mjc1IDM2LjYxNTYsMTk2LjcwMjUgUTM2LjYxNTYsMTkzLjU3NzUgMzcuOTI4MSwxOTEuOTIxMyBRMzkuMjU2MywxOTAuMjY1IDQxLjc1NjMsMTkwLjI2NSBRNDIuNDU5NCwxOTAuMjY1IDQzLjEsMTkwLjQyMTMgUTQzLjc1NjMsMTkwLjU3NzUgNDQuMzE4OCwxOTAuODc0NCBMNDQuMzE4OCwxOTMuNTkzMSBRNDMuNjkzOCwxOTMuMDE1IDQzLjEsMTkyLjc0OTQgUTQyLjUwNjMsMTkyLjQ2ODEgNDEuODgxMywxOTIuNDY4MSBRNDAuNTM3NSwxOTIuNDY4MSAzOS44NSwxOTMuNTQ2MyBRMzkuMTYyNSwxOTQuNjA4OCAzOS4xNjI1LDE5Ni43MDI1IFEzOS4xNjI1LDE5OC43OTYzIDM5Ljg1LDE5OS44NzQ0IFE0MC41Mzc1LDIwMC45MzY5IDQxLjg4MTMsMjAwLjkzNjkgUTQyLjUwNjMsMjAwLjkzNjkgNDMuMSwyMDAuNjcxMyBRNDMuNjkzOCwyMDAuMzkgNDQuMzE4OCwxOTkuODExOSBMNDQuMzE4OCwyMDIuNTMwNiBaICIgZmlsbD0iIzAwMDAwMCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjQzIiB4PSI1OS42NSIgeT0iMjAxLjczNjciPldoZWVsPC90ZXh0PjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgeDE9IjgiIHgyPSIxMjQiIHkxPSIyMTIuODkiIHkyPSIyMTIuODkiLz48ZWxsaXBzZSBjeD0iMTgiIGN5PSIyMjYuNTM4NCIgZmlsbD0ibm9uZSIgcng9IjMiIHJ5PSIzIiBzdHlsZT0ic3Ryb2tlOiMwMzgwNDg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI5MiIgeD0iMjciIHk9IjIyOS44ODUxIj5yZWFsIERpYW1ldGVyPC90ZXh0PjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgeDE9IjgiIHgyPSIxMjQiIHkxPSIyMzcuMTg2OSIgeTI9IjIzNy4xODY5Ii8+PC9nPjwhLS1jbGFzcyBNb3Rvci0tPjxnIGlkPSJlbGVtX01vdG9yIj48cmVjdCBjb2RlTGluZT0iMTEiIGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iNjQuMjk2OSIgaWQ9Ik1vdG9yIiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxMTciIHg9IjE2MC41IiB5PSIxODAuODkiLz48ZWxsaXBzZSBjeD0iMTk1Ljc1IiBjeT0iMTk2Ljg5IiBmaWxsPSIjQUREMUIyIiByeD0iMTEiIHJ5PSIxMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBhdGggZD0iTTE5OC43MTg4LDIwMi41MzA2IFExOTguMTQwNiwyMDIuODI3NSAxOTcuNSwyMDIuOTY4MSBRMTk2Ljg1OTQsMjAzLjEyNDQgMTk2LjE1NjMsMjAzLjEyNDQgUTE5My42NTYzLDIwMy4xMjQ0IDE5Mi4zMjgxLDIwMS40ODM4IFExOTEuMDE1NiwxOTkuODI3NSAxOTEuMDE1NiwxOTYuNzAyNSBRMTkxLjAxNTYsMTkzLjU3NzUgMTkyLjMyODEsMTkxLjkyMTMgUTE5My42NTYzLDE5MC4yNjUgMTk2LjE1NjMsMTkwLjI2NSBRMTk2Ljg1OTQsMTkwLjI2NSAxOTcuNSwxOTAuNDIxMyBRMTk4LjE1NjMsMTkwLjU3NzUgMTk4LjcxODgsMTkwLjg3NDQgTDE5OC43MTg4LDE5My41OTMxIFExOTguMDkzOCwxOTMuMDE1IDE5Ny41LDE5Mi43NDk0IFExOTYuOTA2MywxOTIuNDY4MSAxOTYuMjgxMywxOTIuNDY4MSBRMTk0LjkzNzUsMTkyLjQ2ODEgMTk0LjI1LDE5My41NDYzIFExOTMuNTYyNSwxOTQuNjA4OCAxOTMuNTYyNSwxOTYuNzAyNSBRMTkzLjU2MjUsMTk4Ljc5NjMgMTk0LjI1LDE5OS44NzQ0IFExOTQuOTM3NSwyMDAuOTM2OSAxOTYuMjgxMywyMDAuOTM2OSBRMTk2LjkwNjMsMjAwLjkzNjkgMTk3LjUsMjAwLjY3MTMgUTE5OC4wOTM4LDIwMC4zOSAxOTguNzE4OCwxOTkuODExOSBMMTk4LjcxODgsMjAyLjUzMDYgWiAiIGZpbGw9IiMwMDAwMDAiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI0MCIgeD0iMjE0LjI1IiB5PSIyMDEuNzM2NyI+TW90b3I8L3RleHQ+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB4MT0iMTYxLjUiIHgyPSIyNzYuNSIgeTE9IjIxMi44OSIgeTI9IjIxMi44OSIvPjxlbGxpcHNlIGN4PSIxNzEuNSIgY3k9IjIyNi41Mzg0IiBmaWxsPSJub25lIiByeD0iMyIgcnk9IjMiIHN0eWxlPSJzdHJva2U6IzAzODA0ODtzdHJva2Utd2lkdGg6MS4wOyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjkxIiB4PSIxODAuNSIgeT0iMjI5Ljg4NTEiPnJlYWwgUG93ZXJDVjwvdGV4dD48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHgxPSIxNjEuNSIgeDI9IjI3Ni41IiB5MT0iMjM3LjE4NjkiIHkyPSIyMzcuMTg2OSIvPjwvZz48IS0tY2xhc3MgR2xhc3MtLT48ZyBpZD0iZWxlbV9HbGFzcyI+PHJlY3QgY29kZUxpbmU9IjE0IiBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjQ4IiBpZD0iR2xhc3MiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjcwIiB4PSIzMTIiIHk9IjE4OS4wNCIvPjxlbGxpcHNlIGN4PSIzMjciIGN5PSIyMDUuMDQiIGZpbGw9IiNBREQxQjIiIHJ4PSIxMSIgcnk9IjExIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cGF0aCBkPSJNMzI5Ljk2ODgsMjEwLjY4MDYgUTMyOS4zOTA2LDIxMC45Nzc1IDMyOC43NSwyMTEuMTE4MSBRMzI4LjEwOTQsMjExLjI3NDQgMzI3LjQwNjMsMjExLjI3NDQgUTMyNC45MDYzLDIxMS4yNzQ0IDMyMy41NzgxLDIwOS42MzM4IFEzMjIuMjY1NiwyMDcuOTc3NSAzMjIuMjY1NiwyMDQuODUyNSBRMzIyLjI2NTYsMjAxLjcyNzUgMzIzLjU3ODEsMjAwLjA3MTMgUTMyNC45MDYzLDE5OC40MTUgMzI3LjQwNjMsMTk4LjQxNSBRMzI4LjEwOTQsMTk4LjQxNSAzMjguNzUsMTk4LjU3MTMgUTMyOS40MDYzLDE5OC43Mjc1IDMyOS45Njg4LDE5OS4wMjQ0IEwzMjkuOTY4OCwyMDEuNzQzMSBRMzI5LjM0MzgsMjAxLjE2NSAzMjguNzUsMjAwLjg5OTQgUTMyOC4xNTYzLDIwMC42MTgxIDMyNy41MzEzLDIwMC42MTgxIFEzMjYuMTg3NSwyMDAuNjE4MSAzMjUuNSwyMDEuNjk2MyBRMzI0LjgxMjUsMjAyLjc1ODggMzI0LjgxMjUsMjA0Ljg1MjUgUTMyNC44MTI1LDIwNi45NDYzIDMyNS41LDIwOC4wMjQ0IFEzMjYuMTg3NSwyMDkuMDg2OSAzMjcuNTMxMywyMDkuMDg2OSBRMzI4LjE1NjMsMjA5LjA4NjkgMzI4Ljc1LDIwOC44MjEzIFEzMjkuMzQzOCwyMDguNTQgMzI5Ljk2ODgsMjA3Ljk2MTkgTDMyOS45Njg4LDIxMC42ODA2IFogIiBmaWxsPSIjMDAwMDAwIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMzgiIHg9IjM0MSIgeT0iMjA5Ljg4NjciPkdsYXNzPC90ZXh0PjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgeDE9IjMxMyIgeDI9IjM4MSIgeTE9IjIyMS4wNCIgeTI9IjIyMS4wNCIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgeDE9IjMxMyIgeDI9IjM4MSIgeTE9IjIyOS4wNCIgeTI9IjIyOS4wNCIvPjwvZz48IS0tcmV2ZXJzZSBsaW5rIEJhc2VPYmplY3QgdG8gV2hlZWwtLT48ZyBpZD0ibGlua19CYXNlT2JqZWN0X1doZWVsIj48cGF0aCBjb2RlTGluZT0iMTYiIGQ9Ik0xNTUuMDA1NywxMTYuNzg3IEMxNDQuOTU1NywxMjYuNDY3IDE0Ny41NCwxMjQuMTcgMTM4LDEzMy44OSBDMTIzLjI3LDE0OC45IDEwNy4zOCwxNjYuMDQgOTQuMjgsMTgwLjQzICIgZmlsbD0ibm9uZSIgaWQ9IkJhc2VPYmplY3QtYmFja3RvLVdoZWVsIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48cG9seWdvbiBmaWxsPSJub25lIiBwb2ludHM9IjE2Ny45NywxMDQuMywxNTAuODQzMywxMTIuNDY1NiwxNTkuMTY4LDEyMS4xMDg1LDE2Ny45NywxMDQuMyIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNzEiIHg9IjEzOSIgeT0iMTQ2Ljk1NjkiPkluaGVyaXRhbmNlPC90ZXh0PjwvZz48IS0tcmV2ZXJzZSBsaW5rIEJhc2VPYmplY3QgdG8gR2xhc3MtLT48ZyBpZD0ibGlua19CYXNlT2JqZWN0X0dsYXNzIj48cGF0aCBjb2RlTGluZT0iMTciIGQ9Ik0yODUuNjk4MSwxMTYuODE3NyBDMjk1LjE3ODEsMTI2LjI2NzcgMjkxLjg2LDEyMy43MSAzMDAsMTMzLjg5IEMzMTMuNzUsMTUxLjA4IDMyNi40MiwxNzIuNjQgMzM1LjE0LDE4OC43NiAiIGZpbGw9Im5vbmUiIGlkPSJCYXNlT2JqZWN0LWJhY2t0by1HbGFzcyIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0ibm9uZSIgcG9pbnRzPSIyNzIuOTUsMTA0LjExLDI4MS40NjIyLDEyMS4wNjcxLDI4OS45MzQsMTEyLjU2ODQsMjcyLjk1LDEwNC4xMSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNzEiIHg9IjMxMiIgeT0iMTQ2Ljk1NjkiPkluaGVyaXRhbmNlPC90ZXh0PjwvZz48IS0tcmV2ZXJzZSBsaW5rIEJhc2VPYmplY3QgdG8gTW90b3ItLT48ZyBpZD0ibGlua19CYXNlT2JqZWN0X01vdG9yIj48cGF0aCBjb2RlTGluZT0iMTgiIGQ9Ik0yMTksMTIxLjk4IEMyMTksMTQ2LjgyIDIxOSwxNTguNTUgMjE5LDE4MC41MyAiIGZpbGw9Im5vbmUiIGlkPSJCYXNlT2JqZWN0LWJhY2t0by1Nb3RvciIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxLjA7Ii8+PHBvbHlnb24gZmlsbD0ibm9uZSIgcG9pbnRzPSIyMTksMTAzLjk4LDIxMywxMjEuOTgsMjI1LDEyMS45OCwyMTksMTAzLjk4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjEuMDsiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI3MSIgeD0iMjIwIiB5PSIxNDYuOTU2OSI+SW5oZXJpdGFuY2U8L3RleHQ+PC9nPjwhLS1TUkM9W1hPd18yaTkwMzhWdEY0TDZIVmUydWdJMkVBWVRUM3dsbUtSZ2ZUbTVFd1pseGxxMWdJMnUxOTl5LVZBcGRHYTFib1JHdU5tYmdfVzBuNWJHcC13MlV0RVpyRlIySmg2TW1DaFlxa0drdEUzTWlLd2N5MEFtc045Z1lSZVl5Nkd3TjdFeUxfQUhBQzFFTEZtOGc2S1dscGYtemZqSzBLUGY1aS1nYVM1TG5Kc0ZCcmxvaENQUC1lYmJtdHlpMV9kNnUwcTBdLS0+PC9nPjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [
+          {
+            "Key": "data",
+            "Value": {
+              "target": "datamodel",
+              "tags": [
+                "#AD",
+                "#text"
+              ]
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import sys\r\nimport base64\r\nimport zlib\r\nfrom urllib.request import urlopen\r\n# prepare les données à être envoyé dans l'url\r\ncmp_data = zlib.compress(data.bytes(), 9)\r\nb64_data = base64.urlsafe_b64encode(cmp_data)\r\n# lie le contenu depuis kroki.io\r\nlink = 'https://kroki.io/plantuml/svg/' + b64_data.decode('utf-8')\r\nf = urlopen(link).read()\r\nout.write_bytes(f)\r\n# supprime l'en-tete HTML\r\n#idx = f.index(b'<svg ')\r\n#str = f[idx:]\r\n#str = '<?xml version=\"1.0\" standalone=\"no\"?>\\n' + str.decode('utf-8')\r\n#out.write(str)",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "datamodel",
+      "Value": {
+        "Tags": [
+          "#AD",
+          "#text"
+        ],
+        "Description": "AD Data Model",
+        "InitialDataBase64": "QHN0YXJ0dW1sDQoNCmNsYXNzIEJhc2VPYmplY3Qgew0KICArc3RyaW5nIE5hbWUNCiAgK3BvaW50IFBvc2l0aW9uDQogICt2b2lkIEluaXQoKQ0KfQ0KDQpjbGFzcyBXaGVlbCB7DQogICtyZWFsIERpYW1ldGVyDQp9DQpjbGFzcyBNb3RvciB7DQogICtyZWFsIFBvd2VyQ1YNCn0NCmNsYXNzIEdsYXNzDQoNCkJhc2VPYmplY3QgPHwtZG93bi0gV2hlZWw6IEluaGVyaXRhbmNlDQpCYXNlT2JqZWN0IDx8LWRvd24tIEdsYXNzOiBJbmhlcml0YW5jZQ0KQmFzZU9iamVjdCA8fC1kb3duLSBNb3RvcjogSW5oZXJpdGFuY2UNCg0KDQpAZW5kdW1s",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "gui.edit('code', out)",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    },
+    {
+      "Key": "codegen",
+      "Value": {
+        "Tags": [
+          "#AD",
+          "#cs",
+          "#codegen"
+        ],
+        "Description": "AD to C#",
+        "InitialDataBase64": "cHVibGljIGNsYXNzIE1vdG9yIDogQmFzZU9iamVjdAp7CiAgICBwdWJsaWMgZG91YmxlIFBvd2VyQ1YgeyBnZXQ7IHNldDsgfQp9CgpwdWJsaWMgY2xhc3MgQmFzZU9iamVjdAp7CiAgICBwdWJsaWMgc3RyaW5nIE5hbWUgeyBnZXQ7IHNldDsgfQogICAgcHVibGljIFN5c3RlbS5EcmF3aW5nLlBvaW50IFBvc2l0aW9uIHsgZ2V0OyBzZXQ7IH0KICAgIHB1YmxpYyB2b2lkIEluaXQoKSB7IH0KfQoKcHVibGljIGNsYXNzIFdoZWVsIDogQmFzZU9iamVjdAp7CiAgICBwdWJsaWMgZG91YmxlIERpYW1ldGVyIHsgZ2V0OyBzZXQ7IH0KfQoKcHVibGljIGNsYXNzIEdsYXNzIDogQmFzZU9iamVjdAp7Cn0K",
+        "Editor": null,
+        "Pointers": [
+          {
+            "Key": "input_data",
+            "Value": {
+              "target": "datamodel",
+              "tags": [
+                "#AD",
+                "#text"
+              ]
+            }
+          },
+          {
+            "Key": "types",
+            "Value": {
+              "target": "types",
+              "tags": [
+                "#csv",
+                "#types"
+              ]
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "out.write(gui.select({'entities_to_cs_classes':'Entities UML > C# classes','entities_to_sql_tables':'Entities UML > SQL Tables','entities_to_cs_sql_model':'Entities UML > C# Database Model'},out))",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import re\r\ndef convert_activity_to_method_name(activity):\r\n    # Supprime les points-virgules et espaces, découpe en mots, met en majuscules\r\n    words = re.findall(r'\\b\\w+\\b', activity)\r\n    return ''.join(word.capitalize() for word in words)\r\ndef is_question(activity):\r\n    return activity.strip().endswith('?')\r\ndef parse_activities(plantuml_text):\r\n    activities = re.findall(r':(.+?);', plantuml_text)\r\n    return activities\r\ndef generate_csharp_class(activities):\r\n    class_lines = ['public class ActivityProcessor', '{']\r\n    for activity in activities:\r\n        method_name = convert_activity_to_method_name(activity)\r\n        return_type = 'bool' if is_question(activity) else 'void'\r\n        class_lines.append(f'    public {return_type} {method_name}()')\r\n        class_lines.append('    {')\r\n        class_lines.append(f'        // TODO: Implémenter {method_name}')\r\n        if return_type == 'bool':\r\n            class_lines.append('        return false;')\r\n        class_lines.append('    }\\n')\r\n    class_lines.append('}')\r\n    return '\\n'.join(class_lines)\r\nplantuml_text = input_data.text()\r\nactivities = parse_activities(plantuml_text)\r\ncsharp_code = generate_csharp_class(activities)\r\nout.write(csharp_code)",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out.lines())"
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "AD",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "codegen",
+            "Value": {
+              "zone": "48.62750252031822,98.72563193087507,400,400",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "datamodel",
+            "Value": {
+              "zone": "582.4730151642361,182.8086996296181,236.80678895469487,195.5178391405842",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "visual",
+            "Value": {
+              "zone": "996.4844683601185,121.1408776261379,482.9433015546356,299.17372490411014",
+              "background": "#FFFFFFFF",
+              "titlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}
