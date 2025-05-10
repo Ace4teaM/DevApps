@@ -144,7 +144,32 @@ namespace DevApps.GUI
                             {
                                 var name = o.Key;
                                 if (Program.DevObject.References.ContainsKey(name) == true)
-                                    Program.DevObject.MakeUniqueName(ref name);
+                                {
+                                    Program.DevObject.MakeUniqueName(ref name, proj.Objects.Select(p=>p.Key)); // pas de conflit non plus avec d'autres objets du projet en cours d'importation
+
+                                    // Actualise les pointeurs
+                                    foreach (var o2 in proj.Objects)
+                                    {
+                                        foreach (var ptr in o2.Value.content.Pointers)
+                                        {
+                                            if (String.Compare(ptr.Value.target, o.Key, true) == 0)
+                                                ptr.Value.target = name;
+                                        }
+                                    }
+
+                                    // Actualise les noms dans les facettes
+                                    foreach (var f in proj.Facets)
+                                    {
+                                        foreach (var o2 in f.Value.content.Objects.ToArray())
+                                        {
+                                            if (String.Compare(o2.Key, o.Key, true) == 0)
+                                            {
+                                                f.Value.content.Objects[name] = o2.Value;
+                                                f.Value.content.Objects.Remove(o.Key);
+                                            }
+                                        }
+                                    }
+                                }
                                 Program.DevObject.References.Add(name, o.Value.content);
 
                                 // importe les données
