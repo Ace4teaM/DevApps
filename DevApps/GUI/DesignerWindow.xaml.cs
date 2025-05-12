@@ -76,6 +76,16 @@ namespace DevApps.GUI
             };
             menu.Items.Add(m);
 
+            m = new MenuItem { Header = "Profil IA..." };
+            m.Click += (s, e) =>
+            {
+                var wnd = new App.AiProfile();
+                wnd.Owner = Window.GetWindow(this);
+                wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                wnd.ShowDialog();
+            };
+            menu.Items.Add(m);
+
             m = new MenuItem { Header = "Définir le raccourci dans le menu contextuel Windows" };
             m.Click += (s, e) =>
             {
