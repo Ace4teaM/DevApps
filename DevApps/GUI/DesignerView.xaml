@@ -96,6 +96,8 @@
                             </MenuItem.Icon>
                         </MenuItem>
                     </MenuItem>
+                    <Separator></Separator>
+                    <MenuItem Header="Coller les commandes" Click="MenuItem_CommandsParse_Click"></MenuItem>
                 </ContextMenu>
             </Canvas.ContextMenu>
         </Canvas>

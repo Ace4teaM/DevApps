@@ -180,6 +180,11 @@ namespace DevApps.GUI
                                         }
                                     }
                                 }
+
+                                // Conserve le guid de base
+                                o.Value.content.baseGuid = o.Value.content.guid;
+                                o.Value.content.guid = null;
+
                                 Program.DevObject.References.Add(name, o.Value.content);
 
                                 // importe les données

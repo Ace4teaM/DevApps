@@ -1,15 +1,21 @@
 ﻿using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
+using PdfSharp.Pdf.Content.Objects;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using static DevApps.GUI.DesignerView;
 using static Program;
 using static Program.DevFacet;
 
@@ -224,9 +230,9 @@ namespace DevApps.GUI
 
             if (isDoubleClick && selectedElement is DrawText)
             {
-                var geo = ((selectedElement as DrawText).Tag as DevFacet.Text);
+                var text = ((selectedElement as DrawText).Tag as DevFacet.Text);
                 var wnd = new GetText();
-                wnd.Value = geo.text;
+                wnd.Value = text.text;
                 wnd.IsMultiline = true;
                 wnd.Owner = Window.GetWindow(this);
                 wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -235,7 +241,7 @@ namespace DevApps.GUI
                 {
                     if ((selectedElement as DrawText).SetText(wnd.Value))
                     {
-                        geo.text = wnd.Value;
+                        text.text = wnd.Value;
                     }
                     else
                         MessageBox.Show("Le texte ne peut pas être vide");
@@ -339,6 +345,49 @@ namespace DevApps.GUI
                         if (reference != null)
                         {
                             Program.DevObject.Build([new KeyValuePair<string, DevObject>(selectedElement.Name, reference)]);
+                        }
+                    };
+                    menu.Items.Add(m);
+                }
+
+                menu.Items.Add(new Separator());
+
+                {
+                    var m = new MenuItem { Header = "Définir comme modèle" };
+                    m.Click += (s, e) =>
+                    {
+                        Program.DevObject.mutexCheckObjectList.WaitOne();
+                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                        if (reference != null && reference is DevObjectInstance)
+                        {
+                            var inst = (reference as DevObjectInstance);
+                            if(inst.guid == null)
+                                inst.guid = Guid.NewGuid();
+                        }
+                    };
+                    menu.Items.Add(m);
+                }
+
+                menu.Items.Add(new Separator());
+
+                {
+                    var m = new MenuItem { Header = "Dupliquer" };
+                    m.Click += (s, e) =>
+                    {
+                        Program.DevObject.mutexCheckObjectList.WaitOne();
+                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                        if (reference != null)
+                        {
+                            var newReference = reference.Clone();
+                            var name = selectedElement?.Name;
+                            Program.DevObject.MakeUniqueName(ref name);
+                            Program.DevObject.References.Add(name, newReference);
+                            facette.Objects.Add(name, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
+                            AddElement(name, facette.Objects[name]);
                         }
                     };
                     menu.Items.Add(m);
@@ -725,7 +774,7 @@ namespace DevApps.GUI
             return ResizeDirection.None;
         }
 
-        private DrawElement AddElement(string name, DevFacet.ObjectProperties properties)
+        internal DrawElement AddElement(string name, DevFacet.ObjectProperties properties)
         {
             var o = DevObject.References.FirstOrDefault(p => p.Key == name);
 
@@ -750,27 +799,62 @@ namespace DevApps.GUI
             return element;
         }
 
-        private DrawGeometry AddGeometry(System.Windows.Media.Geometry geometry, double x, double y)
+        internal void RemoveElement(string name)
         {
-            var element = new DrawGeometry(geometry);
+            var element = MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+            if (element != null)
+                MyCanvas.Children.Remove(element);
+        }
+
+        internal DrawElement? GetElement(string name)
+        {
+            return MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+        }
+
+        internal DrawGeometry AddGeometry(DevFacet.Geometry geometry)
+        {
+            var element = new DrawGeometry(System.Windows.Media.Geometry.Parse(geometry.path));
             element.Tag = geometry;
+            element.DataContext = geometry.path;
             element.RenderTransform = _transformGroup;
-            Canvas.SetLeft(element, x);
-            Canvas.SetTop(element, y);
+            Canvas.SetLeft(element, geometry.X);
+            Canvas.SetTop(element, geometry.Y);
             MyCanvas.Children.Add(element);
             return element;
         }
 
-        private DrawText AddText(string text, double x, double y)
+        internal void RemoveGeometry(int index)
         {
-            var element = new DrawText(text);
+            if (index >= this.facette.Geometries.Count)
+                return;
+            var geometry = this.facette.Geometries[index];
+            var element = MyCanvas.Children.OfType<DrawGeometry>().FirstOrDefault(p=> p.Tag == geometry);
+            if (element != null)
+                MyCanvas.Children.Remove(element);
+        }
+
+        internal DrawText AddText(DevFacet.Text text)
+        {
+            var element = new DrawText(text.text);
             element.Tag = text;
+            element.DataContext = text.text;
             element.RenderTransform = _transformGroup;
-            Canvas.SetLeft(element, x);
-            Canvas.SetTop(element, y);
+            Canvas.SetLeft(element, text.X);
+            Canvas.SetTop(element, text.Y);
             MyCanvas.Children.Add(element);
             return element;
         }
+
+        internal void RemoveText(int index)
+        {
+            if (index >= this.facette.Texts.Count)
+                return;
+            var text = this.facette.Texts[index];
+            var element = MyCanvas.Children.OfType<DrawText>().FirstOrDefault(p => p.Tag == text);
+            if (element != null)
+                MyCanvas.Children.Remove(element);
+        }
+
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
@@ -778,20 +862,17 @@ namespace DevApps.GUI
             {
                 foreach (var obj in this.facette.Objects)
                 {
-                    var draw = AddElement(obj.Key, obj.Value);
-                    draw.Tag = obj;
+                    AddElement(obj.Key, obj.Value);
                 }
 
                 foreach (var obj in this.facette.Geometries)
                 {
-                    var draw = AddGeometry(System.Windows.Media.Geometry.Parse(obj.path), obj.X, obj.Y);
-                    draw.Tag = obj;
+                    AddGeometry(obj);
                 }
 
                 foreach (var obj in this.facette.Texts)
                 {
-                    var draw = AddText(obj.text, obj.X, obj.Y);
-                    draw.Tag = obj;
+                    AddText(obj);
                 }
 
                 CommandsItems.AddRange(this.facette.BuildCommands.Select(p => new CommandItem { Status = "Ready", Description = p.Key, CommandLine = p.Value }));
@@ -877,7 +958,26 @@ namespace DevApps.GUI
 
         internal void InvalidateObjects()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Items"));
+            if (Service.IsInitialized)
+            {
+                var elements = MyCanvas.Children.OfType<DrawElement>();
+                foreach (var element in elements)
+                    MyCanvas.Children.Remove(element);
+
+                foreach (var obj in this.facette.Objects)
+                {
+                    AddElement(obj.Key, obj.Value);
+                }
+            }
+        }
+
+        internal void InvalidateCommands()
+        {
+            if (Service.IsInitialized)
+            {
+                CommandsItems.Clear();
+                CommandsItems.AddRange(this.facette.BuildCommands.Select(p => new CommandItem { Status = "Ready", Description = p.Key, CommandLine = p.Value }));
+            }
         }
 
         private void dataGrid_Drop(object sender, DragEventArgs e)
@@ -1015,7 +1115,7 @@ namespace DevApps.GUI
             {
                 case CapturePointMode.Text:
                     capturePath = new StringBuilder();
-                    captureDraw = AddText("Texte", position.X, position.Y);
+                    captureDraw = AddText(new DevFacet.Text(position.X, position.Y, "Texte"));
                     captureCloseable = true;
                     break;
                 default:
@@ -1036,7 +1136,7 @@ namespace DevApps.GUI
             {
                 case CapturePointMode.PrintZone:
                     capturePath = new StringBuilder("M 0,0");
-                    captureDraw = AddGeometry(System.Windows.Media.Geometry.Parse(capturePath.ToString()), position.X, position.Y);
+                    captureDraw = AddGeometry(new DevFacet.Geometry(position.X, position.Y, capturePath.ToString()));
                     captureCloseable = false;
                     break;
                 case CapturePointMode.Rectangle:
@@ -1045,7 +1145,7 @@ namespace DevApps.GUI
                 case CapturePointMode.Polyline:
                 case CapturePointMode.Polygon:
                     capturePath = new StringBuilder("M 0,0");
-                    captureDraw = AddGeometry(System.Windows.Media.Geometry.Parse(capturePath.ToString()), position.X, position.Y);
+                    captureDraw = AddGeometry(new DevFacet.Geometry(position.X, position.Y, capturePath.ToString()));
                     captureCloseable = false;
                     break;
             }
@@ -1186,8 +1286,10 @@ namespace DevApps.GUI
             {
                 if (captureDraw is DrawGeometry)
                 {
-                    var obj = new DevFacet.Geometry(captureDraw.X, captureDraw.Y, capturePath.ToString());
-                    captureDraw.Tag = obj;
+                    var obj = (DevFacet.Geometry)captureDraw.Tag;
+                    obj.X = Canvas.GetLeft(captureDraw);
+                    obj.Y = Canvas.GetTop(captureDraw);
+                    obj.path = capturePath.ToString();
                     facette.Geometries.Add(obj);
                 }
                 if (captureDraw is DrawText)
@@ -1198,8 +1300,10 @@ namespace DevApps.GUI
 
                     if (wnd.ShowDialog() == true && String.IsNullOrWhiteSpace(wnd.Value) == false)
                     {
-                        var obj = new DevFacet.Text(captureDraw.X, captureDraw.Y, wnd.Value);
-                        captureDraw.Tag = obj;
+                        var obj = (DevFacet.Text)captureDraw.Tag;
+                        obj.X = Canvas.GetLeft(captureDraw);
+                        obj.Y = Canvas.GetTop(captureDraw);
+                        obj.text = wnd.Value;
                         (captureDraw as DrawText).SetText(wnd.Value);
                         facette.Texts.Add(obj);
                     }
@@ -1338,6 +1442,11 @@ namespace DevApps.GUI
                 Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
                 Service.InvalidateFacets();
             }
+        }
+
+        private void MenuItem_CommandsParse_Click(object sender, RoutedEventArgs e)
+        {
+            Program.ParseCommands(Clipboard.GetText());
         }
     }
 }

@@ -16,6 +16,7 @@ internal partial class Program
             public string target = string.Empty;
             public HashSet<string> tags = new HashSet<string>();
         }
+        public static IEnumerable<KeyValuePair<string, DevObject>> Models { get{ return References.Where(p => p.Value.IsModel()); } }
         public static Dictionary<string, DevObject> References = new Dictionary<string, DevObject>();
         internal static Mutex mutexExecuteObjects = new Mutex();
         internal static Mutex mutexCheckObjectList = new Mutex();
@@ -564,7 +565,8 @@ internal partial class Program
         }
 
 
-
+        public abstract DevObject Clone();
+        public abstract bool IsModel();
         public abstract string? GetDrawCode();
         public abstract DevObject SetDrawCode(string? code);
         public abstract DevObject SetOutput(byte[] data);

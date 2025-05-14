@@ -82,6 +82,16 @@ Liste des actions possibles :
 
 Lorsque tu réponds, répond avec une liste d’actions ordonnées pour arriver au résultat final demandé en te basant sur la structure actuelle du projet.
 
+
+Voici la structure JSON « Insérer une commande à une facette » :
+{
+   "action" : "INSERT_COMMAND",
+   "facet" : string (nom de la facette),
+   "position" : integer (position de la commande dans la liste),
+   "command" : string (nom de la commande),
+   "arguments" : rectangle (arguments de la commande)
+}
+
 Voici la structure JSON « Ajouter une géométrie à une facette » :
 {
    "action" : "ADD_GEOMETRY",
@@ -94,16 +104,54 @@ Voici la structure JSON « Retirer une géométrie à une facette » :
 {
    "action" : "REMOVE_GEOMETRY",
    "facet" : string (nom de la facette),
-   "guid" : string (identifiant de la géométrie dans la vue)
+   "index" : string (index de la géométrie dans la vue)
 }
 
-Voici la structure JSON « Insérer une commande à une facette » :
+Voici la structure JSON « Ajouter un objet à une facette » :
 {
-   "action" : "INSERT_COMMAND",
+   "action" : "ADD_OBJECT",
    "facet" : string (nom de la facette),
-   "position" : integer (position de la commande dans la liste),
-   "command" : string (nom de la commande),
-   "arguments" : rectangle (arguments de la commande)
+   "name" : string (nom de l'objet),
+   "position" : point (position de l’objet dans la vue),
+   "size" : point (taille de l’objet dans la vue)
+}
+
+Voici la structure JSON « Retirer un objet d’une facette » :
+{
+   "action" : "REMOVE_OBJECT",
+   "facet" : string (nom de la facette),
+   "path" : string (syntaxe de la géométrie au format Path string en WPF),
+   "position" : rectangle (position de l’objet dans la vue)
+}
+
+Voici la structure JSON « Déplacer un objet dans une facette » :
+{
+   "action" : "MOVE_OBJECT",
+   "facet" : string (nom de la facette),
+   "name" : string (nom de l'objet),
+   "path" : string (syntaxe de la géométrie au format Path string en WPF),
+   "position" : rectangle (position de l’objet dans la vue)
+}
+
+Voici la structure JSON « Supprimer un objet » :
+{
+   "action" : "DELETE_OBJECT",
+   "name" : string (nom de l'objet)
+}
+
+Voici la structure JSON « Créer un objet » :
+{
+   "action" : "CREATE_OBJECT",
+   "name" : string (nom de l'objet),
+   "description" : string (description de l’objet),
+   "tags" : array of string (optionel, tags de l'objet)
+}
+
+Voici la structure JSON « Renommer un objet » :
+{
+   "action" : "RENAME_OBJECT",
+   "name" : string (nouveau nom de l'objet),
+   "new_name" : string (nouveau nom de l'objet)
 }
 
 

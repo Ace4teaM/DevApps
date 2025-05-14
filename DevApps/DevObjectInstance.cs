@@ -12,6 +12,16 @@ internal partial class Program
     public class DevObjectInstance : DevObject
     {
         /// <summary>
+        /// identifiant de l'objet modèle de celui-ci (pour mise à jour)
+        /// </summary>
+        internal Guid? baseGuid = null;
+
+        /// <summary>
+        /// identifiant unique de l'objet (si déclaré comme modèle)
+        /// </summary>
+        internal Guid? guid = null;
+
+        /// <summary>
         /// Pointeurs vers des objets existants
         /// </summary>
         internal Dictionary<string, Pointer> pointers = new Dictionary<string, Pointer>(); // name, refName
@@ -69,6 +79,30 @@ internal partial class Program
             {
                 return Encoding.UTF8.GetString(buildStream.GetBuffer());
             }
+        }
+
+        public override DevObjectInstance Clone()
+        {
+            return new DevObjectInstance { 
+                baseGuid = this.guid,
+                guid = null,
+                buildMethod = this.buildMethod,
+                buildStream = new MemoryStream(buildStream.ToArray()),
+                drawCode = this.drawCode,
+                functions = new Dictionary<string, (string, CompiledCode?)>(this.functions),
+                properties = new Dictionary<string, (string, CompiledCode?)>(this.properties),
+                initMethod = this.initMethod,
+                loopMethod = this.loopMethod,
+                objectCode = this.objectCode,
+                userAction = this.userAction,
+                tags = new HashSet<string>(this.tags),
+                pointers = new Dictionary<string, Pointer>(this.pointers),
+            };
+        }
+
+        public override bool IsModel()
+        {
+            return this.guid != null;
         }
 
         public override string? GetDrawCode()

@@ -1,6 +1,10 @@
+# DevApps
+
+## Qu'est ce que c'est ?
+
 DevApps est un outil de conception généraliste permettant de créer des présentations de processus dans un environnement simulé.
 
-Enfin la phase de build permet le génération de code/données pour assister la réalisation de projets.
+La phase de build permet le génération de code/données pour assister la réalisation de projets.
 
 Il est adapté à plusieurs situations
 
@@ -14,4 +18,12 @@ La force réside dans l'utilisation de facettes permettant de focaliser la créati
 
 DevApps est conçu pour ne pas imposer de concept interne inaliénable. Le logiciel ne fait que poser les bases d'objets interagissant avec des scripts. Le gros de la valeur ajouté se trouve dans les bibliothèques d'objets totalement personnalisables et échangeable. DevApps n'a pas pour objectif d'être auto suffisant mais d'accompagner le développement de projet.
 
+## Instances, Modèles et Références
 
+Un objet peux être de 2 types Instance ou Référence.
+
+Une référence partage l'ensemble des paramètres d'une instance hormis les données.
+
+Une instance peux être un modèle ou posséder un modèle de base dans ce cas il possède ou référence un GUID. Contrairement à une référence une instance avec un modèle de base peux l'utiliser pour mettre à jour ses paramètres. Un modèle n'est pas une instance car l'objet qui en hérite garde son indépendance vis à vis de ce dernier, mettre à jour une instance depuis un modèle est une action de l'utilisateur.
+
+Un modèle peux faire partie du projet ou d'un projet partagé, le GUID permet de garantir l'unicité d'un objet. DevApps n'a plus qu'a chercher dans les différents projets partagés pour retrouver l'objet de base.  

@@ -93,7 +93,18 @@ internal partial class Program
         /// </summary>
         public override (string, CompiledCode?) DrawCode { get { return baseObject.drawCode; } }
 
+        public override DevObjectReference Clone()
+        {
+            return new DevObjectReference
+            {
+                buildStream = new MemoryStream(buildStream.GetBuffer())
+            };
+        }
 
+        public override bool IsModel()
+        {
+            return false;
+        }
 
         public override string? GetDrawCode()
         {
