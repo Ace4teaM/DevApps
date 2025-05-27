@@ -1,0 +1,79 @@
+﻿using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+
+namespace DevApps.AI
+{
+    internal static class ChatGPT
+    {
+        internal class ApiError
+        {
+            public string? message {get;set;}
+            public string? type {get;set;}
+            public string? param {get;set;}
+            public string? code {get;set;}
+        }
+        internal class ErrorResponse
+        {
+            public ApiError? error { get; set; }
+        }
+
+        internal static bool TryParseError(string response, out ErrorResponse? errorResponse)
+        {
+            errorResponse = System.Text.Json.JsonSerializer.Deserialize<ErrorResponse>(response);
+            if (errorResponse == null || errorResponse.error == null)
+                return false;
+
+            if (errorResponse.error.message == null)
+                return false;
+
+            return true;
+        }
+        internal static async Task<string> Send(string message)
+        {
+            Program.DevVariable.mutexCheckVariableList.WaitOne();
+            Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_API_KEY", out var apiKey);
+            Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_MODEL", out var model);//"gpt-4" ou "gpt-3.5-turbo"
+            Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_URL", out var endpoint);//https://api.openai.com/v1/chat/completions
+            Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+
+            if (apiKey == null)
+            {
+                throw new Exception("API key not found.");
+            }
+
+            if (endpoint == null)
+            {
+                endpoint = new Program.DevVariable { Value = "https://api.openai.com/v1/chat/completions" };
+            }
+
+            if (model == null)
+            {
+                model = new Program.DevVariable { Value = "gpt-3.5-turbo" };
+            }
+
+            using HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey.Value.ToString());
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var requestBody = new
+            {
+                model = model.Value.ToString(),
+                messages = new[]
+                {
+                    new { role = "system", content = Profile.GetContext() },
+                    new { role = "user", content = message }
+                },
+                temperature = 0.7
+            };
+
+            string json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await client.PostAsync(endpoint.Value.ToString(), content);
+            return await response.Content.ReadAsStringAsync();
+        }
+    }
+}

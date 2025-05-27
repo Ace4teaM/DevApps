@@ -21,10 +21,12 @@ internal partial class Program
 {
     internal static string[] Keywords = { "class", "def", "if", "else", "elif", "while", "for", "in", "return", "break", "continue", "try", "except", "finally", "with", "as", "import", "from", "global", "nonlocal", "desc", "name", "out", "gui", "types" };
 
+    internal static readonly string IaProfile = "Profile.txt";
+    internal static readonly string IaUserProfile = "Profile.user.txt";
     internal static readonly string DevBranch = "devapps";
     internal static readonly string Filename = "devapps.json";
     internal static readonly string DataDir = ".devapps";
-    internal static string ExecutableSharedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+    internal static string ExecutablePath = System.AppDomain.CurrentDomain.BaseDirectory;
     internal static string CommonSharedPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Shared");
     internal static readonly string CommonObjPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Objects");
     internal static ScriptEngine pyEngine = null;

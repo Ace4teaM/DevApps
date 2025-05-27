@@ -18,48 +18,16 @@ namespace DevApps.App
             InitializeComponent();
             this.DataContext = this;
 
-            try
-            {
-                Profile = File.ReadAllText(Path.Combine(Program.ExecutableSharedPath, "Profile.txt"));
-            }
-            catch (Exception ex)
-            {
-                Profile = String.Empty;
-                Console.WriteLine(ex.Message);
-            }
+            Profile = AI.Profile.GetContext();
+            Project = AI.Profile.GetProject();
 
             try
             {
-                ProfileUser = File.ReadAllText(Path.Combine(Program.ExecutableSharedPath, "Profile.user.txt"));
+                ProfileUser = File.ReadAllText(Path.Combine(Program.ExecutablePath, Program.IaUserProfile));
             }
             catch (Exception ex)
             {
                 ProfileUser = String.Empty;
-                Console.WriteLine(ex.Message);
-            }
-
-            try
-            {
-                MemoryStream stream = new MemoryStream();
-                using TextWriter writer = new StreamWriter(stream);
-
-                var settings = new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented
-                };
-                JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
-
-                serializer.Serialize(writer, new Serializer.DevProject());
-
-                writer.Flush();
-
-                Project = Encoding.UTF8.GetString(stream.ToArray());
-
-                stream.Dispose();
-            }
-            catch (Exception ex)
-            {
-                Project = String.Empty;
                 Console.WriteLine(ex.Message);
             }
         }
@@ -68,7 +36,7 @@ namespace DevApps.App
         {
             try
             {
-                File.WriteAllText(Path.Combine(Program.ExecutableSharedPath, "Profile.user.txt"), ProfileUser);
+                File.WriteAllText(Path.Combine(Program.ExecutablePath, "Profile.user.txt"), ProfileUser);
             }
             catch (Exception ex)
             {

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DevApps.GUI"
+        xmlns:app="clr-namespace:DevApps.App"
         mc:Ignorable="d"
         PreviewKeyDown="Window_PreviewKeyDown"
         PreviewKeyUp="Window_PreviewKeyUp"
@@ -24,9 +25,54 @@
         </Grid>
         <Border DockPanel.Dock="Bottom" Background="LightGray">
             <DockPanel>
-                <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Settings_MouseLeftButtonUp">⚙️</TextBlock>
-                <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Menu_MouseLeftButtonUp">🡅</TextBlock>
-                <TextBlock Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Build_MouseLeftButtonUp">⩸</TextBlock>
+                <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Settings_MouseLeftButtonUp" ToolTip="Préférences">⚙️</TextBlock>
+                <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Menu_MouseLeftButtonUp" ToolTip="Importer">🡅</TextBlock>
+                <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Build_MouseLeftButtonUp" ToolTip="Construire">⩸</TextBlock>
+                <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="IA_MouseLeftButtonUp" ToolTip="Agent IA">!</TextBlock>
+                <Popup Name="ChatPopup"
+                       Placement="MousePoint"
+                       AllowsTransparency="True"
+                       StaysOpen="False"
+                       PopupAnimation="Fade">
+                    <Popup.Resources>
+                        <DropShadowEffect x:Key="DropShadowEffect"
+                          Color="Black"
+                          Direction="270"
+                          ShadowDepth="5"
+                          BlurRadius="10"
+                          Opacity="0.3"/>
+                        <Style TargetType="TextBox" x:Key="RoundedTextBox">
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="BorderBrush" Value="#88BBDD"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="Padding" Value="5"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TextBox">
+                                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
+                                            <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Popup.Resources>
+                    <Grid>
+                        <Border Background="#D0E8FF" CornerRadius="15" Padding="15" Width="300" Effect="{DynamicResource DropShadowEffect}" BorderBrush="#88BBDD" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Saisissez votre demande :" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <TextBox Name="PopupInput" Style="{StaticResource RoundedTextBox}" Height="80" Margin="0,0,0,10" Background="White"/>
+                                <DockPanel>
+                                    <ComboBox Name="IACombo" DockPanel.Dock="Left" SelectedValuePath="Tag" Width="160">
+                                        <ComboBoxItem Tag="GPT">ChatGPT</ComboBoxItem>
+                                        <ComboBoxItem Tag="MISTRAL" IsSelected="True">Mistral</ComboBoxItem>
+                                    </ComboBox>
+                                    <Button DockPanel.Dock="Right" Content="{Binding SendButtonText}" Width="80" HorizontalAlignment="Right" Click="IASendPopup_Click" IsDefault="True"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Popup>
                 <TextBlock Foreground="Black" Text="{Binding StatusText}" Margin="6,0,0,0"></TextBlock>
             </DockPanel>
         </Border>

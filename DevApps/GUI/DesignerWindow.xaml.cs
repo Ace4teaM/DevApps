@@ -1,10 +1,14 @@
-﻿using DevApps.App;
+﻿using DevApps.AI;
+using DevApps.App;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -20,6 +24,16 @@ namespace DevApps.GUI
     {
         internal string statusText { get; set; }
         public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("StatusText")); } }
+        public string SendButtonText
+        {
+            get
+            {
+                if (AI.Service.IsRunning == false)
+                    return "Envoyer";
+                else
+                    return "Annuler";
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -48,9 +62,15 @@ namespace DevApps.GUI
             InitializeComponent();
             this.DataContext = this;
 
+            AI.Service.MessageReceived += Service_MessageReceived;
+
             StatusText = "Ready";
         }
 
+        private void Service_MessageReceived(object? sender, EventArgs e)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SendButtonText"));
+        }
 
         private void Settings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -400,6 +420,25 @@ namespace DevApps.GUI
             }
 
             lastModifier = Keyboard.Modifiers;
+        }
+
+        private void IASendPopup_Click(object sender, RoutedEventArgs e)
+        {
+            if(AI.Service.IsRunning)
+            {
+                AI.Service.Cancel();
+            }
+            else
+            {
+                AI.Service.Send(PopupInput.Text);
+            }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SendButtonText"));
+        }
+
+        private void IA_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ChatPopup.IsOpen = true;
         }
     }
 }

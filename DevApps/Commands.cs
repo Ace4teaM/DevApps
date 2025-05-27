@@ -1,36 +1,48 @@
-﻿using static IronPython.Modules._ast;
-using System.Net;
+﻿using DevApps.GUI;
 using System.Windows;
-using DevApps.GUI;
-using static Program.DevFacet;
 using System.Windows.Controls;
+using static Program.DevFacet;
 
-internal class Command
+namespace Commands
 {
-    public string? action { get; set; }
-    public string? name { get; set; }
-    public string? new_name { get; set; }
-    public string? description { get; set; }
-    public string? editor { get; set; }
-    public string[]? tags { get; set; }
-    public string? initMethod { get; set; }
-    public string? buildMethod { get; set; }
-    public string? facet { get; set; }
-    public string? position { get; set; }
-    public string? size { get; set; }
-    public string? command { get; set; }
-    public string? arguments { get; set; }
-    public string? path { get; set; }
-    public string? guid { get; set; }
-    public string? index { get; set; }
-}
+    internal class Position
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+    }
 
+    internal class Size
+    {
+        public int width { get; set; }
+        public int height { get; set; }
+    }
+
+    internal class Command
+    {
+        public string? action { get; set; }
+        public string? name { get; set; }
+        public string? new_name { get; set; }
+        public string? description { get; set; }
+        public string? editor { get; set; }
+        public string[]? tags { get; set; }
+        public string? initMethod { get; set; }
+        public string? buildMethod { get; set; }
+        public string? facet { get; set; }
+        public Position? position { get; set; }
+        public Size? size { get; set; }
+        public string? command { get; set; }
+        public string? arguments { get; set; }
+        public string? path { get; set; }
+        public string? guid { get; set; }
+        public string? index { get; set; }
+    }
+}
 
 internal partial class Program
 {
     internal static void ParseCommands(string commands)
     {
-        var cmdList = System.Text.Json.JsonSerializer.Deserialize<List<Command>>(commands);
+        var cmdList = System.Text.Json.JsonSerializer.Deserialize<List<Commands.Command>>(commands);
         if (cmdList == null)
             return;
 
@@ -52,7 +64,7 @@ internal partial class Program
 
                             facet.BuildCommands.Add(cmd.command, cmd.arguments);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
 
                             if(currentView != null && currentView.facette == facet)
                             {
@@ -70,13 +82,13 @@ internal partial class Program
                             if (facet == null)
                                 throw new Exception(@"La facette {cmd.facet} n'existe pas");
 
-                            var position = Point.Parse(cmd.position);
+                            var position = new Point(cmd.position.x, cmd.position.y);
 
                             var geometry = new DevFacet.Geometry(position.X, position.Y, cmd.path);
 
                             facet.Geometries.Add(geometry);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -102,7 +114,7 @@ internal partial class Program
 
                             var geometry = facet.Geometries[index];
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -120,11 +132,11 @@ internal partial class Program
                             if (facet == null)
                                 throw new Exception(@"La facette {cmd.facet} n'existe pas");
 
-                            var position = Point.Parse(cmd.position);
+                            var position = new Point(cmd.position.x, cmd.position.y);
 
-                            var size = Point.Parse(cmd.size);
+                            var size = new Point(cmd.size.width, cmd.size.height);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -146,7 +158,7 @@ internal partial class Program
 
                             facet.Objects.Remove(cmd.name);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -166,11 +178,11 @@ internal partial class Program
 
                             var obj = DevObject.Get(cmd.name);
 
-                            var position = Point.Parse(cmd.position);
+                            var position = new Point(cmd.position.x, cmd.position.y);
 
-                            var size = Point.Parse(cmd.size);
+                            var size = new Point(cmd.size.width, cmd.size.height);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -190,21 +202,19 @@ internal partial class Program
                             if (cmd.name == null)
                                 throw new ArgumentException();
 
-                            var facet = DevFacet.Get(cmd.facet);
-
-                            if (facet == null)
-                                throw new Exception(@"La facette {cmd.facet} n'existe pas");
-
                             var obj = DevObject.Get(cmd.name);
 
                             DevObject.DeleteObject(cmd.name);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerDataView;
 
-                            if (currentView != null && currentView.facette == facet)
+                            if (currentView != null)
                             {
-                                currentView.RemoveElement(cmd.name);
+                                currentView.InvalidateObjects();
                             }
+
+                            // facette ?
+                            //var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
                         }
                         break;
                     case "CREATE_OBJECT":
@@ -214,7 +224,7 @@ internal partial class Program
 
                             var obj = DevObject.Create(cmd.name, cmd.description, cmd.tags ?? new string[0]);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerDataView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerDataView;
 
                             if (currentView != null)
                             {
@@ -238,7 +248,7 @@ internal partial class Program
                             DevObject.References[cmd.name] = obj;
                             DevObject.References.Remove(cmd.new_name);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.content as DesignerDataView;
+                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerDataView;
 
                             if (currentView != null)
                             {
