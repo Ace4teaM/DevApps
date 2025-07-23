@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace DevApps.App
+namespace DevApps.Appli
 {
     /// <summary>
     /// Logique d'interaction pour ExternalTools.xaml

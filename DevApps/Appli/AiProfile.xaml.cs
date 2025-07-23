@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 
-namespace DevApps.App
+namespace DevApps.Appli
 {
     /// <summary>
     /// Logique d'interaction pour AiProfile.xaml

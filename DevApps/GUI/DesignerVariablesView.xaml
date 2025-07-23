@@ -7,6 +7,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <Style x:Key="CenteredTextStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,0,0,0"/>
+        </Style>
+        <Style x:Key="CenteredEditingStyle" TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,0,0,0"/>
+        </Style>
         <local:BoolConverter x:Key="boolConverter"/>
     </UserControl.Resources>
     <Grid>
@@ -23,9 +31,9 @@
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="auto" MinWidth="130" />
-                <DataGridTextColumn Header="Valeur" Binding="{Binding Value}" Width="auto" MinWidth="160" />
-                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" />
+                    <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="auto" MinWidth="130" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Valeur" Binding="{Binding Value}" Width="auto" MinWidth="160" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
                 </DataGrid.Columns>
         </DataGrid>
         </GroupBox>
@@ -38,9 +46,9 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="auto" MinWidth="130" />
-                    <DataGridTextColumn Header="Valeur" Binding="{Binding Value}" Width="auto" MinWidth="160" />
-                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" />
+                    <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="auto" MinWidth="130" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Valeur" Binding="{Binding Value}" Width="auto" MinWidth="160" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>

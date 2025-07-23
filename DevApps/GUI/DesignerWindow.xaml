@@ -4,24 +4,143 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DevApps.GUI"
-        xmlns:app="clr-namespace:DevApps.App"
+        xmlns:app="clr-namespace:DevApps.Appli"
         mc:Ignorable="d"
         PreviewKeyDown="Window_PreviewKeyDown"
         PreviewKeyUp="Window_PreviewKeyUp"
+        WindowStyle="None"
         Title="DesignerWindow" Height="509" Width="979">
+    <Window.Resources>
+        <local:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
     <DockPanel>
-        <Grid DockPanel.Dock="Top" Background="#EEEEEE">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-                <ColumnDefinition Width="auto"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Variables_MouseLeftButtonUp" Cursor="Hand">Variables</TextBlock>
-                <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Objects_MouseLeftButtonUp" Cursor="Hand">Objets</TextBlock>
+        <DockPanel DockPanel.Dock="Top" Background="Gray" Height="35" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown"
+                     Focusable="False"
+                     FocusVisualStyle="{x:Null}">
+            <DockPanel.Resources>
+                <Style x:Key="SystemButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                    <Setter Property="Margin" Value="5,0,5,0"></Setter>
+                    <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                    <Setter Property="Width" Value="30"></Setter>
+                    <Setter Property="Height" Value="30"></Setter>
+                    <Setter Property="FontSize" Value="20"></Setter>
+                    <Setter Property="FontStyle" Value="Normal"></Setter>
+                    <Setter Property="Focusable" Value="False"></Setter>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
+                    <Setter Property="Padding" Value="0"></Setter>
+                </Style>
+                <Style x:Key="ToggleButtonStyle" TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
+                    <Setter Property="Margin" Value="3,0,0,0"></Setter>
+                    <Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                    <Setter Property="Width" Value="80"></Setter>
+                    <Setter Property="Background" Value="Transparent"></Setter>
+                    <Setter Property="Cursor" Value="Hand"></Setter>
+                    <Setter Property="Focusable" Value="False"></Setter>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
+                </Style>
+            </DockPanel.Resources>
+            <Button DockPanel.Dock="Left" Click="Button_Click" Background="Transparent" BorderThickness="0" Padding="0" Margin="0">
+                <Image RenderOptions.BitmapScalingMode="HighQuality" Source="pack://application:,,,/DevApps;component/DevApps.ico" Margin="10,0,10,0" Width="30" Height="30"/>
+            </Button>
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsVariablesView, Mode=OneWay}" Click="Variables_MouseLeftButtonUp">Variables</ToggleButton>
+                <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsObjectsView, Mode=OneWay}" Click="Objects_MouseLeftButtonUp">Objets</ToggleButton>
+                <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsDesignerView, Mode=OneWay}" Click="Facets_MouseLeftButtonUp">Facettes</ToggleButton>
             </StackPanel>
-            <StackPanel x:Name="tabFacettes" Grid.Column="1" Orientation="Horizontal"></StackPanel>
-            <TextBlock Grid.Column="2" Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Add_MouseLeftButtonUp" Cursor="Hand">+</TextBlock>
+            <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
+            <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
+            <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
+            <Grid></Grid>
+        </DockPanel>
+        <Grid DockPanel.Dock="Top" Margin="0,5,0,0" Background="#EEEEEE">
+            <DockPanel Height="26" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Border DockPanel.Dock="Right"
+                            Background="Gray"
+                            BorderBrush="Gray"
+                            BorderThickness="2"
+                            CornerRadius="4,4,0,0"
+                            Padding="0">
+                    <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Add_MouseLeftButtonUp" Cursor="Hand">➕</TextBlock>
+                </Border>
+                <ListBox
+                     x:Name="FacetListBox"
+                     HorizontalAlignment="Center"
+                     ItemsSource="{Binding FacetItems}"
+                     SelectedItem="{Binding SelectedFacet, Mode=TwoWay}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     SelectionChanged="ListBox_SelectionChanged"
+                     BorderThickness="0"
+                     Focusable="False"
+                     FocusVisualStyle="{x:Null}"
+                     Background="Transparent" Grid.ColumnSpan="2">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            <Setter Property="OverridesDefaultStyle" Value="True"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4,4,0,0"
+                            Padding="0">
+                                            <Border.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteFacet"/>
+                                                </ContextMenu>
+                                            </Border.ContextMenu>
+                                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="LightBlue"/>
+                                                <Setter TargetName="Bd" Property="BorderBrush" Value="DodgerBlue"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="False">
+                                                <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
+                                                <Setter TargetName="Bd" Property="BorderBrush" Value="Gray"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="#FFE0F0FF"/>
+                                                <Setter TargetName="Bd" Property="BorderBrush" Value="CornflowerBlue"/>
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <!-- Style pour les items -->
+                        <DataTemplate>
+                            <Grid MinWidth="90" Cursor="Hand">
+                                <TextBlock Background="Transparent" Text="{Binding Header}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="10" FontFamily="Verdana" FontWeight="SemiBold"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </DockPanel>
         </Grid>
         <Border DockPanel.Dock="Bottom" Background="LightGray">
             <DockPanel>
@@ -77,7 +196,7 @@
             </DockPanel>
         </Border>
         <ContentControl x:Name="content">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="50pt" FontFamily="Bauhaus 93">DevApps</TextBlock>
+            <local:WelcomeView></local:WelcomeView>
         </ContentControl>
     </DockPanel>
 </Window>

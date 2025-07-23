@@ -1,19 +1,12 @@
-﻿using DevApps.AI;
-using DevApps.App;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Newtonsoft.Json;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace DevApps.GUI
 {
@@ -22,7 +15,7 @@ namespace DevApps.GUI
     /// </summary>
     public partial class DesignerWindow : Window, INotifyPropertyChanged
     {
-        internal string statusText { get; set; }
+        internal string statusText { get; set; } = "Ready";
         public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("StatusText")); } }
         public string SendButtonText
         {
@@ -37,6 +30,11 @@ namespace DevApps.GUI
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        protected void OnPropertyChange(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public new object Content
         {
             get
@@ -46,25 +44,56 @@ namespace DevApps.GUI
             set
             {
                 this.content.Content = value;
+                OnPropertyChange(nameof(IsObjectsView));
+                OnPropertyChange(nameof(IsVariablesView));
+                OnPropertyChange(nameof(IsDesignerView));
             }
         }
 
-        public IEnumerable<TabItem> FacettesTabItems
+        public class FacetItem
+        {
+            public string Header { get; set; }
+            internal Program.DevFacet Tag { get; set; }
+        }
+
+        public IEnumerable<FacetItem> FacetItems
         {
             get
             {
-                return Program.DevFacet.References.Select(p => new TabItem { Header = p.Key, Tag = p.Value });
+                return Program.DevFacet.References.Select(p=>new FacetItem {  Header = p.Key, Tag = p.Value });
             }
         }
 
+        public FacetItem? SelectedFacet
+        {
+            get;set;
+        }
+
+        Application app = new Application();
+
         public DesignerWindow()
         {
+            try
+            {
+                // Charger les dictionnaires WPF-UI
+                // https://github.com/dotnet/wpf/blob/e16222f888d89a3c06efd8fb252f67ed30f39050/src/Microsoft.DotNet.Wpf/src/Themes/PresentationFramework.Fluent/Themes/Fluent.Dark.xaml#L513-L518
+                var themeDictionary = new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml")
+                };
+
+                // Ajouter aux ressources globales
+                app.Resources.MergedDictionaries.Add(themeDictionary);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur lors du chargement des ressources : " + ex.Message);
+            }
+
             InitializeComponent();
             this.DataContext = this;
 
             AI.Service.MessageReceived += Service_MessageReceived;
-
-            StatusText = "Ready";
         }
 
         private void Service_MessageReceived(object? sender, EventArgs e)
@@ -79,7 +108,7 @@ namespace DevApps.GUI
             var m = new MenuItem { Header = "Applications externes..." };
             m.Click += (s, e) =>
             {
-                var wnd = new App.ExternalEditors();
+                var wnd = new Appli.ExternalEditors();
                 wnd.Owner = Window.GetWindow(this);
                 wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 wnd.ShowDialog();
@@ -89,7 +118,7 @@ namespace DevApps.GUI
             m = new MenuItem { Header = "Outils externes..." };
             m.Click += (s, e) =>
             {
-                var wnd = new App.ExternalTools();
+                var wnd = new Appli.ExternalTools();
                 wnd.Owner = Window.GetWindow(this);
                 wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 wnd.ShowDialog();
@@ -99,7 +128,7 @@ namespace DevApps.GUI
             m = new MenuItem { Header = "Profil IA..." };
             m.Click += (s, e) =>
             {
-                var wnd = new App.AiProfile();
+                var wnd = new Appli.AiProfile();
                 wnd.Owner = Window.GetWindow(this);
                 wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 wnd.ShowDialog();
@@ -296,60 +325,76 @@ namespace DevApps.GUI
 
         internal void InvalidateFacets()
         {
-            tabFacettes.Children.Clear();
-            foreach (var item in FacettesTabItems)
+            OnPropertyChange(nameof(FacetItems));
+        }
+
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var item = ((ListBox)sender).SelectedItem as FacetItem;
+            if(item != null)
             {
-                var tab = new TabItem { Header = item.Header, Tag = item.Tag, Cursor = Cursors.Hand };
-                tab.MouseLeftButtonUp += Tab_MouseLeftButtonUp;
-                tab.MouseRightButtonUp += Tab_MouseRightButtonUp;
-                tabFacettes.Children.Add(tab);
+                this.Content = new DesignerView(Program.DevFacet.References.First(p => p.Key == item.Header.ToString()).Value);
             }
         }
-
-        private void Tab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void MenuItem_Click_DeleteFacet(object sender, RoutedEventArgs e)
         {
-            var tab = (sender as TabItem);
-            foreach (var item in tabFacettes.Children.OfType<TabItem>())
+            if (SelectedFacet != null)
             {
-                item.Background = null;
+                Program.DevFacet.References.Remove(SelectedFacet.Header.ToString());
             }
-            tab.Background = Brushes.BlueViolet;
-            this.Content = new DesignerView(Program.DevFacet.References.First(p=>p.Key == tab.Header.ToString()).Value);
+
+            this.Content = new UserControl();
+
+            OnPropertyChange(nameof(FacetItems));
         }
 
-        private void Tab_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        private void Objects_MouseLeftButtonUp(object sender, RoutedEventArgs e)
         {
-            ContextMenu menu = new ContextMenu();
-            var m = new MenuItem { Header = "Supprimer" };
-            m.Click += (s, e) =>
-            {
-                var tab = (sender as TabItem);
-                tabFacettes.Children.Remove(tab);
+            SelectedFacet = null;
+            OnPropertyChange(nameof(SelectedFacet));
 
-                Program.DevFacet.References.Remove(tab.Header.ToString());
-
-                this.Content = new UserControl();
-            };
-            menu.Items.Add(m);
-            menu.Placement = PlacementMode.Mouse;
-            menu.IsOpen = true;
-        }
-
-        private void Objects_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
             this.Content = new DesignerDataView();
-            foreach (var item in tabFacettes.Children.OfType<TabItem>())
+
+            e.Handled = true;
+        }
+
+        private void Facets_MouseLeftButtonUp(object sender, RoutedEventArgs e)
+        {
+            FacetListBox.SelectedIndex = 0;
+            OnPropertyChange(nameof(SelectedFacet));
+            e.Handled = true;
+        }
+
+        private void Variables_MouseLeftButtonUp(object sender, RoutedEventArgs e)
+        {
+            SelectedFacet = null;
+            OnPropertyChange(nameof(SelectedFacet));
+
+            this.Content = new DesignerVariablesView();
+            e.Handled = true;
+        }
+
+        public bool IsObjectsView
+        {
+            get
             {
-                item.Background = null;
+                return this.Content is DesignerDataView;
             }
         }
 
-        private void Variables_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        public bool IsVariablesView
         {
-            this.Content = new DesignerVariablesView();
-            foreach (var item in tabFacettes.Children.OfType<TabItem>())
+            get
             {
-                item.Background = null;
+                return this.Content is DesignerVariablesView;
+            }
+        }
+
+        public bool IsDesignerView
+        {
+            get
+            {
+                return this.Content is DesignerView;
             }
         }
 
@@ -362,6 +407,7 @@ namespace DevApps.GUI
             {
                 Program.DevFacet.Create(wnd.Value, []);
                 InvalidateFacets();
+                FacetListBox.SelectedIndex = FacetListBox.Items.Count-1;
             }
         }
 
@@ -439,6 +485,42 @@ namespace DevApps.GUI
         private void IA_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             ChatPopup.IsOpen = true;
+        }
+
+        private void DockPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed && e.ClickCount == 2)
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            }
+            else if (e.ButtonState == MouseButtonState.Pressed && e.ClickCount == 1)
+            {
+                DragMove();
+            }
+            e.Handled = true;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+            e.Handled = true;
+        }
+
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            e.Handled = true;
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+            e.Handled = true;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Content = new WelcomeView();
         }
     }
 }

@@ -4,12 +4,31 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:DevApps.GUI"
+             xmlns:common="clr-namespace:System.Data.Common;assembly=System.Data.Common"
              mc:Ignorable="d" 
              x:Name="window"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <Pen x:Key="shapePen" Brush="Blue" Thickness="0.1" />
-        <Style x:Key="CenterGridHeaderStyle" TargetType="DataGridColumnHeader">
+        <Style x:Key="CenteredTextStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,0,0,0"/>
+        </Style>
+        <Style x:Key="CenteredEditingStyle" TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,0,0,0"/>
+        </Style>
+        <Style x:Key="WrappedAndCenteredTextStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style x:Key="WrappedAndCenteredEditingStyle" TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Pen x:Key="shapePen" Brush="{Binding AccentBrush}" Thickness="0.1" />
+        <Style x:Key="CenterGridHeaderStyle" TargetType="DataGridColumnHeader" BasedOn="{StaticResource DefaultDataGridColumnHeaderStyle}">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
@@ -64,14 +83,14 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="200" />
-                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" />
-                <DataGridTextColumn Header="Facettes" Binding="{Binding Facettes}" MinWidth="100" Width="auto" IsReadOnly="True" />
-                <DataGridTextColumn Header="Tags" Binding="{Binding Tags}" MinWidth="100" Width="auto" />
-                <DataGridTextColumn Header="Selections" Binding="{Binding Selections}" MinWidth="100" Width="auto" IsReadOnly="True" />
-                <DataGridTemplateColumn Header="A" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
+                <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="200" MinWidth="100" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" MinWidth="100" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                <DataGridTextColumn Header="Facettes" Binding="{Binding Facettes}" MinWidth="100" Width="auto" IsReadOnly="True" HeaderStyle="{StaticResource CenterGridHeaderStyle}" EditingElementStyle="{StaticResource WrappedAndCenteredEditingStyle}" ElementStyle="{StaticResource WrappedAndCenteredTextStyle}" />
+                <DataGridTextColumn Header="Tags" Binding="{Binding Tags}" HeaderStyle="{StaticResource CenterGridHeaderStyle}" MinWidth="100" Width="auto" EditingElementStyle="{StaticResource WrappedAndCenteredEditingStyle}" ElementStyle="{StaticResource WrappedAndCenteredTextStyle}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Selections" Binding="{Binding Selections}" HeaderStyle="{StaticResource CenterGridHeaderStyle}" MinWidth="100" Width="auto" IsReadOnly="True" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                <DataGridTemplateColumn Header="A" Width="20">
                     <DataGridTemplateColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
                             <Setter Property="ToolTip" Value="Action" />
                             <Setter Property="HorizontalAlignment"  Value="Center"/>
                         </Style>
@@ -79,14 +98,14 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="UserAction" Tag="{Binding UserAction}" Text="{Binding UserAction,  Converter={StaticResource editConverter}}" Width="30"/>
+                                <TextBlock x:Name="UserAction" Tag="{Binding UserAction}" Text="{Binding UserAction,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn Header="I" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                     <DataGridTemplateColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
                             <Setter Property="ToolTip" Value="Init" />
                             <Setter Property="HorizontalAlignment"  Value="Center"/>
                         </Style>
@@ -94,14 +113,14 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="InitMethod" Tag="{Binding InitMethod}" Text="{Binding InitMethod,  Converter={StaticResource editConverter}}" Width="30"/>
+                                <TextBlock x:Name="InitMethod" Tag="{Binding InitMethod}" Text="{Binding InitMethod,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn Header="L" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                     <DataGridTemplateColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
                             <Setter Property="ToolTip" Value="Loop" />
                             <Setter Property="HorizontalAlignment"  Value="Center"/>
                         </Style>
@@ -109,14 +128,14 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="LoopMethod" Tag="{Binding LoopMethod}" Text="{Binding LoopMethod,  Converter={StaticResource editConverter}}" Width="30"/>
+                                <TextBlock x:Name="LoopMethod" Tag="{Binding LoopMethod}" Text="{Binding LoopMethod,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn Header="B" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                     <DataGridTemplateColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
                             <Setter Property="ToolTip" Value="Build" />
                             <Setter Property="HorizontalAlignment"  Value="Center"/>
                         </Style>
@@ -124,14 +143,14 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="BuildMethod" Tag="{Binding BuildMethod}" Text="{Binding BuildMethod,  Converter={StaticResource editConverter}}" Width="30"/>
+                                <TextBlock x:Name="BuildMethod" Tag="{Binding BuildMethod}" Text="{Binding BuildMethod,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn Header="D" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                     <DataGridTemplateColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
                             <Setter Property="ToolTip" Value="Draw" />
                             <Setter Property="HorizontalAlignment"  Value="Center"/>
                         </Style>
@@ -139,14 +158,14 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="DrawCode" Tag="{Binding DrawCode}" Text="{Binding DrawCode,  Converter={StaticResource editConverter}}" Width="30"/>
+                                <TextBlock x:Name="DrawCode" Tag="{Binding DrawCode}" Text="{Binding DrawCode,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn Header="R" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
                     <DataGridTemplateColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
                             <Setter Property="ToolTip" Value="Reference" />
                             <Setter Property="HorizontalAlignment"  Value="Center"/>
                         </Style>
@@ -154,7 +173,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl>
-                                <TextBlock x:Name="IsReference" Tag="{Binding IsReference}" Text="{Binding IsReference,  Converter={StaticResource boolConverter}}" Width="30"/>
+                                <TextBlock x:Name="IsReference" Tag="{Binding IsReference}" Text="{Binding IsReference,  Converter={StaticResource boolConverter}}" Width="30" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

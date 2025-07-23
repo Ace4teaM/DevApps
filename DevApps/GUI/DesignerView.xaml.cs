@@ -1,21 +1,16 @@
 ﻿using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
-using PdfSharp.Pdf.Content.Objects;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Media3D;
-using static DevApps.GUI.DesignerView;
 using static Program;
 using static Program.DevFacet;
 
@@ -89,6 +84,22 @@ namespace DevApps.GUI
             MyCanvas.Children.Add(borderOver);
         }
 
+        private TooltipAdorner? currentAdorner = null;
+
+        private void RemoveAdorner()
+        {
+            if (currentAdorner != null)
+            {
+                AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(RootGrid);
+                if (adornerLayer != null)
+                {
+                    adornerLayer.Remove(currentAdorner);
+                }
+
+                currentAdorner = null;
+            }
+        }
+
         internal void DisplayInfos()
         {
             bool selectionChanged = selectedElement != lastSelectedElement;
@@ -98,9 +109,13 @@ namespace DevApps.GUI
 
             if (overElement == null)
             {
+                // Masque le nom de l'élément survolé
+                RemoveAdorner();
+
+                // Masque le nom dans la barre de status
                 Service.SetStatusText(String.Empty);
 
-                // Cache le cadre de l'objet
+                // Masque le cadre de l'objet
                 borderOver.Visibility = Visibility.Hidden;
                 // supprime les connecteurs
                 foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
@@ -125,6 +140,24 @@ namespace DevApps.GUI
                 // Affiche les connecteurs et nom de l'objet
                 if (selectionChanged)
                 {
+                    // Affiche le nom de l'élément survolé
+                    if (overElement is FrameworkElement fe)
+                    {
+                        Point pos = Mouse.GetPosition(this);
+
+                        RemoveAdorner();
+
+                        AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(RootGrid);
+                        if (adornerLayer != null)
+                        {
+                            currentAdorner = new TooltipAdorner(RootGrid, fe.Name);
+                            adornerLayer.Add(currentAdorner);
+                        }
+
+                        currentAdorner?.SetPosition(pos);
+                    }
+
+                    // Affiche le nom dans la barre de status
                     Service.SetStatusText(overElement.Name);
 
                     // supprime les connecteurs
@@ -186,6 +219,11 @@ namespace DevApps.GUI
                             Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
                             textBlock.InvalidateVisual();
                         }
+                    }
+                    if (currentAdorner != null && isSelectionMaintained == false)
+                    {
+                        Point pos = Mouse.GetPosition(this);
+                        currentAdorner?.SetPosition(pos);
                     }
                 }
             }
@@ -1448,5 +1486,17 @@ namespace DevApps.GUI
         {
             Program.ParseCommands(Clipboard.GetText());
         }
+
+       /* private void TooltipText_MouseEnter(object sender, MouseEventArgs e)
+        {
+            var obj = InfoPopup.Tag as DrawBase;
+            PopupContent.Content = new WelcomeView();
+        }
+
+        private void TooltipText_MouseLeave(object sender, MouseEventArgs e)
+        {
+            var obj = InfoPopup.Tag as DrawBase;
+            PopupContent.Content = null;
+        }*/
     }
 }
