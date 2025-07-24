@@ -798,7 +798,7 @@ namespace DevApps.PythonExtends
                 var editorName = Service.associatedEditors[editor];
                 var editorPath = Service.externalsEditors[editorName];
 
-                var path = Path.GetDirectoryName(editorPath).Replace(@"""","");
+                var path = Path.GetDirectoryName(editorPath)?.Replace(@"""","");
 
                 // creation de l'environnement de commandes
                 using System.Diagnostics.Process process = new System.Diagnostics.Process();

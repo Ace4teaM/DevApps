@@ -18,7 +18,7 @@ namespace DevApps.GUI
 
         public class TabItem
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = String.Empty;
             public string? Description { get; set; }
             public object Value
             {
@@ -37,7 +37,7 @@ namespace DevApps.GUI
 
         public class TabPrivateItem
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = String.Empty;
             public string? Description { get; set; }
             public object Value
             {

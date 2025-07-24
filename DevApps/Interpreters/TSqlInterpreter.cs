@@ -183,8 +183,8 @@ namespace DevApps.Interpreters
 
                             if (c1 is Create_tableContext)
                             {
-                                var table1 = c1 as Create_tableContext;
-                                var table2 = c2 as Create_tableContext;
+                                var table1 = (Create_tableContext)c1;
+                                var table2 = (Create_tableContext)c2;
 
                                 var sqlTable1 = new SqlTable();
                                 var sqlTable2 = new SqlTable();
@@ -273,7 +273,7 @@ namespace DevApps.Interpreters
 
             var input1 = Encoding.UTF8.GetString(in1.Stream.ToArray());//encoding a détecter
 
-            TSqlGlobalCollector? sqlGlobalCollector1;
+            TSqlGlobalCollector? sqlGlobalCollector1 = null;
 
             var inputStream = new AntlrInputStream(input1);
             var lexer = new TSqlLexer(inputStream);
@@ -386,8 +386,8 @@ namespace DevApps.Interpreters
 
                             if (c1 is Create_tableContext)
                             {
-                                var table1 = c1 as Create_tableContext;
-                                var table2 = c2 as Create_tableContext;
+                                var table1 = (Create_tableContext)c1;
+                                var table2 = (Create_tableContext)c2;
 
                                 var sqlTable1 = new SqlTable();
                                 var sqlTable2 = new SqlTable();

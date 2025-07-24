@@ -50,12 +50,12 @@ namespace Serializer
         public KeyValuePair<string, Program.DevObjectInstance.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, DevObject.Pointer>(value); } }
         public KeyValuePair<string, string?>[] Functions { get { return content.functions.Select(p=>new KeyValuePair<string,string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.functions = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value,null)))); } }
         public KeyValuePair<string, string?>[] Properties { get { return content.properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.properties = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value, null)))); } }
-        public string? UserAction { get { return content.userAction.Item1; } set { content.userAction = (value,null); } }
-        public string? LoopMethod { get { return content.loopMethod.Item1; } set { content.loopMethod = (value, null); ; } }
-        public string? InitMethod { get { return content.initMethod.Item1; } set { content.initMethod = (value, null); ; } }
-        public string? BuildMethod { get { return content.buildMethod.Item1; } set { content.buildMethod = (value, null); } }
-        public string? ObjectCode { get { return content.objectCode.Item1; } set { content.objectCode = (value, null); } }
-        public string? DrawCode { get { return content.drawCode.Item1; } set { content.drawCode = (value, null); } }
+        public string UserAction { get { return content.userAction.Item1; } set { content.userAction = (value,null); } }
+        public string LoopMethod { get { return content.loopMethod.Item1; } set { content.loopMethod = (value, null); ; } }
+        public string InitMethod { get { return content.initMethod.Item1; } set { content.initMethod = (value, null); ; } }
+        public string BuildMethod { get { return content.buildMethod.Item1; } set { content.buildMethod = (value, null); } }
+        public string ObjectCode { get { return content.objectCode.Item1; } set { content.objectCode = (value, null); } }
+        public string DrawCode { get { return content.drawCode.Item1; } set { content.drawCode = (value, null); } }
     }
 
     internal class DevObjectReference
