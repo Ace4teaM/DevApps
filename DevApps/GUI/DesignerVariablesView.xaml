@@ -23,7 +23,7 @@
             <RowDefinition Height="auto" MinHeight="160"></RowDefinition>
         </Grid.RowDefinitions>
         <GroupBox Grid.Row="0" Header="Variables Publiques">
-        <DataGrid x:Name="dataGrid" CellEditEnding="dataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
+        <DataGrid x:Name="dataGrid" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Nouvelle variable..." Click="MenuItem_Click_CreateVariable"></MenuItem>
@@ -38,7 +38,7 @@
         </DataGrid>
         </GroupBox>
         <GroupBox Grid.Row="1" Header="Variables Privées">
-            <DataGrid x:Name="dataGrid2" CellEditEnding="dataGrid_CellEditEnding2" AutoGenerateColumns="False" ItemsSource="{Binding PrivateItems}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
+            <DataGrid x:Name="dataGrid2" CellEditEnding="DataGrid_CellEditEnding2" AutoGenerateColumns="False" ItemsSource="{Binding PrivateItems}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Nouvelle variable..." Click="MenuItem_Click_CreateVariable2"></MenuItem>

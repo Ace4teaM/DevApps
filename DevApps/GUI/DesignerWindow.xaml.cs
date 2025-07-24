@@ -15,7 +15,7 @@ namespace DevApps.GUI
     /// </summary>
     public partial class DesignerWindow : Window, INotifyPropertyChanged
     {
-        internal string statusText { get; set; } = "Ready";
+        internal string statusText = "Ready";
         public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("StatusText")); } }
         public string SendButtonText
         {

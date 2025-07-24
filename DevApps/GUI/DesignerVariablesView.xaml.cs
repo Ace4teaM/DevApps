@@ -100,7 +100,7 @@ namespace DevApps.GUI
             this.DataContext = this;
         }
 
-        private void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (e.EditAction == DataGridEditAction.Commit)
             {
@@ -168,7 +168,7 @@ namespace DevApps.GUI
             }
         }
 
-        private void dataGrid_CellEditEnding2(object sender, DataGridCellEditEndingEventArgs e)
+        private void DataGrid_CellEditEnding2(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (e.EditAction == DataGridEditAction.Commit)
             {

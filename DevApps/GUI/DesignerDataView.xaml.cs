@@ -431,7 +431,7 @@ namespace DevApps.GUI
             }
         }
 
-        private void dataGrid_Drop(object sender, DragEventArgs e)
+        private void DataGrid_Drop(object sender, DragEventArgs e)
         {
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -618,12 +618,12 @@ namespace DevApps.GUI
             }
         }
 
-        private void dataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        private void DataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
             IsEditing = true;
         }
 
-        private void dataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             try
             {
@@ -747,7 +747,7 @@ namespace DevApps.GUI
         {
         }
 
-        private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (dataGrid.SelectedItem is TabItem selectedItem)
             {

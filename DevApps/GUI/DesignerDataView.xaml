@@ -37,7 +37,7 @@
         <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
     </UserControl.Resources>
     <Grid>
-        <DataGrid x:Name="dataGrid" SelectionChanged="dataGrid_SelectionChanged" BeginningEdit="dataGrid_BeginningEdit" CellEditEnding="dataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False" AllowDrop="True" Drop="dataGrid_Drop">
+        <DataGrid x:Name="dataGrid" SelectionChanged="DataGrid_SelectionChanged" BeginningEdit="DataGrid_BeginningEdit" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False" AllowDrop="True" Drop="DataGrid_Drop">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>

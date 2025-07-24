@@ -1046,7 +1046,7 @@ namespace DevApps.GUI
             }
         }
 
-        private void dataGrid_Drop(object sender, DragEventArgs e)
+        private void DataGrid_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {

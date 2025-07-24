@@ -10,23 +10,23 @@ namespace DevApps.AI
     {
         internal class ApiError
         {
-            public string? message {get;set;}
-            public string? type {get;set;}
-            public string? param {get;set;}
-            public string? code {get;set;}
+            public string? Message {get;set;}
+            public string? Type {get;set;}
+            public string? Param {get;set;}
+            public string? Code {get;set;}
         }
         internal class ErrorResponse
         {
-            public ApiError? error { get; set; }
+            public ApiError? Error { get; set; }
         }
 
         internal static bool TryParseError(string response, out ErrorResponse? errorResponse)
         {
             errorResponse = System.Text.Json.JsonSerializer.Deserialize<ErrorResponse>(response);
-            if (errorResponse == null || errorResponse.error == null)
+            if (errorResponse == null || errorResponse.Error == null)
                 return false;
 
-            if (errorResponse.error.message == null)
+            if (errorResponse.Error.Message == null)
                 return false;
 
             return true;

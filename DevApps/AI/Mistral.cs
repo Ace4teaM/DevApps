@@ -10,38 +10,38 @@ namespace DevApps.AI
     {
         internal class ChatMessage
         {
-            public string? role { get; set; }
-            public string? content { get; set; }
+            public string? Role { get; set; }
+            public string? Content { get; set; }
         }
 
         internal class Choice
         {
-            public int? index { get; set; }
-            public ChatMessage? message { get; set; }
-            public string? finish_reason { get; set; }
+            public int? Index { get; set; }
+            public ChatMessage? Message { get; set; }
+            public string? Finish_reason { get; set; }
         }
 
         internal class Usage
         {
-            public int? prompt_tokens { get; set; }
-            public int? completion_tokens { get; set; }
-            public int? total_tokens { get; set; }
+            public int? Prompt_tokens { get; set; }
+            public int? Completion_tokens { get; set; }
+            public int? Total_tokens { get; set; }
         }
 
         internal class ChatCompletionResponse
         {
-            public string? id { get; set; }
-            public string? @object { get; set; }
-            public long? created { get; set; }
-            public string? model { get; set; }
-            public List<Choice>? choices { get; set; }
-            public Usage? usage { get; set; }
+            public string? Id { get; set; }
+            public string? Object { get; set; }
+            public long? Created { get; set; }
+            public string? Model { get; set; }
+            public List<Choice>? Choices { get; set; }
+            public Usage? Usage { get; set; }
         }
 
         internal class ErrorResponse
         {
-            public string? message { get; set; }
-            public string? request_id { get; set; }
+            public string? Message { get; set; }
+            public string? Request_id { get; set; }
         }
 
         internal static bool TryParseError(string response, out ErrorResponse? errorResponse)
@@ -50,7 +50,7 @@ namespace DevApps.AI
             if (errorResponse == null)
                 return false;
 
-            if (errorResponse.message == null)
+            if (errorResponse.Message == null)
                 return false;
 
             return true;
@@ -61,10 +61,10 @@ namespace DevApps.AI
             message = null;
             
             var chatCompletionResponse = System.Text.Json.JsonSerializer.Deserialize<ChatCompletionResponse>(response);
-            if (chatCompletionResponse == null || chatCompletionResponse.choices == null || chatCompletionResponse.choices.Count == 0)
+            if (chatCompletionResponse == null || chatCompletionResponse.Choices == null || chatCompletionResponse.Choices.Count == 0)
                 return false;
 
-            message = chatCompletionResponse.choices[0]?.message?.content;
+            message = chatCompletionResponse.Choices[0]?.Message?.Content;
 
             if (message == null)
                 return false;

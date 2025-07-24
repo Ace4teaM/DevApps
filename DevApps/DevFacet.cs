@@ -118,7 +118,7 @@ internal partial class Program
             public System.Windows.Rect zone;
             public string? background;
             internal TitlePlacement title;
-            public string? titlePos
+            public string? TitlePos
             {
                 get
                 {

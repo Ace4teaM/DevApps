@@ -153,7 +153,7 @@ namespace DevApps.AI
                     var response = msgTask.Result;
 
                     if (Mistral.TryParseError(response, out Mistral.ErrorResponse? errorResponse))
-                        return errorResponse?.message;
+                        return errorResponse?.Message;
                     else if (Mistral.TryParseResponse(response, out string? message))
                         return message;
                     else
