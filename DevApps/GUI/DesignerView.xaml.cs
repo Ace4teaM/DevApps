@@ -998,7 +998,7 @@ namespace DevApps.GUI
         {
             if (Service.IsInitialized)
             {
-                var elements = MyCanvas.Children.OfType<DrawElement>();
+                var elements = MyCanvas.Children.OfType<DrawElement>().ToArray();
                 foreach (var element in elements)
                     MyCanvas.Children.Remove(element);
 
