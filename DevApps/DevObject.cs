@@ -1,6 +1,7 @@
 ﻿using DevApps;
 using DevApps.GUI;
 using Microsoft.Scripting.Hosting;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -279,9 +280,22 @@ internal partial class Program
             foreach (var o in list)
             {
                 o.Value.mutexReadOutput.WaitOne();
-                pyScope.SetVariable("out", o.Value.buildStream.GetBuffer());
-                pyScope.RemoveVariable("gui");
-                o.Value.LoopMethod.Item2?.Execute(pyScope);
+                try
+                {
+                    pyScope.SetVariable("out", o.Value.buildStream.GetBuffer());
+                    pyScope.RemoveVariable("gui");
+                    o.Value.LoopMethod.Item2?.Execute(pyScope);
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine("******************************************");
+                    System.Console.WriteLine("Timer: " + o.Key);
+                    ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                    string error = eo.FormatException(ex);
+                    System.Console.WriteLine(error);
+                    System.Console.WriteLine("******************************************");
+                }
+
                 o.Value.mutexReadOutput.ReleaseMutex();
             }
         }
@@ -402,10 +416,12 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine(o.Key);
+                    System.Console.WriteLine("******************************************");
+                    System.Console.WriteLine("Init: " + o.Key);
                     ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
                     string error = eo.FormatException(ex);
                     Console.WriteLine(error);
+                    System.Console.WriteLine("******************************************");
                 }
             }
             mutexExecuteObjects.ReleaseMutex();
@@ -453,10 +469,12 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine(o.Key);
+                    System.Console.WriteLine("******************************************");
+                    System.Console.WriteLine("Build: " + o.Key);
                     ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
                     string error = eo.FormatException(ex);
                     Console.WriteLine(error);
+                    System.Console.WriteLine("******************************************");
                 }
             }
             mutexExecuteObjects.ReleaseMutex();
@@ -470,14 +488,26 @@ internal partial class Program
         public static void Function(string obj, string func)
         {
             mutexExecuteObjects.WaitOne();
-            if (References.ContainsKey(obj))
+            try
             {
-                var o = References[obj];
-                if (o != null && o.Functions.ContainsKey(func))
+                if (References.ContainsKey(obj))
                 {
-                    var f = o.Functions[func];
-                    var result = f.Item2?.Execute(pyScope);
+                    var o = References[obj];
+                    if (o != null && o.Functions.ContainsKey(func))
+                    {
+                        var f = o.Functions[func];
+                        var result = f.Item2?.Execute(pyScope);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("******************************************");
+                System.Console.WriteLine("Function: " + func + " to " + obj);
+                ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                string error = eo.FormatException(ex);
+                System.Console.WriteLine(error);
+                System.Console.WriteLine("******************************************");
             }
             mutexExecuteObjects.ReleaseMutex();
         }
@@ -492,14 +522,26 @@ internal partial class Program
         {
             dynamic? ret = null;
             mutexExecuteObjects.WaitOne();
-            if (References.ContainsKey(obj))
+            try
             {
-                var o = References[obj];
-                if (o != null && o.Properties.ContainsKey(prop))
+                if (References.ContainsKey(obj))
                 {
-                    var p = o.Properties[prop];
-                    ret = p.Item2?.Execute(pyScope);
+                    var o = References[obj];
+                    if (o != null && o.Properties.ContainsKey(prop))
+                    {
+                        var p = o.Properties[prop];
+                        ret = p.Item2?.Execute(pyScope);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("******************************************");
+                System.Console.WriteLine("Property: " + prop + " to " + obj);
+                ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                string error = eo.FormatException(ex);
+                System.Console.WriteLine(error);
+                System.Console.WriteLine("******************************************");
             }
             mutexExecuteObjects.ReleaseMutex();
             return ret;

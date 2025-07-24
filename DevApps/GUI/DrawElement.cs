@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Microsoft.Scripting.Hosting;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -30,20 +31,31 @@ namespace DevApps.GUI
                 if (String.IsNullOrEmpty(reference.GetUserAction()) == false)
                 {
                     reference.mutexReadOutput.WaitOne();
-
-                    var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                    pyScope.SetVariable("gui", reference.gui);
-                    pyScope.SetVariable("name", this.Name);
-                    pyScope.SetVariable("desc", reference.Description);
-                    pyScope.SetVariable("editor", reference.Editor);
-                    foreach (var pointer in reference.Pointers)
+                    try
                     {
-                        Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                    }
+                        var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                        pyScope.SetVariable("gui", reference.gui);
+                        pyScope.SetVariable("name", this.Name);
+                        pyScope.SetVariable("desc", reference.Description);
+                        pyScope.SetVariable("editor", reference.Editor);
+                        foreach (var pointer in reference.Pointers)
+                        {
+                            Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                        }
 
-                    reference.UserAction.Item2?.Execute(pyScope);
+                        reference.UserAction.Item2?.Execute(pyScope);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine("******************************************");
+                        System.Console.WriteLine("RunAction: " + this.Name);
+                        ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                        string error = eo.FormatException(ex);
+                        System.Console.WriteLine(error);
+                        System.Console.WriteLine("******************************************");
+                    }
 
                     reference.mutexReadOutput.ReleaseMutex();
 
@@ -132,8 +144,14 @@ namespace DevApps.GUI
                         reference.DrawCode.Item2?.Execute(pyScope);
                         reference.gui.End();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        System.Console.WriteLine("******************************************");
+                        System.Console.WriteLine("OnRender: "+ this.Name);
+                        ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                        string error = eo.FormatException(ex);
+                        Console.WriteLine(error);
+                        System.Console.WriteLine("******************************************");
                     }
 
                     reference.mutexReadOutput.ReleaseMutex();
