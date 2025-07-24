@@ -18,7 +18,7 @@ namespace DevApps.GUI
                 BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(1),
                 Padding = new Thickness(5),
-                Child = new TextBlock { Text = text }
+                Child = new TextBlock { Text = text, Foreground = Brushes.Black }
             };
 
             _visuals = new VisualCollection(this) { _tooltipBorder };
