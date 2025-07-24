@@ -1095,7 +1095,7 @@ namespace DevApps.GUI
                     savedCommandPanelHeight = commandPanelHeight;
                     CommandPanelHeight = 0;
                 }
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CommandPanelHeight"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CommandPanelHeight)));
             }
 
             var element = sender as FrameworkElement;
@@ -1124,7 +1124,7 @@ namespace DevApps.GUI
 
             startMousePosition = mousePosition;
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CommandPanelHeight"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CommandPanelHeight)));
         }
 
         private void Slider_MouseUp(object sender, MouseButtonEventArgs e)
@@ -1141,7 +1141,7 @@ namespace DevApps.GUI
         private void ViewCommandsLines_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             ShowCommandsLines = !ShowCommandsLines;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ShowCommandsLines"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowCommandsLines)));
         }
 
         /// <summary>

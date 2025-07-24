@@ -16,7 +16,7 @@ namespace DevApps.GUI
     public partial class DesignerWindow : Window, INotifyPropertyChanged
     {
         internal string statusText = "Ready";
-        public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("StatusText")); } }
+        public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusText))); } }
         public string SendButtonText
         {
             get
@@ -98,7 +98,7 @@ namespace DevApps.GUI
 
         private void Service_MessageReceived(object? sender, EventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SendButtonText"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SendButtonText)));
         }
 
         private void Settings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -479,7 +479,7 @@ namespace DevApps.GUI
                 AI.Service.Send(PopupInput.Text);
             }
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SendButtonText"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SendButtonText)));
         }
 
         private void IA_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

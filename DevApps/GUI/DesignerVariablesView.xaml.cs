@@ -86,12 +86,12 @@ namespace DevApps.GUI
 
         internal void InvalidateVariables()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Items"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Items)));
         }
 
         internal void InvalidatePrivateVariables()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PrivateItems"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PrivateItems)));
         }
 
         public DesignerVariablesView()
