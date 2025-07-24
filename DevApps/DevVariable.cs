@@ -26,9 +26,13 @@ internal partial class Program
 
         public static void Delete(string name)
         {
-            mutexCheckVariableList.WaitOne();
-            References.Remove(name);
-            mutexCheckVariableList.ReleaseMutex();
+            var handle = mutexCheckVariableList.WaitOne();
+            if (handle)
+            {
+                References.Remove(name);
+
+                mutexCheckVariableList.ReleaseMutex();
+            }
         }
 
         internal static Mutex mutexCheckVariableList = new Mutex();
@@ -228,7 +232,7 @@ internal partial class Program
                         {
                             var var = new DevVariable();
 
-                            using (RegistryKey subKey = key.OpenSubKey(subKeyName))
+                            using (RegistryKey? subKey = key.OpenSubKey(subKeyName))
                             {
                                 list.Add(subKeyName, new DevVariable
                                 {

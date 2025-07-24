@@ -88,11 +88,18 @@ namespace DevApps.AI
 
         internal static async Task<string> SendFile(byte[] file, string filename)
         {
-            Program.DevVariable.mutexCheckVariableList.WaitOne();
-            Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_API_KEY", out var apiKey);
-            Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_MODEL", out var model);
-            Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_UPLOAD_URL", out var endpoint);
-            Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+            Program.DevVariable? apiKey = null;
+            Program.DevVariable? model = null;
+            Program.DevVariable? endpoint = null;
+
+            var handle = Program.DevVariable.mutexCheckVariableList.WaitOne();
+            if (handle)
+            {
+                Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_API_KEY", out apiKey);
+                Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_MODEL", out model);
+                Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_UPLOAD_URL", out endpoint);
+                Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+            }
 
             if (apiKey == null)
             {
@@ -125,11 +132,18 @@ namespace DevApps.AI
 
         internal static async Task<string> Send(string message)
         {
-            Program.DevVariable.mutexCheckVariableList.WaitOne();
-            Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_API_KEY", out var apiKey);
-            Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_MODEL", out var model);
-            Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_URL", out var endpoint);
-            Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+            Program.DevVariable? apiKey = null;
+            Program.DevVariable? model = null;
+            Program.DevVariable? endpoint = null;
+
+            var handle = Program.DevVariable.mutexCheckVariableList.WaitOne();
+            if (handle)
+            {
+                Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_API_KEY", out apiKey);
+                Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_MODEL", out model);
+                Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_URL", out endpoint);
+                Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+            }
 
             if (apiKey == null)
             {

@@ -39,59 +39,64 @@ internal partial class Program
         {
             BaseObjectName = baseObjectName;
             Description = baseObject?.Description ?? String.Empty;
-            pointers = new Dictionary<string, string>( baseObject?.Pointers.Select(p=>new KeyValuePair<string,string>(p.Key, String.Empty)) );
+            pointers = new Dictionary<string, string>(baseObject != null ? baseObject.Pointers.Select(p=>new KeyValuePair<string,string>(p.Key, String.Empty)) : [] );
         }
 
         internal DevObjectInstance? GetBaseObject()
         {
-            DevObject.mutexCheckObjectList.WaitOne();
-            var obj = DevObject.References.FirstOrDefault(p => p.Key == baseObjectName).Value as DevObjectInstance;
-            DevObject.mutexCheckObjectList.ReleaseMutex();
+            DevObjectInstance? obj = null;
+
+            var handle = DevObject.mutexCheckObjectList.WaitOne();
+            if (handle)
+            {
+                obj = DevObject.References.FirstOrDefault(p => p.Key == baseObjectName).Value as DevObjectInstance;
+                DevObject.mutexCheckObjectList.ReleaseMutex();
+            }
             return obj;
         }
 
         /// <summary>
         /// Tags de l'objet
         /// </summary>
-        public override string[] Tags { get { return baseObject.Tags; } }
+        public override string[] Tags { get { return baseObject != null ? baseObject.Tags : []; } }
 
         /// <summary>
         /// Pointeurs vers des objets existants
         /// </summary>
         internal Dictionary<string, string> pointers = new Dictionary<string, string>(); // name, refName
-        public override Dictionary<string, Pointer> Pointers { get { return baseObject?.Pointers.Select(p => new KeyValuePair<string, Pointer>(p.Key, new Pointer { target = pointers[p.Key], tags = p.Value.tags })).ToDictionary(); } }
+        public override Dictionary<string, Pointer> Pointers { get { return baseObject?.Pointers.Select(p => new KeyValuePair<string, Pointer>(p.Key, new Pointer { target = pointers[p.Key], tags = p.Value.tags })).ToDictionary() ?? []; } }
         /// <summary>
         /// Fonctions internes
         /// </summary>
-        public override Dictionary<string, (string, CompiledCode?)> Functions { get { return baseObject.functions; } }
+        public override Dictionary<string, (string, CompiledCode?)> Functions { get { return baseObject?.functions ?? []; } }
         /// <summary>
         /// Fonctions internes
         /// </summary>
-        public override Dictionary<string, (string, CompiledCode?)> Properties { get { return baseObject.properties; } }
+        public override Dictionary<string, (string, CompiledCode?)> Properties { get { return baseObject?.properties ?? []; } }
         /// <summary>
         /// Commandes utilisateur
         /// </summary>
-        public override (string, CompiledCode?) UserAction { get { return baseObject.userAction; } }
+        public override (string, CompiledCode?) UserAction { get { return baseObject?.userAction ?? (string.Empty, null); } }
         /// <summary>
         /// Méthode de simulation (timer)
         /// </summary>
-        public override (string, CompiledCode?) LoopMethod { get { return baseObject.loopMethod; } }
+        public override (string, CompiledCode?) LoopMethod { get { return baseObject?.loopMethod ?? (string.Empty, null); } }
         /// <summary>
         /// Méthode de simulation (initialisation)
         /// </summary>
-        public override (string, CompiledCode?) InitMethod { get { return baseObject.initMethod; } }
+        public override (string, CompiledCode?) InitMethod { get { return baseObject?.initMethod ?? (string.Empty, null); } }
         /// <summary>
         /// Méthode de construction (generation code, ...)
         /// </summary>
-        public override (string, CompiledCode?) BuildMethod { get { return baseObject.buildMethod; } }
+        public override (string, CompiledCode?) BuildMethod { get { return baseObject?.buildMethod ?? (string.Empty, null); } }
         /// <summary>
         /// Code/Données de l'objet
         /// </summary>
-        public override (string, CompiledCode?) ObjectCode { get { return baseObject.objectCode; } }
+        public override (string, CompiledCode?) ObjectCode { get { return baseObject?.objectCode ?? (string.Empty, null); } }
         /// <summary>
         /// Dessin de l'objet
         /// </summary>
-        public override (string, CompiledCode?) DrawCode { get { return baseObject.drawCode; } }
+        public override (string, CompiledCode?) DrawCode { get { return baseObject?.drawCode ?? (string.Empty, null); } }
 
         public override DevObjectReference Clone()
         {
@@ -219,6 +224,11 @@ internal partial class Program
             Functions.Clear();
             foreach (var p in items)
             {
+                if (p.Value == null)
+                {
+                    Console.WriteLine($"Fonction {p.Key} sans code ignoré");
+                    continue;
+                }
                 AddFunction(p.Key, p.Value);
             }
         }
@@ -236,7 +246,7 @@ internal partial class Program
 
         public override string GetUserAction()
         {
-            return baseObject?.GetUserAction();
+            return baseObject?.GetUserAction() ?? string.Empty;
         }
 
         public override DevObjectReference SetUserAction(string code)
@@ -252,7 +262,7 @@ internal partial class Program
 
         public override DevObjectReference AddPointer(string name, string reference, string[] tags)
         {
-            baseObject.AddPointer(name, reference, tags);
+            baseObject?.AddPointer(name, reference, tags);
             pointers[name] = reference;
             return this;
         }

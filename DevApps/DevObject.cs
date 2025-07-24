@@ -151,17 +151,23 @@ internal partial class Program
 
         public static void DeleteObject(string name)
         {
-            mutexExecuteObjects.WaitOne();
-            mutexCheckObjectList.WaitOne();
-            References.Remove(name);
-            foreach (var o in DevFacet.References)
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if(o.Value.Objects.ContainsKey(name) == false)
-                    continue;
-                o.Value.Objects.Remove(name);
+                var handle2 = mutexCheckObjectList.WaitOne();
+                if (handle2)
+                {
+                    References.Remove(name);
+                    foreach (var o in DevFacet.References)
+                    {
+                        if (o.Value.Objects.ContainsKey(name) == false)
+                            continue;
+                        o.Value.Objects.Remove(name);
+                    }
+                    mutexCheckObjectList.ReleaseMutex();
+                }
+                mutexExecuteObjects.ReleaseMutex();
             }
-            mutexCheckObjectList.ReleaseMutex();
-            mutexExecuteObjects.ReleaseMutex();
         }
 
         public static DevObject? CreateFromFile(string file, out string name)
@@ -247,16 +253,19 @@ internal partial class Program
                 int i = 0;
                 while (run)
                 {
-                    mutexExecuteObjects.WaitOne();
-                    System.Console.WriteLine(i++);
-                    if (run == true)
-                        DevObject.Timer();
-                    if (run == true)
-                        DevObject.Draw();
-                    if (run == true)
-                        Thread.Sleep(1000);
+                    var handle = mutexExecuteObjects.WaitOne();
+                    if (handle)
+                    {
+                        System.Console.WriteLine(i++);
+                        if (run == true)
+                            DevObject.Timer();
+                        if (run == true)
+                            DevObject.Draw();
+                        if (run == true)
+                            Thread.Sleep(1000);
 
-                    mutexExecuteObjects.ReleaseMutex();
+                        mutexExecuteObjects.ReleaseMutex();
+                    }
 
                     // Attend la fin des opérations de dessin
                     Service.WaitDrawOperations();
@@ -273,30 +282,40 @@ internal partial class Program
         /// </summary>
         private static void Timer()
         {
-            mutexCheckObjectList.WaitOne();
-            var list = References.ToArray();
-            mutexCheckObjectList.ReleaseMutex();
-
-            foreach (var o in list)
+            KeyValuePair<string, DevObject>[]? list = null;
+            var handle = mutexCheckObjectList.WaitOne();
+            if (handle)
             {
-                o.Value.mutexReadOutput.WaitOne();
-                try
-                {
-                    pyScope.SetVariable("out", o.Value.buildStream.GetBuffer());
-                    pyScope.RemoveVariable("gui");
-                    o.Value.LoopMethod.Item2?.Execute(pyScope);
-                }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine("******************************************");
-                    System.Console.WriteLine("Timer: " + o.Key);
-                    ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                    string error = eo.FormatException(ex);
-                    System.Console.WriteLine(error);
-                    System.Console.WriteLine("******************************************");
-                }
+                list = References.ToArray();
+                mutexCheckObjectList.ReleaseMutex();
+            }
 
-                o.Value.mutexReadOutput.ReleaseMutex();
+            if (list != null)
+            {
+                foreach (var o in list)
+                {
+                    var handle2 = o.Value.mutexReadOutput.WaitOne();
+                    if (handle2)
+                    {
+                        try
+                        {
+                            pyScope.SetVariable("out", o.Value.buildStream.GetBuffer());
+                            pyScope.RemoveVariable("gui");
+                            o.Value.LoopMethod.Item2?.Execute(pyScope);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Console.WriteLine("******************************************");
+                            System.Console.WriteLine("Timer: " + o.Key);
+                            ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                            string error = eo.FormatException(ex);
+                            System.Console.WriteLine(error);
+                            System.Console.WriteLine("******************************************");
+                        }
+
+                        o.Value.mutexReadOutput.ReleaseMutex();
+                    }
+                }
             }
         }
 
@@ -308,13 +327,21 @@ internal partial class Program
             if (Service.IsInitialized == false)
                 return;
 
-            mutexCheckObjectList.WaitOne();
-            var list = References.Where(p => p.Value.DrawCode.Item2 != null).ToArray();
-            mutexCheckObjectList.ReleaseMutex();
+            KeyValuePair<string, DevObject>[]? list = null;
 
-            foreach (var o in list)
+            var handle = mutexCheckObjectList.WaitOne();
+            if (handle)
             {
-                Service.Invalidate(o.Key); // appeler uniquement si le contenu de out a changé
+                list = References.Where(p => p.Value.DrawCode.Item2 != null).ToArray();
+                mutexCheckObjectList.ReleaseMutex();
+            }
+
+            if (list != null)
+            {
+                foreach (var o in list)
+                {
+                    Service.Invalidate(o.Key); // appeler uniquement si le contenu de out a changé
+                }
             }
         }
 
@@ -323,28 +350,31 @@ internal partial class Program
         /// </summary>
         public static void LoadOutput()
         {
-            mutexExecuteObjects.WaitOne();
-            foreach (var o in References)
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                try
+                foreach (var o in References)
                 {
-                    var path = Path.Combine(DataDir, o.Key);
-
-                    if (File.Exists(path))
+                    try
                     {
-                        using var file = File.Open(path, FileMode.Open);
-                        o.Value.buildStream.Seek(0, SeekOrigin.Begin);
-                        file.CopyTo(o.Value.buildStream);
-                        o.Value.buildStream.SetLength(file.Length);
+                        var path = Path.Combine(DataDir, o.Key);
+
+                        if (File.Exists(path))
+                        {
+                            using var file = File.Open(path, FileMode.Open);
+                            o.Value.buildStream.Seek(0, SeekOrigin.Begin);
+                            file.CopyTo(o.Value.buildStream);
+                            o.Value.buildStream.SetLength(file.Length);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine("load object data " + o.Key + " failed");
+                        System.Console.WriteLine(ex.Message);
                     }
                 }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine("load object data " + o.Key + " failed");
-                    System.Console.WriteLine(ex.Message);
-                }
+                mutexExecuteObjects.ReleaseMutex();
             }
-            mutexExecuteObjects.ReleaseMutex();
         }
 
         /// <summary>
@@ -352,26 +382,29 @@ internal partial class Program
         /// </summary>
         public static void SaveOutput()
         {
-            mutexExecuteObjects.WaitOne();
-            foreach (var o in References)
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (o.Value.buildStream.Length == 0)
-                    continue;
+                foreach (var o in References)
+                {
+                    if (o.Value.buildStream.Length == 0)
+                        continue;
 
-                try
-                {
-                    var path = Path.Combine(DataDir, o.Key);
-                    using var file = File.Open(path, File.Exists(path) ? FileMode.Truncate : FileMode.Create, FileAccess.Write);
-                    o.Value.buildStream.Seek(0, SeekOrigin.Begin);
-                    o.Value.buildStream.CopyTo(file);
+                    try
+                    {
+                        var path = Path.Combine(DataDir, o.Key);
+                        using var file = File.Open(path, File.Exists(path) ? FileMode.Truncate : FileMode.Create, FileAccess.Write);
+                        o.Value.buildStream.Seek(0, SeekOrigin.Begin);
+                        o.Value.buildStream.CopyTo(file);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine("save object data " + o.Key + " failed");
+                        System.Console.WriteLine(ex.Message);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine("save object data " + o.Key + " failed");
-                    System.Console.WriteLine(ex.Message);
-                }
+                mutexExecuteObjects.ReleaseMutex();
             }
-            mutexExecuteObjects.ReleaseMutex();
         }
 
         /// <summary>
@@ -380,51 +413,54 @@ internal partial class Program
         /// <remarks>Initialise uniquement les objets non initialisé</remarks>
         public static void Init()
         {
-            mutexExecuteObjects.WaitOne();
-            foreach (var o in References.Where(p=>p.Value.IsInitialized == false))
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                try
+                foreach (var o in References.Where(p => p.Value.IsInitialized == false))
                 {
-                    var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                    pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
-                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
-                    pyScope.SetVariable("name", o.Key);
-                    pyScope.SetVariable("desc", o.Value.Description);
-
-                    foreach (var variable in DevVariable.References)
+                    try
                     {
-                        pyScope.SetVariable(variable.Key, variable.Value);
-                    }
+                        var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                        pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
+                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                        pyScope.SetVariable("name", o.Key);
+                        pyScope.SetVariable("desc", o.Value.Description);
 
-                    foreach (var variable in DevVariable.EnumPrivate())
-                    {
-                        pyScope.SetVariable(variable.Key, variable.Value);
-                    }
+                        foreach (var variable in DevVariable.References)
+                        {
+                            pyScope.SetVariable(variable.Key, variable.Value);
+                        }
 
-                    foreach (var pointer in o.Value.Pointers)
-                    {
-                        Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
-                    }
-                    foreach (var property in o.Value.Properties)
-                    {
-                        pyScope.SetVariable(property.Key, property.Value.Item2?.Execute(pyScope));
-                    }
-                    var result = o.Value.InitMethod.Item2?.Execute(pyScope);
+                        foreach (var variable in DevVariable.EnumPrivate())
+                        {
+                            pyScope.SetVariable(variable.Key, variable.Value);
+                        }
 
-                    o.Value.IsInitialized = true;
+                        foreach (var pointer in o.Value.Pointers)
+                        {
+                            Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                        }
+                        foreach (var property in o.Value.Properties)
+                        {
+                            pyScope.SetVariable(property.Key, property.Value.Item2?.Execute(pyScope));
+                        }
+                        var result = o.Value.InitMethod.Item2?.Execute(pyScope);
+
+                        o.Value.IsInitialized = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine("******************************************");
+                        System.Console.WriteLine("Init: " + o.Key);
+                        ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                        string error = eo.FormatException(ex);
+                        Console.WriteLine(error);
+                        System.Console.WriteLine("******************************************");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine("******************************************");
-                    System.Console.WriteLine("Init: " + o.Key);
-                    ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                    string error = eo.FormatException(ex);
-                    Console.WriteLine(error);
-                    System.Console.WriteLine("******************************************");
-                }
+                mutexExecuteObjects.ReleaseMutex();
             }
-            mutexExecuteObjects.ReleaseMutex();
         }
 
         /// <summary>
@@ -432,52 +468,55 @@ internal partial class Program
         /// </summary>
         public static void Build(IEnumerable<KeyValuePair<string,DevObject>>? objects = null)
         {
-            mutexExecuteObjects.WaitOne();
-            foreach (var o in objects ?? References)
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                try
+                foreach (var o in objects ?? References)
                 {
-                    var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                    pyScope.SetVariable("interpreter", DevApps.PythonExtends.Interpreter.Instance);
-                    pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
-                    pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
-                    pyScope.SetVariable("name", o.Key);
-                    pyScope.SetVariable("desc", o.Value.Description);
-
-                    foreach (var variable in DevVariable.References)
+                    try
                     {
-                        pyScope.SetVariable(variable.Key, variable.Value.Value);
-                    }
+                        var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                        pyScope.SetVariable("interpreter", DevApps.PythonExtends.Interpreter.Instance);
+                        pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
+                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                        pyScope.SetVariable("name", o.Key);
+                        pyScope.SetVariable("desc", o.Value.Description);
 
-                    foreach (var variable in DevVariable.EnumPrivate())
-                    {
-                        pyScope.SetVariable(variable.Key, variable.Value.Value);
-                    }
+                        foreach (var variable in DevVariable.References)
+                        {
+                            pyScope.SetVariable(variable.Key, variable.Value.Value);
+                        }
 
-                    foreach (var pointer in o.Value.Pointers)
-                    {
-                        Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                        pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
-                    }
-                    foreach (var property in o.Value.Properties)
-                    {
-                        pyScope.SetVariable(property.Key, property.Value.Item2?.Execute(pyScope));
-                    }
-                    var result = o.Value.BuildMethod.Item2?.Execute(pyScope);
+                        foreach (var variable in DevVariable.EnumPrivate())
+                        {
+                            pyScope.SetVariable(variable.Key, variable.Value.Value);
+                        }
 
-                    Service.Invalidate(o.Key);
+                        foreach (var pointer in o.Value.Pointers)
+                        {
+                            Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                        }
+                        foreach (var property in o.Value.Properties)
+                        {
+                            pyScope.SetVariable(property.Key, property.Value.Item2?.Execute(pyScope));
+                        }
+                        var result = o.Value.BuildMethod.Item2?.Execute(pyScope);
+
+                        Service.Invalidate(o.Key);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine("******************************************");
+                        System.Console.WriteLine("Build: " + o.Key);
+                        ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                        string error = eo.FormatException(ex);
+                        Console.WriteLine(error);
+                        System.Console.WriteLine("******************************************");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine("******************************************");
-                    System.Console.WriteLine("Build: " + o.Key);
-                    ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                    string error = eo.FormatException(ex);
-                    Console.WriteLine(error);
-                    System.Console.WriteLine("******************************************");
-                }
+                mutexExecuteObjects.ReleaseMutex();
             }
-            mutexExecuteObjects.ReleaseMutex();
         }
 
         /// <summary>
@@ -487,29 +526,32 @@ internal partial class Program
         /// <param name="func"></param>
         public static void Function(string obj, string func)
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (References.ContainsKey(obj))
+                try
                 {
-                    var o = References[obj];
-                    if (o != null && o.Functions.ContainsKey(func))
+                    if (References.ContainsKey(obj))
                     {
-                        var f = o.Functions[func];
-                        var result = f.Item2?.Execute(pyScope);
+                        var o = References[obj];
+                        if (o != null && o.Functions.ContainsKey(func))
+                        {
+                            var f = o.Functions[func];
+                            var result = f.Item2?.Execute(pyScope);
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine("******************************************");
+                    System.Console.WriteLine("Function: " + func + " to " + obj);
+                    ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                    string error = eo.FormatException(ex);
+                    System.Console.WriteLine(error);
+                    System.Console.WriteLine("******************************************");
+                }
+                mutexExecuteObjects.ReleaseMutex();
             }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine("******************************************");
-                System.Console.WriteLine("Function: " + func + " to " + obj);
-                ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                string error = eo.FormatException(ex);
-                System.Console.WriteLine(error);
-                System.Console.WriteLine("******************************************");
-            }
-            mutexExecuteObjects.ReleaseMutex();
         }
 
         /// <summary>
@@ -521,29 +563,32 @@ internal partial class Program
         public static dynamic? Property(string obj, string prop)
         {
             dynamic? ret = null;
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (References.ContainsKey(obj))
+                try
                 {
-                    var o = References[obj];
-                    if (o != null && o.Properties.ContainsKey(prop))
+                    if (References.ContainsKey(obj))
                     {
-                        var p = o.Properties[prop];
-                        ret = p.Item2?.Execute(pyScope);
+                        var o = References[obj];
+                        if (o != null && o.Properties.ContainsKey(prop))
+                        {
+                            var p = o.Properties[prop];
+                            ret = p.Item2?.Execute(pyScope);
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine("******************************************");
+                    System.Console.WriteLine("Property: " + prop + " to " + obj);
+                    ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                    string error = eo.FormatException(ex);
+                    System.Console.WriteLine(error);
+                    System.Console.WriteLine("******************************************");
+                }
+                mutexExecuteObjects.ReleaseMutex();
             }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine("******************************************");
-                System.Console.WriteLine("Property: " + prop + " to " + obj);
-                ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                string error = eo.FormatException(ex);
-                System.Console.WriteLine(error);
-                System.Console.WriteLine("******************************************");
-            }
-            mutexExecuteObjects.ReleaseMutex();
             return ret;
         }
 

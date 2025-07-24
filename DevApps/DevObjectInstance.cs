@@ -1,6 +1,7 @@
 ﻿using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.IO;
+using System.Reflection.Metadata;
 using System.Text;
 
 internal partial class Program
@@ -218,6 +219,11 @@ internal partial class Program
             Functions.Clear();
             foreach (var p in items)
             {
+                if(p.Value == null)
+                {
+                    Console.WriteLine($"Fonction {p.Key} sans code ignoré");
+                    continue;
+                }
                 AddFunction(p.Key, p.Value);
             }
         }
@@ -257,191 +263,215 @@ internal partial class Program
 
         public override void CompilDraw()
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (String.IsNullOrWhiteSpace(drawCode.Item1) == false)
+                try
                 {
-                    string sourceCode = drawCode.Item1;
-                    ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
-                    CompiledCode compiled = source.Compile();
-                    drawCode = (sourceCode, compiled);
+                    if (String.IsNullOrWhiteSpace(drawCode.Item1) == false)
+                    {
+                        string sourceCode = drawCode.Item1;
+                        ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
+                        CompiledCode compiled = source.Compile();
+                        drawCode = (sourceCode, compiled);
+                    }
                 }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                mutexExecuteObjects.ReleaseMutex();
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    mutexExecuteObjects.ReleaseMutex();
+                }
             }
         }
 
         public override void CompilObject()
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (String.IsNullOrWhiteSpace(objectCode.Item1) == false)
+                try
                 {
-                    string sourceCode = objectCode.Item1;
-                    ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
-                    CompiledCode compiled = source.Compile();
-                    objectCode = (sourceCode, compiled);
+                    if (String.IsNullOrWhiteSpace(objectCode.Item1) == false)
+                    {
+                        string sourceCode = objectCode.Item1;
+                        ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
+                        CompiledCode compiled = source.Compile();
+                        objectCode = (sourceCode, compiled);
+                    }
                 }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                mutexExecuteObjects.ReleaseMutex();
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    mutexExecuteObjects.ReleaseMutex();
+                }
             }
         }
 
         public override void CompilFunctions()
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                foreach (var f in functions.ToArray())
+                try
                 {
-                    string functionCode = f.Value.Item1;
-                    if (String.IsNullOrWhiteSpace(functionCode) == false)
+                    foreach (var f in functions.ToArray())
                     {
-                        ScriptSource functionScript = pyEngine.CreateScriptSourceFromString(functionCode, SourceCodeKind.Statements);
-                        CompiledCode functionCompiled = functionScript.Compile();
-                        functions[f.Key] = (functionCode, functionCompiled);
+                        string functionCode = f.Value.Item1;
+                        if (String.IsNullOrWhiteSpace(functionCode) == false)
+                        {
+                            ScriptSource functionScript = pyEngine.CreateScriptSourceFromString(functionCode, SourceCodeKind.Statements);
+                            CompiledCode functionCompiled = functionScript.Compile();
+                            functions[f.Key] = (functionCode, functionCompiled);
+                        }
                     }
                 }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                mutexExecuteObjects.ReleaseMutex();
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    mutexExecuteObjects.ReleaseMutex();
+                }
             }
         }
 
         public override void CompilProperties()
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                foreach (var f in properties.ToArray())
+                try
                 {
-                    string propertyCode = f.Value.Item1;
-                    if (String.IsNullOrWhiteSpace(propertyCode) == false)
+                    foreach (var f in properties.ToArray())
                     {
-                        ScriptSource propertyScript = pyEngine.CreateScriptSourceFromString(propertyCode, SourceCodeKind.Expression);
-                        CompiledCode propertyCompiled = propertyScript.Compile();
-                        properties[f.Key] = (propertyCode, propertyCompiled);
+                        string propertyCode = f.Value.Item1;
+                        if (String.IsNullOrWhiteSpace(propertyCode) == false)
+                        {
+                            ScriptSource propertyScript = pyEngine.CreateScriptSourceFromString(propertyCode, SourceCodeKind.Expression);
+                            CompiledCode propertyCompiled = propertyScript.Compile();
+                            properties[f.Key] = (propertyCode, propertyCompiled);
+                        }
                     }
                 }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                mutexExecuteObjects.ReleaseMutex();
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    mutexExecuteObjects.ReleaseMutex();
+                }
             }
         }
 
         public override void CompilUserAction()
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (String.IsNullOrWhiteSpace(userAction.Item1) == false)
+                try
                 {
-                    string sourceCode = userAction.Item1;
-                    ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
-                    CompiledCode compiled = source.Compile();
-                    userAction = (sourceCode, compiled);
+                    if (String.IsNullOrWhiteSpace(userAction.Item1) == false)
+                    {
+                        string sourceCode = userAction.Item1;
+                        ScriptSource source = pyEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
+                        CompiledCode compiled = source.Compile();
+                        userAction = (sourceCode, compiled);
+                    }
                 }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                mutexExecuteObjects.ReleaseMutex();
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    mutexExecuteObjects.ReleaseMutex();
+                }
             }
         }
 
         public override void CompilLoop()
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (String.IsNullOrWhiteSpace(loopMethod.Item1) == false)
+                try
                 {
-                    string sampleCode = loopMethod.Item1;
-                    ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
-                    CompiledCode sampleCompiled = sampleScript.Compile();
-                    loopMethod = (sampleCode, sampleCompiled);
+                    if (String.IsNullOrWhiteSpace(loopMethod.Item1) == false)
+                    {
+                        string sampleCode = loopMethod.Item1;
+                        ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
+                        CompiledCode sampleCompiled = sampleScript.Compile();
+                        loopMethod = (sampleCode, sampleCompiled);
+                    }
                 }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                mutexExecuteObjects.ReleaseMutex();
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    mutexExecuteObjects.ReleaseMutex();
+                }
             }
         }
 
         public override void CompilInit()
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (String.IsNullOrWhiteSpace(initMethod.Item1) == false)
+                try
                 {
-                    string sampleCode = initMethod.Item1;
-                    ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
-                    CompiledCode sampleCompiled = sampleScript.Compile();
-                    initMethod = (sampleCode, sampleCompiled);
+                    if (String.IsNullOrWhiteSpace(initMethod.Item1) == false)
+                    {
+                        string sampleCode = initMethod.Item1;
+                        ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
+                        CompiledCode sampleCompiled = sampleScript.Compile();
+                        initMethod = (sampleCode, sampleCompiled);
+                    }
                 }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                mutexExecuteObjects.ReleaseMutex();
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    mutexExecuteObjects.ReleaseMutex();
+                }
             }
         }
 
         public override void CompilBuild()
         {
-            mutexExecuteObjects.WaitOne();
-            try
+            var handle = mutexExecuteObjects.WaitOne();
+            if (handle)
             {
-                if (String.IsNullOrWhiteSpace(buildMethod.Item1) == false)
+                try
                 {
-                    string sampleCode = buildMethod.Item1;
-                    ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
-                    CompiledCode sampleCompiled = sampleScript.Compile();
-                    buildMethod = (sampleCode, sampleCompiled);
+                    if (String.IsNullOrWhiteSpace(buildMethod.Item1) == false)
+                    {
+                        string sampleCode = buildMethod.Item1;
+                        ScriptSource sampleScript = pyEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
+                        CompiledCode sampleCompiled = sampleScript.Compile();
+                        buildMethod = (sampleCode, sampleCompiled);
+                    }
                 }
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                mutexExecuteObjects.ReleaseMutex();
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    mutexExecuteObjects.ReleaseMutex();
+                }
             }
         }
     }

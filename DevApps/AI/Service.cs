@@ -20,7 +20,7 @@ namespace DevApps.AI
     {
         internal static IAType type = IAType.MISTRAL;
 
-        private static Task<string>? iaTask = null;
+        private static Task<string?>? iaTask = null;
         private static CancellationTokenSource? source = null;
         private static List<string> messages = new List<string>();
 
@@ -28,7 +28,7 @@ namespace DevApps.AI
 
         internal class MessageReceivedEventArgs : EventArgs
         {
-            public string Response { get; set; }
+            public string? Response { get; set; }
         }
 
         private static void OnMessageReceived()
@@ -49,7 +49,7 @@ namespace DevApps.AI
             if (IsRunning)
             {
                 source?.Cancel();
-                iaTask.Wait(5000);
+                iaTask?.Wait(5000);
                 iaTask = null;
                 source = null;
             }
@@ -125,7 +125,7 @@ namespace DevApps.AI
             else*/
             var id = Thread.CurrentThread.ManagedThreadId;
 
-            if (type == IAType.MISTRAL)
+            if (type == IAType.MISTRAL && source != null)
             {
                 try
                 {

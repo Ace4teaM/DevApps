@@ -33,11 +33,18 @@ namespace DevApps.AI
         }
         internal static async Task<string> Send(string message)
         {
-            Program.DevVariable.mutexCheckVariableList.WaitOne();
-            Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_API_KEY", out var apiKey);
-            Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_MODEL", out var model);//"gpt-4" ou "gpt-3.5-turbo"
-            Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_URL", out var endpoint);//https://api.openai.com/v1/chat/completions
-            Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+            Program.DevVariable? apiKey = null;
+            Program.DevVariable? model = null;
+            Program.DevVariable? endpoint = null;
+
+            var handle = Program.DevVariable.mutexCheckVariableList.WaitOne();
+            if (handle)
+            {
+                Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_API_KEY", out apiKey);
+                Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_MODEL", out model);//"gpt-4" ou "gpt-3.5-turbo"
+                Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_URL", out endpoint);//https://api.openai.com/v1/chat/completions
+                Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+            }
 
             if (apiKey == null)
             {

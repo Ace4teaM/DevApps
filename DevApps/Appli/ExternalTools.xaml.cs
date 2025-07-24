@@ -70,9 +70,11 @@ namespace DevApps.Appli
         KeyValuePair? editedKeyValuePair;
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count == 0)
+            if (e.AddedItems.Count == 0 || editedKeyValuePair == null)
                 return;
             var selected = e.AddedItems[0] as KeyValuePair;
+            if (selected == null)
+                return;
             editedKeyValuePair.Value = selected.Key;
         }
 

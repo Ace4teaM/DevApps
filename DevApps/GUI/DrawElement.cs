@@ -22,44 +22,50 @@ namespace DevApps.GUI
 
         internal void RunAction(Point position)
         {
-            Program.DevObject.mutexCheckObjectList.WaitOne();
-            Program.DevObject.References.TryGetValue(this.Name, out var reference);
-            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-            
-            if (reference != null)
+            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+            if (handle)
             {
-                if (String.IsNullOrEmpty(reference.GetUserAction()) == false)
+                Program.DevObject.References.TryGetValue(this.Name, out var reference);
+                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                if (reference != null)
                 {
-                    reference.mutexReadOutput.WaitOne();
-                    try
+                    if (String.IsNullOrEmpty(reference.GetUserAction()) == false)
                     {
-                        var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                        pyScope.SetVariable("gui", reference.gui);
-                        pyScope.SetVariable("name", this.Name);
-                        pyScope.SetVariable("desc", reference.Description);
-                        pyScope.SetVariable("editor", reference.Editor);
-                        foreach (var pointer in reference.Pointers)
+                        var handle2 = reference.mutexReadOutput.WaitOne();
+                        if (handle2)
                         {
-                            Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                            try
+                            {
+                                var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                                pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                pyScope.SetVariable("gui", reference.gui);
+                                pyScope.SetVariable("name", this.Name);
+                                pyScope.SetVariable("desc", reference.Description);
+                                pyScope.SetVariable("editor", reference.Editor);
+                                foreach (var pointer in reference.Pointers)
+                                {
+                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                    pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                }
+
+                                reference.UserAction.Item2?.Execute(pyScope);
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Console.WriteLine("******************************************");
+                                System.Console.WriteLine("RunAction: " + this.Name);
+                                ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                                string error = eo.FormatException(ex);
+                                System.Console.WriteLine(error);
+                                System.Console.WriteLine("******************************************");
+                            }
+
+                            reference.mutexReadOutput.ReleaseMutex();
                         }
 
-                        reference.UserAction.Item2?.Execute(pyScope);
+                        this.InvalidateVisual();
                     }
-                    catch (Exception ex)
-                    {
-                        System.Console.WriteLine("******************************************");
-                        System.Console.WriteLine("RunAction: " + this.Name);
-                        ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                        string error = eo.FormatException(ex);
-                        System.Console.WriteLine(error);
-                        System.Console.WriteLine("******************************************");
-                    }
-
-                    reference.mutexReadOutput.ReleaseMutex();
-
-                    this.InvalidateVisual();
                 }
             }
         }
@@ -74,87 +80,92 @@ namespace DevApps.GUI
 
             base.OnRender(drawingContext);
 
-            Program.DevObject.mutexCheckObjectList.WaitOne();
-            Program.DevObject.References.TryGetValue(this.Name, out var reference);
-            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-            if (facet != null && reference != null)
+            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+            if (handle)
             {
-                var ContentWidth = this.ActualWidth;
-                var ContentHeight = this.ActualHeight;
-                var DrawProp = facet.Objects[this.Name];
+                Program.DevObject.References.TryGetValue(this.Name, out var reference);
+                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
 
-                if (Title != null)
+                if (facet != null && reference != null)
                 {
-                    switch(DrawProp.title)
+                    var ContentWidth = this.ActualWidth;
+                    var ContentHeight = this.ActualHeight;
+                    var DrawProp = facet.Objects[this.Name];
+
+                    if (Title != null)
                     {
-                        case DevFacet.TitlePlacement.TopLeft:
-                            drawingContext.PushTransform(new TranslateTransform(0, -Title.Height - 6));
-                            drawingContext.DrawText(Title, new Point(0, 0));
-                            drawingContext.Pop();
-                            break;
-                        case DevFacet.TitlePlacement.TopRight:
-                            drawingContext.PushTransform(new TranslateTransform(Width-Title.Width, -Title.Height - 6));
-                            drawingContext.DrawText(Title, new Point(0, 0));
-                            drawingContext.Pop();
-                            break;
-                        case DevFacet.TitlePlacement.Center:
-                            drawingContext.PushTransform(new TranslateTransform((Width / 2.0) - (Title.Width/2.0), -Title.Height - 6));
-                            drawingContext.DrawText(Title, new Point(0, 0));
-                            drawingContext.Pop();
-                            break;
-                    }
-                }
-
-                if (SubTitle != null)
-                {
-                    drawingContext.PushTransform(new TranslateTransform(0, 6 + Height));
-                    drawingContext.DrawText(SubTitle, new Point(0, 0));
-                    drawingContext.Pop();
-                }
-
-                if (DrawProp.background != null && background == null)
-                    background = (Brush?)(new BrushConverter().ConvertFromString(DrawProp.background)) ?? System.Windows.Media.Brushes.Transparent;
-
-                // Dessiner un rectangle pour illustrer
-                Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
-                drawingContext.DrawRectangle(background, null, rect);
-                if (reference.DrawCode.Item2 != null)
-                {
-                    reference.mutexReadOutput.WaitOne();
-
-                    try
-                    {
-                        facet.Objects[this.Name].SetZone(new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight));
-                        reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = rect };
-
-                        var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                        pyScope.SetVariable("gui", reference.gui);
-                        pyScope.SetVariable("name", this.Name);
-                        pyScope.SetVariable("desc", reference.Description);
-
-                        foreach (var pointer in reference.Pointers)
+                        switch (DrawProp.title)
                         {
-                            Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                            case DevFacet.TitlePlacement.TopLeft:
+                                drawingContext.PushTransform(new TranslateTransform(0, -Title.Height - 6));
+                                drawingContext.DrawText(Title, new Point(0, 0));
+                                drawingContext.Pop();
+                                break;
+                            case DevFacet.TitlePlacement.TopRight:
+                                drawingContext.PushTransform(new TranslateTransform(Width - Title.Width, -Title.Height - 6));
+                                drawingContext.DrawText(Title, new Point(0, 0));
+                                drawingContext.Pop();
+                                break;
+                            case DevFacet.TitlePlacement.Center:
+                                drawingContext.PushTransform(new TranslateTransform((Width / 2.0) - (Title.Width / 2.0), -Title.Height - 6));
+                                drawingContext.DrawText(Title, new Point(0, 0));
+                                drawingContext.Pop();
+                                break;
                         }
-
-                        reference.gui.Begin(drawingContext);
-                        reference.DrawCode.Item2?.Execute(pyScope);
-                        reference.gui.End();
                     }
-                    catch (Exception ex)
+
+                    if (SubTitle != null)
                     {
-                        System.Console.WriteLine("******************************************");
-                        System.Console.WriteLine("OnRender: "+ this.Name);
-                        ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                        string error = eo.FormatException(ex);
-                        Console.WriteLine(error);
-                        System.Console.WriteLine("******************************************");
+                        drawingContext.PushTransform(new TranslateTransform(0, 6 + Height));
+                        drawingContext.DrawText(SubTitle, new Point(0, 0));
+                        drawingContext.Pop();
                     }
 
-                    reference.mutexReadOutput.ReleaseMutex();
+                    if (DrawProp.background != null && background == null)
+                        background = (Brush?)(new BrushConverter().ConvertFromString(DrawProp.background)) ?? System.Windows.Media.Brushes.Transparent;
+
+                    // Dessiner un rectangle pour illustrer
+                    Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
+                    drawingContext.DrawRectangle(background, null, rect);
+                    if (reference.DrawCode.Item2 != null)
+                    {
+                        var handle2 = reference.mutexReadOutput.WaitOne();
+                        if (handle2)
+                        {
+                            try
+                            {
+                                facet.Objects[this.Name].SetZone(new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight));
+                                reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = rect };
+
+                                var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                                pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                pyScope.SetVariable("gui", reference.gui);
+                                pyScope.SetVariable("name", this.Name);
+                                pyScope.SetVariable("desc", reference.Description);
+
+                                foreach (var pointer in reference.Pointers)
+                                {
+                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                    pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                }
+
+                                reference.gui.Begin(drawingContext);
+                                reference.DrawCode.Item2?.Execute(pyScope);
+                                reference.gui.End();
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Console.WriteLine("******************************************");
+                                System.Console.WriteLine("OnRender: " + this.Name);
+                                ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                                string error = eo.FormatException(ex);
+                                Console.WriteLine(error);
+                                System.Console.WriteLine("******************************************");
+                            }
+
+                            reference.mutexReadOutput.ReleaseMutex();
+                        }
+                    }
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Microsoft.Extensions.Primitives;
+using System.Globalization;
 using System.Windows.Data;
 
 namespace DevApps.GUI
@@ -13,15 +14,13 @@ namespace DevApps.GUI
             }
 
             if (value.GetType() == typeof(string))
-                return (value as string).Length == 0 ? String.Empty : "✎";
+                return ((string)value).Length == 0 ? String.Empty : "✎";
 
             return String.Empty;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return null;
-        }
+            => (value?.ToString()) == "✎";
     }
 
 }

@@ -29,8 +29,11 @@ namespace DevApps.GUI
         }
         
         internal DevFacet facette;
+        /// La vue est en cours de translation
         internal bool isPanning = false;
+        /// L'objet est en cours de déplacement
         internal bool isDragging = false;
+        /// L'objet est en cours de redimensionnement
         internal bool isResizing = false;
         internal bool isDoubleClick = false;
         internal bool isResizingPanel = false;
@@ -168,37 +171,40 @@ namespace DevApps.GUI
                     foreach (var c in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
                         MyCanvas.Children.Remove(c);
 
-                    if (overElement != null)
+                    if (overElement is DrawElement)
                     {
                         // ajoute les nouveaux connecteurs
-                        Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (Program.DevObject.References.TryGetValue(overElement.Name, out var reference))
+                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                        if (handle)
                         {
-                            foreach (var pointer in reference.Pointers)
+                            if (Program.DevObject.References.TryGetValue(overElement.Name, out var reference))
                             {
-                                var dst = MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value.target);
-                                if (dst == null)
-                                    continue;
+                                foreach (var pointer in reference.Pointers)
+                                {
+                                    var dst = MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == pointer.Value.target);
+                                    if (dst == null)
+                                        continue;
 
-                                var connector = new ConnectorElement(
-                                    (overElement as DrawElement),
-                                    dst
-                                );
-                                connector.RenderTransform = _transformGroup;
-                                MyCanvas.Children.Add(connector);
+                                    var connector = new ConnectorElement(
+                                        ((DrawElement)overElement),
+                                        dst
+                                    );
+                                    connector.RenderTransform = _transformGroup;
+                                    MyCanvas.Children.Add(connector);
 
-                                var textBlock = new ConnectorTextElement(
-                                    connector,
-                                    pointer.Key
-                                );
-                                textBlock.RenderTransform = _transformGroup;
-                                Canvas.SetZIndex(textBlock, 1);
-                                Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
-                                Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
-                                MyCanvas.Children.Add(textBlock);
+                                    var textBlock = new ConnectorTextElement(
+                                        connector,
+                                        pointer.Key
+                                    );
+                                    textBlock.RenderTransform = _transformGroup;
+                                    Canvas.SetZIndex(textBlock, 1);
+                                    Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
+                                    Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
+                                    MyCanvas.Children.Add(textBlock);
+                                }
                             }
+                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                         }
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                     }
                 }
                 else
@@ -214,7 +220,7 @@ namespace DevApps.GUI
                         //actualise les textes existants
                         foreach (var textBlock in MyCanvas.Children.OfType<ConnectorTextElement>().ToArray())
                         {
-                            var connector = textBlock.Tag as ConnectorElement;
+                            var connector = (ConnectorElement)textBlock.Tag;
                             Canvas.SetLeft(textBlock, connector.SourcePosition.X - (connector.SourcePosition.X - connector.DestinationPosition.X) / 2.0);
                             Canvas.SetTop(textBlock, connector.SourcePosition.Y - (connector.SourcePosition.Y - connector.DestinationPosition.Y) / 2.0);
                             textBlock.InvalidateVisual();
@@ -241,7 +247,7 @@ namespace DevApps.GUI
                 return;
             }
 
-            if (selectedElement is DrawBase && isDragging || isResizing)
+            if (selectedElement != null && (isDragging || isResizing))
                 SaveDisposition(selectedElement);
 
             if (isDoubleClick && selectedElement is DrawElement)
@@ -376,13 +382,19 @@ namespace DevApps.GUI
                     var m = new MenuItem { Header = "Construire (Build)" };
                     m.Click += (s, e) =>
                     {
-                        Program.DevObject.mutexCheckObjectList.WaitOne();
-                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                        if (reference != null)
+                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                        if (handle)
                         {
-                            Program.DevObject.Build([new KeyValuePair<string, DevObject>(selectedElement.Name, reference)]);
+                            var name = selectedElement?.Name ?? string.Empty;
+
+                            Program.DevObject.References.TryGetValue(name, out var reference);
+
+                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                            if (reference != null)
+                            {
+                                Program.DevObject.Build([new KeyValuePair<string, DevObject>(name, reference)]);
+                            }
                         }
                     };
                     menu.Items.Add(m);
@@ -394,15 +406,19 @@ namespace DevApps.GUI
                     var m = new MenuItem { Header = "Définir comme modèle" };
                     m.Click += (s, e) =>
                     {
-                        Program.DevObject.mutexCheckObjectList.WaitOne();
-                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                        if (reference != null && reference is DevObjectInstance)
+                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                        if (handle)
                         {
-                            var inst = (reference as DevObjectInstance);
-                            if(inst.guid == null)
-                                inst.guid = Guid.NewGuid();
+                            var name = selectedElement?.Name ?? string.Empty;
+
+                            Program.DevObject.References.TryGetValue(name, out var reference);
+                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                            if (reference != null && reference is DevObjectInstance inst)
+                            {
+                                if (inst.guid == null)
+                                    inst.guid = Guid.NewGuid();
+                            }
                         }
                     };
                     menu.Items.Add(m);
@@ -414,18 +430,22 @@ namespace DevApps.GUI
                     var m = new MenuItem { Header = "Dupliquer" };
                     m.Click += (s, e) =>
                     {
-                        Program.DevObject.mutexCheckObjectList.WaitOne();
-                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                        if (reference != null)
+                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                        if (handle)
                         {
-                            var newReference = reference.Clone();
-                            var name = selectedElement?.Name;
-                            Program.DevObject.MakeUniqueName(ref name);
-                            Program.DevObject.References.Add(name, newReference);
-                            facette.Objects.Add(name, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
-                            AddElement(name, facette.Objects[name]);
+                            var name = selectedElement?.Name ?? string.Empty;
+
+                            Program.DevObject.References.TryGetValue(name, out var reference);
+                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                            if (reference != null && selectedElement != null)
+                            {
+                                var newReference = reference.Clone();
+                                Program.DevObject.MakeUniqueName(ref name);
+                                Program.DevObject.References.Add(name, newReference);
+                                facette.Objects.Add(name, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
+                                AddElement(name, facette.Objects[name]);
+                            }
                         }
                     };
                     menu.Items.Add(m);
@@ -437,33 +457,38 @@ namespace DevApps.GUI
                     var m = new MenuItem { Header = "Ajouter à la bibliothèque" };
                     m.Click += (s, e) =>
                     {
-                        Program.DevObject.mutexCheckObjectList.WaitOne();
-                        Program.DevObject.References.TryGetValue(selectedElement?.Name, out var reference);
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                        if (reference != null)
+                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                        if (handle)
                         {
-                            reference.mutexReadOutput.WaitOne();
+                            var name = selectedElement?.Name ?? string.Empty;
 
-                            using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, selectedElement?.Name));
+                            Program.DevObject.References.TryGetValue(name, out var reference);
+                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
 
-                            var settings = new JsonSerializerSettings
+                            if (reference != null)
                             {
-                                Formatting = Formatting.Indented
-                            };
-                            JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+                                reference.mutexReadOutput.WaitOne();
 
-                            var instance = reference as Program.DevObjectInstance;
-                            if (instance == null && reference is Program.DevObjectReference)
-                                instance = (reference as Program.DevObjectReference).GetBaseObject();
-                            else
-                                return;
+                                using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, name));
 
-                            serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
+                                var settings = new JsonSerializerSettings
+                                {
+                                    Formatting = Formatting.Indented
+                                };
+                                JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
 
-                            reference.SaveOutput(selectedElement?.Name, Program.CommonSharedPath);
+                                var instance = reference as Program.DevObjectInstance;
+                                if (instance == null && reference is Program.DevObjectReference)
+                                    instance = ((Program.DevObjectReference)reference).GetBaseObject();
+                                else
+                                    return;
 
-                            reference.mutexReadOutput.ReleaseMutex();
+                                serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
+
+                                reference.SaveOutput(selectedElement?.Name, Program.CommonSharedPath);
+
+                                reference.mutexReadOutput.ReleaseMutex();
+                            }
                         }
                     };
                     menu.Items.Add(m);
@@ -514,78 +539,81 @@ namespace DevApps.GUI
                     isSelectionMaintained = true;
                     menu.Closed += Menu_Closed;
 
-                    Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
+                    var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                    if (handle)
                     {
-                        foreach (var ptr in src.Pointers)
+                        if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
                         {
-                            var m = new MenuItem();
-                            m.Header = ptr.Key + " -> " + ptr.Value.target;
-                            m.Tag = ptr;
-
-                            // recherche les objets ayant un pointeur sur un élément avec des tags identiques
-                            var mExists = new MenuItem { Header = "Existant" };
-                            m.Items.Add(mExists);
-
-                            int count = 0;
-                            foreach (var dict in DevObject.References)
+                            foreach (var ptr in src.Pointers)
                             {
-                                var key = dict.Key;
-                                var obj = dict.Value;
-                                if (obj != src)
+                                var m = new MenuItem();
+                                m.Header = ptr.Key + " -> " + ptr.Value.target;
+                                m.Tag = ptr;
+
+                                // recherche les objets ayant un pointeur sur un élément avec des tags identiques
+                                var mExists = new MenuItem { Header = "Existant" };
+                                m.Items.Add(mExists);
+
+                                int count = 0;
+                                foreach (var dict in DevObject.References)
                                 {
-                                    if (ptr.Value.tags.Count > 0 && obj.Tags.ContainsAll(ptr.Value.tags))
+                                    var key = dict.Key;
+                                    var obj = dict.Value;
+                                    if (obj != src)
                                     {
-                                        var submenu = new MenuItem { Header = String.IsNullOrEmpty(ptr.Value.target) == false ? obj.Description + " (Remplacera: " + ptr.Value.target + ")" : obj.Description };
-                                        submenu.Click += (s, e) =>
+                                        if (ptr.Value.tags.Count > 0 && obj.Tags.ContainsAll(ptr.Value.tags))
                                         {
-                                            ptr.Value.target = key;
-                                        };
-                                        mExists.Items.Add(submenu);
-                                        count++;
-                                        break;
+                                            var submenu = new MenuItem { Header = String.IsNullOrEmpty(ptr.Value.target) == false ? obj.Description + " (Remplacera: " + ptr.Value.target + ")" : obj.Description };
+                                            submenu.Click += (s, e) =>
+                                            {
+                                                ptr.Value.target = key;
+                                            };
+                                            mExists.Items.Add(submenu);
+                                            count++;
+                                            break;
+                                        }
                                     }
                                 }
-                            }
 
-                            if (count == 0)
-                            {
-                                mExists.IsEnabled = false;
-                                mExists.Header = mExists.Header.ToString() + " (Aucun)";
-                            }
-
-                            m.Items.Add(new Separator());
-
-                            // Nouveaux
-                            var mNew = new MenuItem { Header = "Nouveau" };
-                            m.Items.Add(mNew);
-
-                            count = 0;
-                            var list = new List<Serializer.DevObjectInstance>();
-                            if (SharedServices.EnumerateObjects(p => p.Tags.ContainsAll(ptr.Value.tags)/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
-                            {
-                                foreach (var obj in list)
+                                if (count == 0)
                                 {
-                                    var item = new MenuItem();
-                                    item.Header = "   " + obj.Description;
-                                    item.Tag = obj;
-                                    item.Click += MenuItem_AddObject_Click;
-                                    mNew.Items.Add(item);
-                                    count++;
+                                    mExists.IsEnabled = false;
+                                    mExists.Header = mExists.Header.ToString() + " (Aucun)";
                                 }
-                            }
 
-                            if (count == 0)
-                            {
-                                mNew.IsEnabled = false;
-                                mNew.Header = mNew.Header.ToString() + " (Aucun)";
-                            }
+                                m.Items.Add(new Separator());
 
-                            m.IsEnabled = m.Items.Count > 0;
-                            menu.Items.Add(m);
+                                // Nouveaux
+                                var mNew = new MenuItem { Header = "Nouveau" };
+                                m.Items.Add(mNew);
+
+                                count = 0;
+                                var list = new List<Serializer.DevObjectInstance>();
+                                if (SharedServices.EnumerateObjects(p => p.Tags.ContainsAll(ptr.Value.tags)/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
+                                {
+                                    foreach (var obj in list)
+                                    {
+                                        var item = new MenuItem();
+                                        item.Header = "   " + obj.Description;
+                                        item.Tag = obj;
+                                        item.Click += MenuItem_AddObject_Click;
+                                        mNew.Items.Add(item);
+                                        count++;
+                                    }
+                                }
+
+                                if (count == 0)
+                                {
+                                    mNew.IsEnabled = false;
+                                    mNew.Header = mNew.Header.ToString() + " (Aucun)";
+                                }
+
+                                m.IsEnabled = m.Items.Count > 0;
+                                menu.Items.Add(m);
+                            }
                         }
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                     }
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                 }
 
                 menu.Placement = PlacementMode.Mouse;
@@ -1430,9 +1458,12 @@ namespace DevApps.GUI
                 if (Program.DevObject.References.ContainsKey(name) == true)
                     Program.DevObject.MakeUniqueName(ref name);
 
-                Program.DevObject.mutexCheckObjectList.WaitOne();
-                Program.DevObject.References.Add(name, obj.content);
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                if (handle)
+                {
+                    Program.DevObject.References.Add(name, obj.content);
+                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                }
 
                 // importe les données
                 try
@@ -1460,20 +1491,23 @@ namespace DevApps.GUI
                 // sélectionne le pointeur qui correspond aux tags de l'objet
                 if(selectedElement is DrawElement)
                 {
-                    Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
+                    var handle2 = Program.DevObject.mutexCheckObjectList.WaitOne();
+                    if (handle2)
                     {
-                        try
+                        if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
                         {
-                            var ptr = obj.content.Pointers.First(pp => src.Tags.ContainsAll(pp.Value.tags));
-                            ptr.Value.target = selectedElement.Name;
+                            try
+                            {
+                                var ptr = obj.content.Pointers.First(pp => src.Tags.ContainsAll(pp.Value.tags));
+                                ptr.Value.target = selectedElement.Name;
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Console.WriteLine(ex.Message);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            System.Console.WriteLine(ex.Message);
-                        }
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                     }
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                 }
 
                 Program.DevObject.CompilObjects([obj.content]);
