@@ -30,9 +30,8 @@ internal partial class Program
     internal static string ExecutablePath = System.AppDomain.CurrentDomain.BaseDirectory;
     internal static string CommonSharedPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Shared");
     internal static readonly string CommonObjPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Objects");
-    internal static ScriptEngine pyEngine = null;
-    internal static ScriptRuntime pyRuntime = null;
-    internal static ScriptScope pyScope = null;
+    internal static ScriptEngine pyEngine;
+    internal static ScriptScope pyScope;
     internal static Thread MainThread = Thread.CurrentThread;
     internal static Dispatcher Dispatcher = Dispatcher.CurrentDispatcher;
 
@@ -95,6 +94,11 @@ internal partial class Program
 
         serializer.Populate(reader, proj);
     }
+    static Program()
+    {
+        pyEngine = Python.CreateEngine();
+        pyScope = pyEngine.CreateScope();
+    }
 
     private static void Main(string[] args)
     {
@@ -132,9 +136,6 @@ internal partial class Program
         {
             System.Console.WriteLine(ex.Message);
         }
-
-        pyEngine = Python.CreateEngine();
-        pyScope = pyEngine.CreateScope();
 
         pyEngine.ImportModule("array");
 

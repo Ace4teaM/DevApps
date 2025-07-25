@@ -54,13 +54,19 @@ namespace DevApps.GUI
         {
             public string Header { get; set; }
             internal Program.DevFacet Tag { get; set; }
+
+            internal FacetItem(string header, Program.DevFacet tag)
+            {
+                Header = header;
+                Tag = tag;
+            }
         }
 
         public IEnumerable<FacetItem> FacetItems
         {
             get
             {
-                return Program.DevFacet.References.Select(p=>new FacetItem {  Header = p.Key, Tag = p.Value });
+                return Program.DevFacet.References.Select(p=>new FacetItem (  header: p.Key, tag: p.Value ));
             }
         }
 
@@ -318,8 +324,11 @@ namespace DevApps.GUI
             {
                 Console.WriteLine("Construit la facette active...");
                 var facet = Service.GetSelectedFacet();
-                facet.Build();
-                Console.WriteLine("Terminé");
+                if(facet != null)
+                {
+                    facet.Build();
+                    Console.WriteLine("Terminé");
+                }
             }
         }
 

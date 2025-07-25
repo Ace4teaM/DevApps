@@ -17,7 +17,7 @@ namespace DevApps.PythonExtends
                     var dict = new Dictionary<string, object>();
                     foreach (var key in json.Keys)
                     {
-                        dict.Add(key.ToString(), json[key]);
+                        dict.Add(key.ToString()!, json[key]);
                     }
                     string jsonContent = JsonConvert.SerializeObject(dict, Formatting.Indented);
 
@@ -26,7 +26,7 @@ namespace DevApps.PythonExtends
                     // Ajouter des headers à la requête
                     foreach (var item in headers)
                     {
-                        var key = item.Key.ToString();
+                        var key = item.Key.ToString()!;
                         var val = item.Value.ToString();
                         client.DefaultRequestHeaders.Add(key, val);
                     }

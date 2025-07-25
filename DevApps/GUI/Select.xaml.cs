@@ -19,9 +19,9 @@ namespace DevApps.GUI
     /// </summary>
     public partial class Select : Window
     {
-        public Dictionary<object, object> Items { get; set; }
+        public Dictionary<object, object> Items { get; set; } = new Dictionary<object, object>();
 
-        public object SelectedItem { get; set; }
+        public object? SelectedItem { get; set; } = null;
 
         public Select()
         {

@@ -14,10 +14,13 @@ namespace DevApps.Interpreters
     {
         internal class SqlTable
         {
+            public string Name { get; set; } = string.Empty;
+            public List<SqlColumn> Columns { get; set; } = new();
+
             internal class SqlColumn
             {
-                public string Name { get; set; }
-                public string DataType { get; set; }
+                public string Name { get; set; } = string.Empty;
+                public string DataType { get; set; } = string.Empty;
                 public string? Nullable { get; set; }
                 public string? Default { get; set; }
                 public string? Identity { get; set; }
@@ -95,8 +98,6 @@ namespace DevApps.Interpreters
                     }
                 }
             }
-            public string Name { get; set; }
-            public List<SqlColumn> Columns { get; set; } = new();
         }
 
         public TSqlInterpreter mergeAll(Output in1, Output in2, Output output)
@@ -273,7 +274,7 @@ namespace DevApps.Interpreters
 
             var input1 = Encoding.UTF8.GetString(in1.Stream.ToArray());//encoding a détecter
 
-            TSqlGlobalCollector? sqlGlobalCollector1 = null;
+            //TSqlGlobalCollector? sqlGlobalCollector1 = null;
 
             var inputStream = new AntlrInputStream(input1);
             var lexer = new TSqlLexer(inputStream);

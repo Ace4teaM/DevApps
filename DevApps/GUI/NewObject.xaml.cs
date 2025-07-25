@@ -13,13 +13,13 @@ namespace DevApps.GUI
     /// </summary>
     public partial class NewObject : Window, INotifyPropertyChanged
     {
-        public string[] Tags { get { return tagList.Children.OfType<Tag>().Select(p => p.Content.ToString()).ToArray(); } }
-        public string Value { get; set; }
-        public string ValidationMessage { get; set; }
+        public string[] Tags { get { return tagList.Children.OfType<Tag>().Select(p => p.Content.ToString()!).ToArray(); } }
+        public string Value { get; set; } = String.Empty;
+        public string ValidationMessage { get; set; } = String.Empty;
 
         internal Regex Format = new Regex("^[A-z0-9_]+$");
 
-        private List<string> suggestions;
+        private List<string> suggestions = new List<string>();
 
         public NewObject()
         {
@@ -32,7 +32,6 @@ namespace DevApps.GUI
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // Liste de suggestions
-            suggestions = new List<string>();
             suggestions.AddRange(TagService.UsageTags);
             suggestions.AddRange(TagService.LangagesTags);
             suggestions.AddRange(TagService.TypeTags);
@@ -73,7 +72,7 @@ namespace DevApps.GUI
 
         private bool TagExists(string tag)
         {
-            return tagList.Children.OfType<Tag>().Count(p=>p.Content.ToString().ToLower() == tag.ToLower()) > 0;
+            return tagList.Children.OfType<Tag>().Count(p=>p.Content.ToString()!.ToLower() == tag.ToLower()) > 0;
         }
 
         private void TagBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -125,14 +124,17 @@ namespace DevApps.GUI
             if (suggestionsListBox.SelectedItem != null)
             {
                 var tagText = suggestionsListBox.SelectedItem.ToString();
-                if (tagText.StartsWith("#") == false)
-                    tagText = "#" + tagText;
-                if (TagService.TagFormat.IsMatch(tagText) == true && TagExists(tagText) == false)
+                if (tagText != null)
                 {
-                    tagList.Children.Add(new Tag { Content = tagText });
-                    tag.Text = String.Empty;
-                    tag.CaretIndex = 0;
-                    suggestionsPopup.IsOpen = false;
+                    if (tagText.StartsWith("#") == false)
+                        tagText = "#" + tagText;
+                    if (TagService.TagFormat.IsMatch(tagText) == true && TagExists(tagText) == false)
+                    {
+                        tagList.Children.Add(new Tag { Content = tagText });
+                        tag.Text = String.Empty;
+                        tag.CaretIndex = 0;
+                        suggestionsPopup.IsOpen = false;
+                    }
                 }
                 e.Handled = true;
             }

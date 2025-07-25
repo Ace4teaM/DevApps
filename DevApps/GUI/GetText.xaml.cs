@@ -11,12 +11,12 @@ namespace DevApps.GUI
     /// </summary>
     public partial class GetText : Window, INotifyPropertyChanged
     {
-        public string Value { get; set; }
-        public string ValidationMessage { get; set; }
+        public string Value { get; set; } = String.Empty;
+        public string ValidationMessage { get; set; } = String.Empty;
 
-        public bool IsMultiline { get; set; }
+        public bool IsMultiline { get; set; } = true;
 
-        public Regex? Format { get; set; }
+        public Regex? Format { get; set; } = null;
 
         public GetText()
         {

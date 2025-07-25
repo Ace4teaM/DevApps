@@ -21,7 +21,7 @@ namespace Serializer
         /// <summary>
         /// Description de l'objet (optionnel)
         /// </summary>
-        public String? Description { get { return content.Description; } set { content.Description = value; } }
+        public string Description { get { return content.Description; } set { content.Description = value; } }
         /// <summary>
         /// Valeur de l'objet
         /// </summary>
@@ -48,8 +48,8 @@ namespace Serializer
         public String InitialDataBase64 { get { return content.InitialDataBase64; } set { content.InitialDataBase64 = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
         public KeyValuePair<string, Program.DevObjectInstance.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, DevObject.Pointer>(value); } }
-        public KeyValuePair<string, string?>[] Functions { get { return content.functions.Select(p=>new KeyValuePair<string,string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.functions = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value,null)))); } }
-        public KeyValuePair<string, string?>[] Properties { get { return content.properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.properties = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value, null)))); } }
+        public KeyValuePair<string, string?>[] Functions { get { return content.functions.Select(p=>new KeyValuePair<string,string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.functions = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value ?? string.Empty,null)))); } }
+        public KeyValuePair<string, string?>[] Properties { get { return content.properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.properties = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value ?? string.Empty, null)))); } }
         public string UserAction { get { return content.userAction.Item1; } set { content.userAction = (value,null); } }
         public string LoopMethod { get { return content.loopMethod.Item1; } set { content.loopMethod = (value, null); ; } }
         public string InitMethod { get { return content.initMethod.Item1; } set { content.initMethod = (value, null); ; } }
@@ -75,7 +75,7 @@ namespace Serializer
         public String InitialDataBase64 { get { return content.InitialDataBase64; } set { content.InitialDataBase64 = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
         public String? BaseObjectName { get { return content.BaseObjectName; } set { content.BaseObjectName = value; } }
-        public KeyValuePair<string, string?>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, string>(value); } }
+        public KeyValuePair<string, string>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, string>(value); } }
     }
 
     internal class DevFacet
@@ -119,7 +119,7 @@ namespace Serializer
         }
         public KeyValuePair<string, DevObjectInstance>[] Objects { 
             get {
-                return Program.DevObject.References.Where(p => p.Value is Program.DevObjectInstance).Select(p=>new KeyValuePair<string, DevObjectInstance>(p.Key, new DevObjectInstance(p.Value as Program.DevObjectInstance))).ToArray();
+                return Program.DevObject.References.Where(p => p.Value is Program.DevObjectInstance).Select(p=>new KeyValuePair<string, DevObjectInstance>(p.Key, new DevObjectInstance((Program.DevObjectInstance)p.Value))).ToArray();
             }
             set
             {
@@ -138,7 +138,7 @@ namespace Serializer
         {
             get
             {
-                return Program.DevObject.References.Where(p=>p.Value is Program.DevObjectReference).Select(p => new KeyValuePair<string, DevObjectReference>(p.Key, new DevObjectReference(p.Value as Program.DevObjectReference))).ToArray();
+                return Program.DevObject.References.Where(p=>p.Value is Program.DevObjectReference).Select(p => new KeyValuePair<string, DevObjectReference>(p.Key, new DevObjectReference((Program.DevObjectReference)p.Value))).ToArray();
             }
             set
             {
@@ -198,7 +198,7 @@ namespace Serializer
         {
             get
             {
-                return ReferencesO.Where(p => p.Value is Program.DevObjectInstance).Select(p => new KeyValuePair<string, DevObjectInstance>(p.Key, new DevObjectInstance(p.Value as Program.DevObjectInstance))).ToArray();
+                return ReferencesO.Where(p => p.Value is Program.DevObjectInstance).Select(p => new KeyValuePair<string, DevObjectInstance>(p.Key, new DevObjectInstance((Program.DevObjectInstance)p.Value))).ToArray();
             }
             set
             {
@@ -217,7 +217,7 @@ namespace Serializer
         {
             get
             {
-                return ReferencesO.Where(p => p.Value is Program.DevObjectReference).Where(p => p.Value is Program.DevObjectReference).Select(p => new KeyValuePair<string, DevObjectReference>(p.Key, new DevObjectReference(p.Value as Program.DevObjectReference))).ToArray();
+                return ReferencesO.Where(p => p.Value is Program.DevObjectReference).Where(p => p.Value is Program.DevObjectReference).Select(p => new KeyValuePair<string, DevObjectReference>(p.Key, new DevObjectReference((Program.DevObjectReference)p.Value))).ToArray();
             }
             set
             {

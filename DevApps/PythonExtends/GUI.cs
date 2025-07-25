@@ -11,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -203,163 +204,168 @@ namespace DevApps.PythonExtends
 
                 using (var csv = new CsvReader(new StreamReader(content.Stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true), config))
                 {
-                    double MarginY = 0;
-                    double MarginX = 0;
-
-                    int colCount = 0;
-                    int rowCount = 0;
-
-                    var dc = gui.drawingContext;
-
-                    var height = 0.0;
-                    List<Row> rows = new List<Row>();
-                    csv.Read();
-
-                    if (header)
+                    if (csv != null)
                     {
-                        csv.ReadHeader();
-                    }
+                        double MarginY = 0;
+                        double MarginX = 0;
 
-                    while (csv.Read() && height < Height)
-                    {
-                        colCount = Math.Max(csv.ColumnCount, colCount);
+                        int colCount = 0;
+                        int rowCount = 0;
 
-                        switch (csv.ColumnCount)
+                        var dc = gui.drawingContext;
+
+                        var height = 0.0;
+                        List<Row> rows = new List<Row>();
+                        csv.Read();
+
+                        if (header)
                         {
-                            case 0:
-                                rows.Add(new Row());
-                                break;
-                            case 1:
-                                rows.Add(new Row { A = csv.GetField(0) });
-                                break;
-                            case 2:
-                                rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1) });
-                                break;
-                            case 3:
-                                rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2) });
-                                break;
-                            case 4:
-                                rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3) });
-                                break;
-                            case 5:
-                                rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4) });
-                                break;
-                            case 6:
-                                rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4), F = csv.GetField(5) });
-                                break;
-                            case 7:
-                                rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4), F = csv.GetField(5), G = csv.GetField(6) });
-                                break;
-                            case 8:
-                                rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4), F = csv.GetField(5), G = csv.GetField(6), H = csv.GetField(7) });
-                                break;
-                            case 9:
-                                rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4), F = csv.GetField(5), G = csv.GetField(6), H = csv.GetField(7), I = csv.GetField(8) });
-                                break;
+                            csv.ReadHeader();
                         }
 
-                        height += GlyphCache.CachedGlyphTypeface.Height;
-                        rowCount++;
-                    }
+                        while (csv.Read() && height < Height)
+                        {
+                            colCount = Math.Max(csv.ColumnCount, colCount);
 
-                    // Calcul des largeurs de colonnes
-                    double[] colWidths = new double[colCount];
-                    double maxRowHeight = 0;
-                    double minWidth = 40.0;
+                            switch (csv.ColumnCount)
+                            {
+                                case 0:
+                                    rows.Add(new Row());
+                                    break;
+                                case 1:
+                                    rows.Add(new Row { A = csv.GetField(0) });
+                                    break;
+                                case 2:
+                                    rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1) });
+                                    break;
+                                case 3:
+                                    rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2) });
+                                    break;
+                                case 4:
+                                    rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3) });
+                                    break;
+                                case 5:
+                                    rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4) });
+                                    break;
+                                case 6:
+                                    rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4), F = csv.GetField(5) });
+                                    break;
+                                case 7:
+                                    rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4), F = csv.GetField(5), G = csv.GetField(6) });
+                                    break;
+                                case 8:
+                                    rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4), F = csv.GetField(5), G = csv.GetField(6), H = csv.GetField(7) });
+                                    break;
+                                case 9:
+                                    rows.Add(new Row { A = csv.GetField(0), B = csv.GetField(1), C = csv.GetField(2), D = csv.GetField(3), E = csv.GetField(4), F = csv.GetField(5), G = csv.GetField(6), H = csv.GetField(7), I = csv.GetField(8) });
+                                    break;
+                            }
 
-                    GlyphRun[,] glyphs = new GlyphRun[rowCount, colCount];
+                            height += GlyphCache.CachedGlyphTypeface.Height;
+                            rowCount++;
+                        }
 
-                    for (int col = 0; col < colCount; col++)
-                    {
-                        double maxWidth = 0;
+                        // Calcul des largeurs de colonnes
+                        double[] colWidths = new double[colCount];
+                        double maxRowHeight = 0;
+                        double minWidth = 40.0;
+
+                        GlyphRun[,] glyphs = new GlyphRun[rowCount, colCount];
+
+                        for (int col = 0; col < colCount; col++)
+                        {
+                            double maxWidth = 0;
+                            for (int row = 0; row < rowCount; row++)
+                            {
+                                var text = rows[row].Get(col);
+                                if (text != null)
+                                {
+                                    var glyph = GlyphCache.CreateGlyphRun(text, TextEmSize, new Point(0, 0));
+                                    var box = glyph.ComputeAlignmentBox();
+                                    maxWidth = Math.Max(maxWidth, box.Width + 8); // Padding
+                                    maxWidth = Math.Max(maxWidth, minWidth); // Minimum
+                                    maxRowHeight = Math.Max(maxRowHeight, box.Height + 8);
+                                    glyphs[row, col] = glyph;
+                                }
+                            }
+                            colWidths[col] = maxWidth;
+                        }
+
+                        if (header && csv.HeaderRecord != null)
+                        {
+                            double x = MarginX + (minWidth / 3.0) + 0.5;
+
+                            for (int col = 0; col < colCount; col++)
+                            {
+                                var glyph = GlyphCache.CreateGlyphRun(csv.HeaderRecord[col] ?? "", TextEmSize, new Point(0, 0));
+
+                                if (glyph.ComputeAlignmentBox().Width > colWidths[col])
+                                {
+                                    dc?.PushTransform(new TranslateTransform(x, MarginY - 6));
+                                    dc?.PushTransform(new RotateTransform(-45, 0, 0));
+                                    dc?.DrawGlyphRun(Brushes.DarkBlue, glyph);
+                                    dc?.Pop();
+                                    dc?.Pop();
+                                }
+                                else
+                                {
+                                    dc?.PushTransform(new TranslateTransform(x, MarginY - 6));
+                                    dc?.DrawGlyphRun(Brushes.DarkBlue, glyph);
+                                    dc?.Pop();
+                                }
+
+                                x += colWidths[col];
+                            }
+                        }
+
+                        double y = MarginY + 0.5;
+
                         for (int row = 0; row < rowCount; row++)
                         {
-                            var text = rows[row].Get(col);
-                            if (text != null)
+                            double x = MarginX + 0.5;
+
+                            for (int col = 0; col < colCount; col++)
                             {
-                                var glyph = GlyphCache.CreateGlyphRun(text, TextEmSize, new Point(0, 0));
-                                var box = glyph.ComputeAlignmentBox();
-                                maxWidth = Math.Max(maxWidth, box.Width + 8); // Padding
-                                maxWidth = Math.Max(maxWidth, minWidth); // Minimum
-                                maxRowHeight = Math.Max(maxRowHeight, box.Height + 8);
-                                glyphs[row, col] = glyph;
+                                var text = rows[row].Get(col);
+                                double cellWidth = colWidths[col];
+                                double cellHeight = maxRowHeight;
+
+                                // bordure de la cellule
+                                dc?.DrawRectangle(null, new Pen(Brushes.Black, 1), new Rect(x, y, cellWidth, cellHeight));
+
+                                // texte de la cellule
+                                var glyphRun = glyphs[row, col];
+                                if (glyphRun != null)
+                                {
+                                    var box = glyphRun.ComputeAlignmentBox();
+                                    var textPos = new Point(x + 4, y + (cellHeight - box.Height) / 2 - box.Top); // Center vertically
+                                    var drawGlyph = new GlyphRun(
+                                        glyphRun.GlyphTypeface,
+                                        glyphRun.BidiLevel,
+                                        glyphRun.IsSideways,
+                                        glyphRun.FontRenderingEmSize,
+                                        glyphRun.PixelsPerDip,
+                                        glyphRun.GlyphIndices,
+                                        textPos,
+                                        glyphRun.AdvanceWidths,
+                                        null, null, null, null, null, null
+                                    );
+
+                                    dc?.DrawGlyphRun(Brushes.Black, drawGlyph);
+                                }
+                                x += cellWidth;
                             }
+
+                            y += maxRowHeight;
                         }
-                        colWidths[col] = maxWidth;
-                    }
-
-                    if (header)
-                    {
-                        double x = MarginX + (minWidth/3.0) + 0.5;
-
-                        for (int col = 0; col < colCount; col++)
-                        {
-                            var glyph = GlyphCache.CreateGlyphRun(csv.HeaderRecord[col] ?? "", TextEmSize, new Point(0, 0));
-
-                            if (glyph.ComputeAlignmentBox().Width > colWidths[col])
-                            {
-                                dc?.PushTransform(new TranslateTransform(x, MarginY - 6));
-                                dc?.PushTransform(new RotateTransform(-45, 0, 0));
-                                dc?.DrawGlyphRun(Brushes.DarkBlue, glyph);
-                                dc?.Pop();
-                                dc?.Pop();
-                            }
-                            else
-                            {
-                                dc?.PushTransform(new TranslateTransform(x, MarginY - 6));
-                                dc?.DrawGlyphRun(Brushes.DarkBlue, glyph);
-                                dc?.Pop();
-                            }
-
-                            x += colWidths[col];
-                        }
-                    }
-
-                    double y = MarginY + 0.5;
-
-                    for (int row = 0; row < rowCount; row++)
-                    {
-                        double x = MarginX + 0.5;
-
-                        for (int col = 0; col < colCount; col++)
-                        {
-                            var text = rows[row].Get(col);
-                            double cellWidth = colWidths[col];
-                            double cellHeight = maxRowHeight;
-
-                            // bordure de la cellule
-                            dc?.DrawRectangle(null, new Pen(Brushes.Black, 1), new Rect(x, y, cellWidth, cellHeight));
-
-                            // texte de la cellule
-                            var glyphRun = glyphs[row, col];
-                            if (glyphRun != null)
-                            {
-                                var box = glyphRun.ComputeAlignmentBox();
-                                var textPos = new Point(x + 4, y + (cellHeight - box.Height) / 2 - box.Top); // Center vertically
-                                var drawGlyph = new GlyphRun(
-                                    glyphRun.GlyphTypeface,
-                                    glyphRun.BidiLevel,
-                                    glyphRun.IsSideways,
-                                    glyphRun.FontRenderingEmSize,
-                                    glyphRun.PixelsPerDip,
-                                    glyphRun.GlyphIndices,
-                                    textPos,
-                                    glyphRun.AdvanceWidths,
-                                    null, null, null, null, null, null
-                                );
-
-                                dc?.DrawGlyphRun(Brushes.Black, drawGlyph);
-                            }
-                            x += cellWidth;
-                        }
-
-                        y += maxRowHeight;
                     }
                 }
             }
             catch (Exception ex)
             {
-                gui.drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Service.typeface, TextEmSize, Brushes.Red), new Point(0, 0));
+                gui.drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture,
+                    System.Windows.FlowDirection.LeftToRight, Service.typeface, TextEmSize, Brushes.Red,
+                    1.0), new Point(0, 0));
             }
         }
         internal virtual void circle(GUI gui)
@@ -832,9 +838,9 @@ namespace DevApps.PythonExtends
             wnd.Left = mousePos.X + 10;
             wnd.Top = mousePos.Y + 10;
 
-            if (wnd.ShowDialog() == true && wnd.SelectedItem != null)
+            if (wnd.ShowDialog() == true && wnd.SelectedItem is KeyValuePair<object, object> sel)
             {
-                return (wnd.SelectedItem as KeyValuePair<object,object>?).Value.Key.ToString();
+                return sel.Key.ToString() ?? String.Empty;
             }
 
             return selection.text();
@@ -1190,6 +1196,7 @@ namespace DevApps.PythonExtends
 
         internal static GlyphRun ConvertTextToGlyphRun(string line, ref double x, ref double y)
         {
+            var pixelsPerDip = VisualTreeHelper.GetDpi(Application.Current.MainWindow).PixelsPerDip;
             var glyphIndices = new List<ushort>();
             var advanceWidths = new List<double>();
             var glyphOffsets = new List<Point>();
@@ -1201,7 +1208,7 @@ namespace DevApps.PythonExtends
                 {
                     glyphIndex = glyphTypeface.CharacterToGlyphMap[line[j]];
                 }
-                catch (System.Collections.Generic.KeyNotFoundException ex)
+                catch (System.Collections.Generic.KeyNotFoundException)
                 {
                     var c = line[j];
                     throw new NotImplementedException("Obtenir le glyph depuis un autre Typeface et l'ajouter au cache");
@@ -1221,6 +1228,7 @@ namespace DevApps.PythonExtends
                 0,
                 false,
                 renderingEmSize,
+                ((float)pixelsPerDip),
                 glyphIndices,
                 baselineOrigin,
                 advanceWidths,
@@ -1233,6 +1241,7 @@ namespace DevApps.PythonExtends
         }
         internal static GlyphRun ConvertTextLinesToGlyphRun(string[] lines, Layout layout)
         {
+            var pixelsPerDip = VisualTreeHelper.GetDpi(Application.Current.MainWindow).PixelsPerDip;
             var glyphIndices = new List<ushort>();
             var advanceWidths = new List<double>();
             var glyphOffsets = new List<Point>();
@@ -1264,6 +1273,7 @@ namespace DevApps.PythonExtends
                 0,
                 false,
                 renderingEmSize,
+                ((float)pixelsPerDip),
                 glyphIndices,
                 baselineOrigin,
                 advanceWidths,

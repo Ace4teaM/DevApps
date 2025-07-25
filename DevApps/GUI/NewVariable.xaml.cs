@@ -22,8 +22,8 @@ namespace DevApps.GUI
     /// </summary>
     public partial class NewVariable : Window, INotifyPropertyChanged
     {
-        public string Value { get; set; }
-        public string ValidationMessage { get; set; }
+        public string Value { get; set; } = String.Empty;
+        public string ValidationMessage { get; set; } = String.Empty;
 
         private Regex Format = new Regex("^[A-z0-9_]+$");
 

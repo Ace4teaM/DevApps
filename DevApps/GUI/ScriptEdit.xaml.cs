@@ -14,16 +14,16 @@ namespace DevApps.GUI
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public string Infos { get; set; }
-        public string Value { get; set; }
-        public string ValidationMessage { get; set; }
+        public string Infos { get; set; } = String.Empty;
+        public string Value { get; set; } = String.Empty;
+        public string ValidationMessage { get; set; } = String.Empty;
         public Dictionary<string, (string, CompiledCode?)> Properties { get; set; }
 
         public class TabItem : INotifyPropertyChanged
         {
             public event PropertyChangedEventHandler? PropertyChanged;
 
-            internal string name;
+            internal string name = String.Empty;
             public string Name
             {
                 get
@@ -36,7 +36,7 @@ namespace DevApps.GUI
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
                 }
             }
-            internal string expression;
+            internal string? expression;
             public string? Expression
             {
                 get
@@ -167,7 +167,7 @@ namespace DevApps.GUI
                 ValidationMessage = ex.Message;
             }
 
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(ValidationMessage)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ValidationMessage)));
         }
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)

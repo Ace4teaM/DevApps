@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
+using SharpVectors.Dom;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -107,19 +109,25 @@ namespace DevApps.GUI
                     {
                         foreach (string subKeyName in key.GetSubKeyNames())
                         {
-                            using (RegistryKey subKey = key.OpenSubKey(subKeyName))
+                            using (RegistryKey? subKey = key.OpenSubKey(subKeyName))
                             {
-                                string displayName = subKey.GetValue("DisplayName") as string;
-                                string displayIcon = subKey.GetValue("DisplayIcon") as string;
-
-                                if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                if (subKey != null)
                                 {
-                                    paths.Add(displayName, displayIcon);
-                                }
+                                    var displayName = subKey.GetValue("DisplayName") as string;
+                                    var displayIcon = subKey.GetValue("DisplayIcon") as string;
 
-                                if (!string.IsNullOrEmpty(displayName) && editors.Count(p=> displayName.ToLower().Contains(p.ToLower()) == true) > 0)
-                                {
-                                    paths.Add(displayName, displayIcon);
+                                    if (displayName != null && displayIcon != null)
+                                    {
+                                        if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                        {
+                                            paths.Add(displayName, displayIcon);
+                                        }
+
+                                        if (!string.IsNullOrEmpty(displayName) && editors.Count(p => displayName.ToLower().Contains(p.ToLower()) == true) > 0)
+                                        {
+                                            paths.Add(displayName, displayIcon);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -134,19 +142,25 @@ namespace DevApps.GUI
                     {
                         foreach (string subKeyName in key.GetSubKeyNames())
                         {
-                            using (RegistryKey subKey = key.OpenSubKey(subKeyName))
+                            using (RegistryKey? subKey = key.OpenSubKey(subKeyName))
                             {
-                                string displayName = subKey.GetValue("DisplayName") as string;
-                                string displayIcon = subKey.GetValue("DisplayIcon") as string;
-
-                                if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                if (subKey != null)
                                 {
-                                    paths.Add(displayName, displayIcon);
-                                }
+                                    var displayName = subKey.GetValue("DisplayName") as string;
+                                    var displayIcon = subKey.GetValue("DisplayIcon") as string;
 
-                                if (!string.IsNullOrEmpty(displayName) && editors.Count(p => displayName.ToLower().Contains(p.ToLower()) == true) > 0)
-                                {
-                                    paths.Add(displayName, displayIcon);
+                                    if (displayName != null && displayIcon != null)
+                                    {
+                                        if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                        {
+                                            paths.Add(displayName, displayIcon);
+                                        }
+
+                                        if (!string.IsNullOrEmpty(displayName) && editors.Count(p => displayName.ToLower().Contains(p.ToLower()) == true) > 0)
+                                        {
+                                            paths.Add(displayName, displayIcon);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -337,6 +351,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"{ex.Message}");
                 throw;
             }
         }
@@ -363,7 +378,10 @@ namespace DevApps.GUI
 
         internal static void Invalidate(string name)
         {
-            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+            if (EditorWindow == null)
+                return;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() =>
                 {
@@ -371,7 +389,7 @@ namespace DevApps.GUI
                     {
                         var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
 
-                        var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                        var host = canvas?.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
                         if (host != null)
                         {
                             host.InvalidateVisual();
@@ -382,7 +400,10 @@ namespace DevApps.GUI
 
         internal static void SetStatusText(string text)
         {
-            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+            if (EditorWindow == null)
+                return;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
                     EditorWindow.StatusText = text;
@@ -396,7 +417,10 @@ namespace DevApps.GUI
 
         internal static void InvalidateFacets()
         {
-            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+            if (EditorWindow == null)
+                return;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
                     EditorWindow?.InvalidateFacets();
@@ -414,28 +438,36 @@ namespace DevApps.GUI
                     {
                         var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
 
-                        var element = new DrawElement(facet);
-                        element.Title = new FormattedText(desc ?? name, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
-                        element.Name = name;
-                        element.Width = position.Width;
-                        element.Height = position.Height;
-                        Canvas.SetLeft(element, position.Left);
-                        Canvas.SetTop(element, position.Top);
-                        canvas.Children.Add(element);
+                        if (canvas != null)
+                        {
+                            var element = new DrawElement(facet);
+                            element.Title = new FormattedText(desc ?? name, CultureInfo.InvariantCulture,
+                                System.Windows.FlowDirection.LeftToRight, typeface, 10, Brushes.Blue,
+                                VisualTreeHelper.GetDpi(canvas).PixelsPerDip);
+                            element.Name = name;
+                            element.Width = position.Width;
+                            element.Height = position.Height;
+                            Canvas.SetLeft(element, position.Left);
+                            Canvas.SetTop(element, position.Top);
+                            canvas.Children.Add(element);
+                        }
                     }
                 }));
         }
 
         internal static void SetRect(string name, Rect rect)
         {
-            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+            if (EditorWindow == null)
+                return;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
                     if (EditorWindow?.Content is DesignerView)
                     {
                         var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
 
-                        var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                        var host = canvas?.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
                         if (host != null)
                         {
                             Canvas.SetLeft(host, rect.Left);
@@ -450,7 +482,10 @@ namespace DevApps.GUI
 
         internal static void SetDescription(string name, string desc)
         {
-            dispatcherOperations.Add(EditorWindow?.Dispatcher.BeginInvoke(
+            if (EditorWindow == null)
+                return;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
                     if (EditorWindow?.Content is DesignerView)
@@ -458,10 +493,12 @@ namespace DevApps.GUI
                         var canvas = ((EditorWindow?.Content as DesignerView)?.MyCanvas);
 
 
-                        var host = canvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
+                        var host = canvas?.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
                         if (host != null)
                         {
-                            host.Title = new FormattedText(desc, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeface, 10, Brushes.Blue);
+                            host.Title = new FormattedText(desc, CultureInfo.InvariantCulture,
+                                System.Windows.FlowDirection.LeftToRight, typeface, 10, Brushes.Blue,
+                                VisualTreeHelper.GetDpi(canvas).PixelsPerDip);
                             host.InvalidateVisual();
                         }
                     }
@@ -541,8 +578,8 @@ namespace DevApps.GUI
         {
             return EditorWindow?.Dispatcher.Invoke(
                 DispatcherPriority.Render,
-                new Func<Program.DevFacet>(() => {
-                    return (EditorWindow?.Content as DesignerView).facette;
+                new Func<Program.DevFacet?>(() => {
+                    return (EditorWindow?.Content as DesignerView)?.facette;
                 })) as Program.DevFacet;
         }
 
