@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace DevApps.PythonExtends
 {
+    /// <summary>
+    /// Fournit des méthodes pour gérer une abstraction de layout-ui avec .net
+    /// </summary>
+    [Obsolete("En phase d'être remplacé par un accès au DrawingContext (.net) depuis le langage Python pour plus de possibilités de dessin")]
     public class Layout
     {
         internal Rect BaseRect = new Rect();

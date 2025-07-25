@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DevApps.PythonExtends
+﻿namespace DevApps.PythonExtends
 {
+    /// <summary>
+    /// Fournit les méthodes d'accès à la console pour le langage Python
+    /// </summary>
     public class Console
     {
+        /// <summary>
+        /// Méthode Python : Ecrit dans la sortie standard
+        /// </summary>
         public void write(string text)
         {
             System.Console.WriteLine(text);

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace DevApps.PythonExtends
 {
+    /// <summary>
+    /// Fournit un objet pour la gestion des requêtes HTTP
+    /// </summary>
     public class Requests
     {
         public HttpResponseMessage? post(string url, PythonDictionary headers, PythonDictionary json)

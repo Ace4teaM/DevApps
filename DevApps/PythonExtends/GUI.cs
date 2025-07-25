@@ -11,7 +11,6 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -53,6 +52,7 @@ namespace DevApps.PythonExtends
     /// <summary>
     /// représente le positionnement du prochain dessin
     /// </summary>
+    [Obsolete("A remplacer par un appel directe à GUI")]
     public class Fill
     {
         public Zone Base { get; set; }
@@ -156,6 +156,7 @@ namespace DevApps.PythonExtends
         /// <summary>
         /// Utiliser pour représenter une ligne dans un tableau CSV
         /// </summary>
+        [Obsolete("A remplacer par un appel directe à GUI")]
         public class Row
         {
             public string? A, B, C, D, E, F, G, H, I, J;
@@ -389,6 +390,7 @@ namespace DevApps.PythonExtends
             gui.drawingContext?.DrawEllipse(gui.ForegroundBrush, gui.ForegroundPen, new Point(targetPosition + Height / 2, Height / 2), Height / 2 - 2, Height / 2 - 2);
         }
 
+        [Obsolete("A remplacer par un appel directe à GUI")]
         public class Stack : Fill
         {
             public Stack(Zone zone) : base(zone)
@@ -459,6 +461,7 @@ namespace DevApps.PythonExtends
             }
         }
 
+        [Obsolete("A remplacer par un appel directe à GUI")]
         public class Stars : Fill
         {
             public int Current { get; set; }
@@ -497,6 +500,7 @@ namespace DevApps.PythonExtends
             }
         }
 
+        [Obsolete("A remplacer par un appel directe à GUI")]
         public class Wrap : Fill
         {
             public Wrap(Zone zone) : base(zone)
@@ -537,6 +541,7 @@ namespace DevApps.PythonExtends
             }
         }
 
+        [Obsolete("A remplacer par un appel directe à GUI")]
         public class Grid : Fill
         {
             public double Columns { get; set; }
@@ -597,10 +602,15 @@ namespace DevApps.PythonExtends
     }
 
     /// <summary>
-    /// Graphic object interface
+    /// Fournit les méthodes de dessins au lanage python pour les objets les plus fréquents (csv,svg,textes,...)
     /// </summary>
     public class GUI
     {
+        /// <summary>
+        /// Propriétés à la gestion des pinceaux pour le dessin
+        /// </summary>
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
+        #region 
         internal bool gradient = false;
         internal Color color = Colors.Black;
         internal double thickness = 2.0;
@@ -608,7 +618,9 @@ namespace DevApps.PythonExtends
         internal Brush? foregroundBrush;
         internal Pen? backgroundPen;
         internal Brush? backgroundBrush;
+        #endregion
 
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         internal void InvalidateForeground()
         {
             if (gradient)
@@ -627,6 +639,7 @@ namespace DevApps.PythonExtends
             foregroundPen = new Pen(foregroundBrush, thickness);
         }
 
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         internal void InvalidateBackground()
         {
             if (gradient)
@@ -645,6 +658,7 @@ namespace DevApps.PythonExtends
             backgroundPen = new Pen(backgroundBrush, thickness);
         }
 
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         public Pen ForegroundPen { 
             get {
                 if(foregroundPen == null)
@@ -656,6 +670,7 @@ namespace DevApps.PythonExtends
             }
         }
 
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         public Brush ForegroundBrush
         {
             get
@@ -669,6 +684,7 @@ namespace DevApps.PythonExtends
             }
         }
 
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         public Pen BackgroundPen
         {
             get
@@ -682,6 +698,7 @@ namespace DevApps.PythonExtends
             }
         }
 
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         public Brush BackgroundBrush
         {
             get
@@ -695,15 +712,21 @@ namespace DevApps.PythonExtends
             }
         }
 
-
+        /// <summary>
+        /// Contexte de dessin à utiliser pour cette instance
+        /// Chaque objet possède sa propre instance de la classe GUI
+        /// </summary>
         internal DrawingContext? drawingContext;
 
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         public Layout layout { get; set; } = new Layout(new Rect(0, 0, 100, 100));
-
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         internal Zone baseZone = new Zone { Rect = new Rect(0, 0, 100, 100) };
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         internal Fill filling { get; set; }
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         internal Zone current { get { return zones.First(); } }
-
+        [Obsolete("A remplacer par un appel directe à DrawingContext")]
         internal Stack<Zone> zones { get; set; }
 
         public GUI()
@@ -712,7 +735,7 @@ namespace DevApps.PythonExtends
             zones = new Stack<Zone>([baseZone]);
         }
 
-        // Méthode pour limiter les valeurs entre min et max
+        /// Méthode pour limiter les valeurs entre min et max
         internal static double Clamp(double value, double min, double max)
         {
             if (value < min) return min;
@@ -720,7 +743,7 @@ namespace DevApps.PythonExtends
             return value;
         }
 
-        // Méthode pour ajuster la luminosité d'une couleur
+        /// Méthode pour ajuster la luminosité d'une couleur
         internal static Color AdjustColorBrightness(Color baseColor, double factor)
         {
             // Factor > 1.0 pour rendre la couleur plus claire, < 1.0 pour plus sombre
@@ -730,6 +753,12 @@ namespace DevApps.PythonExtends
             return Color.FromRgb(r, g, b);
         }
 
+        /// <summary>
+        /// Début du dessin
+        /// </summary>
+        /// <remarks>
+        /// context doit déjà être ouvert et prêt au dessin
+        /// </remarks>
         internal void Begin(DrawingContext context)
         {
             drawingContext = context;
@@ -737,15 +766,22 @@ namespace DevApps.PythonExtends
             full();
         }
 
+        /// <summary>
+        /// Fin du dessin
+        /// </summary>
         internal void End()
         {
             drawingContext = null;
         }
 
         /// <summary>
-        /// Obtient un texte de l'utilisateur
+        /// Méthode Python : Ouvre une boite de dialogue et obtient un texte de l'utilisateur
         /// </summary>
-        /// <param name="values"></param>
+        /// <returns>
+        /// Retourne la valeur sélectionné ou la valeur de base si l'utilisateur annule
+        /// </returns>
+        /// <param name="selection">Valeur de base</param>
+        /// <param name="format">Regex de validation de la valeur, si null aucune vérification</param>
         public string gettext(Output selection, string? format = null)
         {
             var mousePos = System.Windows.Input.Mouse.GetPosition(null);
@@ -766,9 +802,13 @@ namespace DevApps.PythonExtends
         }
 
         /// <summary>
-        /// Obtient un texte de l'utilisateur
+        /// Méthode Python : Obtient un texte de l'utilisateur (sans passage de ligne)
         /// </summary>
-        /// <param name="values"></param>
+        /// <returns>
+        /// Retourne la valeur sélectionné ou la valeur de base si l'utilisateur annule
+        /// </returns>
+        /// <param name="selection">Valeur de base</param>
+        /// <param name="format">Regex de validation de la valeur, si null aucune vérification</param>
         public string getline(Output selection, string? format = null)
         {
             var mousePos = System.Windows.Input.Mouse.GetPosition(null);
@@ -790,9 +830,14 @@ namespace DevApps.PythonExtends
         }
 
         /// <summary>
-        /// Edit le contenu 
+        /// Méthode Python : Edite les données du contenu 
         /// </summary>
-        /// <param name="values"></param>
+        /// <remarks>
+        /// Ouvre un processus enfant sur l'éditeur et attend la fermeture de ce dernier pour mettre à jour les données
+        /// Le fichier à modifier est inséré à la place de "%1" dans le chemin vers l'éditeur ou à la fin si introuvable
+        /// </remarks>
+        /// <param name="editor">Nom de l'éditeur tel que définit dans la liste des éditeurs externes</param>
+        /// <param name="output">Données à éditer</param>
         public void edit(string editor, Output output)
         {
             // exécute l'environnement de commandes
@@ -821,6 +866,7 @@ namespace DevApps.PythonExtends
             }
             catch (Exception ex)
             {
+                System.Console.WriteLine("edit: Echec de l'ouverture de l'éditeur");
                 System.Console.WriteLine(ex.ToString());
             }
         }
@@ -879,7 +925,6 @@ namespace DevApps.PythonExtends
             return this;
         }
         #endregion
-
         #region filling
         public GUI fill()
         {
@@ -1181,6 +1226,10 @@ namespace DevApps.PythonExtends
         */
         #endregion
 
+        /// <summary>
+        /// Caractères de dessin par défaut
+        /// </summary>
+        #region
         internal static GlyphTypeface glyphTypeface;
         internal static double renderingEmSize, advanceWidth, advanceHeight;
         internal static Point baselineOrigin;
@@ -1284,5 +1333,6 @@ namespace DevApps.PythonExtends
                 null,
                 null);
         }
+        #endregion
     }
 }
