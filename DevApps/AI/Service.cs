@@ -123,8 +123,6 @@ namespace DevApps.AI
                 }
             }
             else*/
-            var id = Thread.CurrentThread.ManagedThreadId;
-
             if (type == IAType.MISTRAL && source != null)
             {
                 try
@@ -172,8 +170,6 @@ namespace DevApps.AI
         {
             if (iaTask?.IsCompleted == true)
             {
-                var id = Thread.CurrentThread.ManagedThreadId;
-
                 var response = iaTask.Result;
                 if (String.IsNullOrEmpty(response) == false)
                 {

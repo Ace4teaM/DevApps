@@ -200,7 +200,9 @@ internal partial class Program
 
         public override string? GetProperty(string name)
         {
-            return Properties.ContainsKey(name) ? Properties[name].Item1 : String.Empty;
+            if (Properties.TryGetValue(name, out var value))
+                return value.Item1;
+            return null;
         }
 
         public override DevObject AddProperty(string name, string? code)
@@ -230,7 +232,9 @@ internal partial class Program
 
         public override string? GetFunction(string name)
         {
-            return Functions.ContainsKey(name) ? Functions[name].Item1 : String.Empty;
+            if (Functions.TryGetValue(name, out var value))
+                return value.Item1;
+            return null;
         }
 
         public override DevObject AddFunction(string name, string code)
@@ -252,7 +256,9 @@ internal partial class Program
 
         public override Pointer? GetPointer(string name)
         {
-            return Pointers.ContainsKey(name) ? Pointers[name] : null;
+            if (Pointers.TryGetValue(name, out var value))
+                return value;
+            return null;
         }
 
         public override DevObject AddPointer(string name, string reference, string[] tags)

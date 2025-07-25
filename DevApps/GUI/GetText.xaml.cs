@@ -40,7 +40,7 @@ namespace DevApps.GUI
         {
             ValidationMessage = (Format != null && Format.IsMatch(Value) == false) ? "Format invalide" : String.Empty;
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ValidationMessage"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ValidationMessage)));
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)

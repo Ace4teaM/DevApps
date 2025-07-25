@@ -45,7 +45,7 @@ namespace DevApps.GUI
             else
                 ValidationMessage = String.Empty;
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ValidationMessage"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ValidationMessage)));
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
