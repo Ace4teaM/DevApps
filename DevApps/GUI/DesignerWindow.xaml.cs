@@ -75,6 +75,14 @@ namespace DevApps.GUI
             get;set;
         }
 
+        public string AppTitle
+        {
+            get
+            {
+                return String.Format("{0} - DevApps", Path.GetFileName(Environment.CurrentDirectory));
+            }
+        }
+
         Application app = new Application();
 
         public DesignerWindow()

@@ -41,6 +41,17 @@
                     <Setter Property="Focusable" Value="False"></Setter>
                     <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
                 </Style>
+                <Style x:Key="TitleStyle" TargetType="TextBlock">
+                    <Setter Property="Margin" Value="10,0,0,0"></Setter>
+                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                    <Setter Property="Background" Value="Transparent"></Setter>
+                    <Setter Property="FontFamily" Value="Tahoma"></Setter>
+                    <Setter Property="FontSize" Value="16"></Setter>
+                    <Setter Property="Foreground" Value="Black"></Setter>
+                    <Setter Property="Focusable" Value="False"></Setter>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
+                </Style>
             </DockPanel.Resources>
             <Button DockPanel.Dock="Left" Click="Button_Click" Background="Transparent" BorderThickness="0" Padding="0" Margin="0">
                 <Image RenderOptions.BitmapScalingMode="HighQuality" Source="pack://application:,,,/DevApps;component/DevApps.ico" Margin="10,0,10,0" Width="30" Height="30"/>
@@ -53,7 +64,7 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
-            <Grid></Grid>
+            <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}"></TextBlock>
         </DockPanel>
         <Grid DockPanel.Dock="Top" Margin="0,5,0,0" Background="#EEEEEE">
             <DockPanel Height="26" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
