@@ -60,4 +60,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\Users\Thomas\source\repos\devapps\DevApps\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\Thomas\source\repos\devapps\DevApps\.editorconfig" />
+  </ItemGroup>
+
 </Project>
