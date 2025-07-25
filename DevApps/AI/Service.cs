@@ -16,6 +16,9 @@ namespace DevApps.AI
     }
 
 
+    /// <summary>
+    /// Implément les fonctions de gestion lié à l'intelligence artificielle
+    /// </summary>
     internal static class Service
     {
         internal static IAType type = IAType.MISTRAL;

@@ -3,7 +3,7 @@
 namespace DevApps.GUI
 {
     /// <summary>
-    /// Interface permettant de recevoir les commandes claviers reçues par l'application aux vues enfants de DesignerWindow
+    /// Interface permettant de recevoir les commandes de l'application dans les vues enfants du DesignerWindow
     /// </summary>
     public interface IKeyCommand
     {

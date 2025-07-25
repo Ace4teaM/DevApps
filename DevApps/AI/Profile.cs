@@ -4,6 +4,9 @@ using System.Text;
 
 namespace DevApps.AI
 {
+    /// <summary>
+    /// Implément les fonctions pour initialiser le 'profile' de l'agent IA
+    /// </summary>
     internal static class Profile
     {
         public static byte[] GetProjectBytes()
