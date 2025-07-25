@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DevApps.Appli"
         mc:Ignorable="d"
         Closing="Window_Closing"
-        Title="External Editors" Height="470" Width="808">
+        Title="External Editors" Height="605" Width="920">
     <DockPanel>
         <!--
         <Button Content="OK" DockPanel.Dock="Bottom" Margin="10" Width="80" Height="30" HorizontalAlignment="Right" />
@@ -27,7 +27,7 @@
             </StackPanel>
 
             <Label></Label>
-            
+
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="OK" HorizontalAlignment="Right"
                 Margin="10" Width="80" Click="OK_Click"/>
@@ -65,6 +65,9 @@
             </DataGrid.Columns>
         </DataGrid>
 
+        <TextBlock Margin="10,10,0,0" DockPanel.Dock="Bottom">Liste des applications installés dans le système</TextBlock>
+
+        <TextBlock Margin="10,10,0,0" DockPanel.Dock="Top">Applications associées aux éditeur (clés Pythons)</TextBlock>
 
         <DataGrid Name="KeyValueGrid" Margin="10" AutoGenerateColumns="False"  CanUserResizeRows="False" CanUserResizeColumns="True"
                   CanUserAddRows="True" CanUserDeleteRows="True" ItemsSource="{Binding KeysList}" IsReadOnly="False" BeginningEdit="KeyValueGrid_BeginningEdit">

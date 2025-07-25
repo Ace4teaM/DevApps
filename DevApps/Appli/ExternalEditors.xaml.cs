@@ -1,8 +1,10 @@
 ﻿using DevApps.GUI;
 using Microsoft.Scripting.Utils;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using static IronPython.Modules.PythonIterTools;
 
 namespace DevApps.Appli
 {
@@ -18,8 +20,8 @@ namespace DevApps.Appli
 
             public KeyValuePair()
             {
-                Key = "python key";
-                Value = "application key";
+                Key = "key";
+                Value = "value";
             }
 
             public KeyValuePair(string key, string value)
@@ -32,7 +34,7 @@ namespace DevApps.Appli
         {
             public ObservableCollectionKeyValue(Dictionary<string,string> values)
             {
-                    this.AddRange(values.Select(x => new KeyValuePair(x.Key, x.Value)));
+                this.AddRange(values.Select(x => new KeyValuePair(x.Key, x.Value)));
             }
 
             public void AddRange(Dictionary<string, string> values)
@@ -58,10 +60,14 @@ namespace DevApps.Appli
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            Service.associatedEditors.Clear();
+
             foreach (var item in KeysList)
             {
                 Service.associatedEditors[item.Key] = item.Value;
             }
+
+            Service.externalsEditors.Clear();
 
             foreach (var item in AppsList)
             {
@@ -94,8 +100,25 @@ namespace DevApps.Appli
             var search = new string[] { appName.Text };
             Service.ResolveApplicationNames(search, found);
 
-            if (found.Count == 0)
-                MessageBox.Show("Aucune application trouvé");
+            int count = 0;
+            foreach (var app in found)
+            {
+                if (AppsList.Count(p => p.Key.Contains(app.Key)) == 0)
+                {
+                    AppsList.Add(new KeyValuePair(app.Key, app.Value));
+                    count++;
+                }
+            }
+
+            if (count == 0)
+            {
+                MessageBox.Show("Aucune nouvelle application trouvée");
+            }
+            else
+            {
+                editorGrid.SelectedIndex = AppsList.Count-1;
+                MessageBox.Show(count + " nouvelle(s) application(s) trouvée(s)");
+            }
         }
     }
 }

@@ -5,6 +5,9 @@ using System.Windows.Controls;
 
 namespace DevApps.GUI
 {
+    /// <summary>
+    /// Implémente le visuel d'une zone d'informations pour un objet
+    /// </summary>
     public class TooltipAdorner : Adorner
     {
         private readonly VisualCollection _visuals;

@@ -32,8 +32,8 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
-        <local:EditConverter x:Key="editConverter"/>
-        <local:BoolConverter x:Key="boolConverter"/>
+        <local:StringToEditCharConverter x:Key="editConverter"/>
+        <local:BoolToCheckCharConverter x:Key="boolConverter"/>
         <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
     </UserControl.Resources>
     <Grid>

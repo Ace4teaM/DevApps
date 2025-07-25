@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace DevApps.PythonExtends
 {
     /// <summary>
-    /// Fournit une classe de base pour gérer les données d'un objet
+    /// Fournit une interface pour manipuler un flux de données d'un objet (DevObject)
     /// </summary>
     /// <remarks>
     /// Chaque objet possède un flux de données binaire permettant de stocker les informations généré ou importer.

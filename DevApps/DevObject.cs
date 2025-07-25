@@ -17,13 +17,40 @@ internal partial class Program
             public string target = string.Empty;
             public HashSet<string> tags = new HashSet<string>();
         }
+
+        /// <summary>
+        /// Liste des objets définit comme modèle (IsModel)
+        /// </summary>
         public static IEnumerable<KeyValuePair<string, DevObject>> Models { get{ return References.Where(p => p.Value.IsModel()); } }
+
+        /// <summary>
+        /// Liste des objets en cours
+        /// </summary>
         public static Dictionary<string, DevObject> References = new Dictionary<string, DevObject>();
+
+        /// <summary>
+        /// Bloque l'accès à l'éxecution des objets
+        /// </summary>
         internal static Mutex mutexExecuteObjects = new Mutex();
+
+        /// <summary>
+        /// Bloque l'accès à la liste References
+        /// </summary>
         internal static Mutex mutexCheckObjectList = new Mutex();
+
+        /// <summary>
+        /// True si le thread périodique des objets est en cours d'exécution
+        /// </summary>
         internal static bool run = false;
+
+        /// <summary>
+        /// Thread d'exécution des périodiques d'objets (voir la méthode Worker())
+        /// </summary>
         internal static Thread? thread;
 
+        /// <summary>
+        /// Bloque l'accès en écriture pour Output (permet la lecture sans modification)
+        /// </summary>
         internal Mutex mutexReadOutput = new Mutex();
         public MemoryStream buildStream = new MemoryStream();
 

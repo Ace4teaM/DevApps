@@ -1,44 +1,17 @@
-﻿using ICSharpCode.AvalonEdit.Editing;
-using IronPython.Runtime;
+﻿using IronPython.Runtime;
 using Microsoft.Scripting.Utils;
-using Serializer;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics.Metrics;
-using System.Drawing;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
 using System.Windows.Input;
 using static Program;
 
 namespace DevApps.GUI
 {
-    public class BoolConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value == null)
-            {
-                return String.Empty;
-            }
-
-            if (value.GetType() == typeof(bool))
-                return ((bool)value) == true ? "✗" : String.Empty;
-
-            return String.Empty;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => (value?.ToString()) == "✗";
-    }
-
     /// <summary>
     /// Logique d'interaction pour DesignerDataView.xaml
     /// </summary>

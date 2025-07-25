@@ -1,4 +1,5 @@
 ﻿using Microsoft.Scripting.Hosting;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,19 +8,41 @@ using static Program;
 
 namespace DevApps.GUI
 {
+    /// <summary>
+    /// Fournit les fonctions nécessaires à l'affichage d'un objet DevObject dans un DesignerView
+    /// </summary>
     public class DrawElement : DrawBase
     {
         internal FormattedText? Title;
         internal FormattedText? SubTitle;
         internal DevFacet? facet;
 
-        internal DrawElement(DevFacet facet)
+        internal static Typeface typeface = new Typeface("Arial");
+        internal static Pen connectorPen = new Pen(Brushes.Linen, 3);
+        internal System.Windows.Media.Brush? background = null;
+
+        internal DrawElement(string objectName, DevFacet facet, Rect rect, string title, string subtitle)
         {
             this.facet = facet;
+            this.Name = objectName;
+            this.Width = rect.Width;
+            this.Height = rect.Height;
+            this.Y = rect.Top;
+            this.X = rect.Left;
+
+            this.Title = new FormattedText(title, CultureInfo.InvariantCulture,
+                System.Windows.FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue,
+                VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+            this.SubTitle = new FormattedText(subtitle, CultureInfo.InvariantCulture,
+                System.Windows.FlowDirection.LeftToRight, Service.typeface, 8, Brushes.DarkViolet,
+                VisualTreeHelper.GetDpi(this).PixelsPerDip);
         }
 
-        public System.Windows.Media.Brush? background = null;
-
+        /// <summary>
+        /// Execute l'action de double-clic sur l'objet
+        /// </summary>
+        /// <param name="position">Position du curseur dans le Canvas</param>
         internal void RunAction(Point position)
         {
             var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
@@ -70,10 +93,10 @@ namespace DevApps.GUI
             }
         }
 
-        internal static Typeface typeface = new Typeface("Arial");
-        internal static Pen connectorPen = new Pen(Brushes.Linen, 3);
-
-        // Cette méthode gère le rendu
+        /// <summary>
+        /// Rendu de l'objet
+        /// </summary>
+        /// <param name="drawingContext">Contexte de dessin à utiliser</param>
         protected override void OnRender(DrawingContext drawingContext)
         {
             var canvas = this.Parent as Canvas;
@@ -90,8 +113,11 @@ namespace DevApps.GUI
                 {
                     var ContentWidth = this.ActualWidth;
                     var ContentHeight = this.ActualHeight;
+
+                    // Propriétés d'affichage de cet objet pour cette facette
                     var DrawProp = facet.Objects[this.Name];
 
+                    // Affiche le titre (au dessus du rectangle du client)
                     if (Title != null)
                     {
                         switch (DrawProp.title)
@@ -114,6 +140,7 @@ namespace DevApps.GUI
                         }
                     }
 
+                    // Affiche le sous-titre (en dessous du rectangle du client)
                     if (SubTitle != null)
                     {
                         drawingContext.PushTransform(new TranslateTransform(0, 6 + Height));
@@ -121,12 +148,15 @@ namespace DevApps.GUI
                         drawingContext.Pop();
                     }
 
+                    // Mise en cache de la couleur de fond
                     if (DrawProp.background != null && background == null)
                         background = (Brush?)(new BrushConverter().ConvertFromString(DrawProp.background)) ?? System.Windows.Media.Brushes.Transparent;
 
-                    // Dessiner un rectangle pour illustrer
+                    // Dessiner un rectangle pour illustrer la zone de dessin
                     Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
                     drawingContext.DrawRectangle(background, null, rect);
+
+                    // Execute le script de dessin
                     if (reference.DrawCode.Item2 != null)
                     {
                         var handle2 = reference.mutexReadOutput.WaitOne();
@@ -134,7 +164,7 @@ namespace DevApps.GUI
                         {
                             try
                             {
-                                facet.Objects[this.Name].SetZone(new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight));
+                                DrawProp.SetZone(new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight));
                                 reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = rect };
 
                                 var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !

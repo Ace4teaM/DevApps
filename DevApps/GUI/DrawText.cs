@@ -3,6 +3,9 @@ using System.Windows.Media;
 
 namespace DevApps.GUI
 {
+    /// <summary>
+    /// Fournit les fonctions nécessaires à l'affichage d'un objet Text dans un DesignerView
+    /// </summary>
     public class DrawText : DrawBase
     {
         public DrawText(string text)

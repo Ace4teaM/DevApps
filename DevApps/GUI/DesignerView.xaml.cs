@@ -250,8 +250,8 @@ namespace DevApps.GUI
             if (selectedElement != null && (isDragging || isResizing))
                 SaveDisposition(selectedElement);
 
-            if (isDoubleClick && selectedElement is DrawElement)
-                (selectedElement as DrawElement)?.RunAction(e.GetPosition(MyCanvas));
+            if (isDoubleClick && selectedElement is DrawElement sel3)
+                sel3.RunAction(e.GetPosition(MyCanvas));
 
             if (isDoubleClick && selectedElement is DrawGeometry sel)
             {
@@ -847,20 +847,8 @@ namespace DevApps.GUI
 
             var position = properties.GetZone();
 
-            var element = new DrawElement(this.facette);
-
-            element.Title = new FormattedText((o.Value.Description ?? o.Key), CultureInfo.InvariantCulture,
-                System.Windows.FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue,
-                VisualTreeHelper.GetDpi(this).PixelsPerDip);
-            element.SubTitle = new FormattedText(String.Join(' ', o.Value.Tags), CultureInfo.InvariantCulture,
-                System.Windows.FlowDirection.LeftToRight, Service.typeface, 8, Brushes.DarkViolet,
-                VisualTreeHelper.GetDpi(this).PixelsPerDip);
-            element.Name = o.Key;
-            element.Width = position.Width;
-            element.Height = position.Height;
+            var element = new DrawElement(o.Key, this.facette, position, (o.Value.Description ?? o.Key), String.Join(' ', o.Value.Tags));
             element.RenderTransform = _transformGroup;
-            Canvas.SetLeft(element, position.Left);
-            Canvas.SetTop(element, position.Top);
             MyCanvas.Children.Add(element);
 
             return element;

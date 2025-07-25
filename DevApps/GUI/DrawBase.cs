@@ -3,39 +3,38 @@ using System.Windows.Controls;
 
 namespace DevApps.GUI
 {
+    /// <summary>
+    /// Représente un objet visuel présentable dans DesignerView
+    /// </summary>
     public abstract class DrawBase : FrameworkElement
     {
+        /// <summary>
+        /// Position X dans le canvas
+        /// </summary>
         public double X
         {
             get
             {
-                var canvas = this.Parent as Canvas;
-                if (canvas != null)
-                    return Canvas.GetLeft(this);
-                return 0;
+                return Canvas.GetLeft(this);
             }
             set
             {
-                var canvas = this.Parent as Canvas;
-                if (canvas != null)
-                    Canvas.SetLeft(this, value);
+                Canvas.SetLeft(this, value);
             }
         }
 
+        /// <summary>
+        /// Position Y dans le canvas
+        /// </summary>
         public double Y
         {
             get
             {
-                var canvas = this.Parent as Canvas;
-                if (canvas != null)
-                    return Canvas.GetTop(this);
-                return 0;
+                return Canvas.GetTop(this);
             }
             set
             {
-                var canvas = this.Parent as Canvas;
-                if (canvas != null)
-                    Canvas.SetTop(this, value);
+                Canvas.SetTop(this, value);
             }
         }
 

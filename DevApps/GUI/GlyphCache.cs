@@ -5,7 +5,7 @@ namespace DevApps.GUI
 {
     /// <summary>
     /// Mise en cache des glyphes pour une police de caractères spécifique.
-    /// Permet d'optimiser les opération de dessin de texte des caractères les plus courants
+    /// Permet d'optimiser les opérations de dessin de texte des caractères les plus courants
     /// </summary>
     internal static class GlyphCache
     {

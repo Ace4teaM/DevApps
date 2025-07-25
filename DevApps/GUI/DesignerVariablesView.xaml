@@ -15,7 +15,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="8,0,0,0"/>
         </Style>
-        <local:BoolConverter x:Key="boolConverter"/>
+        <local:BoolToCheckCharConverter x:Key="boolConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>

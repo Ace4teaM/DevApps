@@ -4,12 +4,16 @@ using System.Windows.Shapes;
 
 namespace DevApps.GUI
 {
+    /// <summary>
+    /// Fournit les fonctions nécessaires à l'affichage d'un objet Geometry dans un DesignerView
+    /// </summary>
     public class DrawGeometry : DrawBase
     {
         public DrawGeometry(Geometry path)
         {
             this.path = path;
         }
+
         internal Geometry path;
         internal Pen pen = new Pen(Brushes.Black, 2.0);//contour
         internal Brush? brush = null;//remplissage

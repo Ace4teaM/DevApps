@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using SharpVectors.Dom;
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -11,6 +12,9 @@ using System.Windows.Threading;
 
 namespace DevApps.GUI
 {
+    /// <summary>
+    /// Implément les fonctions de gestion lié à l'interface utilisateur
+    /// </summary>
     internal static class Service
     {
         internal static ManualResetEvent? ShowWindowEvent;
@@ -20,85 +24,114 @@ namespace DevApps.GUI
         internal static List<DispatcherOperation> dispatcherOperations = new List<DispatcherOperation>();
 
         /// <summary>
-        /// Liste commandes d'éditions avec leurs applications associées
+        /// Liste des commandes d'éditions avec leurs applications associées
         /// </summary>
-        internal static Dictionary<string, string> associatedEditors = new Dictionary<string, string>();
+        internal static Dictionary<string, string> associatedEditors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Liste des applications avec leurs lignes de commandes
         /// </summary>
-        internal static Dictionary<string, string> externalsEditors = new Dictionary<string, string>();
-        internal static Dictionary<string, string> externalsTools = new Dictionary<string, string>();
+        internal static Dictionary<string, string> externalsEditors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        internal static Dictionary<string, string> externalsTools = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         static Service()
+        {
+            InitEditors();
+        }
+
+        /// <summary>
+        /// Initialise la liste des éditeurs en se basant sur les informations du registre Windows ou en résolvant automatiquement
+        /// </summary>
+        internal static void InitEditors()
         {
             // charge la liste des editeurs
             LoadEditors();
             LoadTools();
 
+            if (externalsEditors.ContainsKey("cmd") == false)
+                externalsEditors.Add("cmd", "cmd");
+
             // detection
-            if (externalsEditors.Count == 0)
+            string[] editors =
             {
-                string[] editors =
-                {
-                    "Typora.exe",
-                    "notepad.exe",
-                    "devenv.exe",
-                    "Code.exe",
-                    "sublime_text.exe",
-                    "cmd.exe",
-                    "paint.exe",
-                    "7zFM.exe",
-                };
+                "Typora.exe",
+                "notepad.exe",
+                "devenv.exe",
+                "Code.exe",
+                "sublime_text.exe",
+                "paint.exe",
+                "7zFM.exe",
+            };
 
-                ResolveApplicationNames(editors, externalsEditors);
+            ResolveApplicationNames(editors, externalsEditors);
+
+            string[] tools =
+            {
+                "canvas2pdf.exe",
+                "db2erd.exe",
+            };
+
+            ResolveApplicationNames(tools, externalsTools);
+
+            if (associatedEditors.ContainsKey("code") == false)
+            {
+                // dans l'ordre, essai de résoudre le meilleur éditeur de code
+                if (externalsEditors.TryGetValue("code", out var name))
+                    associatedEditors["code"] = name;
+                else if (externalsEditors.TryGetValue("Visual Studio", out name))
+                    associatedEditors["code"] = name;
+                else if (externalsEditors.TryGetValue("sublime text", out name))
+                    associatedEditors["code"] = name;
+                else if (externalsEditors.TryGetValue("notepad", out name))
+                    associatedEditors["code"] = name;
             }
 
-            if (externalsTools.Count == 0)
+            if (associatedEditors.ContainsKey("text") == false)
             {
-                string[] tools =
-                {
-                    "canvas2pdf.exe",
-                    "db2erd.exe",
-                };
-
-                ResolveApplicationNames(tools, externalsTools);
-            }
-
-            if (associatedEditors.Count == 0)
-            {
-                string? name;
-
-                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("Code", StringComparison.InvariantCultureIgnoreCase))) != null)
-                    associatedEditors["code"] = name;
-                else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("Visual Studio", StringComparison.InvariantCultureIgnoreCase))) != null)
-                    associatedEditors["code"] = name;
-                else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("sublime text", StringComparison.InvariantCultureIgnoreCase))) != null)
-                    associatedEditors["code"] = name;
-                else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("notepad", StringComparison.InvariantCultureIgnoreCase))) != null)
-                    associatedEditors["code"] = name;
-
-                else if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("notepad", StringComparison.InvariantCultureIgnoreCase))) != null)
+                // dans l'ordre, essai de résoudre le meilleur éditeur de texte
+                if (externalsEditors.TryGetValue("notepad", out var name))
                     associatedEditors["text"] = name;
+            }
 
-                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("cmd", StringComparison.InvariantCultureIgnoreCase))) != null)
+            if (associatedEditors.ContainsKey("cmd") == false)
+            {
+                // dans l'ordre, essai de résoudre le meilleur terminal de commandes
+                if (externalsEditors.TryGetValue("cmd", out var name))
                     associatedEditors["cmd"] = name;
+            }
 
-                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("paint", StringComparison.InvariantCultureIgnoreCase))) != null)
+            if (associatedEditors.ContainsKey("image") == false)
+            {
+                // dans l'ordre, essai de résoudre le meilleur éditeur d'image
+                if (externalsEditors.TryGetValue("paint", out var name))
                     associatedEditors["image"] = name;
+            }
 
-                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("7-Zip", StringComparison.InvariantCultureIgnoreCase))) != null)
+            if (associatedEditors.ContainsKey("archive") == false)
+            {
+                // dans l'ordre, essai de résoudre le meilleur archiveur
+                if (externalsEditors.TryGetValue("7-Zip", out var name))
                     associatedEditors["archive"] = name;
+            }
 
-                if ((name = externalsEditors.Keys.FirstOrDefault(p => p.Contains("Typora", StringComparison.InvariantCultureIgnoreCase))) != null)
+            if (associatedEditors.ContainsKey("markdown") == false)
+            {
+                // dans l'ordre, essai de résoudre le meilleur éditeur MarkDown
+                if (externalsEditors.TryGetValue("Typora", out var name))
                     associatedEditors["markdown"] = name;
             }
         }
 
+        /// <summary>
+        /// Résoud le nom des applications en chemin d'accès vers l'exécutable
+        /// </summary>
+        /// <param name="editors">Noms à rechercher</param>
+        /// <param name="paths">Liste à initialiser</param>
         internal static void ResolveApplicationNames(string[] editors, Dictionary<string,string> paths)
         {
             // possibilité pour l'utilisateur de renseigner plus de mots clés puis choisir les éditeurs à lier aux mots clés
 
+            // Recherche dans les applications installées (Local Machine)
             try
             {
                 var registryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
@@ -116,9 +149,9 @@ namespace DevApps.GUI
                                     var displayName = subKey.GetValue("DisplayName") as string;
                                     var displayIcon = subKey.GetValue("DisplayIcon") as string;
 
-                                    if (displayName != null && displayIcon != null)
+                                    if (displayName != null && displayIcon != null && paths.ContainsKey(displayName) == false)
                                     {
-                                        if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                        if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon), StringComparer.OrdinalIgnoreCase))
                                         {
                                             paths.Add(displayName, displayIcon);
                                         }
@@ -133,6 +166,8 @@ namespace DevApps.GUI
                         }
                     }
                 }
+
+                // Recherche dans les applications installées (Local Machine 64bits)
 
                 registryKey = @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
 
@@ -149,9 +184,9 @@ namespace DevApps.GUI
                                     var displayName = subKey.GetValue("DisplayName") as string;
                                     var displayIcon = subKey.GetValue("DisplayIcon") as string;
 
-                                    if (displayName != null && displayIcon != null)
+                                    if (displayName != null && displayIcon != null && paths.ContainsKey(displayName) == false)
                                     {
-                                        if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon)))
+                                        if (!string.IsNullOrEmpty(displayIcon) && editors.Contains(Path.GetFileName(displayIcon), StringComparer.OrdinalIgnoreCase))
                                         {
                                             paths.Add(displayName, displayIcon);
                                         }
@@ -167,6 +202,8 @@ namespace DevApps.GUI
                     }
                 }
 
+                // Recherche dans les applications enregistrées (ClassesRoot)
+
                 registryKey = @"Applications";
 
                 using (RegistryKey? key = Registry.ClassesRoot.OpenSubKey(registryKey))
@@ -175,17 +212,33 @@ namespace DevApps.GUI
                     {
                         foreach (string subKeyName in key.GetSubKeyNames())
                         {
-                            if (editors.Contains(subKeyName))
+                            if (editors.Contains(subKeyName, StringComparer.OrdinalIgnoreCase) || editors.Contains(Path.GetFileNameWithoutExtension(subKeyName), StringComparer.OrdinalIgnoreCase))
                             {
                                 using (RegistryKey? subKey = key.OpenSubKey(subKeyName + @"\shell\open\command"))
                                 {
                                     if (subKey != null)
                                     {
                                         var path = subKey.GetValue("") as string;
-
-                                        if (path != null)
+                                        var name = subKeyName.Replace(".exe", null, StringComparison.OrdinalIgnoreCase);
+                                        if (path != null && paths.ContainsKey(name) == false)
                                         {
-                                            paths.Add(subKeyName.Replace(".exe",null), path);
+                                            paths.Add(name, path);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        using (RegistryKey? subKey2 = key.OpenSubKey(subKeyName + @"\shell\edit\command"))
+                                        {
+                                            if (subKey2 != null)
+                                            {
+                                                var path = subKey2.GetValue("") as string;
+                                                var name = subKeyName.Replace(".exe", null, StringComparison.OrdinalIgnoreCase);
+
+                                                if (path != null && paths.ContainsKey(name) == false)
+                                                {
+                                                    paths.Add(name, path);
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -440,15 +493,7 @@ namespace DevApps.GUI
 
                         if (canvas != null)
                         {
-                            var element = new DrawElement(facet);
-                            element.Title = new FormattedText(desc ?? name, CultureInfo.InvariantCulture,
-                                System.Windows.FlowDirection.LeftToRight, typeface, 10, Brushes.Blue,
-                                VisualTreeHelper.GetDpi(canvas).PixelsPerDip);
-                            element.Name = name;
-                            element.Width = position.Width;
-                            element.Height = position.Height;
-                            Canvas.SetLeft(element, position.Left);
-                            Canvas.SetTop(element, position.Top);
+                            var element = new DrawElement(name, facet, position, desc ?? name, string.Empty);
                             canvas.Children.Add(element);
                         }
                     }
