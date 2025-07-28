@@ -66,18 +66,12 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
             <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}"></TextBlock>
         </DockPanel>
-        <Grid DockPanel.Dock="Top" Margin="0,5,0,0" Background="#EEEEEE">
+        <Grid DockPanel.Dock="Top" Margin="0,5,0,0" >
             <DockPanel Height="26" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Border DockPanel.Dock="Right"
-                            Background="Gray"
-                            BorderBrush="Gray"
-                            BorderThickness="2"
-                            CornerRadius="4,4,0,0"
-                            Padding="0">
-                    <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Add_MouseLeftButtonUp" Cursor="Hand">➕</TextBlock>
-                </Border>
+                <TextBlock DockPanel.Dock="Left" Text="Facettes:" VerticalAlignment="Center" Margin="10,0,10,0" FontWeight="Bold"></TextBlock>
                 <ListBox
                      x:Name="FacetListBox"
+                    DockPanel.Dock="Left"
                      HorizontalAlignment="Center"
                      ItemsSource="{Binding FacetItems}"
                      SelectedItem="{Binding SelectedFacet, Mode=TwoWay}"
@@ -87,7 +81,8 @@
                      BorderThickness="0"
                      Focusable="False"
                      FocusVisualStyle="{x:Null}"
-                     Background="Transparent" Grid.ColumnSpan="2">
+                     Background="Transparent"
+                     Grid.ColumnSpan="2">
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
                             <Setter Property="VerticalContentAlignment" Value="Stretch"/>
@@ -151,12 +146,23 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
+                <Border DockPanel.Dock="Left"
+                            Background="Gray"
+                            BorderBrush="Gray"
+                            BorderThickness="2"
+                            CornerRadius="4,4,0,0"
+                            Padding="0">
+                    <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Add_MouseLeftButtonUp" Cursor="Hand">➕</TextBlock>
+                </Border>
+                <Label></Label>
             </DockPanel>
         </Grid>
-        <Grid DockPanel.Dock="Right" Margin="0,0,0,0" Background="#EEEEEE">
-            <ListBox
+        <Grid DockPanel.Dock="Right" Margin="0,0,0,0">
+            <DockPanel Margin="6" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock DockPanel.Dock="Top" Text="Importer un objet: (glisser/déposer)"></TextBlock>
+                <Separator DockPanel.Dock="Top"></Separator>
+                <ListBox
                     x:Name="ObjectListBox"
-                    Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}"
                     HorizontalAlignment="Stretch"
                     ItemsSource="{Binding ObjectModels}"
                     SelectedItem="{Binding SelectedObjectModel, Mode=TwoWay}"
@@ -169,69 +175,70 @@
                     Background="Transparent"
                     Width="200"
                     MouseMove="Grid_MouseMove">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="SnapsToDevicePixels" Value="True"/>
-                        <Setter Property="OverridesDefaultStyle" Value="True"/>
-                        <Setter Property="Cursor" Value="Hand"/>
-                        <Setter Property="Margin" Value="0"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <Border x:Name="Bd"
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="SnapsToDevicePixels" Value="True"/>
+                            <Setter Property="OverridesDefaultStyle" Value="True"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="Bd"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="3"
                         Padding="0">
-                                        <Border.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="Ouvrir le projet parent" Click="MenuItem_Click_OpenParentProject"/>
-                                            </ContextMenu>
-                                        </Border.ContextMenu>
-                                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="Bd" Property="Background" Value="LightBlue"/>
-                                            <Setter TargetName="Bd" Property="BorderBrush" Value="DodgerBlue"/>
-                                        </Trigger>
-                                        <Trigger Property="IsSelected" Value="False">
-                                            <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
-                                            <Setter TargetName="Bd" Property="BorderBrush" Value="Gray"/>
-                                        </Trigger>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Bd" Property="Background" Value="#FFE0F0FF"/>
-                                            <Setter TargetName="Bd" Property="BorderBrush" Value="CornflowerBlue"/>
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter Property="Foreground" Value="Gray"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderBrush" Value="Transparent"/>
-                        <Setter Property="BorderThickness" Value="1"/>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
-                    <!-- Style pour les items -->
-                    <DataTemplate>
-                        <Grid ToolTip="{Binding Dirname}">
-                            <TextBlock Background="Transparent" Text="{Binding Header}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="10" FontFamily="Verdana" FontWeight="SemiBold"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical"/>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
+                                            <Border.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Ouvrir le projet parent" Click="MenuItem_Click_OpenParentProject"/>
+                                                </ContextMenu>
+                                            </Border.ContextMenu>
+                                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="LightBlue"/>
+                                                <Setter TargetName="Bd" Property="BorderBrush" Value="DodgerBlue"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="False">
+                                                <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
+                                                <Setter TargetName="Bd" Property="BorderBrush" Value="Gray"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="#FFE0F0FF"/>
+                                                <Setter TargetName="Bd" Property="BorderBrush" Value="CornflowerBlue"/>
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="1"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <!-- Style pour les items -->
+                        <DataTemplate>
+                            <Grid ToolTip="{Binding Dirname}">
+                                <TextBlock Background="Transparent" Text="{Binding Header}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="10" FontFamily="Verdana" FontWeight="SemiBold"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </DockPanel>
         </Grid>
         <Border DockPanel.Dock="Bottom" Background="LightGray">
             <DockPanel>
