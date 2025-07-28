@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -545,6 +544,7 @@ namespace DevApps.GUI
                     {
                         if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
                         {
+                            // Pour chaque pointeur, énumère les objets compatibles
                             foreach (var ptr in src.Pointers)
                             {
                                 var m = new MenuItem();
@@ -607,6 +607,35 @@ namespace DevApps.GUI
                                 {
                                     mNew.IsEnabled = false;
                                     mNew.Header = mNew.Header.ToString() + " (Aucun)";
+                                }
+
+                                m.IsEnabled = m.Items.Count > 0;
+                                menu.Items.Add(m);
+                            }
+
+                            // énumére les objets compatibles
+                            {
+                                // Nouveaux
+                                var m = new MenuItem { Header = "Nouvel objet compatible" };
+
+                                int count = 0;
+                                var list = new List<Serializer.DevObjectInstance>();
+                                if (SharedServices.EnumerateObjects(p => p.Pointers.Any(pp=>pp.Value.tags.ContainsAll(src.Tags))/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
+                                {
+                                    foreach (var obj in list)
+                                    {
+                                        var item = new MenuItem();
+                                        item.Header = "   " + obj.Description;
+                                        item.Tag = obj;
+                                        item.Click += MenuItem_AddObject_Click;
+                                        m.Items.Add(item);
+                                        count++;
+                                    }
+                                }
+
+                                if (count == 0)
+                                {
+                                    m.Header = m.Header.ToString() + " (Aucun)";
                                 }
 
                                 m.IsEnabled = m.Items.Count > 0;
@@ -1052,6 +1081,8 @@ namespace DevApps.GUI
                         {
                             objects.Add(o);
                             var pos = e.GetPosition(MyCanvas);
+                            pos.X -= _translateTransform.X;
+                            pos.Y -= _translateTransform.Y;
                             var prop = new DevFacet.ObjectProperties { zone = new Rect(pos, new Size(100, 100)) };
                             facette.Objects.Add(name, prop);
                             AddElement(name, prop);
@@ -1523,6 +1554,8 @@ namespace DevApps.GUI
 
                 // ajoute à la facette
                 var pos = Mouse.GetPosition(MyCanvas);
+                pos.X -= _translateTransform.X;
+                pos.Y -= _translateTransform.Y;
                 var props = new DevFacet.ObjectProperties { title = TitlePlacement.TopLeft, background = "#FFFFFFFF", zone = new Rect(pos, new Size(100, 100)) };
                 facette.Objects.Add(name, props);
                 AddElement(name, props);
@@ -1552,6 +1585,7 @@ namespace DevApps.GUI
 
                 Program.DevObject.CompilObjects([obj.content]);
                 Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                Program.DevObject.Build(Program.DevObject.References.Where(p=>p.Key == name));// construit le nouvel objet
                 Service.InvalidateFacets();
             }
         }
