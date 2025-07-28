@@ -186,6 +186,11 @@
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="3"
                         Padding="0">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Ouvrir le projet parent" Click="MenuItem_Click_OpenParentProject"/>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
                                         <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     </Border>
                                     <ControlTemplate.Triggers>

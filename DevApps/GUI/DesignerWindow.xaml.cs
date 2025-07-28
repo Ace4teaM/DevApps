@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using Newtonsoft.Json;
+using SharpVectors.Dom;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -620,6 +621,22 @@ namespace DevApps.GUI
                     DragDrop.DoDragDrop(ObjectListBox,
                                      element.DataContext,
                                      DragDropEffects.Copy);
+            }
+        }
+
+        private void MenuItem_Click_OpenParentProject(object sender, RoutedEventArgs e)
+        {
+            var item = ObjectListBox.SelectedItem as DesignerWindow.ObjectModel;
+            if (item != null)
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(Path.Combine(Program.ExecutablePath, "DevApps.exe")) { WorkingDirectory = item.Dirname, Arguments = "-w" });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
     }
