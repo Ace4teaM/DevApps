@@ -1071,6 +1071,57 @@ namespace DevApps.GUI
                     InvalidateObjects();
                 }
             }
+            else if (e.Data.GetDataPresent(typeof(DesignerWindow.ObjectModel)))
+            {
+                var item = (DesignerWindow.ObjectModel)e.Data.GetData(typeof(DesignerWindow.ObjectModel));
+
+                var name = item.Key;
+                if (Program.DevObject.References.ContainsKey(name) == true)
+                {
+                    Program.DevObject.MakeUniqueName(ref name, null);
+                }
+
+                // Actualise les pointeurs
+                foreach (var ptr in item.Value.content.Pointers)
+                {
+                    ptr.Value.target = String.Empty;
+                }
+
+                // Conserve le guid de base
+                item.Value.content.baseGuid = item.Value.content.guid;
+                item.Value.content.guid = null;
+
+                // Ajoute aux références
+                Program.DevObject.References.Add(name, item.Value.content);
+
+                // importe les données
+                try
+                {
+                    if (String.IsNullOrEmpty(item.Value.InitialDataBase64) == false)
+                    {
+                        var data = Convert.FromBase64String(item.Value.InitialDataBase64);
+                        item.Value.content.buildStream.Seek(0, SeekOrigin.Begin);
+                        item.Value.content.buildStream.Write(data);
+                        item.Value.content.buildStream.SetLength(data.Length);
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    Console.WriteLine(ex2.Message);
+                }
+
+                // Ajoute à la facette en cours
+                var pos = e.GetPosition(MyCanvas);
+                pos.X -= _translateTransform.X;
+                pos.Y -= _translateTransform.Y;
+                var props = new ObjectProperties() { zone = new Rect(pos, new Point(pos.X + 200, pos.Y + 200)) };
+                this.facette.Objects.Add(name, props);
+                AddElement(name, props);
+
+                Program.DevObject.CompilObjects([item.Value.content]);
+                Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                Service.InvalidateFacets();
+            }
         }
 
         private void Slider_MouseDown(object sender, MouseButtonEventArgs e)

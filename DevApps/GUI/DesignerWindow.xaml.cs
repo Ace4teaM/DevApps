@@ -70,10 +70,38 @@ namespace DevApps.GUI
             }
         }
 
+        public class ObjectModel
+        {
+            public required string Header { get; set; }
+            public required string Key { get; set; }
+            public required string Filename { get; set; }
+            public string Dirname { get {  return Path.GetDirectoryName(Filename) ?? string.Empty; } }
+            internal Serializer.DevObjectInstance Value { get; set; }
+        }
+
         public FacetItem? SelectedFacet
         {
             get;set;
         }
+
+        List<ObjectModel>? objectModels = null;
+        public IEnumerable<ObjectModel> ObjectModels
+        {
+            get
+            {
+                if (objectModels == null)
+                {
+                    objectModels = new List<ObjectModel>();
+                    AddRecursiveSharedModelObjects(Program.CommonSharedPath, objectModels);
+                }
+                return objectModels;
+            }
+        }
+        public ObjectModel? SelectedObjectModel
+        {
+            get;set;
+        }
+
 
         public string AppTitle
         {
@@ -184,6 +212,48 @@ namespace DevApps.GUI
 
             menu.Placement = PlacementMode.Mouse;
             menu.IsOpen = true;
+        }
+
+        private void AddRecursiveSharedModelObjects(string path, List<ObjectModel> list)
+        {
+            try
+            {
+                // liste les objets partagés
+                foreach (var dir in Directory.EnumerateDirectories(path))
+                {
+                    var filename = System.IO.Path.Combine(dir, Program.Filename);
+                    if (File.Exists(filename) == true)
+                    {
+                        using StreamReader reader = new StreamReader(filename);
+
+                        JsonSerializer serializer = JsonSerializer.CreateDefault();
+                        serializer.Error += (sender, e) =>
+                        {
+                            System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                        };
+
+                        var proj = new Serializer.DevExternalProject();
+
+                        serializer.Populate(reader, proj);
+
+                        // Ajoute les objets à la liste
+
+                        foreach (var o in proj.Objects)
+                        {
+                            if(o.Value.Guid != null)
+                                list.Add(new ObjectModel { Header = o.Value.Description ?? o.Key, Key = o.Key, Value = o.Value, Filename = filename });
+                        }
+                    }
+                    else
+                    {
+                        AddRecursiveSharedModelObjects(dir, list);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private void AddRecursiveSharedMenu(string path, MenuItem menu)
@@ -538,6 +608,19 @@ namespace DevApps.GUI
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             this.Content = new WelcomeView();
+        }
+
+        private void Grid_MouseMove(object sender, MouseEventArgs e)
+        {
+            var over = e.MouseDevice.DirectlyOver;
+            var item = ObjectListBox.SelectedItem;
+            if (item != null && e.LeftButton == MouseButtonState.Pressed)
+            {
+                if (over is FrameworkElement element && element.DataContext is DesignerWindow.ObjectModel)
+                    DragDrop.DoDragDrop(ObjectListBox,
+                                     element.DataContext,
+                                     DragDropEffects.Copy);
+            }
         }
     }
 }
