@@ -247,6 +247,14 @@ internal partial class Program
             return References.GetValueOrDefault(name);
         }
 
+        public static bool IsRunning
+        {
+            get
+            {
+                return thread?.IsAlive == true;
+            }
+        }
+
         /// <summary>
         /// Execute le thread périodique des objets
         /// </summary>
@@ -277,6 +285,9 @@ internal partial class Program
         {
             try
             {
+                // Signal la fin du thread
+                Service.SignalWorkerStatusChange();
+
                 int i = 0;
                 while (run)
                 {
@@ -297,6 +308,9 @@ internal partial class Program
                     // Attend la fin des opérations de dessin
                     Service.WaitDrawOperations();
                 }
+
+                // Signal la fin du thread
+                Service.SignalWorkerStatusChange();
             }
             catch (Exception e )
             {

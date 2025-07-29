@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using static Program;
 
 namespace DevApps.GUI
 {
@@ -680,6 +681,40 @@ namespace DevApps.GUI
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
+        }
+
+        private void Simulation_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (DevObject.IsRunning)
+            {
+                DevObject.Stop();
+            }
+            else
+            {
+                DevObject.Start();
+            }
+        }
+
+        public string StartStopIcon
+        {
+            get
+            {
+                return DevObject.IsRunning ? "⏹" : "⏵";
+            }
+        }
+
+        public string StartStopText
+        {
+            get
+            {
+                return DevObject.IsRunning ? "Arrêter la simulation" : "Démarrer la simulation";
+            }
+        }
+
+        public void WorkerChange()
+        {
+            OnPropertyChange(nameof(StartStopIcon));
+            OnPropertyChange(nameof(StartStopText));
         }
     }
 }

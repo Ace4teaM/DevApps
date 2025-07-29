@@ -429,6 +429,19 @@ namespace DevApps.GUI
             dispatcherOperations.Clear();
         }
 
+        internal static void SignalWorkerStatusChange()
+        {
+            if (EditorWindow == null)
+                return;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() =>
+                {
+                    EditorWindow?.WorkerChange();
+                })));
+        }
+
         internal static void Invalidate(string name)
         {
             if (EditorWindow == null)

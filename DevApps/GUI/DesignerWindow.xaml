@@ -253,6 +253,7 @@
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Menu_MouseLeftButtonUp" ToolTip="Importer">🡅</TextBlock>
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Build_MouseLeftButtonUp" ToolTip="Construire">⩸</TextBlock>
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="IA_MouseLeftButtonUp" ToolTip="Agent IA">!</TextBlock>
+                <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Simulation_MouseLeftButtonUp" ToolTip="{Binding StartStopText}" Text="{Binding StartStopIcon}"></TextBlock>
                 <Popup Name="ChatPopup"
                        Placement="MousePoint"
                        AllowsTransparency="True"

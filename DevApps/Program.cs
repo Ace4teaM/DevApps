@@ -201,17 +201,13 @@ internal partial class Program
 
         DevObject.Init();
 
-        DevObject.Start();
-
-        Thread.Sleep(6000);
-
-        DevObject.Stop();
-
         // Construit les données permanentes
         DevFacet.Get("Model")?.Build();
 
         // Attend la fermeture de la fenêtre
         Service.WaitWindowClosed();
+
+        DevObject.Stop();
 
         // Sauvegarde les données permanentes
         DevObject.SaveOutput();
