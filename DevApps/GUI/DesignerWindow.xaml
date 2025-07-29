@@ -109,6 +109,7 @@
                                             <Border.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteFacet"/>
+                                                    <MenuItem Header="Renommer" Click="MenuItem_Click_RenameFacet"/>
                                                 </ContextMenu>
                                             </Border.ContextMenu>
                                             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>

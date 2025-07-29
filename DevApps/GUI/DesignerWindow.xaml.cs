@@ -444,6 +444,28 @@ namespace DevApps.GUI
             OnPropertyChange(nameof(FacetItems));
         }
 
+        private void MenuItem_Click_RenameFacet(object sender, RoutedEventArgs e)
+        {
+            if (SelectedFacet != null)
+            {
+                var view = new NewFacette();
+                view.Owner = this;
+                view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                view.Title = "Rename facet...";
+                if (view.ShowDialog() == true)
+                {
+                    var item = SelectedFacet.Tag;
+                    Program.DevFacet.References.Remove(SelectedFacet.Header.ToString());
+                    Program.DevFacet.References.Add(view.Value, item);
+
+                    // sélectionne de nouveau l'item
+                    FacetListBox.SelectedIndex = FacetListBox.Items.IndexOf(FacetListBox.Items.OfType<FacetItem>().First(p=>p.Tag == item));
+                }
+            }
+
+            OnPropertyChange(nameof(FacetItems));
+        }
+
         private void Objects_MouseLeftButtonUp(object sender, RoutedEventArgs e)
         {
             SelectedFacet = null;
