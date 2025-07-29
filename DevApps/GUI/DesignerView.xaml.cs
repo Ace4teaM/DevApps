@@ -426,6 +426,65 @@ namespace DevApps.GUI
                 menu.Items.Add(new Separator());
 
                 {
+                    var m = new MenuItem { Header = "Mettre à jour depuis le modèle" };
+                    m.Click += (s, e) =>
+                    {
+                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                        if (handle)
+                        {
+                            var name = selectedElement?.Name ?? string.Empty;
+
+                            Program.DevObject.References.TryGetValue(name, out var reference);
+                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                            if (reference != null && reference is DevObjectInstance inst)
+                            {
+                                if (inst.baseGuid != null)
+                                {
+                                    var list = new List<Serializer.DevObjectInstance>();
+                                    SharedServices.EnumerateObjects(p => p.Guid == inst.baseGuid, Program.CommonSharedPath, ref list);
+                                    if (list.Count == 1)
+                                    {
+                                        if (MessageBox.Show($"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                                        {
+                                            // Actualise l'objet
+                                            var handle2 = Program.DevObject.mutexExecuteObjects.WaitOne();
+                                            if (handle2)
+                                            {
+                                                inst.UpdateFrom(list[0].content);
+                                                Program.DevObject.mutexExecuteObjects.ReleaseMutex();
+                                            }
+
+                                            Program.DevObject.CompilObjects([inst]);
+                                            Program.DevObject.Init();
+                                            Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));
+                                        }
+                                    }
+                                    else if (list.Count > 1)
+                                    {
+                                        MessageBox.Show("Plusieurs objets partagés possèdent cet identifiant, impossible de déterminer le bon.", "Avertissement", MessageBoxButton.OK);
+
+                                        Console.WriteLine("Multiples objets partagés avec le GUID: " + inst.baseGuid);
+                                        foreach (var item in list)
+                                            Console.WriteLine("* " + item.Description);
+                                        Console.WriteLine();
+                                    }
+                                    else if (list.Count == 0)
+                                    {
+                                        MessageBox.Show("L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
+
+                                        Console.WriteLine("Objet partagé introuvable avec le GUID: " + inst.baseGuid);
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    menu.Items.Add(m);
+                }
+
+                menu.Items.Add(new Separator());
+
+                {
                     var m = new MenuItem { Header = "Dupliquer" };
                     m.Click += (s, e) =>
                     {

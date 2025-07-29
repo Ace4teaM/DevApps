@@ -1,5 +1,6 @@
 ﻿using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Metadata;
 using System.Text;
@@ -79,6 +80,50 @@ internal partial class Program
             get
             {
                 return Encoding.UTF8.GetString(buildStream.GetBuffer());
+            }
+        }
+
+
+        /// <summary>
+        /// Actualise un objet depuis un modèle d'instance
+        /// </summary>
+        /// <param name="inst">Objet modèle</param>
+        public void UpdateFrom(DevObjectInstance inst)
+        {
+            baseGuid = inst.guid;
+            buildMethod = inst.buildMethod;
+            drawCode = inst.drawCode;
+            functions = inst.functions;
+            properties = inst.properties;
+            initMethod = inst.initMethod;
+            loopMethod = inst.loopMethod;
+            objectCode = inst.objectCode;
+            userAction = inst.userAction;
+
+            // marque comme non initialisé
+            IsInitialized = false;
+
+            // vérifie si de nouveaux pointeurs existents
+            // ne modifie pas les objets pointés actuellement
+            foreach (var p in inst.pointers)
+            {
+                if (pointers.TryGetValue(p.Key, out var thisp))
+                {
+                    thisp.tags = p.Value.tags;
+                }
+                else
+                {
+                    inst.pointers.Add(p.Key, new Pointer { tags = p.Value.tags, target = string.Empty });
+                }
+            }
+
+            // supprime les pointeurs inutiles
+            foreach (var thisp in pointers.ToArray())
+            {
+                if (inst.pointers.ContainsKey(thisp.Key) == false)
+                {
+                    pointers.Remove(thisp.Key);
+                }
             }
         }
 
