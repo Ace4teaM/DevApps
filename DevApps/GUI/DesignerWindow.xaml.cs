@@ -112,6 +112,14 @@ namespace DevApps.GUI
             }
         }
 
+        public string AppPath
+        {
+            get
+            {
+                return Environment.CurrentDirectory;
+            }
+        }
+
         Application app = new Application();
 
         public DesignerWindow()
@@ -637,6 +645,18 @@ namespace DevApps.GUI
                 {
                     Console.WriteLine(ex.Message);
                 }
+            }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("explorer.exe") { UseShellExecute = true, Arguments = AppPath });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
             }
         }
     }

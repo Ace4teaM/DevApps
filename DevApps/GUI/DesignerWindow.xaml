@@ -64,7 +64,13 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
-            <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}"></TextBlock>
+            <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}" ToolTip="{Binding AppPath, Mode=OneWay}">
+                <TextBlock.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
+                    </ContextMenu>
+                </TextBlock.ContextMenu>
+            </TextBlock>
         </DockPanel>
         <Grid DockPanel.Dock="Top" Margin="0,5,0,0" >
             <DockPanel Height="26" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
