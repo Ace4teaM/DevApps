@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using static IronPython.Modules._ast;
 
 namespace DevApps.GUI
 {
@@ -159,7 +158,11 @@ namespace DevApps.GUI
             {
                 MessageBox.Show("Erreur de compilation.\n" + String.Format("L{0} C{1}: {2}", ex.Line, ex.Column, ex.Message), "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 ValidationMessage = ex.Message;
-                textEditor.Select(textEditor.Document.Lines[ex.Line - 1].Offset + ex.Column - 1, 1);
+                try
+                {
+                    textEditor.Select(textEditor.Document.Lines[ex.Line - 1].Offset + ex.Column - 1, 1);
+                }
+                catch{}
             }
             catch (Exception ex)
             {
