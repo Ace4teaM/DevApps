@@ -594,6 +594,15 @@ namespace DevApps.GUI
                         break;
                 }
             }
+
+            // Sauvegarde du projet
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S)
+            {
+                // Sauvegarde les données permanentes
+                DevObject.SaveOutput();
+
+                Program.SaveProject();
+            }
         }
 
         private void Window_PreviewKeyUp(object sender, KeyEventArgs e)

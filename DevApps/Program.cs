@@ -62,7 +62,7 @@ internal partial class Program
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
 
-    private static void SaveProject()
+    internal static void SaveProject()
     {
         using TextWriter writer = new StreamWriter(Filename);
 
@@ -75,7 +75,7 @@ internal partial class Program
         serializer.Serialize(writer, new Serializer.DevProject());
     }
 
-    private static void LoadProject()
+    internal static void LoadProject()
     {
         if(File.Exists(Filename) == false)
         {
