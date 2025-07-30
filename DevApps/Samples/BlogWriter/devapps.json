@@ -1,0 +1,156 @@
+{
+  "Variables": [
+    {
+      "Key": "DotNetNamespace",
+      "Value": {
+        "Description": "Espace de nom dans le projet .Net",
+        "Value": "MyBlog"
+      }
+    }
+  ],
+  "Objects": [
+    {
+      "Key": "Input",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": null,
+        "Tags": [
+          "#dictionnary"
+        ],
+        "Description": "Information on my blog",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "success",
+            "Value": {
+              "target": "Generate",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "import clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('WindowsBase')\r\nfrom System.Windows import Point, Rect, Size, FontStyles, FontWeights, FontStretches, TextTrimming\r\nfrom System.Windows.Media import Brushes, Typeface, FormattedText, Pen\r\nfrom System.Windows.Media import FontFamily\r\nfrom System.Windows import FlowDirection\r\nfrom System.Globalization import CultureInfo\r\ndef dessiner_rectangle_contenu(drawingContext):\r\n    # Dessiner le rectangle avec fond et contour\r\n    drawingContext.DrawRectangle(Brushes.LightGray, \r\n                                 Pen(Brushes.Black, 1), \r\n                                 rect)\r\n    # Définir les textes : titre et description\r\n    titre = \"Titre du rectangle\"\r\n    description = \"Ceci est une description\\nmultiligne du contenu.\"\r\n    # Définir la police et le style de texte\r\n    typeface = Typeface(FontFamily(\"Segoe UI\"), \r\n                        FontStyles.Normal,\r\n                        FontWeights.Bold, \r\n                        FontStretches.Normal)\r\n    # Texte du titre\r\n    formattedTitre = FormattedText(name,\r\n                                   CultureInfo.CurrentCulture,\r\n                                   FlowDirection.LeftToRight,\r\n                                   typeface,\r\n                                   14,  # Taille du texte\r\n                                   Brushes.Black,\r\n                                   1.0)  # PixelsPerDip\r\n    # Texte de la description\r\n    typefaceDesc = Typeface(FontFamily(\"Segoe UI\"), \r\n                            FontStyles.Normal,\r\n                            FontWeights.Normal, \r\n                            FontStretches.Normal)\r\n    formattedDescription = FormattedText(desc,\r\n                                         CultureInfo.CurrentCulture,\r\n                                         FlowDirection.LeftToRight,\r\n                                         typefaceDesc,\r\n                                         12,\r\n                                         Brushes.Black,\r\n                                         1.0)\r\n    formattedDescription.MaxTextWidth = rect.Width - 20\r\n    # Positionner le texte dans le rectangle\r\n    drawingContext.DrawText(formattedTitre, Point(rect.X + 10, rect.Y + 10))\r\n    drawingContext.DrawText(formattedDescription, Point(rect.X + 10, rect.Y + 35))\r\ndessiner_rectangle_contenu(dc)"
+      }
+    },
+    {
+      "Key": "Generate",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": null,
+        "Tags": [],
+        "Description": "Create assets for my blog",
+        "InitialDataBase64": "",
+        "Editor": null,
+        "Pointers": [
+          {
+            "Key": "success",
+            "Value": {
+              "target": "Output",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "import clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('WindowsBase')\r\nfrom System.Windows import Point, Rect, Size, FontStyles, FontWeights, FontStretches\r\nfrom System.Windows.Media import Brushes, Typeface, FormattedText, Pen\r\nfrom System.Windows.Media import FontFamily\r\nfrom System.Windows import FlowDirection\r\nfrom System.Globalization import CultureInfo\r\ndef dessiner_rectangle_contenu(drawingContext):\r\n    # Dessiner le rectangle avec fond et contour\r\n    drawingContext.DrawRectangle(Brushes.LightGray, \r\n                                 Pen(Brushes.Black, 1), \r\n                                 rect)\r\n    # Définir les textes : titre et description\r\n    titre = \"Titre du rectangle\"\r\n    description = \"Ceci est une description\\nmultiligne du contenu.\"\r\n    # Définir la police et le style de texte\r\n    typeface = Typeface(FontFamily(\"Segoe UI\"), \r\n                        FontStyles.Normal,\r\n                        FontWeights.Bold, \r\n                        FontStretches.Normal)\r\n    # Texte du titre\r\n    formattedTitre = FormattedText(name,\r\n                                   CultureInfo.CurrentCulture,\r\n                                   FlowDirection.LeftToRight,\r\n                                   typeface,\r\n                                   14,  # Taille du texte\r\n                                   Brushes.Black,\r\n                                   1.0)  # PixelsPerDip\r\n    # Texte de la description\r\n    typefaceDesc = Typeface(FontFamily(\"Segoe UI\"), \r\n                            FontStyles.Normal,\r\n                            FontWeights.Normal, \r\n                            FontStretches.Normal)\r\n    formattedDescription = FormattedText(desc,\r\n                                         CultureInfo.CurrentCulture,\r\n                                         FlowDirection.LeftToRight,\r\n                                         typefaceDesc,\r\n                                         12,\r\n                                         Brushes.Black,\r\n                                         1.0)\r\n    # Positionner le texte dans le rectangle\r\n    drawingContext.DrawText(formattedTitre, Point(rect.X + 10, rect.Y + 10))\r\n    drawingContext.DrawText(formattedDescription, Point(rect.X + 10, rect.Y + 35))\r\ndessiner_rectangle_contenu(dc)"
+      }
+    },
+    {
+      "Key": "Output",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": null,
+        "Tags": [],
+        "Description": "Display it as web page",
+        "InitialDataBase64": "",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "import clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('WindowsBase')\r\nfrom System.Windows import Point, Rect, Size, FontStyles, FontWeights, FontStretches\r\nfrom System.Windows.Media import Brushes, Typeface, FormattedText, Pen\r\nfrom System.Windows.Media import FontFamily\r\nfrom System.Windows import FlowDirection\r\nfrom System.Globalization import CultureInfo\r\ndef dessiner_rectangle_contenu(drawingContext):\r\n    # Dessiner le rectangle avec fond et contour\r\n    drawingContext.DrawRectangle(Brushes.LightGray, \r\n                                 Pen(Brushes.Black, 1), \r\n                                 rect)\r\n    # Définir les textes : titre et description\r\n    titre = \"Titre du rectangle\"\r\n    description = \"Ceci est une description\\nmultiligne du contenu.\"\r\n    # Définir la police et le style de texte\r\n    typeface = Typeface(FontFamily(\"Segoe UI\"), \r\n                        FontStyles.Normal,\r\n                        FontWeights.Bold, \r\n                        FontStretches.Normal)\r\n    # Texte du titre\r\n    formattedTitre = FormattedText(name,\r\n                                   CultureInfo.CurrentCulture,\r\n                                   FlowDirection.LeftToRight,\r\n                                   typeface,\r\n                                   14,  # Taille du texte\r\n                                   Brushes.Black,\r\n                                   1.0)  # PixelsPerDip\r\n    # Texte de la description\r\n    typefaceDesc = Typeface(FontFamily(\"Segoe UI\"), \r\n                            FontStyles.Normal,\r\n                            FontWeights.Normal, \r\n                            FontStretches.Normal)\r\n    formattedDescription = FormattedText(desc,\r\n                                         CultureInfo.CurrentCulture,\r\n                                         FlowDirection.LeftToRight,\r\n                                         typefaceDesc,\r\n                                         12,\r\n                                         Brushes.Black,\r\n                                         1.0)\r\n    # Positionner le texte dans le rectangle\r\n    drawingContext.DrawText(formattedTitre, Point(rect.X + 10, rect.Y + 10))\r\n    drawingContext.DrawText(formattedDescription, Point(rect.X + 10, rect.Y + 35))\r\ndessiner_rectangle_contenu(dc)"
+      }
+    },
+    {
+      "Key": "HTTP_InputRequest",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": null,
+        "Tags": [],
+        "Description": "Code du point d'entrée de la requête",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "fields",
+            "Value": {
+              "target": "Input",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import json\r\ndict = json.loads(fields.text())\r\nprint(dict)\r\nglobals().update(dict)\r\nout.write(f\"\"\"\r\nusing System.Diagnostics;\r\nusing Microsoft.AspNetCore.Mvc;\r\nusing {DotNetNamespace}.Models;\r\nnamespace MyBlog.Controllers;\r\n// {BlogDesc}\r\npublic class {Name}Controller : Controller\r\n{{\r\n    private readonly ILogger<{Name}Controller> _logger;\r\n    public {Name}Controller(ILogger<{Name}Controller> logger)\r\n    {{\r\n        _logger = logger;\r\n    }}\r\n    public IActionResult Index()\r\n    {{\r\n        return View();\r\n    }}\r\n    public IActionResult Privacy()\r\n    {{\r\n        return View();\r\n    }}\r\n    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]\r\n    public IActionResult Error()\r\n    {{\r\n        return View(new ErrorViewModel {{ RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier }});\r\n    }}\r\n}}\r\n\"\"\")",
+        "ObjectCode": "",
+        "DrawCode": ""
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "UsesCases",
+      "Value": {
+        "Objects": [
+          {
+            "Key": "Input",
+            "Value": {
+              "zone": "111.66180058673899,104.79036594174863,133.17242547762916,88.65655597539092",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Generate",
+            "Value": {
+              "zone": "507.16111589604805,122.2713178128812,187.67118891410246,103.23576893264226",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Output",
+            "Value": {
+              "zone": "464.7312589253328,371.54499590701244,171.31814300632607,98.67929364803103",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Remove="Shared\*" />
+	<Compile Remove="Samples\*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,15 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Shared\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ANTLR\ANTLR.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Profile.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Samples\BlogWriter\devapps.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Shared\AI\Mistral\devapps.json">
