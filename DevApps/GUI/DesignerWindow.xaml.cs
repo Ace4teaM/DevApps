@@ -49,6 +49,7 @@ namespace DevApps.GUI
                 OnPropertyChange(nameof(IsObjectsView));
                 OnPropertyChange(nameof(IsVariablesView));
                 OnPropertyChange(nameof(IsDesignerView));
+                OnPropertyChange(nameof(IsFacetsView));
             }
         }
 
@@ -479,8 +480,15 @@ namespace DevApps.GUI
 
         private void Facets_MouseLeftButtonUp(object sender, RoutedEventArgs e)
         {
-            FacetListBox.SelectedIndex = 0;
-            OnPropertyChange(nameof(SelectedFacet));
+            if(FacetListBox.Items.Count == 0)
+            {
+                this.Content = new DesignerFacetsView();
+            }
+            else
+            {
+                FacetListBox.SelectedIndex = 0;
+                OnPropertyChange(nameof(SelectedFacet));
+            }
             e.Handled = true;
         }
 
@@ -514,6 +522,22 @@ namespace DevApps.GUI
             get
             {
                 return this.Content is DesignerView;
+            }
+        }
+
+        public bool IsFacetsView
+        {
+            get
+            {
+                return this.Content is DesignerFacetsView;
+            }
+        }
+
+        public bool IsFacetsOrDesignerView
+        {
+            get
+            {
+                return IsFacetsView || IsDesignerView;
             }
         }
 

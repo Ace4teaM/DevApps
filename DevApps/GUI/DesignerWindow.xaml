@@ -59,7 +59,7 @@
             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                 <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsVariablesView, Mode=OneWay}" Click="Variables_MouseLeftButtonUp">Variables</ToggleButton>
                 <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsObjectsView, Mode=OneWay}" Click="Objects_MouseLeftButtonUp">Objets</ToggleButton>
-                <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsDesignerView, Mode=OneWay}" Click="Facets_MouseLeftButtonUp">Facettes</ToggleButton>
+                <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsFacetsOrDesignerView, Mode=OneWay}" Click="Facets_MouseLeftButtonUp">Facettes</ToggleButton>
             </StackPanel>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
