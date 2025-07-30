@@ -171,6 +171,8 @@ namespace DevApps.GUI
                                 pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
                                 pyScope.SetVariable("gui", reference.gui);
                                 pyScope.SetVariable("name", this.Name);
+                                pyScope.SetVariable("dc", drawingContext);
+                                pyScope.SetVariable("rect", rect);
                                 pyScope.SetVariable("desc", reference.Description);
 
                                 foreach (var pointer in reference.Pointers)
