@@ -9,8 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Shared\*" />
-	<Compile Remove="Samples\*" />
+	  <Compile Remove="Samples\**" />
+	  <Compile Remove="Shared\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Samples\**" />
+    <EmbeddedResource Remove="Shared\**" />
+    <None Remove="Samples\**" />
+    <None Remove="Shared\**" />
+    <Page Remove="Samples\**" />
+    <Page Remove="Shared\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,27 +44,6 @@
 
   <ItemGroup>
     <None Update="Profile.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Samples\BlogWriter\devapps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Shared\AI\Mistral\devapps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Shared\Diagrams\Database Markup Langage %28DBML%29\devapps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Shared\Diagrams\Entities Relational Diagram %28ERD%29\devapps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Shared\Template\CodeTemplate\devapps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Shared\Template\FromRepos\devapps.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Shared\Validations\Input Check\devapps.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
