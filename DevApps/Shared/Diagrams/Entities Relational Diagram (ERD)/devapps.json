@@ -4,6 +4,8 @@
     {
       "Key": "visual",
       "Value": {
+        "BaseGuid": null,
+        "Guid": null,
         "Tags": [
           "#erd",
           "#svg"
@@ -36,6 +38,8 @@
     {
       "Key": "datamodel",
       "Value": {
+        "BaseGuid": null,
+        "Guid": "db1b8578-faa6-4be0-bec6-c2ed664d8eba",
         "Tags": [
           "#erd",
           "#text"
@@ -57,6 +61,8 @@
     {
       "Key": "codegen",
       "Value": {
+        "BaseGuid": null,
+        "Guid": null,
         "Tags": [
           "#erd",
           "#cs",
@@ -99,7 +105,7 @@
             "Value": {
               "zone": "20,20,400,400",
               "background": "#FFFFFFFF",
-              "titlePos": "TopLeft"
+              "TitlePos": "TopLeft"
             }
           },
           {
@@ -107,7 +113,7 @@
             "Value": {
               "zone": "504.4,23.30000000000001,200,400",
               "background": "#FFFFFFFF",
-              "titlePos": "TopLeft"
+              "TitlePos": "TopLeft"
             }
           },
           {
@@ -115,7 +121,7 @@
             "Value": {
               "zone": "831.9,17.799999999999955,250,400",
               "background": "#FFFFFFFF",
-              "titlePos": "TopLeft"
+              "TitlePos": "TopLeft"
             }
           }
         ],

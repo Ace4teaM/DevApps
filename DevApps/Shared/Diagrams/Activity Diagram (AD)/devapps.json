@@ -36,6 +36,8 @@
     {
       "Key": "datamodel",
       "Value": {
+        "BaseGuid": null,
+        "Guid": "{089BCC62-E746-4A94-9163-CED7B501709D}",
         "Tags": [
           "#AD",
           "#text"

@@ -4,6 +4,8 @@
     {
       "Key": "visual",
       "Value": {
+        "BaseGuid": null,
+        "Guid": null,
         "Tags": [
           "#D2",
           "#svg"
@@ -36,6 +38,8 @@
     {
       "Key": "datamodel",
       "Value": {
+        "BaseGuid": null,
+        "Guid": "9023e0a3-faba-4a45-ba0d-c77b68828bad",
         "Tags": [
           "#D2",
           "#text"
@@ -57,6 +61,8 @@
     {
       "Key": "codegen",
       "Value": {
+        "BaseGuid": null,
+        "Guid": null,
         "Tags": [
           "#D2",
           "#cs",
@@ -100,6 +106,8 @@
     {
       "Key": "types",
       "Value": {
+        "BaseGuid": null,
+        "Guid": null,
         "Tags": [
           "#csv",
           "#types"
@@ -130,7 +138,7 @@
             "Value": {
               "zone": "48.62750252031822,98.72563193087507,400,400",
               "background": "#FFFFFFFF",
-              "titlePos": "TopLeft"
+              "TitlePos": "TopLeft"
             }
           },
           {
@@ -138,7 +146,7 @@
             "Value": {
               "zone": "582.4730151642361,182.8086996296181,236.80678895469487,195.5178391405842",
               "background": "#FFFFFFFF",
-              "titlePos": "TopLeft"
+              "TitlePos": "TopLeft"
             }
           },
           {
@@ -146,7 +154,7 @@
             "Value": {
               "zone": "996.4844683601185,121.1408776261379,482.9433015546356,299.17372490411014",
               "background": "#FFFFFFFF",
-              "titlePos": "TopLeft"
+              "TitlePos": "TopLeft"
             }
           },
           {
@@ -154,7 +162,7 @@
             "Value": {
               "zone": "457.980981629623,540.3808325355628,280.2121687127334,259.3918129059657",
               "background": null,
-              "titlePos": "TopLeft"
+              "TitlePos": "TopLeft"
             }
           }
         ],
