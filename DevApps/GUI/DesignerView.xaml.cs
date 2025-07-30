@@ -935,7 +935,7 @@ namespace DevApps.GUI
 
             var position = properties.GetZone();
 
-            var element = new DrawElement(o.Key, this.facette, position, (o.Value.Description ?? o.Key), String.Join(' ', o.Value.Tags));
+            var element = new DrawElement(o.Key, this.facette, position, o.Key, String.Join(' ', o.Value.Tags));
             element.RenderTransform = _transformGroup;
             MyCanvas.Children.Add(element);
 
