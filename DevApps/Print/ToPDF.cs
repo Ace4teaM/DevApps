@@ -320,7 +320,7 @@ namespace DevApps.Print
                                     drawingContext.DrawDrawing(drawing);
                                     drawingContext.Close();
 
-                                    RenderTargetBitmap bmp = new RenderTargetBitmap((int)xRect.Width, (int)xRect.Height, 120, 96, PixelFormats.Pbgra32);
+                                    RenderTargetBitmap bmp = new RenderTargetBitmap((int)xRect.Width, (int)xRect.Height, 96, 96, PixelFormats.Pbgra32);
                                     bmp.Render(drawingVisual);
 
                                     MemoryStream bitmapStream = new MemoryStream();
