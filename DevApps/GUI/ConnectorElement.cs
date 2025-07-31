@@ -7,7 +7,9 @@ namespace DevApps.GUI
 {
     internal class ConnectorElement : ContentControl
     {
+        internal Canvas group = new Canvas();
         internal Path path = new Path();
+        internal Path arrow = new Path();
         public DrawElement Source { get; set; }
         public DrawElement? Destination { get; set; }
 
@@ -20,12 +22,20 @@ namespace DevApps.GUI
 
         void DesignerLink_Loaded(object sender, RoutedEventArgs e)
         {
-            path.Stroke = Brushes.Black;
-            path.StrokeThickness = 3;
+            path.Fill = null;
+            path.Stroke = Brushes.LightGray;
+            path.StrokeThickness = 2;
+
+            arrow.Fill = Brushes.LightGray;
+            arrow.Stroke = Brushes.LightGray;
+            arrow.StrokeThickness = 2;
 
             UpdatePosition();
 
-            base.Content = path;
+            group.Children.Add(path);
+            group.Children.Add(arrow);
+
+            base.Content = group;
         }
 
 
@@ -43,6 +53,48 @@ namespace DevApps.GUI
                 , ParsePoint(DestinationPosition + DestinationVector * 50)
                 , ParsePoint(DestinationPosition)
             ));
+
+            StreamGeometry geometry = new StreamGeometry();
+
+            double size = 6.0;
+
+            switch (DestinationAnchor)
+            {
+                case AnchorPoint.Left:
+                    using (StreamGeometryContext ctx = geometry.Open())
+                    {
+                        ctx.BeginFigure(new Point(DestinationPosition.X, DestinationPosition.Y), isFilled: true, isClosed: true);
+                        ctx.LineTo(new Point(DestinationPosition.X - size, DestinationPosition.Y + size), isStroked: true, isSmoothJoin: false);
+                        ctx.LineTo(new Point(DestinationPosition.X - size, DestinationPosition.Y - size), isStroked: true, isSmoothJoin: false);
+                    }
+                    break;
+                case AnchorPoint.Right:
+                    using (StreamGeometryContext ctx = geometry.Open())
+                    {
+                        ctx.BeginFigure(new Point(DestinationPosition.X, DestinationPosition.Y), isFilled: true, isClosed: true);
+                        ctx.LineTo(new Point(DestinationPosition.X + size, DestinationPosition.Y + size), isStroked: true, isSmoothJoin: false);
+                        ctx.LineTo(new Point(DestinationPosition.X + size, DestinationPosition.Y - size), isStroked: true, isSmoothJoin: false);
+                    }
+                    break;
+                case AnchorPoint.Top:
+                    using (StreamGeometryContext ctx = geometry.Open())
+                    {
+                        ctx.BeginFigure(new Point(DestinationPosition.X, DestinationPosition.Y), isFilled: true, isClosed: true);
+                        ctx.LineTo(new Point(DestinationPosition.X + size, DestinationPosition.Y - size), isStroked: true, isSmoothJoin: false);
+                        ctx.LineTo(new Point(DestinationPosition.X - size, DestinationPosition.Y - size), isStroked: true, isSmoothJoin: false);
+                    }
+                    break;
+                case AnchorPoint.Bottom:
+                    using (StreamGeometryContext ctx = geometry.Open())
+                    {
+                        ctx.BeginFigure(new Point(DestinationPosition.X, DestinationPosition.Y), isFilled: true, isClosed: true);
+                        ctx.LineTo(new Point(DestinationPosition.X + size, DestinationPosition.Y + size), isStroked: true, isSmoothJoin: false);
+                        ctx.LineTo(new Point(DestinationPosition.X - size, DestinationPosition.Y + size), isStroked: true, isSmoothJoin: false);
+                    }
+                    break;
+            }
+
+            arrow.Data = geometry;
         }
 
         public enum AnchorPoint
@@ -60,14 +112,19 @@ namespace DevApps.GUI
             {
                 if (Source != null && Destination != null)
                 {
-                    if (Destination.X < Source.X && ((Destination.Y + Destination.ActualHeight < Source.Y) || (Destination.Y < Source.Y + Source.ActualHeight)))//Left
-                        return AnchorPoint.Left;
-                    if (Destination.X > Source.X && ((Destination.Y + Destination.ActualHeight < Source.Y) || (Destination.Y < Source.Y + Source.ActualHeight)))//Right
-                        return AnchorPoint.Right;
-                    if (Destination.Y < Source.Y)//Top
-                        return AnchorPoint.Top;
-                    if (Destination.Y > Source.Y)//Bottom
-                        return AnchorPoint.Bottom;
+                    Point centerB = new Point(Destination.X + Destination.Width / 2, Destination.Y + Destination.Height / 2);
+                    Point centerA = new Point(Source.X + Source.Width / 2, Source.Y + Source.Height / 2);
+
+                    Vector delta = centerB - centerA;
+
+                    if (Math.Abs(delta.X) > Math.Abs(delta.Y))
+                    {
+                        return delta.X > 0 ? AnchorPoint.Right : AnchorPoint.Left;
+                    }
+                    else
+                    {
+                        return delta.Y > 0 ? AnchorPoint.Bottom : AnchorPoint.Top;
+                    }
                 }
                 return AnchorPoint.Undefined;
             }
@@ -86,7 +143,7 @@ namespace DevApps.GUI
                     case AnchorPoint.Bottom:
                         return new Point(Source.X + (Source.ActualWidth / 2), Source.Y + Source.ActualHeight);
                     case AnchorPoint.Top:
-                        return new Point(Source.X + (Source.ActualWidth / 2), Source.Y + Source.ActualHeight);
+                        return new Point(Source.X + (Source.ActualWidth / 2), Source.Y);
                     default:
                         return new Point();
                 }
@@ -119,14 +176,19 @@ namespace DevApps.GUI
             {
                 if (Source != null && Destination != null)
                 {
-                    if (Source.X < Destination.X && ((Source.Y + Source.ActualHeight < Destination.Y) || (Source.Y < Destination.Y + Destination.ActualHeight)))//Left
-                        return AnchorPoint.Left;
-                    if (Source.X > Destination.X && ((Source.Y + Source.ActualHeight < Destination.Y) || (Source.Y < Destination.Y + Destination.ActualHeight)))//Right
-                        return AnchorPoint.Right;
-                    if (Source.Y < Destination.Y)//Top
-                        return AnchorPoint.Top;
-                    if (Source.Y > Destination.Y)//Bottom
-                        return AnchorPoint.Bottom;
+                    Point centerA = new Point(Destination.X + Destination.Width / 2, Destination.Y + Destination.Height / 2);
+                    Point centerB = new Point(Source.X + Source.Width / 2, Source.Y + Source.Height / 2);
+
+                    Vector delta = centerB - centerA;
+
+                    if (Math.Abs(delta.X) > Math.Abs(delta.Y))
+                    {
+                        return delta.X > 0 ? AnchorPoint.Right : AnchorPoint.Left;
+                    }
+                    else
+                    {
+                        return delta.Y > 0 ? AnchorPoint.Bottom : AnchorPoint.Top;
+                    }
                 }
                 return AnchorPoint.Undefined;
             }
@@ -148,7 +210,7 @@ namespace DevApps.GUI
                     case AnchorPoint.Bottom:
                         return new Point(Destination.X + (Destination.ActualWidth / 2), Destination.Y + Destination.ActualHeight);
                     case AnchorPoint.Top:
-                        return new Point(Destination.X + (Destination.ActualWidth / 2), Destination.Y + Destination.ActualHeight);
+                        return new Point(Destination.X + (Destination.ActualWidth / 2), Destination.Y);
                     default:
                         return new Point();
                 }
