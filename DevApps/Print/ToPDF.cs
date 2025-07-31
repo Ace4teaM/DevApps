@@ -222,13 +222,11 @@ namespace DevApps.Print
         }
         internal static void AddFacet(MemoryStream stream, PdfDocument doc, XFont xFont, Program.DevFacet facette)
         {
-            var layout = facette.GetZone();
-
-            double margin = 10;
+            var layout = facette.PrintLayout;
 
             PdfPage page = doc.AddPage();
-            page.Width = XUnit.FromPoint(layout.Width + margin * 2);
-            page.Height = XUnit.FromPoint(layout.Height + margin * 2);
+            page.Width = XUnit.FromPoint(layout.Width);
+            page.Height = XUnit.FromPoint(layout.Height);
 
             using (XGraphics gfx = XGraphics.FromPdfPage(page))
             {
@@ -285,7 +283,7 @@ namespace DevApps.Print
                     }
 
                     var rect = obj.Value.GetZone();
-                    XRect xRect = new XRect(margin + (rect.X - layout.X), margin + (rect.Y - layout.Y), rect.Width, rect.Height);
+                    XRect xRect = new XRect((rect.X - layout.X), (rect.Y - layout.Y), rect.Width, rect.Height);
 
                     try
                     {

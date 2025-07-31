@@ -50,7 +50,9 @@ namespace DevApps.GUI
                 OnPropertyChange(nameof(IsObjectsView));
                 OnPropertyChange(nameof(IsVariablesView));
                 OnPropertyChange(nameof(IsDesignerView));
+                OnPropertyChange(nameof(IsFacetsOrDesignerView));
                 OnPropertyChange(nameof(IsFacetsView));
+                OnPropertyChange(nameof(TogglePrintZone));
             }
         }
 
@@ -764,6 +766,31 @@ namespace DevApps.GUI
         {
             OnPropertyChange(nameof(StartStopIcon));
             OnPropertyChange(nameof(StartStopText));
+        }
+
+        public bool TogglePrintZone
+        {
+            get
+            {
+                return IsDesignerView && ((DesignerView)Content)?.PrintVisibility == true ? true : false;
+            }
+            set
+            {
+                if(IsDesignerView)
+                    ((DesignerView)Content).PrintVisibility = value;
+            }
+        }
+
+        private void ToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            TogglePrintZone = true;
+            OnPropertyChange(nameof(TogglePrintZone));
+        }
+
+        private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            TogglePrintZone = false;
+            OnPropertyChange(nameof(TogglePrintZone));
         }
     }
 }

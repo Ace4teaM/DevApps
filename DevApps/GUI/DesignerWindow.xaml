@@ -161,12 +161,16 @@
                             Padding="0">
                     <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Add_MouseLeftButtonUp" Cursor="Hand">➕</TextBlock>
                 </Border>
+                <ToggleButton DockPanel.Dock="Right" Margin="10,0,10,0" VerticalAlignment="Center" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked" IsChecked="{Binding TogglePrintZone}" Cursor="Hand" ToolTip="Afficher la zone d'impression">👁</ToggleButton>
                 <Label></Label>
             </DockPanel>
         </Grid>
         <Grid DockPanel.Dock="Right" Margin="0,0,0,0">
             <DockPanel Margin="6" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock DockPanel.Dock="Top" Text="Importer un objet: (glisser/déposer)"></TextBlock>
+                <TextBlock DockPanel.Dock="Top" Margin="0,6,0,6">
+                    <Run FontWeight="Bold" Text="Importer un objet:"></Run>
+                    <Run Text="(glisser/déposer)"></Run>
+                </TextBlock>
                 <Separator DockPanel.Dock="Top"></Separator>
                 <ListBox
                     x:Name="ObjectListBox"

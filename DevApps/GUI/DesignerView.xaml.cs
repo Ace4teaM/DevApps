@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -58,9 +59,16 @@ namespace DevApps.GUI
         private TranslateTransform _translateTransform = new TranslateTransform();
         private TransformGroup _transformGroup = new TransformGroup();
 
+        public TransformGroup ObjectsTransform { get {  return _transformGroup; } }
+
         public ObservableCollection<CommandItem> CommandsItems { get; set; } = new ObservableCollection<CommandItem>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChange([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public static double commandPanelHeight = 0;
         public static double savedCommandPanelHeight = 300;
@@ -69,6 +77,31 @@ namespace DevApps.GUI
         
         public static bool showCommandsLines = false;
         public bool ShowCommandsLines { get { return showCommandsLines; } set { showCommandsLines = value; } }
+
+        public bool PrintVisibility
+        {
+            get => printVisibility; set{ printVisibility = value; OnPropertyChange(); }
+        }
+
+        public double PrintX
+        {
+            get {  return facette.PrintLayout.X; }
+        }
+
+        public double PrintY
+        {
+            get { return facette.PrintLayout.Y; }
+        }
+
+        public double PrintW
+        {
+            get { return facette.PrintLayout.Width; }
+        }
+
+        public double PrintH
+        {
+            get { return facette.PrintLayout.Height; }
+        }
 
         internal DesignerView(DevFacet facette)
         {
@@ -1225,7 +1258,7 @@ namespace DevApps.GUI
                     savedCommandPanelHeight = commandPanelHeight;
                     CommandPanelHeight = 0;
                 }
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CommandPanelHeight)));
+                OnPropertyChange(nameof(CommandPanelHeight));
             }
 
             var element = sender as FrameworkElement;
@@ -1253,8 +1286,7 @@ namespace DevApps.GUI
                 CommandPanelHeight = commandPanelMaxHeight;
 
             startMousePosition = mousePosition;
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CommandPanelHeight)));
+            OnPropertyChange(nameof(CommandPanelHeight));
         }
 
         private void Slider_MouseUp(object sender, MouseButtonEventArgs e)
@@ -1271,7 +1303,7 @@ namespace DevApps.GUI
         private void ViewCommandsLines_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             ShowCommandsLines = !ShowCommandsLines;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ShowCommandsLines)));
+            OnPropertyChange(nameof(ShowCommandsLines));
         }
 
         /// <summary>
@@ -1294,6 +1326,7 @@ namespace DevApps.GUI
         internal bool captureCloseable = false;
         internal StringBuilder? capturePath = null;
         internal DrawBase? captureDraw = null;
+        private bool printVisibility;
 
         private void StartCapturePositions(CapturePointMode mode)
         {

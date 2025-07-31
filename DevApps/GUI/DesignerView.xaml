@@ -21,6 +21,20 @@
         </Grid.RowDefinitions>
         
         <Canvas Grid.Row="0" x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" ClipToBounds="True" MouseWheel="Canvas_MouseWheel" AllowDrop="True" Drop="DataGrid_Drop" RenderOptions.BitmapScalingMode="NearestNeighbor" SnapsToDevicePixels="True" >
+            <Canvas.Children>
+                <Rectangle
+                    Visibility="{Binding PrintVisibility, Converter={StaticResource booleanToVisibilityConverter}}"
+                    RenderTransform="{Binding ObjectsTransform}"
+                    Stroke="Black"
+                    StrokeThickness="2"
+                    StrokeDashArray="4,2"
+                    Fill="Transparent"
+                    Canvas.Left="{Binding PrintX}"
+                    Canvas.Top="{Binding PrintY}"
+                    Panel.ZIndex="0"
+                    Width="{Binding PrintW}"
+                    Height="{Binding PrintH}"/>
+            </Canvas.Children>
             <Canvas.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Texte" Click="MenuItem_Text_Click"></MenuItem>
