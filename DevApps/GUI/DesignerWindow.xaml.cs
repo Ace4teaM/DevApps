@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using DevApps.Print;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using SharpVectors.Dom;
 using System.ComponentModel;
@@ -602,6 +603,21 @@ namespace DevApps.GUI
                 DevObject.SaveOutput();
 
                 Program.SaveProject();
+            }
+
+            // Imprime le projet
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.P)
+            {
+                if (IsDesignerView)
+                {
+                    DevApps.Print.Services.Print(((DesignerView)this.Content).facette);
+                }
+            }
+
+            // Imprime le projet
+            if (Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift) && e.Key == Key.P)
+            {
+                DevApps.Print.Services.PrintAll();
             }
         }
 

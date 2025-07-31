@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using DevApps.Print;
+using Microsoft.Win32;
 using SharpVectors.Dom;
 using System;
 using System.Diagnostics;

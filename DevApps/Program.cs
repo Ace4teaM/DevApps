@@ -4,8 +4,8 @@
 #define LOAD
 #endif
 
-using DevApps;
 using DevApps.GUI;
+using DevApps.Print;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
@@ -113,12 +113,8 @@ internal partial class Program
         {
             LoadProject();
             DevObject.LoadOutput();
-            var pdf = ToPDF.Make();
-            var tmpFile = Path.GetTempFileName()+".pdf";
-            using var file = File.OpenWrite(tmpFile);
-            pdf.CopyTo(file);
 
-            Process.Start(new ProcessStartInfo(tmpFile) { UseShellExecute = true });
+            DevApps.Print.Services.PrintAll();
 
             return;
         }
