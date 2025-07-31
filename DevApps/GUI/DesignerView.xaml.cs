@@ -103,6 +103,36 @@ namespace DevApps.GUI
             get { return facette.PrintLayout.Height; }
         }
 
+        /// <summary>
+        /// Représente la zone de contenu des objets
+        /// </summary>
+        public Rect GetObjectsBounding()
+        {
+            Rect boundingBox = Rect.Empty;
+
+            foreach (UIElement child in MyCanvas.Children.OfType<DrawBase>())
+            {
+                if (child is FrameworkElement fe)
+                {
+                    // Obtenir la position du child dans le Canvas
+                    double left = Canvas.GetLeft(fe);
+                    double top = Canvas.GetTop(fe);
+                    double width = fe.ActualWidth;
+                    double height = fe.ActualHeight;
+
+                    // Valeurs par défaut si Left/Top ne sont pas définis (NaN)
+                    if (double.IsNaN(left)) left = 0;
+                    if (double.IsNaN(top)) top = 0;
+
+                    Rect childRect = new Rect(left, top, width, height);
+
+                    boundingBox.Union(childRect); // agrandit pour inclure le nouveau rect
+                }
+            }
+
+            return boundingBox;
+        }
+
         internal DesignerView(DevFacet facette)
         {
             InitializeComponent();
@@ -1687,16 +1717,26 @@ namespace DevApps.GUI
             Program.ParseCommands(Clipboard.GetText());
         }
 
-       /* private void TooltipText_MouseEnter(object sender, MouseEventArgs e)
+        internal void SetPrintZone(Rect rect)
         {
-            var obj = InfoPopup.Tag as DrawBase;
-            PopupContent.Content = new WelcomeView();
+            facette.PrintLayout = rect;
+            OnPropertyChange(nameof(PrintW));
+            OnPropertyChange(nameof(PrintH));
+            OnPropertyChange(nameof(PrintX));
+            OnPropertyChange(nameof(PrintY));
         }
 
-        private void TooltipText_MouseLeave(object sender, MouseEventArgs e)
-        {
-            var obj = InfoPopup.Tag as DrawBase;
-            PopupContent.Content = null;
-        }*/
+
+        /* private void TooltipText_MouseEnter(object sender, MouseEventArgs e)
+         {
+             var obj = InfoPopup.Tag as DrawBase;
+             PopupContent.Content = new WelcomeView();
+         }
+
+         private void TooltipText_MouseLeave(object sender, MouseEventArgs e)
+         {
+             var obj = InfoPopup.Tag as DrawBase;
+             PopupContent.Content = null;
+         }*/
     }
 }

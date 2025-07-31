@@ -778,19 +778,79 @@ namespace DevApps.GUI
             {
                 if(IsDesignerView)
                     ((DesignerView)Content).PrintVisibility = value;
+                OnPropertyChange(nameof(TogglePrintZone));
             }
         }
 
         private void ToggleButton_Checked(object sender, RoutedEventArgs e)
         {
             TogglePrintZone = true;
-            OnPropertyChange(nameof(TogglePrintZone));
         }
 
         private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
         {
             TogglePrintZone = false;
-            OnPropertyChange(nameof(TogglePrintZone));
+        }
+
+        private void DropdownBtn_Click(object sender, RoutedEventArgs e)
+        {
+            DropdownPopup.IsOpen = !DropdownPopup.IsOpen;
+        }
+
+        private void PrintSize_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsDesignerView)
+            {
+                var view = ((DesignerView)Content)!;
+
+                var formats = new Dictionary<string, (double L, double H)>
+                {
+                    { "Portrait", (841, 1189) }, //A*
+                    { "Paysage", (1189, 841) } //A*
+                };
+
+                Rect rect = new Rect();
+
+                if(formats.TryGetValue(((Button)sender).Tag.ToString()!, out var size))
+                {
+                    rect = view.GetObjectsBounding();
+
+                    var ratio = (1.0 / size.L) * size.H;
+                    var newHeight = ratio * rect.Width;
+                    // si on ajuste la hauteur pour ce ratio de largeur
+                    // a t'on suffisament pour contenir le tout ? (si positif = plus grand)
+                    if (newHeight >= rect.Height)
+                    {
+                        var diff = newHeight - rect.Height;
+                        rect.Height = newHeight;
+
+                        rect.Y -= diff / 2.0;
+                    }
+                    else
+                    {
+                        // sinon il faut ajuster la largeur
+                        ratio = (1.0 / size.H) * size.L;
+                        var newWidth = ratio * rect.Height;
+
+                        var diff = newWidth - rect.Width;
+                        rect.Width = newWidth;
+
+                        rect.X -= diff / 2.0;
+                    }
+
+                    // centre le contenu
+                }
+                else
+                {
+                    rect = view.GetObjectsBounding();
+                }
+
+                view.SetPrintZone(rect);
+
+                // Affiche la zone
+                TogglePrintZone = true;
+            }
+            DropdownPopup.IsOpen = false;
         }
     }
 }

@@ -214,19 +214,6 @@ internal partial class Program
         /// </summary>
         public System.Windows.Rect PrintLayout { get; set; } = new System.Windows.Rect(0,0,1000,1000);
 
-        /// <summary>
-        /// Représente la zone de contenu des objets
-        /// </summary>
-        public System.Windows.Rect GetZone()
-        {
-            var rect = Objects.First().Value.GetZone();
-            foreach(var o in Objects.Skip(1))
-            {
-                rect.Union(o.Value.GetZone());
-            }
-            return rect;
-        }
-
         public void SetObjects(IEnumerable<KeyValuePair<string, ObjectProperties?>> items)
         {
             Objects.Clear();

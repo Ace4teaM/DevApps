@@ -161,7 +161,18 @@
                             Padding="0">
                     <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Add_MouseLeftButtonUp" Cursor="Hand">➕</TextBlock>
                 </Border>
-                <ToggleButton DockPanel.Dock="Right" Margin="10,0,10,0" VerticalAlignment="Center" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked" IsChecked="{Binding TogglePrintZone}" Cursor="Hand" ToolTip="Afficher la zone d'impression">👁</ToggleButton>
+                <Button DockPanel.Dock="Right" x:Name="DropdownButton" Margin="0,0,10,0" Content="▼" Click="DropdownBtn_Click" />
+                <Popup x:Name="DropdownPopup" PlacementTarget="{Binding ElementName=DropdownButton}" Placement="Bottom">
+                    <Border BorderBrush="Gray" BorderThickness="1">
+                        <StackPanel>
+                            <Button Tag="Contenu" Content="Contenu" Click="PrintSize_Click" />
+                            <Separator></Separator>
+                            <Button Tag="Portrait" Content="Portrait" Click="PrintSize_Click" />
+                            <Button Tag="Paysage" Content="Paysage" Click="PrintSize_Click" />
+                        </StackPanel>
+                    </Border>
+                </Popup>
+                <ToggleButton DockPanel.Dock="Right" Margin="10,0,0,0" VerticalAlignment="Center" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked" IsChecked="{Binding TogglePrintZone}" Cursor="Hand" ToolTip="Afficher la zone d'impression">👁</ToggleButton>
                 <Label></Label>
             </DockPanel>
         </Grid>
