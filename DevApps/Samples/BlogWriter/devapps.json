@@ -110,9 +110,9 @@
         "UserAction": "",
         "LoopMethod": "",
         "InitMethod": "",
-        "BuildMethod": "import json\r\ndict = json.loads(fields.text())\r\nprint(dict)\r\nglobals().update(dict)\r\nout.write(f\"\"\"\r\nusing System.Diagnostics;\r\nusing Microsoft.AspNetCore.Mvc;\r\nusing {DotNetNamespace}.Models;\r\nnamespace MyBlog.Controllers;\r\n// {BlogDesc}\r\npublic class {Name}Controller : Controller\r\n{{\r\n    private readonly ILogger<{Name}Controller> _logger;\r\n    public {Name}Controller(ILogger<{Name}Controller> logger)\r\n    {{\r\n        _logger = logger;\r\n    }}\r\n    public IActionResult Index()\r\n    {{\r\n        return View();\r\n    }}\r\n    public IActionResult Privacy()\r\n    {{\r\n        return View();\r\n    }}\r\n    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]\r\n    public IActionResult Error()\r\n    {{\r\n        return View(new ErrorViewModel {{ RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier }});\r\n    }}\r\n}}\r\n\"\"\")",
+        "BuildMethod": "import json\r\ndict = json.loads(fields.text())\r\nprint(dict)\r\nglobals().update(dict)\r\ndef formater_params(params):\r\n\tstr = []\r\n\tfor key in params:\r\n\t\ttype_ = params[key][\"type\"]\r\n\t\tformat_ = params[key][\"format\"]\r\n\t\tstr.append(f\"[FromQuery] {type_} {key}\")\r\n\treturn \", \".join(str)\r\nargs_ = formater_params(dict[\"fields\"])\r\nout.write(f\"\"\"\r\nusing System.Diagnostics;\r\nusing Microsoft.AspNetCore.Mvc;\r\nusing {DotNetNamespace}.Models;\r\nnamespace MyBlog.Controllers;\r\n// {Comment}\r\npublic class {Name}Controller : Controller\r\n{{\r\n    [HttpGet(\"info\")]\r\n    public IActionResult GetInfo({args_})\r\n    {{\r\n        if (string.IsNullOrWhiteSpace(nom) || string.IsNullOrWhiteSpace(prenom) || age <= 0)\r\n        {{\r\n            return BadRequest(\"Paramètres invalides.\");\r\n        }}\r\n        return Ok(new\r\n        {{\r\n            Nom = nom,\r\n            Prenom = prenom,\r\n            Age = age\r\n        }});\r\n    }}\r\n    private readonly ILogger<{Name}Controller> _logger;\r\n    public {Name}Controller(ILogger<{Name}Controller> logger)\r\n    {{\r\n        _logger = logger;\r\n    }}\r\n    public IActionResult Index()\r\n    {{\r\n        return View();\r\n    }}\r\n    public IActionResult Privacy()\r\n    {{\r\n        return View();\r\n    }}\r\n    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]\r\n    public IActionResult Error()\r\n    {{\r\n        return View(new ErrorViewModel {{ RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier }});\r\n    }}\r\n}}\r\n\"\"\")",
         "ObjectCode": "",
-        "DrawCode": ""
+        "DrawCode": "import clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('WindowsBase')\r\nfrom System.Windows import Point, Rect, Size, FontStyles, FontWeights, FontStretches, TextTrimming\r\nfrom System.Windows.Media import Brushes, Typeface, FormattedText, Pen\r\nfrom System.Windows.Media import FontFamily\r\nfrom System.Windows import FlowDirection\r\nfrom System.Globalization import CultureInfo\r\n# Dessiner le rectangle avec fond et contour\r\ndc.DrawRectangle(Brushes.LightGray, \r\n                             Pen(Brushes.Black, 1), \r\n                             rect)\r\n# Texte de la description\r\ntypefaceDesc = Typeface(FontFamily(\"Segoe UI\"), \r\n                        FontStyles.Normal,\r\n                        FontWeights.Normal, \r\n                        FontStretches.Normal)\r\nformattedDescription = FormattedText(out.text(),\r\n                                     CultureInfo.CurrentCulture,\r\n                                     FlowDirection.LeftToRight,\r\n                                     typefaceDesc,\r\n                                     12,\r\n                                     Brushes.Black,\r\n                                     1.0)\r\nformattedDescription.MaxTextWidth = rect.Width - 20\r\n# Positionner le texte dans le rectangle\r\ndc.DrawText(formattedDescription, Point(rect.X + 10, rect.Y + 10))"
       }
     }
   ],
@@ -121,6 +121,7 @@
     {
       "Key": "UsesCases",
       "Value": {
+        "Description": "111.66180058673899,104.79036594174863,583.1705042234115,365.43392361329484",
         "Objects": [
           {
             "Key": "Input",
@@ -142,6 +143,33 @@
             "Key": "Output",
             "Value": {
               "zone": "464.7312589253328,371.54499590701244,171.31814300632607,98.67929364803103",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    },
+    {
+      "Key": "CodeGen",
+      "Value": {
+        "Description": "0,0,1000,1000",
+        "Objects": [
+          {
+            "Key": "HTTP_InputRequest",
+            "Value": {
+              "zone": "334.4393284739947,84.9151622765167,809.2316931937128,694.624588032555",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Input",
+            "Value": {
+              "zone": "120.64739157762412,122.55185417976116,100,100",
               "background": null,
               "TitlePos": "TopLeft"
             }
