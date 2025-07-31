@@ -191,7 +191,7 @@ namespace DevApps.GUI
                                 System.Console.WriteLine("OnRender: " + this.Name);
                                 ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
                                 string error = eo.FormatException(ex);
-                                Console.WriteLine(error);
+                                System.Console.WriteLine(error);
                                 System.Console.WriteLine("******************************************");
                             }
 

@@ -1184,6 +1184,17 @@ namespace DevApps.PythonExtends
             }
             return this;
         }
+        public GUI text(IronPython.Runtime.PythonList texts)
+        {
+            if (texts.Count == 0)
+                return this;
+
+            foreach (var text in texts)
+            {
+                filling.text(this, text?.ToString());
+            }
+            return this;
+        }
         public GUI image(Output data, string format = "auto")
         {
             filling.image(this, data, format);
