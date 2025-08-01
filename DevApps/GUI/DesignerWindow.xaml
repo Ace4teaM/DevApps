@@ -48,6 +48,19 @@
                     <Setter Property="Background" Value="Transparent"></Setter>
                     <Setter Property="FontFamily" Value="Tahoma"></Setter>
                     <Setter Property="FontSize" Value="16"></Setter>
+                    <Setter Property="FontWeight" Value="DemiBold"></Setter>
+                    <Setter Property="Foreground" Value="Black"></Setter>
+                    <Setter Property="Focusable" Value="False"></Setter>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
+                </Style>
+                <Style x:Key="SubTitleStyle" TargetType="TextBlock">
+                    <Setter Property="Margin" Value="10,0,0,6"></Setter>
+                    <Setter Property="VerticalAlignment" Value="Bottom"></Setter>
+                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                    <Setter Property="Background" Value="Transparent"></Setter>
+                    <Setter Property="FontFamily" Value="Bauhaus 93"></Setter>
+                    <Setter Property="FontSize" Value="12"></Setter>
+                    <Setter Property="FontWeight" Value="Normal"></Setter>
                     <Setter Property="Foreground" Value="Black"></Setter>
                     <Setter Property="Focusable" Value="False"></Setter>
                     <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
@@ -64,13 +77,19 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
-            <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}" ToolTip="{Binding AppPath, Mode=OneWay}">
-                <TextBlock.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
-                    </ContextMenu>
-                </TextBlock.ContextMenu>
-            </TextBlock>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}" ToolTip="{Binding AppPath, Mode=OneWay}">
+                    <TextBlock.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
+                        </ContextMenu>
+                    </TextBlock.ContextMenu>
+                </TextBlock>
+                <TextBlock Style="{StaticResource SubTitleStyle}">
+                    <Run Text="- DevApps - v"></Run>
+                    <Run Text="{Binding AppVersion, Mode=OneWay}"></Run>
+                </TextBlock>
+            </StackPanel>
         </DockPanel>
         <Grid DockPanel.Dock="Top" Margin="0,5,0,0" >
             <DockPanel Height="26" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">

@@ -5,6 +5,7 @@ using SharpVectors.Dom;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -108,12 +109,19 @@ namespace DevApps.GUI
             get;set;
         }
 
+        public static Version? AppVersion
+        {
+            get
+            {
+                return Assembly.GetEntryAssembly()?.GetName().Version;
+            }
+        }
 
         public string AppTitle
         {
             get
             {
-                return String.Format("{0} - DevApps", Path.GetFileName(Environment.CurrentDirectory));
+                return Path.GetFileName(Environment.CurrentDirectory);
             }
         }
 
