@@ -1,0 +1,89 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "datamodel",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": null,
+        "Tags": [
+          "#datamodel",
+          "#matrix"
+        ],
+        "Description": "Matrice de données",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "gui.edit(editor,out)",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.text(out)"
+      }
+    },
+    {
+      "Key": "visual",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": null,
+        "Tags": [
+          "#graphgen",
+          "#matrix"
+        ],
+        "Description": "Affiche la matrice de données",
+        "InitialDataBase64": "",
+        "Editor": "code",
+        "Pointers": [
+          {
+            "Key": "data",
+            "Value": {
+              "target": "datamodel",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import json\r\ntexte = data.text()\r\n# Nettoyage et découpage du texte\r\ntableau = [\r\n    [int(val) for val in ligne.split(\";\")] \r\n    for ligne in texte.strip().splitlines()\r\n]\r\n# Conversion en JSON\r\njson_result = json.dumps(tableau, indent=4)\r\nprint(json_result)\r\nout.write(json_result)",
+        "ObjectCode": "",
+        "DrawCode": "import json\r\nimport ast\r\nimport clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('PresentationFramework')\r\nclr.AddReference('WindowsBase')\r\nimport System\r\nfrom System.Windows import Point, FlowDirection\r\nfrom System.Windows.Media import Typeface, Brushes, Pen, FormattedText, SolidColorBrush, Colors\r\nfrom System.Windows.Media import GeometryGroup, RectangleGeometry, LineGeometry\r\nfrom System.Globalization import CultureInfo\r\nfrom System.Windows import Rect\r\n# Exemple de JSON en entrée (normalement, tu le passes en variable)\r\njson_data = out.text()\r\n# Parser le JSON dans une variable Python\r\ntableau = json.loads(json_data)\r\n# Fonction pour dessiner le tableau sur un DrawingContext\r\ndef draw_table(dc, tableau, cell_width=60, cell_height=30, margin=10):\r\n    brush = SolidColorBrush(Colors.Black)\r\n    pen = Pen(brush, 1)\r\n    font = Typeface(\"Arial\")\r\n    font_size = 12\r\n    for i, ligne in enumerate(tableau):\r\n        for j, val in enumerate(ligne):\r\n            x = j * cell_width + margin\r\n            y = i * cell_height + margin\r\n            # Dessiner le rectangle de la cellule\r\n            dc.DrawRectangle(None, pen, Rect(x, y, cell_width, cell_height))\r\n            # Dessiner le texte centré\r\n            formatted_text = FormattedText(\r\n                str(val),\r\n                System.Globalization.CultureInfo.InvariantCulture,\r\n                FlowDirection.LeftToRight,\r\n                font,\r\n                font_size,\r\n                brush,\r\n                1.25  # pixels per dip\r\n            )\r\n            text_x = x + (cell_width - formatted_text.Width) / 2\r\n            text_y = y + (cell_height - formatted_text.Height) / 2\r\n            dc.DrawText(formatted_text, Point(text_x, text_y))\r\n# Appel de la fonction (dc est fourni par l'environnement)\r\ndraw_table(dc, tableau)"
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "Conception",
+      "Value": {
+        "Description": "0,0,1000,1000",
+        "Objects": [
+          {
+            "Key": "datamodel",
+            "Value": {
+              "zone": "-50.96687004670477,73.14425826265855,100,100",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "visual",
+            "Value": {
+              "zone": "254.98507122143678,8.390420357430074,259.4814189250222,122.58378879737745",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}
