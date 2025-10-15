@@ -55,6 +55,37 @@
         "ObjectCode": "",
         "DrawCode": "import clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('WindowsBase')\r\nfrom System.Windows import Point, Rect, Size, FontStyles, FontWeights, FontStretches, TextTrimming\r\nfrom System.Windows.Media import Brushes, Typeface, FormattedText, Pen\r\nfrom System.Windows.Media import FontFamily\r\nfrom System.Windows import FlowDirection\r\nfrom System.Globalization import CultureInfo\r\ndef dessiner_rectangle_contenu(drawingContext):\r\n    # Dessiner le rectangle avec fond et contour\r\n    drawingContext.DrawRectangle(Brushes.LightGray, \r\n                                 Pen(Brushes.Black, 1), \r\n                                 rect)\r\n    # Définir les textes : titre et description\r\n    titre = \"Titre du rectangle\"\r\n    description = \"Ceci est une description\\nmultiligne du contenu.\"\r\n    # Définir la police et le style de texte\r\n    typeface = Typeface(FontFamily(\"Segoe UI\"), \r\n                        FontStyles.Normal,\r\n                        FontWeights.Bold, \r\n                        FontStretches.Normal)\r\n    # Texte du titre\r\n    formattedTitre = FormattedText(desc,\r\n                                   CultureInfo.CurrentCulture,\r\n                                   FlowDirection.LeftToRight,\r\n                                   typeface,\r\n                                   14,  # Taille du texte\r\n                                   Brushes.Black,\r\n                                   1.0)  # PixelsPerDip\r\n    # Texte de la description\r\n    typefaceDesc = Typeface(FontFamily(\"Segoe UI\"), \r\n                            FontStyles.Normal,\r\n                            FontWeights.Normal, \r\n                            FontStretches.Normal)\r\n    formattedDescription = FormattedText(out.text(),\r\n                                         CultureInfo.CurrentCulture,\r\n                                         FlowDirection.LeftToRight,\r\n                                         typefaceDesc,\r\n                                         12,\r\n                                         Brushes.Black,\r\n                                         1.0)\r\n    formattedDescription.MaxTextWidth = rect.Width - 20\r\n    # Positionner le texte dans le rectangle\r\n    drawingContext.DrawText(formattedTitre, Point(rect.X + 10, rect.Y + 10))\r\n    drawingContext.DrawText(formattedDescription, Point(rect.X + 10, rect.Y + 35))\r\ndessiner_rectangle_contenu(dc)"
       }
+    },
+    {
+      "Key": "AdaptiveLayoutStruct",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "89C74F89-F994-4F2E-9275-DEF2D41D2A8F",
+        "Tags": [
+          "#layout",
+          "#json"
+        ],
+        "Description": "Adaptive Layout to JSON",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [
+          {
+            "Key": "model",
+            "Value": {
+              "target": "AdaptiveLayout",
+              "tags": []
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import System\r\nfrom System.Windows import Rect\r\n# Variables globales fournies :\r\n# drawingContext : DrawingContext WPF\r\n# canvasWidth, canvasHeight : dimensions de la surface à dessiner\r\n# Exemple de texte multi-lignes\r\ntext = model.text()\r\n# ==============================\r\n# Parse layout en dict\r\n# ==============================\r\nimport re\r\n# Couleurs pour chaque zone\r\ncurrent_color = 0\r\nzone_colors = [\r\n    \"#FFB0C4DE\",\r\n    \"#FFD8BFD8\",\r\n    \"#FFADD8E6\",\r\n    \"#FFB0E0E6\"\r\n]\r\n# Parser en lignes et supprimer les espaces avant/après\r\nlines = [line.strip() for line in text.splitlines() if line.strip()]\r\nmax_len = max(len(zone) for zone in lines)  # la plus longue zone (100%)\r\n# Construire le dict\r\nlayout_dict = []\r\nfor line in lines:\r\n    zones_in_line = re.findall(r\"\\[[^\\]]+\\]\", line)\r\n    line_dict = []\r\n    for z in zones_in_line:\r\n        name = z.split(\"_\")[0].strip(\"[]\")\r\n        width_pct = len(z) / max_len * 100\r\n        line_dict.append({\"name\": name, \"width_pct\": width_pct, \"color\": zone_colors[current_color]})\r\n        current_color = current_color+1 if current_color+1<len(zone_colors) else 0\r\n    layout_dict.append(line_dict)\r\nout.write(repr(layout_dict))",
+        "ObjectCode": "",
+        "DrawCode": "import clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('WindowsBase')\r\nfrom System.Windows import Point, Rect, Size, FontStyles, FontWeights, FontStretches, TextTrimming\r\nfrom System.Windows.Media import Brushes, Typeface, FormattedText, Pen\r\nfrom System.Windows.Media import FontFamily\r\nfrom System.Windows import FlowDirection\r\nfrom System.Globalization import CultureInfo\r\ndef dessiner_rectangle_contenu(drawingContext):\r\n    # Dessiner le rectangle avec fond et contour\r\n    drawingContext.DrawRectangle(Brushes.LightGray, \r\n                                 Pen(Brushes.Black, 1), \r\n                                 rect)\r\n    # Définir les textes : titre et description\r\n    titre = \"Titre du rectangle\"\r\n    description = \"Ceci est une description\\nmultiligne du contenu.\"\r\n    # Définir la police et le style de texte\r\n    typeface = Typeface(FontFamily(\"Segoe UI\"), \r\n                        FontStyles.Normal,\r\n                        FontWeights.Bold, \r\n                        FontStretches.Normal)\r\n    # Texte du titre\r\n    formattedTitre = FormattedText(desc,\r\n                                   CultureInfo.CurrentCulture,\r\n                                   FlowDirection.LeftToRight,\r\n                                   typeface,\r\n                                   14,  # Taille du texte\r\n                                   Brushes.Black,\r\n                                   1.0)  # PixelsPerDip\r\n    # Texte de la description\r\n    typefaceDesc = Typeface(FontFamily(\"Segoe UI\"), \r\n                            FontStyles.Normal,\r\n                            FontWeights.Normal, \r\n                            FontStretches.Normal)\r\n    formattedDescription = FormattedText(out.text(),\r\n                                         CultureInfo.CurrentCulture,\r\n                                         FlowDirection.LeftToRight,\r\n                                         typefaceDesc,\r\n                                         12,\r\n                                         Brushes.Black,\r\n                                         1.0)\r\n    formattedDescription.MaxTextWidth = rect.Width - 20\r\n    # Positionner le texte dans le rectangle\r\n    drawingContext.DrawText(formattedTitre, Point(rect.X + 10, rect.Y + 10))\r\n    drawingContext.DrawText(formattedDescription, Point(rect.X + 10, rect.Y + 35))\r\ndessiner_rectangle_contenu(dc)"
+      }
     }
   ],
   "References": [
@@ -118,7 +149,7 @@
           {
             "Key": "AdaptiveLayoutMenu",
             "Value": {
-              "zone": "-325.64015117433894,1014.6937733106157,211.30775229045793,174.68717370437636",
+              "zone": "257.2362260797511,448.7614767906564,211.30775229045793,174.68717370437636",
               "background": null,
               "TitlePos": "TopLeft"
             }
@@ -126,7 +157,7 @@
           {
             "Key": "AdaptiveLayoutMain",
             "Value": {
-              "zone": "-10.910600611271775,947.4520938126878,301.3361631031478,325.01756190099775",
+              "zone": "592.2986735237748,384.90861343955453,301.3361631031478,325.01756190099775",
               "background": null,
               "TitlePos": "TopLeft"
             }
@@ -151,7 +182,7 @@
           {
             "Key": "AdaptiveLayoutToReactMain",
             "Value": {
-              "zone": "-274.1335292401417,4510.13527639024,738.5131211381437,555.0857154293677",
+              "zone": "-383.10731569532345,131.50111058050402,697.4129108138369,437.65654307420584",
               "background": null,
               "TitlePos": "TopLeft"
             }
@@ -159,7 +190,15 @@
           {
             "Key": "AdaptiveLayoutToReactMenu",
             "Value": {
-              "zone": "571.8979594900093,4515.939941127859,639.8338205986122,521.4186599511747",
+              "zone": "604.5427839143358,141.53346826811367,645.7052792163702,403.98948759601285",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "AdaptiveLayoutStruct",
+            "Value": {
+              "zone": "278.8438194692294,649.6440727263948,400.17605633802816,435.68075117370904",
               "background": null,
               "TitlePos": "TopLeft"
             }
