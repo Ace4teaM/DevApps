@@ -7,6 +7,11 @@
 DevApps/Samples/**
 !DevApps/Samples/**/
 !DevApps/Samples/**/devapps.json
+# Shared
+DevApps/Shared/**
+!DevApps/Shared/**/
+!DevApps/Shared/**/devapps.json
+
 
 # User-specific files
 *.rsuser

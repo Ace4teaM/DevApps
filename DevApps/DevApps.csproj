@@ -11,16 +11,12 @@
 
   <ItemGroup>
 	  <Compile Remove="Samples\**" />
-	  <Compile Remove="Shared\**" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Remove="Samples\**" />
-    <EmbeddedResource Remove="Shared\**" />
     <None Remove="Samples\**" />
-    <None Remove="Shared\**" />
     <Page Remove="Samples\**" />
-    <Page Remove="Shared\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +31,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="PDFsharp" Version="6.1.1" />
+    <PackageReference Include="Scriban" Version="6.4.0" />
     <PackageReference Include="SharpVectors.Wpf" Version="1.8.4.2" />
     <PackageReference Include="System.Management" Version="9.0.7" />
   </ItemGroup>
@@ -55,6 +52,51 @@
 
   <ItemGroup>
     <None Include="C:\Users\Thomas\source\repos\devapps\DevApps\.editorconfig" />
+    <None Include="Shared\AI\Mistral\.devapps\AIChat" />
+    <None Include="Shared\AI\Mistral\.devapps\AIQuestion" />
+    <None Include="Shared\AI\Mistral\.devapps\AIResponse" />
+    <None Include="Shared\AI\Mistral\.devapps\ExtractCSV" />
+    <None Include="Shared\CodeMerge\TSql\.devapps\ExistingCode" />
+    <None Include="Shared\CodeMerge\TSql\.devapps\ExtractElement" />
+    <None Include="Shared\CodeMerge\TSql\.devapps\MergedCode" />
+    <None Include="Shared\CodeMerge\TSql\.devapps\NewerCode" />
+    <None Include="Shared\CodeMerge\TSql\.devapps\UpdateCode" />
+    <None Include="Shared\CodeMerge\TSql\.devapps\UpdatedCode" />
+    <None Include="Shared\DataStruct\BitFields\.devapps\data" />
+    <None Include="Shared\DataStruct\BitFields\.devapps\descriptor" />
+    <None Include="Shared\DataStruct\BitFields\.devapps\draw" />
+    <None Include="Shared\DataStruct\Matrix\.devapps\datamodel" />
+    <None Include="Shared\DataStruct\Matrix\.devapps\visual" />
+    <None Include="Shared\Diagrams\Activity Diagram %28AD%29\.devapps\codegen" />
+    <None Include="Shared\Diagrams\Activity Diagram %28AD%29\.devapps\datamodel" />
+    <None Include="Shared\Diagrams\Activity Diagram %28AD%29\.devapps\types" />
+    <None Include="Shared\Diagrams\Activity Diagram %28AD%29\.devapps\visual" />
+    <None Include="Shared\Diagrams\Classes Diagram %28D2%29\.devapps\codegen" />
+    <None Include="Shared\Diagrams\Classes Diagram %28D2%29\.devapps\datamodel" />
+    <None Include="Shared\Diagrams\Classes Diagram %28D2%29\.devapps\types" />
+    <None Include="Shared\Diagrams\Classes Diagram %28D2%29\.devapps\visual" />
+    <None Include="Shared\Diagrams\Grafcet %28G7%29\.devapps\Etape1" />
+    <None Include="Shared\Diagrams\Grafcet %28G7%29\.devapps\exemple_graphic" />
+    <None Include="Shared\Diagrams\Grafcet %28G7%29\.devapps\G7_Description" />
+    <None Include="Shared\Diagrams\Grafcet %28G7%29\.devapps\G7_Graphic" />
+    <None Include="Shared\Diagrams\Grafcet %28G7%29\.devapps\Intro" />
+    <None Include="Shared\GUI\Layouts\.devapps\layout" />
+    <None Include="Shared\GUI\Layouts\.devapps\toFlutter" />
+    <None Include="Shared\GUI\Layouts\.devapps\toXAML" />
+    <None Include="Shared\Template\FromRepos\.devapps\DataModel" />
+    <None Include="Shared\Template\FromRepos\.devapps\TableTemplate" />
+    <None Include="Shared\Validations\Input Check\.devapps\FieldClassCS" />
+    <None Include="Shared\Validations\Input Check\.devapps\FieldFormatTemplate" />
+    <None Include="Shared\Validations\Input Check\.devapps\fieldstypes" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Shared\AI\ChatGPT\" />
+    <Folder Include="Shared\CodeMerge\CSharp\" />
+    <Folder Include="Shared\CodeMerge\C\" />
+    <Folder Include="Shared\Commons\Markdown\" />
+    <Folder Include="Shared\Commons\Tips\" />
+    <Folder Include="Shared\Traductions\" />
   </ItemGroup>
 
 </Project>

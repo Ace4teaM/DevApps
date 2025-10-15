@@ -133,6 +133,8 @@ internal partial class Program
             System.Console.WriteLine(ex.Message);
         }
 
+        pyEngine.Runtime.LoadAssembly(typeof(Scriban.Template).Assembly);
+
         pyEngine.ImportModule("array");
 
         // on rétablie la sortie standard vers la console
