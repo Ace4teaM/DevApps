@@ -1,0 +1,174 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "AdaptiveLayout",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "f941e474-864b-4f54-a647-87f188d4ff11",
+        "Tags": [
+          "#layout"
+        ],
+        "Description": "Adaptive Layout",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "import clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('PresentationFramework')\r\nclr.AddReference('WindowsBase')\r\nimport System\r\nfrom System.Windows import Point, FlowDirection, TextAlignment\r\nfrom System.Windows.Media import Typeface, Brushes, Pen, FormattedText\r\nfrom System.Windows.Media import GeometryGroup, RectangleGeometry, LineGeometry, StreamGeometry\r\nfrom System.Globalization import CultureInfo\r\nfrom System.Windows import Rect\r\n# Variables globales fournies :\r\n# drawingContext : DrawingContext WPF\r\n# canvasWidth, canvasHeight : dimensions de la surface à dessiner\r\n# Exemple de texte multi-lignes\r\ntext = out.text()\r\n# Parser en lignes et supprimer les espaces avant/après\r\ntemplate = [line.strip() for line in text.splitlines() if line.strip()]\r\nmax_len = max(len(zone) for zone in template)  # la plus longue zone (100%)\r\n# Couleurs pour chaque zone\r\ncurrent_color = 0\r\nzone_colors = [\r\n    \"#FFB0C4DE\",\r\n    \"#FFD8BFD8\",\r\n    \"#FFADD8E6\",\r\n    \"#FFB0E0E6\"\r\n]\r\n# Fonction pour extraire le nom et la largeur relative\r\ndef parse_zone(zone_text):\r\n    # exemple: \"[HEADER________________]\"\r\n    zone_name = zone_text.split(\"_\")[0].strip(\"[]\")\r\n    width_pct = len(zone_text) / max_len  # max caractères = 100%\r\n    return zone_name, width_pct\r\n# Dessin\r\ncanvasHeight = rect.Height\r\ncanvasWidth = rect.Width\r\ny_offset = 0\r\nline_height = canvasHeight / len(template)  # hauteur proportionnelle à la ligne\r\nfor line in template:\r\n    # Découper les zones dans la ligne\r\n    import re\r\n    zones = re.findall(r\"\\[[^\\]]+\\]\", line)\r\n    x_offset = 0\r\n    for zone in zones:\r\n        name, width_pct = parse_zone(zone)\r\n        width_px = width_pct * canvasWidth\r\n        # Dessiner le rectangle\r\n        brush = System.Windows.Media.SolidColorBrush(System.Windows.Media.ColorConverter.ConvertFromString(zone_colors[current_color]))\r\n        dc.DrawRectangle(brush, None, System.Windows.Rect(x_offset, y_offset, width_px, line_height))\r\n        # Dessiner le texte\r\n        formatted_text = System.Windows.Media.FormattedText(\r\n            name,\r\n            System.Globalization.CultureInfo.CurrentCulture,\r\n            System.Windows.FlowDirection.LeftToRight,\r\n            System.Windows.Media.Typeface(\"Segoe UI\"),\r\n            14,\r\n            System.Windows.Media.Brushes.Black,\r\n            1.0\r\n        )\r\n        text_x = x_offset + 5\r\n        text_y = y_offset + (line_height - formatted_text.Height)/2\r\n        dc.DrawText(formatted_text, System.Windows.Point(text_x, text_y))\r\n        x_offset += width_px\r\n        current_color = current_color+1 if current_color+1<len(zone_colors) else 0\r\n    y_offset += line_height"
+      }
+    },
+    {
+      "Key": "AdaptiveLayoutToReact",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "d39655ae-47f8-41fc-88c1-f6142aeac167",
+        "Tags": [
+          "#codegen",
+          "#react"
+        ],
+        "Description": "Adaptive Layout to React JS",
+        "InitialDataBase64": "",
+        "Editor": "code",
+        "Pointers": [
+          {
+            "Key": "layout",
+            "Value": {
+              "target": "AdaptiveLayout",
+              "tags": [
+                "#layout"
+              ]
+            }
+          }
+        ],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "import System\r\nfrom System.Windows import Rect\r\n# Variables globales fournies :\r\n# drawingContext : DrawingContext WPF\r\n# canvasWidth, canvasHeight : dimensions de la surface à dessiner\r\n# Exemple de texte multi-lignes\r\ntext = layout.text()\r\n# ==============================\r\n# Parse layout en dict\r\n# ==============================\r\nimport re\r\n# Couleurs pour chaque zone\r\ncurrent_color = 0\r\nzone_colors = [\r\n    \"#FFB0C4DE\",\r\n    \"#FFD8BFD8\",\r\n    \"#FFADD8E6\",\r\n    \"#FFB0E0E6\"\r\n]\r\n# Parser en lignes et supprimer les espaces avant/après\r\nlines = [line.strip() for line in text.splitlines() if line.strip()]\r\nmax_len = max(len(zone) for zone in lines)  # la plus longue zone (100%)\r\n# Construire le dict\r\nlayout_dict = []\r\nfor line in lines:\r\n    zones_in_line = re.findall(r\"\\[[^\\]]+\\]\", line)\r\n    line_dict = []\r\n    for z in zones_in_line:\r\n        name = z.split(\"_\")[0].strip(\"[]\")\r\n        width_pct = len(z) / max_len * 100\r\n        line_dict.append({\"name\": name, \"width_pct\": width_pct, \"color\": zone_colors[current_color]})\r\n        current_color = current_color+1 if current_color+1<len(zone_colors) else 0\r\n    layout_dict.append(line_dict)\r\n# ==============================\r\n# Template Scriban pour JSX React\r\n# ==============================\r\n# Exemple de template Scriban (string)\r\nsbn_template = \"\"\"\r\nimport React from 'react';\r\nexport default function Layout() {\r\n  return (\r\n    <div style=\"display: flex; flex-direction: column; height: 100vh;\">\r\n      {{- for line in layout }}\r\n        {{- if line.size == 1 }}\r\n          <div style=\"flex: 1; background-color: {{ line[0].color }}; display: flex; align-items: center; justify-content: center;\">\r\n            {{ line[0].name }}\r\n          </div>\r\n        {{- else }}\r\n          <div style=\"display: flex; flex-direction: row; flex: 1;\">\r\n            {{- for zone in line }}\r\n              {{- if zone.name }}\r\n              <div style=\"flex: {{ zone.width_pct }}; background-color: {{ zone.color }}; display: flex; align-items: center; justify-content: center;\">\r\n                {{ zone.name }}\r\n              </div>\r\n              {{- end }}\r\n            {{- end }}\r\n          </div>\r\n        {{- end }}\r\n      {{- end }}\r\n    </div>\r\n  );\r\n}\r\n\"\"\"\r\n# ==============================\r\n# Générer JSX avec Scriban\r\n# ==============================\r\nfrom Scriban import Template\r\nfrom Scriban.Runtime import ScriptObject\r\ntemplate = Template.Parse(sbn_template)\r\nscript_obj = ScriptObject()\r\nscript_obj[\"layout\"] = layout_dict\r\njsx_output = template.Render(script_obj)\r\n# ==============================\r\n# Ecrit la sortie\r\n# ==============================\r\nout.write(jsx_output)",
+        "ObjectCode": "",
+        "DrawCode": "import clr\r\nclr.AddReference('PresentationCore')\r\nclr.AddReference('WindowsBase')\r\nfrom System.Windows import Point, Rect, Size, FontStyles, FontWeights, FontStretches, TextTrimming\r\nfrom System.Windows.Media import Brushes, Typeface, FormattedText, Pen\r\nfrom System.Windows.Media import FontFamily\r\nfrom System.Windows import FlowDirection\r\nfrom System.Globalization import CultureInfo\r\ndef dessiner_rectangle_contenu(drawingContext):\r\n    # Dessiner le rectangle avec fond et contour\r\n    drawingContext.DrawRectangle(Brushes.LightGray, \r\n                                 Pen(Brushes.Black, 1), \r\n                                 rect)\r\n    # Définir les textes : titre et description\r\n    titre = \"Titre du rectangle\"\r\n    description = \"Ceci est une description\\nmultiligne du contenu.\"\r\n    # Définir la police et le style de texte\r\n    typeface = Typeface(FontFamily(\"Segoe UI\"), \r\n                        FontStyles.Normal,\r\n                        FontWeights.Bold, \r\n                        FontStretches.Normal)\r\n    # Texte du titre\r\n    formattedTitre = FormattedText(desc,\r\n                                   CultureInfo.CurrentCulture,\r\n                                   FlowDirection.LeftToRight,\r\n                                   typeface,\r\n                                   14,  # Taille du texte\r\n                                   Brushes.Black,\r\n                                   1.0)  # PixelsPerDip\r\n    # Texte de la description\r\n    typefaceDesc = Typeface(FontFamily(\"Segoe UI\"), \r\n                            FontStyles.Normal,\r\n                            FontWeights.Normal, \r\n                            FontStretches.Normal)\r\n    formattedDescription = FormattedText(out.text(),\r\n                                         CultureInfo.CurrentCulture,\r\n                                         FlowDirection.LeftToRight,\r\n                                         typefaceDesc,\r\n                                         12,\r\n                                         Brushes.Black,\r\n                                         1.0)\r\n    formattedDescription.MaxTextWidth = rect.Width - 20\r\n    # Positionner le texte dans le rectangle\r\n    drawingContext.DrawText(formattedTitre, Point(rect.X + 10, rect.Y + 10))\r\n    drawingContext.DrawText(formattedDescription, Point(rect.X + 10, rect.Y + 35))\r\ndessiner_rectangle_contenu(dc)"
+      }
+    }
+  ],
+  "References": [
+    {
+      "Key": "AdaptiveLayoutMain",
+      "Value": {
+        "Description": "Main Layout",
+        "InitialDataBase64": "",
+        "Editor": "code",
+        "BaseObjectName": "AdaptiveLayout",
+        "Pointers": []
+      }
+    },
+    {
+      "Key": "AdaptiveLayoutMenu",
+      "Value": {
+        "Description": "Menu Layout",
+        "InitialDataBase64": "",
+        "Editor": "text",
+        "BaseObjectName": "AdaptiveLayout",
+        "Pointers": []
+      }
+    },
+    {
+      "Key": "AdaptiveLayoutToReactMain",
+      "Value": {
+        "Description": "Adaptive Layout to React JS",
+        "InitialDataBase64": "",
+        "Editor": null,
+        "BaseObjectName": "AdaptiveLayoutToReact",
+        "Pointers": [
+          {
+            "Key": "layout",
+            "Value": "AdaptiveLayoutMain"
+          }
+        ]
+      }
+    },
+    {
+      "Key": "AdaptiveLayoutToReactMenu",
+      "Value": {
+        "Description": "Adaptive Layout to React JS",
+        "InitialDataBase64": "",
+        "Editor": null,
+        "BaseObjectName": "AdaptiveLayoutToReact",
+        "Pointers": [
+          {
+            "Key": "layout",
+            "Value": "AdaptiveLayoutMenu"
+          }
+        ]
+      }
+    }
+  ],
+  "Facets": [
+    {
+      "Key": "Conception",
+      "Value": {
+        "Description": "0,0,1000,1000",
+        "Objects": [
+          {
+            "Key": "AdaptiveLayoutMenu",
+            "Value": {
+              "zone": "-325.64015117433894,1014.6937733106157,211.30775229045793,174.68717370437636",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "AdaptiveLayoutMain",
+            "Value": {
+              "zone": "-10.910600611271775,947.4520938126878,301.3361631031478,325.01756190099775",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [
+          {
+            "path": "M 0,0 L -124,-21 M -113,-24 L -124,-21 L -114,-14",
+            "X": 17.899548954834017,
+            "Y": 1086.29037336583
+          }
+        ],
+        "Texts": []
+      }
+    },
+    {
+      "Key": "Application",
+      "Value": {
+        "Description": "0,0,1000,1000",
+        "Objects": [
+          {
+            "Key": "AdaptiveLayoutToReactMain",
+            "Value": {
+              "zone": "-274.1335292401417,4510.13527639024,738.5131211381437,555.0857154293677",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "AdaptiveLayoutToReactMenu",
+            "Value": {
+              "zone": "571.8979594900093,4515.939941127859,639.8338205986122,521.4186599511747",
+              "background": null,
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}
