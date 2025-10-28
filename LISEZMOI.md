@@ -8,9 +8,9 @@ La phase de build permet le génération de code/données pour assister la réal
 
 Il est adapté à plusieurs situations
 
-Décrire un mechanisme/système
-Generer et fusionner er du code source
-Réutiliser et partager des concepts/design pattern
+* Décrire un mécanisme/système
+* Générer et fusionner er du code source
+* Réutiliser et partager des concepts/design pattern
 
 DevApps est transparent et non intrusif pour vos projets. Vous pouvez décider de l'utiliser ponctuellement pour déployer un pan de votre application ou continuellement dans un cadre d'amélioration continue et de conception.
 
@@ -73,13 +73,13 @@ Voici quelques tags fréquemment utilisés:
 #md markdown
 ```
 
-En plus de categoriser les objets, les tags sont utilisés sur les pointeurs pour déterminer qu'elle objet est compatible avec le lien attendue.
+En plus de catégoriser les objets, les tags sont utilisés sur les pointeurs pour déterminer qu'elle objet est compatible avec le lien attendue.
 
 
-## Commande
+## Commandes
 
 
-Les commandes sont d'autres types d'objets permettant de grouper une serie d'executions sous forme de pseudo-commandes. 
+Les commandes sont d'autres types d'objets permettant de grouper une série d'exécutions sous forme de pseudo-commandes. 
 
 * Lire/Écrire des fichiers
 * Gérer les versions
@@ -90,11 +90,11 @@ Les commandes sont d'autres types d'objets permettant de grouper une serie d'exe
 Pour des raisons de sécurités aucune commande 'system' n'est directement stockée dans le projet.
 
 
-Les commandes sont définit dans le registre de Windows pour chaque utilisateur. La définition d'une commande contient un nom une syntaxe et des arguments décrit dans un format JSon. L'utilisateur definit donc les commandes utilisable dans son système, ceci pour éviter d'injecter des commandes suspicieuse. Le projet lui contient les appels de pseudo-commandes qui prendrons une exécutions potentiellement différente en fonction du système. Ainsi, DevApps peut avertir de commandes manquantes et éventuellement installer les outils nécessaires. 
+Les commandes sont définit dans le registre de Windows pour chaque utilisateur. La définition d'une commande contient un nom une syntaxe et des arguments décrit dans un format JSon. L'utilisateur définit donc les commandes utilisable dans son système, ceci pour éviter d'injecter des commandes suspicieuse. Le projet lui contient les appels de pseudo-commandes qui prendrons une exécutions potentiellement différente en fonction du système. Ainsi, DevApps peut avertir de commandes manquantes et éventuellement installer les outils nécessaires. 
 
-Les commandes 'BUILTIN'sont des objets prédéfinis fournissant un lot de commandes standards, ils permettent généralement de faire le lien avec les fichiers du projet final.
+Les commandes 'BUILTIN' sont des objets prédéfinis fournissant un lot de commandes standards, ils permettent généralement de faire le lien avec les fichiers du projet final.
 
 Les commandes peuvent êtres visualisées sous forme d'objets visuels avec un ordre d'appels. 
 
-Les outils comme les commandes sont des exécutions externes en ligne de commande. Le résultat est traité par l'objet appellant. 
+Les outils comme les commandes sont des exécutions externes en ligne de commande. Le résultat est traité par l'objet appelant. 
 
