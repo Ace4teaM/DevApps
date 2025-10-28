@@ -61,3 +61,28 @@ Une référence partage l'ensemble des paramètres d'une instance hormis les don
 Une instance peux être un modèle ou posséder un modèle de base dans ce cas il possède ou référence un GUID. Contrairement à une référence une instance avec un modèle de base peux l'utiliser pour mettre à jour ses paramètres. Un modèle n'est pas une instance car l'objet qui en hérite garde son indépendance vis à vis de ce dernier, mettre à jour une instance depuis un modèle est une action de l'utilisateur.
 
 Un modèle peux faire partie du projet ou d'un projet partagé, le GUID permet de garantir l'unicité d'un objet. DevApps n'a plus qu'a chercher dans les différents projets partagés pour retrouver l'objet de base.  
+
+
+
+## Commande
+
+
+Les commandes sont d'autres types d'objets permettant de grouper une serie d'executions sous forme de pseudo-commandes. 
+
+* Lire/Écrire des fichiers
+* Gérer les versions
+* Importer / Exporter des données 
+* ...
+
+
+Pour des raisons de sécurités aucune commande 'system' n'est directement stockée dans le projet.
+
+
+Les commandes sont définit dans le registre de Windows pour chaque utilisateur. La définition d'une commande contient un nom une syntaxe et des arguments décrit dans un format JSon. L'utilisateur definit donc les commandes utilisable dans son système, ceci pour éviter d'injecter des commandes suspicieuse. Le projet lui contient les appels de pseudo-commandes qui prendrons une exécutions potentiellement différente en fonction du système. Ainsi, DevApps peut avertir de commandes manquantes et éventuellement installer les outils nécessaires. 
+
+Les commandes 'BUILTIN'sont des objets prédéfinis fournissant un lot de commandes standards, ils permettent généralement de faire le lien avec les fichiers du projet final.
+
+Les commandes peuvent êtres visualisées sous forme d'objets visuels avec un ordre d'appels. 
+
+Les outils comme les commandes sont des exécutions externes en ligne de commande. Le résultat est traité par l'objet appellant. 
+
