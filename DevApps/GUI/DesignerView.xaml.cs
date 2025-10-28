@@ -1,5 +1,4 @@
-﻿using Microsoft.Scripting.Utils;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -394,7 +393,7 @@ namespace DevApps.GUI
             // Aide au redimensionnement des objets à fond transparent
             if (isSelectionMaintained == false)
             {
-                selectedElement = Mouse.DirectlyOver as DrawElement;
+                selectedElement = Mouse.DirectlyOver as DrawBase;
             }
 
             // redimensionnement / déplacement
@@ -428,348 +427,380 @@ namespace DevApps.GUI
             // outils
             if (selectedElement != null && e.RightButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Released && e.MiddleButton == MouseButtonState.Released)
             {
-                ContextMenu menu = new ContextMenu();
-                /* menu.Items.Add(new MenuItem { Header = "Propriétés" });
-                 menu.Items.Add(new MenuItem { Header = "Copier" });
-                 menu.Items.Add(new MenuItem { Header = "Coller" });
-                 menu.Items.Add(new MenuItem { Header = "Couper" });
-                 menu.Items.Add(new MenuItem { Header = "Dupliquer" });
-                 menu.Items.Add(new MenuItem { Header = "Verrouiller" });
-                 menu.Items.Add(new MenuItem { Header = "Déverrouiller" });
-                 menu.Items.Add(new MenuItem { Header = "Envoyer en arrière" });
-                 menu.Items.Add(new MenuItem { Header = "Envoyer en avant" });
-                 menu.Items.Add(new MenuItem { Header = "Aligner à gauche" });*/
-
+                if (selectedElement is DrawGeometry)
                 {
-                    var m = new MenuItem { Header = "Construire (Build)" };
-                    m.Click += (s, e) =>
+                    ContextMenu menu = new ContextMenu();
+
+                    var curElement = selectedElement;
                     {
-                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (handle)
+                        var m = new MenuItem { Header = "Retirer" };
+                        m.Click += (s, e) =>
                         {
-                            var name = selectedElement?.Name ?? string.Empty;
+                            var facetGeo = (DevFacet.Geometry)curElement.Tag;
 
-                            Program.DevObject.References.TryGetValue(name, out var reference);
+                            MyCanvas.Children.Remove(curElement);
+                            selectedElement = null;
 
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                            facette.Geometries.Remove(facetGeo);
+                        };
+                        menu.Items.Add(m);
+                    }
+
+                    menu.Placement = PlacementMode.Mouse;
+                    menu.IsOpen = true;
+                }
+
+                if (selectedElement is DrawText)
+                {
+                    ContextMenu menu = new ContextMenu();
+
+                    var curElement = selectedElement;
+                    {
+                        var m = new MenuItem { Header = "Retirer" };
+                        m.Click += (s, e) =>
+                        {
+                            var facetText = (DevFacet.Text)curElement.Tag;
+
+                            MyCanvas.Children.Remove(curElement);
+                            selectedElement = null;
+
+                            facette.Texts.Remove(facetText);
+                        };
+                        menu.Items.Add(m);
+                    }
+
+                    menu.Placement = PlacementMode.Mouse;
+                    menu.IsOpen = true;
+                }
+
+                if (selectedElement is DrawCommand)
+                {
+                    ContextMenu menu = new ContextMenu();
+
+                    var curElement = selectedElement;
+                    {
+                        var name = curElement?.Name ?? string.Empty;
+
+                        var m = new MenuItem { Header = "Exécuté" };
+                        m.Click += (s, e) =>
+                        {
+                            Program.DevCommandGroup.References.TryGetValue(name, out var reference);
 
                             if (reference != null)
                             {
-                                Program.DevObject.Build([new KeyValuePair<string, DevObject>(name, reference)]);
+                                reference.Execute();
                             }
-                        }
-                    };
-                    menu.Items.Add(m);
+                        };
+                        menu.Items.Add(m);
+                    }
+
+                    menu.Placement = PlacementMode.Mouse;
+                    menu.IsOpen = true;
                 }
 
-                menu.Items.Add(new Separator());
-
+                if (selectedElement is DrawElement)
                 {
-                    var m = new MenuItem { Header = "Définir comme modèle" };
-                    m.Click += (s, e) =>
+                    ContextMenu menu = new ContextMenu();
+
+                    var name = selectedElement?.Name ?? string.Empty;
+
                     {
-                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (handle)
+                        var m = new MenuItem { Header = "Construire (Build)" };
+                        m.Click += (s, e) =>
                         {
-                            var name = selectedElement?.Name ?? string.Empty;
-
-                            Program.DevObject.References.TryGetValue(name, out var reference);
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                            if (reference != null && reference is DevObjectInstance inst)
-                            {
-                                if (inst.guid == null)
-                                    inst.guid = Guid.NewGuid();
-                            }
-                        }
-                    };
-                    menu.Items.Add(m);
-                }
-
-                menu.Items.Add(new Separator());
-
-                {
-                    var m = new MenuItem { Header = "Mettre à jour depuis le modèle" };
-                    m.Click += (s, e) =>
-                    {
                             var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (handle)
-                        {
-                            var name = selectedElement?.Name ?? string.Empty;
-
-                            Program.DevObject.References.TryGetValue(name, out var reference);
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                            if (reference != null && reference is DevObjectInstance inst)
+                            if (handle)
                             {
-                                if (inst.baseGuid != null)
+                                Program.DevObject.References.TryGetValue(name, out var reference);
+
+                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                                if (reference != null)
                                 {
-                                    var list = new List<Serializer.DevObjectInstance>();
-                                    SharedServices.EnumerateObjects(p => p.Guid == inst.baseGuid, Program.CommonSharedPath, ref list);
-                                    if (list.Count == 1)
+                                    Program.DevObject.Build([new KeyValuePair<string, DevObject>(name, reference)]);
+                                }
+                            }
+                        };
+                        menu.Items.Add(m);
+                    }
+
+                    menu.Items.Add(new Separator());
+
+                    {
+                        var m = new MenuItem { Header = "Définir comme modèle" };
+                        m.Click += (s, e) =>
+                        {
+                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                            if (handle)
+                            {
+                                Program.DevObject.References.TryGetValue(name, out var reference);
+                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                                if (reference != null && reference is DevObjectInstance inst)
+                                {
+                                    if (inst.guid == null)
+                                        inst.guid = Guid.NewGuid();
+                                }
+                            }
+                        };
+                        menu.Items.Add(m);
+                    }
+
+                    menu.Items.Add(new Separator());
+
+                    {
+                        var m = new MenuItem { Header = "Mettre à jour depuis le modèle" };
+                        m.Click += (s, e) =>
+                        {
+                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                            if (handle)
+                            {
+                                Program.DevObject.References.TryGetValue(name, out var reference);
+                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                                if (reference != null && reference is DevObjectInstance inst)
+                                {
+                                    if (inst.baseGuid != null)
                                     {
-                                        if (MessageBox.Show($"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                                        var list = new List<Serializer.DevObjectInstance>();
+                                        SharedServices.EnumerateObjects(p => p.Guid == inst.baseGuid, Program.CommonSharedPath, ref list);
+                                        if (list.Count == 1)
                                         {
-                                            // Actualise l'objet
-                                            var handle2 = Program.DevObject.mutexExecuteObjects.WaitOne();
-                                            if (handle2)
+                                            if (MessageBox.Show($"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                                             {
-                                                inst.UpdateFrom(list[0].content);
-                                                Program.DevObject.mutexExecuteObjects.ReleaseMutex();
+                                                // Actualise l'objet
+                                                var handle2 = Program.DevObject.mutexExecuteObjects.WaitOne();
+                                                if (handle2)
+                                                {
+                                                    inst.UpdateFrom(list[0].content);
+                                                    Program.DevObject.mutexExecuteObjects.ReleaseMutex();
+                                                }
+
+                                                Program.DevObject.CompilObjects([inst]);
+                                                Program.DevObject.Init();
+                                                Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));
                                             }
-
-                                            Program.DevObject.CompilObjects([inst]);
-                                            Program.DevObject.Init();
-                                            Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));
                                         }
-                                    }
-                                    else if (list.Count > 1)
-                                    {
-                                        MessageBox.Show("Plusieurs objets partagés possèdent cet identifiant, impossible de déterminer le bon.", "Avertissement", MessageBoxButton.OK);
+                                        else if (list.Count > 1)
+                                        {
+                                            MessageBox.Show("Plusieurs objets partagés possèdent cet identifiant, impossible de déterminer le bon.", "Avertissement", MessageBoxButton.OK);
 
-                                        Console.WriteLine("Multiples objets partagés avec le GUID: " + inst.baseGuid);
-                                        foreach (var item in list)
-                                            Console.WriteLine("* " + item.Description);
-                                        Console.WriteLine();
-                                    }
-                                    else if (list.Count == 0)
-                                    {
-                                        MessageBox.Show("L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
+                                            Console.WriteLine("Multiples objets partagés avec le GUID: " + inst.baseGuid);
+                                            foreach (var item in list)
+                                                Console.WriteLine("* " + item.Description);
+                                            Console.WriteLine();
+                                        }
+                                        else if (list.Count == 0)
+                                        {
+                                            MessageBox.Show("L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
 
-                                        Console.WriteLine("Objet partagé introuvable avec le GUID: " + inst.baseGuid);
+                                            Console.WriteLine("Objet partagé introuvable avec le GUID: " + inst.baseGuid);
+                                        }
                                     }
                                 }
                             }
-                        }
-                    };
-                    menu.Items.Add(m);
-                }
+                        };
+                        menu.Items.Add(m);
+                    }
 
-                menu.Items.Add(new Separator());
+                    menu.Items.Add(new Separator());
 
-                {
-                    var m = new MenuItem { Header = "Dupliquer" };
-                    m.Click += (s, e) =>
                     {
-                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (handle)
+                        var m = new MenuItem { Header = "Dupliquer" };
+                        m.Click += (s, e) =>
                         {
-                            var name = selectedElement?.Name ?? string.Empty;
-
-                            Program.DevObject.References.TryGetValue(name, out var reference);
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                            if (reference != null && selectedElement != null)
+                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                            if (handle)
                             {
-                                var newReference = reference.Clone();
-                                Program.DevObject.MakeUniqueName(ref name);
-                                Program.DevObject.References.Add(name, newReference);
-                                facette.Objects.Add(name, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
-                                AddElement(name, facette.Objects[name]);
-                            }
-                        }
-                    };
-                    menu.Items.Add(m);
-                }
+                                Program.DevObject.References.TryGetValue(name, out var reference);
+                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
 
-                menu.Items.Add(new Separator());
-
-                {
-                    var m = new MenuItem { Header = "Ajouter à la bibliothèque" };
-                    m.Click += (s, e) =>
-                    {
-                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (handle)
-                        {
-                            var name = selectedElement?.Name ?? string.Empty;
-
-                            Program.DevObject.References.TryGetValue(name, out var reference);
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                            if (reference != null)
-                            {
-                                reference.mutexReadOutput.WaitOne();
-
-                                using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, name));
-
-                                var settings = new JsonSerializerSettings
+                                if (reference != null && selectedElement != null)
                                 {
-                                    Formatting = Formatting.Indented
-                                };
-                                JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
-
-                                var instance = reference as Program.DevObjectInstance;
-                                if (instance == null && reference is Program.DevObjectReference)
-                                    instance = ((Program.DevObjectReference)reference).GetBaseObject();
-
-                                if (instance == null || selectedElement == null)
-                                    return;
-
-                                serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
-
-                                reference.SaveOutput(selectedElement?.Name!, Program.CommonSharedPath);
-
-                                reference.mutexReadOutput.ReleaseMutex();
+                                    var newReference = reference.Clone();
+                                    Program.DevObject.MakeUniqueName(ref name);
+                                    Program.DevObject.References.Add(name, newReference);
+                                    facette.Objects.Add(name, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
+                                    AddElement(name, facette.Objects[name]);
+                                }
                             }
-                        }
-                    };
-                    menu.Items.Add(m);
-                }
+                        };
+                        menu.Items.Add(m);
+                    }
 
-                menu.Items.Add(new Separator());
+                    menu.Items.Add(new Separator());
 
-                {
-                    var m = new MenuItem { Header = "Supprimer" };
-                    m.Click += (s, e) =>
                     {
-                        if (selectedElement is DrawElement)
+                        var m = new MenuItem { Header = "Ajouter à la bibliothèque" };
+                        m.Click += (s, e) =>
                         {
-                            var name = selectedElement.Name;
+                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                            if (handle)
+                            {
+                                Program.DevObject.References.TryGetValue(name, out var reference);
+                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+
+                                if (reference != null)
+                                {
+                                    reference.mutexReadOutput.WaitOne();
+
+                                    using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, name));
+
+                                    var settings = new JsonSerializerSettings
+                                    {
+                                        Formatting = Formatting.Indented
+                                    };
+                                    JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+
+                                    var instance = reference as Program.DevObjectInstance;
+                                    if (instance == null && reference is Program.DevObjectReference)
+                                        instance = ((Program.DevObjectReference)reference).GetBaseObject();
+
+                                    if (instance == null || selectedElement == null)
+                                        return;
+
+                                    serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
+
+                                    reference.SaveOutput(selectedElement?.Name!, Program.CommonSharedPath);
+
+                                    reference.mutexReadOutput.ReleaseMutex();
+                                }
+                            }
+                        };
+                        menu.Items.Add(m);
+                    }
+
+                    menu.Items.Add(new Separator());
+
+                    {
+                        var m = new MenuItem { Header = "Retirer" };
+                        m.Click += (s, e) =>
+                        {
                             MyCanvas.Children.Remove(selectedElement);
                             selectedElement = null;
 
                             facette.Objects.Remove(name);
-                        }
+                        };
+                        menu.Items.Add(m);
+                    }
 
-                        if (selectedElement is DrawGeometry sel)
-                        {
-                            var facetGeo = (DevFacet.Geometry)sel.Tag;
+                    menu.Items.Add(new Separator());
 
-                            MyCanvas.Children.Remove(selectedElement);
-                            selectedElement = null;
-
-                            facette.Geometries.Remove(facetGeo);
-                        }
-
-                        if (selectedElement is DrawText sel2)
-                        {
-                            var facetText = (DevFacet.Text)sel2.Tag;
-
-                            MyCanvas.Children.Remove(selectedElement);
-                            selectedElement = null;
-
-                            facette.Texts.Remove(facetText);
-                        }
-                    };
-                    menu.Items.Add(m);
-                }
-
-                menu.Items.Add(new Separator());
-
-                if (selectedElement is DrawElement)
-                {
-                    isSelectionMaintained = true;
-                    menu.Closed += Menu_Closed;
-
-                    var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (handle)
+                    if (selectedElement is DrawElement)
                     {
-                        if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
+                        isSelectionMaintained = true;
+                        menu.Closed += Menu_Closed;
+
+                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                        if (handle)
                         {
-                            // Pour chaque pointeur, énumère les objets compatibles
-                            foreach (var ptr in src.Pointers)
+                            if (DevObject.References.TryGetValue(name, out var src))
                             {
-                                var m = new MenuItem();
-                                m.Header = ptr.Key + " -> " + ptr.Value.target;
-                                m.Tag = ptr;
-
-                                // recherche les objets ayant un pointeur sur un élément avec des tags identiques
-                                var mExists = new MenuItem { Header = "Existant" };
-                                m.Items.Add(mExists);
-
-                                int count = 0;
-                                foreach (var dict in DevObject.References)
+                                // Pour chaque pointeur, énumère les objets compatibles
+                                foreach (var ptr in src.Pointers)
                                 {
-                                    var key = dict.Key;
-                                    var obj = dict.Value;
-                                    if (obj != src)
+                                    var m = new MenuItem();
+                                    m.Header = ptr.Key + " -> " + ptr.Value.target;
+                                    m.Tag = ptr;
+
+                                    // recherche les objets ayant un pointeur sur un élément avec des tags identiques
+                                    var mExists = new MenuItem { Header = "Existant" };
+                                    m.Items.Add(mExists);
+
+                                    int count = 0;
+                                    foreach (var dict in DevObject.References)
                                     {
-                                        if (ptr.Value.tags.Count > 0 && obj.Tags.ContainsAll(ptr.Value.tags))
+                                        var key = dict.Key;
+                                        var obj = dict.Value;
+                                        if (obj != src)
                                         {
-                                            var submenu = new MenuItem { Header = String.IsNullOrEmpty(ptr.Value.target) == false ? obj.Description + " (Remplacera: " + ptr.Value.target + ")" : obj.Description };
-                                            submenu.Click += (s, e) =>
+                                            if (ptr.Value.tags.Count > 0 && obj.Tags.ContainsAll(ptr.Value.tags))
                                             {
-                                                ptr.Value.target = key;
-                                            };
-                                            mExists.Items.Add(submenu);
-                                            count++;
-                                            break;
+                                                var submenu = new MenuItem { Header = String.IsNullOrEmpty(ptr.Value.target) == false ? obj.Description + " (Remplacera: " + ptr.Value.target + ")" : obj.Description };
+                                                submenu.Click += (s, e) =>
+                                                {
+                                                    ptr.Value.target = key;
+                                                };
+                                                mExists.Items.Add(submenu);
+                                                count++;
+                                                break;
+                                            }
                                         }
                                     }
-                                }
 
-                                if (count == 0)
-                                {
-                                    mExists.IsEnabled = false;
-                                    mExists.Header = mExists.Header.ToString() + " (Aucun)";
-                                }
-
-                                m.Items.Add(new Separator());
-
-                                // Nouveaux
-                                var mNew = new MenuItem { Header = "Nouveau" };
-                                m.Items.Add(mNew);
-
-                                count = 0;
-                                var list = new List<Serializer.DevObjectInstance>();
-                                if (SharedServices.EnumerateObjects(p => p.Tags.ContainsAll(ptr.Value.tags)/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
-                                {
-                                    foreach (var obj in list)
+                                    if (count == 0)
                                     {
-                                        var item = new MenuItem();
-                                        item.Header = "   " + obj.Description;
-                                        item.Tag = obj;
-                                        item.Click += MenuItem_AddObject_Click;
-                                        mNew.Items.Add(item);
-                                        count++;
+                                        mExists.IsEnabled = false;
+                                        mExists.Header = mExists.Header.ToString() + " (Aucun)";
                                     }
-                                }
 
-                                if (count == 0)
-                                {
-                                    mNew.IsEnabled = false;
-                                    mNew.Header = mNew.Header.ToString() + " (Aucun)";
-                                }
+                                    m.Items.Add(new Separator());
 
-                                m.IsEnabled = m.Items.Count > 0;
-                                menu.Items.Add(m);
-                            }
+                                    // Nouveaux
+                                    var mNew = new MenuItem { Header = "Nouveau" };
+                                    m.Items.Add(mNew);
 
-                            // énumére les objets compatibles
-                            {
-                                // Nouveaux
-                                var m = new MenuItem { Header = "Nouvel objet compatible" };
-
-                                int count = 0;
-                                var list = new List<Serializer.DevObjectInstance>();
-                                if (SharedServices.EnumerateObjects(p => p.Pointers.Any(pp=>pp.Value.tags.ContainsAll(src.Tags))/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
-                                {
-                                    foreach (var obj in list)
+                                    count = 0;
+                                    var list = new List<Serializer.DevObjectInstance>();
+                                    if (SharedServices.EnumerateObjects(p => p.Tags.ContainsAll(ptr.Value.tags)/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
                                     {
-                                        var item = new MenuItem();
-                                        item.Header = "   " + obj.Description;
-                                        item.Tag = obj;
-                                        item.Click += MenuItem_AddObject_Click;
-                                        m.Items.Add(item);
-                                        count++;
+                                        foreach (var obj in list)
+                                        {
+                                            var item = new MenuItem();
+                                            item.Header = "   " + obj.Description;
+                                            item.Tag = obj;
+                                            item.Click += MenuItem_AddObject_Click;
+                                            mNew.Items.Add(item);
+                                            count++;
+                                        }
                                     }
+
+                                    if (count == 0)
+                                    {
+                                        mNew.IsEnabled = false;
+                                        mNew.Header = mNew.Header.ToString() + " (Aucun)";
+                                    }
+
+                                    m.IsEnabled = m.Items.Count > 0;
+                                    menu.Items.Add(m);
                                 }
 
-                                if (count == 0)
+                                // énumère les objets compatibles
                                 {
-                                    m.Header = m.Header.ToString() + " (Aucun)";
-                                }
+                                    // Nouveaux
+                                    var m = new MenuItem { Header = "Nouvel objet compatible" };
 
-                                m.IsEnabled = m.Items.Count > 0;
-                                menu.Items.Add(m);
+                                    int count = 0;
+                                    var list = new List<Serializer.DevObjectInstance>();
+                                    if (SharedServices.EnumerateObjects(p => p.Pointers.Any(pp => pp.Value.tags.ContainsAll(src.Tags))/*si compatible avec l'objet*/, Program.CommonSharedPath, ref list) > 0)
+                                    {
+                                        foreach (var obj in list)
+                                        {
+                                            var item = new MenuItem();
+                                            item.Header = "   " + obj.Description;
+                                            item.Tag = obj;
+                                            item.Click += MenuItem_AddObject_Click;
+                                            m.Items.Add(item);
+                                            count++;
+                                        }
+                                    }
+
+                                    if (count == 0)
+                                    {
+                                        m.Header = m.Header.ToString() + " (Aucun)";
+                                    }
+
+                                    m.IsEnabled = m.Items.Count > 0;
+                                    menu.Items.Add(m);
+                                }
                             }
+                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                         }
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                     }
-                }
 
-                menu.Placement = PlacementMode.Mouse;
-                menu.IsOpen = true;
+                    menu.Placement = PlacementMode.Mouse;
+                    menu.IsOpen = true;
+                }
             }
 
             // vue
@@ -809,7 +840,7 @@ namespace DevApps.GUI
             // Aide au redimensionnement des objets à fond transparent
             if (isSelectionMaintained == false)
             {
-                selectedElement = Mouse.DirectlyOver as DrawElement;
+                selectedElement = Mouse.DirectlyOver as DrawBase;
             }
 
             Point currentMousePosition = e.GetPosition(MyCanvas);
@@ -1051,6 +1082,19 @@ namespace DevApps.GUI
             return element;
         }
 
+        internal DrawCommand AddCommand(string name, DevFacet.CommandProperties properties)
+        {
+            var o = DevCommandGroup.References.FirstOrDefault(p => p.Key == name);
+
+            var position = properties.GetPosition();
+
+            var element = new DrawCommand(o.Key, this.facette, position, o.Value);
+            element.RenderTransform = _transformGroup;
+            MyCanvas.Children.Add(element);
+
+            return element;
+        }
+
         internal void RemoveText(int index)
         {
             if (index >= this.facette.Texts.Count)
@@ -1081,7 +1125,10 @@ namespace DevApps.GUI
                     AddText(obj);
                 }
 
-                CommandsItems.AddRange(this.facette.BuildCommands.Select(p => new CommandItem { Status = "Ready", Description = p.Key, CommandLine = p.Value }));
+                foreach (var obj in this.facette.Commands)
+                {
+                    AddCommand(obj.Key, obj.Value);
+                }
 
                 //
                 // calcule le zoom et la position nécessaire pour afficher le dessin en entier
@@ -1114,6 +1161,11 @@ namespace DevApps.GUI
                     if(this.facette.Objects.TryGetValue(element.Name, out var props))
                         props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
                 }
+                foreach (var element in MyCanvas.Children.OfType<DrawCommand>())
+                {
+                    if (this.facette.Commands.TryGetValue(element.Name, out var props2))
+                        props2.SetPosition(new Point(Canvas.GetLeft(element), Canvas.GetTop(element)));
+                }
                 foreach (var element in MyCanvas.Children.OfType<DrawGeometry>())
                 {
                     var src = (DevFacet.Geometry)element.Tag;
@@ -1135,6 +1187,10 @@ namespace DevApps.GUI
                 if (element is DrawElement && this.facette.Objects.TryGetValue(element.Name, out var props))
                 {
                     props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
+                }
+                if (element is DrawCommand && this.facette.Commands.TryGetValue(element.Name, out var props2))
+                {
+                    props2.SetPosition(new Point(Canvas.GetLeft(element), Canvas.GetTop(element)));
                 }
                 if (element is DrawGeometry)
                 {
@@ -1181,8 +1237,14 @@ namespace DevApps.GUI
         {
             if (Service.IsInitialized)
             {
-                CommandsItems.Clear();
-                CommandsItems.AddRange(this.facette.BuildCommands.Select(p => new CommandItem { Status = "Ready", Description = p.Key, CommandLine = p.Value }));
+                var elements = MyCanvas.Children.OfType<DrawCommand>().ToArray();
+                foreach (var element in elements)
+                    MyCanvas.Children.Remove(element);
+
+                foreach (var obj in this.facette.Commands)
+                {
+                    AddCommand(obj.Key, obj.Value);
+                }
             }
         }
 

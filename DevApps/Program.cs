@@ -17,6 +17,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 using static IronPython.Modules.PythonWeakRef;
+using static Program.DevCommandDefinition;
 
 internal partial class Program
 {
@@ -108,7 +109,7 @@ internal partial class Program
             Environment.CurrentDirectory = args[0];
         }
 
-        // affiche un résumé
+        // affiche un résumé du projet
         if (args.Contains("-s"))
         {
             LoadProject();
@@ -119,6 +120,7 @@ internal partial class Program
             return;
         }
 
+        // initialise les répertoires (si besoin)
         try
         {
             if (Directory.Exists(DataDir) == false)
@@ -133,6 +135,10 @@ internal partial class Program
             System.Console.WriteLine(ex.Message);
         }
 
+        // énumère les commandes disponibles
+        DevShellCommand.EnumPrivate();
+
+        // initialise le moteur IronPython
         pyEngine.Runtime.LoadAssembly(typeof(Scriban.Template).Assembly);
 
         pyEngine.ImportModule("array");
@@ -175,21 +181,7 @@ internal partial class Program
             Service.WaitWindowLoaded();
         }
 
-        LoadProject();/*
-#if LOAD
         LoadProject();
-#else
-        if (Directory.GetCurrentDirectory().EndsWith("ERD"))
-            DevApps.Samples.ERD.Create();
-        else if (Directory.GetCurrentDirectory().EndsWith("InputCheck"))
-            DevApps.Samples.InputCheck.Create();
-        else if (Directory.GetCurrentDirectory().EndsWith("CodeTemplate"))
-            DevApps.Samples.CodeTemplate.Create();
-        else if (Directory.GetCurrentDirectory().EndsWith("SocketExchange"))
-            DevApps.Samples.SocketExchange.Create();
-        else if (Directory.GetCurrentDirectory().EndsWith("UI"))
-            DevApps.Samples.UI.Create();
-#endif*/
 
         Service.InvalidateFacets();
 

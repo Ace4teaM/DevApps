@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Resource Include="DevApps.ico" />
+    <Resource Include="DevCommandIcon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,6 +49,10 @@
 
   <ItemGroup>
     <EditorConfigFiles Remove="C:\Users\Thomas\source\repos\devapps\DevApps\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="DevCommandIcon.png" />
   </ItemGroup>
 
   <ItemGroup>

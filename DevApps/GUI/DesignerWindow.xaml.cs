@@ -1,7 +1,5 @@
-﻿using DevApps.Print;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Newtonsoft.Json;
-using SharpVectors.Dom;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -48,6 +46,7 @@ namespace DevApps.GUI
             set
             {
                 this.content.Content = value;
+                OnPropertyChange(nameof(IsCommandsView));
                 OnPropertyChange(nameof(IsObjectsView));
                 OnPropertyChange(nameof(IsVariablesView));
                 OnPropertyChange(nameof(IsDesignerView));
@@ -479,6 +478,16 @@ namespace DevApps.GUI
             OnPropertyChange(nameof(FacetItems));
         }
 
+        private void Commands_MouseLeftButtonUp(object sender, RoutedEventArgs e)
+        {
+            SelectedFacet = null;
+            OnPropertyChange(nameof(SelectedFacet));
+
+            this.Content = new DesignerCommandsView();
+
+            e.Handled = true;
+        }
+
         private void Objects_MouseLeftButtonUp(object sender, RoutedEventArgs e)
         {
             SelectedFacet = null;
@@ -517,6 +526,14 @@ namespace DevApps.GUI
             get
             {
                 return this.Content is DesignerDataView;
+            }
+        }
+
+        public bool IsCommandsView
+        {
+            get
+            {
+                return this.Content is DesignerCommandsView;
             }
         }
 

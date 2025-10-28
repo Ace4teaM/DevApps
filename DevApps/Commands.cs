@@ -52,7 +52,7 @@ internal partial class Program
             {
                 switch (cmd.action)
                 {
-                    case "INSERT_COMMAND":
+                    /*case "INSERT_COMMAND":
                         {
                             if(cmd.facet == null || cmd.command == null || cmd.arguments == null)
                                 throw new ArgumentException();
@@ -62,7 +62,7 @@ internal partial class Program
                             if (facet == null)
                                 throw new Exception(@"La facette {cmd.facet} n'existe pas");
 
-                            facet.BuildCommands.Add(cmd.command, cmd.arguments);
+                            facet.Commands.Add(cmd.command, cmd.arguments);
 
                             var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
 
@@ -71,7 +71,7 @@ internal partial class Program
                                 currentView.InvalidateCommands();
                             }
                         }
-                        break;
+                        break;*/
                     case "ADD_GEOMETRY":
                         {
                             if (cmd.facet == null || cmd.position == null || cmd.path == null)

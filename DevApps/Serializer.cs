@@ -1,6 +1,7 @@
 ﻿using Microsoft.Scripting.Hosting;
 using static IronPython.Modules._ast;
 using static Program;
+using static Program.DevFacet;
 
 namespace Serializer
 {
@@ -78,6 +79,23 @@ namespace Serializer
         public KeyValuePair<string, string>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, string>(value); } }
     }
 
+    internal class DevCommands
+    {
+        [Newtonsoft.Json.JsonIgnore]
+        internal Program.DevCommandGroup content;
+
+        public DevCommands()
+        {
+            this.content = new Program.DevCommandGroup();
+        }
+        public DevCommands(Program.DevCommandGroup content)
+        {
+            this.content = content;
+        }
+        public String Label { get { return content.Label; } set { content.Label = value; } }
+        public String Commands { get { return content.ToString(); } set { content = Program.DevCommandGroup.FromString(value); } }
+    }
+
     internal class DevFacet
     {
         [Newtonsoft.Json.JsonIgnore]
@@ -94,7 +112,7 @@ namespace Serializer
 
         public System.Windows.Rect Description { get { return content.PrintLayout; } set { content.PrintLayout = value; } }
         public KeyValuePair<string, Program.DevFacet.ObjectProperties?>[] Objects { get { return content.GetObjects().ToArray(); } set { content.SetObjects(value); } }
-        public KeyValuePair<string, string>[] Commands { get { return content.GetCommands().ToArray(); } set { content.SetCommands(value); } }
+        public KeyValuePair<string, Program.DevFacet.CommandProperties?>[] Commands { get { return content.GetCommands().ToArray(); } set { content.SetCommands(value); } }
         public Program.DevFacet.Geometry[] Geometries { get { return content.GetGeometries().ToArray(); } set { content.SetGeometries(value); } }
         public Program.DevFacet.Text[] Texts { get { return content.GetTexts().ToArray(); } set { content.SetTexts(value); } }
     }
@@ -151,6 +169,21 @@ namespace Serializer
                 foreach (var o in value)
                 {
                     Program.DevObject.References.Add(o.Key, o.Value.content);
+                }
+            }
+        }
+        public KeyValuePair<string, DevCommands>[] Commands
+        {
+            get
+            {
+                return Program.DevCommandGroup.References.Select(p => new KeyValuePair<string, DevCommands>(p.Key, new DevCommands(p.Value))).ToArray();
+            }
+            set
+            {
+                Program.DevCommandGroup.References.Clear();
+                foreach (var o in value)
+                {
+                    Program.DevCommandGroup.References.Add(o.Key, o.Value.content);
                 }
             }
         }

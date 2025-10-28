@@ -14,12 +14,6 @@
     </UserControl.Resources>
 
     <Grid x:Name="RootGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="100*"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="{Binding CommandPanelHeight, Mode=OneWay}"></RowDefinition>
-        </Grid.RowDefinitions>
-        
         <Canvas Grid.Row="0" x:Name="MyCanvas" Background="White" MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" ClipToBounds="True" MouseWheel="Canvas_MouseWheel" AllowDrop="True" Drop="DataGrid_Drop" RenderOptions.BitmapScalingMode="NearestNeighbor" SnapsToDevicePixels="True" >
             <Canvas.Children>
                 <Rectangle
@@ -116,49 +110,5 @@
                 </ContextMenu>
             </Canvas.ContextMenu>
         </Canvas>
-        <Grid Grid.Row="1">
-            <Border ToolTip="Liste des commandes" Cursor="SizeNS" HorizontalAlignment="Center" Background="Gray" Height="10" Width="60" CornerRadius="5,5,0,0" Margin="0,-10,0,0" MouseDown="Slider_MouseDown" MouseMove="Slider_MouseMove" MouseUp="Slider_MouseUp">
-                <Canvas>
-                    <Path Stroke="#DDDDDD">
-                        <Path.Data>
-                            <GeometryGroup>
-                                <LineGeometry StartPoint="10,4" EndPoint="50,4"></LineGeometry>
-                                <LineGeometry StartPoint="10,7" EndPoint="50,7"></LineGeometry>
-                            </GeometryGroup>
-                        </Path.Data>
-                    </Path>
-                    <Path Stroke="#707070">
-                        <Path.Data>
-                            <GeometryGroup>
-                                <LineGeometry StartPoint="10,5" EndPoint="50,5"></LineGeometry>
-                                <LineGeometry StartPoint="10,8" EndPoint="50,8"></LineGeometry>
-                            </GeometryGroup>
-                        </Path.Data>
-                    </Path>
-                </Canvas>
-            </Border>
-        </Grid>
-        <Grid Grid.Row="2">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Background="Transparent" VerticalAlignment="Top" Margin="-18,4,0,0" Panel.ZIndex="1">
-                    <TextBlock Cursor="Hand" Width="18" TextAlignment="Center" DockPanel.Dock="Right" MouseLeftButtonUp="ViewCommandsLines_MouseLeftButtonUp">👁</TextBlock>
-                </StackPanel>
-                <DataGrid ItemsSource="{Binding CommandsItems}" AutoGenerateColumns="False" CanUserAddRows="True" VerticalScrollBarVisibility="Visible">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Status" Binding="{Binding Status}"></DataGridTextColumn>
-                        <DataGridTemplateColumn Header="Commande" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Vertical">
-                                        <TextBlock Text="{Binding Description}"></TextBlock>
-                                        <TextBlock Visibility="{Binding ShowCommandsLines, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Converter={StaticResource booleanToVisibilityConverter}}" Margin="10,0,0,0" FontFamily="Verdana" FontSize="8pt" Foreground="Gray" Text="{Binding CommandLine}"></TextBlock>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
-        </Grid>
     </Grid>
 </UserControl>

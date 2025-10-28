@@ -130,20 +130,50 @@ internal partial class Program
                 }
             }
         }
+
+        public class CommandProperties
+        {
+            static double X = 10;
+            static double Y = 10;
+
+            public static System.Windows.Point GenerateNextPosition()
+            {
+                var pos = new System.Windows.Point(X, Y);
+
+                X += 128 + 10;
+                if (X > 500)
+                {
+                    X = 10;
+                    Y += 128 + 10;
+                }
+
+                return pos;
+            }
+
+            public CommandProperties()
+            {
+                pos = GenerateNextPosition();
+            }
+
+            public System.Windows.Point GetPosition()
+            {
+                return pos;
+            }
+
+            public CommandProperties SetPosition(System.Windows.Point pos)
+            {
+                this.pos = pos;
+                return this;
+            }
+
+            public System.Windows.Point pos;
+        }
+
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
         internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
+        internal Dictionary<string, CommandProperties> Commands = new Dictionary<string, CommandProperties>();
         internal List<Geometry> Geometries = new List<Geometry>();
         internal List<Text> Texts = new List<Text>();
-
-        /// <summary>
-        /// Commandes systèmes
-        /// </summary>
-        /// <remarks>
-        /// $out = chemin vers le fichier contenant la sortie standard de cet objet
-        /// $dir = dossier du projet
-        /// $<obj> = la valeur de la sortie standard d'un objet. <obj> est le nom de l'objet ciblé
-        /// </remarks>
-        internal Dictionary<string, string> BuildCommands { get; } = new Dictionary<string, string>();
 
         /// <summary>
         /// trouve un nom unique
@@ -167,17 +197,28 @@ internal partial class Program
             return Objects.Select(p => new KeyValuePair<string, ObjectProperties?>(p.Key, p.Value));
         }
 
-        public IEnumerable<KeyValuePair<string, string>> GetCommands()
+        public void SetObjects(IEnumerable<KeyValuePair<string, ObjectProperties?>> items)
         {
-            return BuildCommands.Select(p => new KeyValuePair<string, string>(p.Key, p.Value));
-        }
-
-        public void SetCommands(IEnumerable<KeyValuePair<string, string>> items)
-        {
-            BuildCommands.Clear();
+            Objects.Clear();
             foreach (var p in items)
             {
-                BuildCommands.Add(p.Key, p.Value);
+                if (p.Value != null)
+                    Objects.Add(p.Key, p.Value);
+            }
+        }
+
+        public IEnumerable<KeyValuePair<string, CommandProperties?>> GetCommands()
+        {
+            return Commands.Select(p => new KeyValuePair<string, CommandProperties?>(p.Key, p.Value));
+        }
+
+        public void SetCommands(IEnumerable<KeyValuePair<string, CommandProperties?>> items)
+        {
+            Commands.Clear();
+            foreach (var p in items)
+            {
+                if(p.Value != null)
+                    Commands.Add(p.Key, p.Value);
             }
         }
 
@@ -214,16 +255,6 @@ internal partial class Program
         /// </summary>
         public System.Windows.Rect PrintLayout { get; set; } = new System.Windows.Rect(0,0,1000,1000);
 
-        public void SetObjects(IEnumerable<KeyValuePair<string, ObjectProperties?>> items)
-        {
-            Objects.Clear();
-            foreach (var p in items)
-            {
-                if(p.Value != null)
-                    Objects.Add(p.Key, p.Value);
-            }
-        }
-
         public static DevFacet Create(string name, string[] objectNames)
         {
             var o = new DevFacet();
@@ -239,12 +270,6 @@ internal partial class Program
         public static DevFacet? Get(string name)
         {
             return References.GetValueOrDefault(name);
-        }
-
-        public DevFacet AddBuildCommand(string libelle, string command)
-        {
-            BuildCommands.Add(libelle, command);
-            return this;
         }
 
         public string WindowsPathToLinuxPath(string path)
@@ -302,7 +327,7 @@ internal partial class Program
                             ws.WriteLine(String.Format(shellSet, o.Key, Path.GetFullPath(Path.Combine(DataDir, o.Key))));
 
                         // on execute les commandes
-                        foreach (var c in BuildCommands)
+                        foreach (var c in Commands)
                         {
                             ws.WriteLine(c.Value);
                         }
