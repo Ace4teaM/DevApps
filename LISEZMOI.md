@@ -18,6 +18,30 @@ La force réside dans l'utilisation de facettes permettant de focaliser la créa
 
 DevApps est conçu pour ne pas imposer de concept interne inaliénable. Le logiciel ne fait que poser les bases d'objets interagissant avec des scripts. Le gros de la valeur ajouté se trouve dans les bibliothèques d'objets totalement personnalisables et échangeable. DevApps n'a pas pour objectif d'être auto suffisant mais d'accompagner le développement de projet.
 
+## Objets
+
+Dans DevApps les objets sont les principaux éléments manipulables pour décrire votre processus.
+
+Un objet est abstrait par nature, il vous permet de saisir une donnée qu'elle soit textuelle ou binaire (à l'image d'un fichier vous pouvez donc stocker n'importe quoi dans le contenu d'un objet).
+
+Mais un objet n'est pas qu'un contenu, il est également scriptable. Vous pouvez scripter:
+* l'affichage
+* la construction du contenu
+
+En fait, un objet est par défaut totalement nue car DevApps ne vous impose pas de modèle c'est a vous de les créer et de vous appuyer sur les objets partagés.
+
+## Instances, Modèles et Références
+
+Il existe plusieurs types d'objets.
+
+Une référence partage l'ensemble des paramètres d'une instance hormis les données.
+
+Une instance peux être un modèle ou être lié à un modèle de base, dans ces cas il possède/référence un GUID.
+
+Contrairement à une référence, l'instance avec modèle utilise le GUID pour mettre à jour son contenu. Un modèle n'est pas une référence car l'objet qui en hérite garde son indépendance vis à vis de ce dernier, mettre à jour une instance depuis un modèle est une action de l'utilisateur et donc son intégritée est garantie.
+
+Un modèle peux faire partie du projet ou d'un projet partagé, le GUID permet de garantir l'unicité d'un modèle. N'importe quel objet peut devenir un modèle est étendre la bibliothèque. DevApps recherche dans les projets partagés pour retrouver l'objet de base.  
+
 ## Tags
 
 chaque objet et pointeur d'objet est taggable, il donne une indication sur le contenu et les associations possibles entre les objets. Un Tag est simplement un mot-clé précédé d'un #.
@@ -50,18 +74,6 @@ Voici quelques tags fréquemment utilisés:
 ```
 
 En plus de categoriser les objets, les tags sont utilisés sur les pointeurs pour déterminer qu'elle objet est compatible avec le lien attendue.
-
-
-## Instances, Modèles et Références
-
-Un objet peux être de 2 types Instance ou Référence.
-
-Une référence partage l'ensemble des paramètres d'une instance hormis les données.
-
-Une instance peux être un modèle ou posséder un modèle de base dans ce cas il possède ou référence un GUID. Contrairement à une référence une instance avec un modèle de base peux l'utiliser pour mettre à jour ses paramètres. Un modèle n'est pas une instance car l'objet qui en hérite garde son indépendance vis à vis de ce dernier, mettre à jour une instance depuis un modèle est une action de l'utilisateur.
-
-Un modèle peux faire partie du projet ou d'un projet partagé, le GUID permet de garantir l'unicité d'un objet. DevApps n'a plus qu'a chercher dans les différents projets partagés pour retrouver l'objet de base.  
-
 
 
 ## Commande
