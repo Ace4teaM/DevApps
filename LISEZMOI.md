@@ -2,28 +2,62 @@
 
 ## Qu'est ce que c'est ?
 
-DevApps est un outil de conception généraliste permettant de créer des présentations de processus dans un environnement simulé.
+DevApps est un outil de conception gÃ©nÃ©raliste permettant de crÃ©er des prÃ©sentations de processus dans un environnement simulÃ©.
 
-La phase de build permet le génération de code/données pour assister la réalisation de projets.
+La phase de build permet le gÃ©nÃ©ration de code/donnÃ©es pour assister la rÃ©alisation de projets.
 
-Il est adapté à plusieurs situations
+Il est adaptÃ© Ã  plusieurs situations
 
-Décrire un mechanisme/système
+DÃ©crire un mechanisme/systÃ¨me
 Generer et fusionner er du code source
-Réutiliser et partager des concepts/design pattern
+RÃ©utiliser et partager des concepts/design pattern
 
-DevApps est transparent et non intrusif pour vos projets. Vous pouvez décider de l'utiliser ponctuellement pour déployer un pan de votre application ou continuellement dans un cadre d'amélioration continue et de conception.
+DevApps est transparent et non intrusif pour vos projets. Vous pouvez dÃ©cider de l'utiliser ponctuellement pour dÃ©ployer un pan de votre application ou continuellement dans un cadre d'amÃ©lioration continue et de conception.
 
-La force réside dans l'utilisation de facettes permettant de focaliser la création de code sur une partie unique de votre application. Les facettes peuvent également servir de documentation explicative/conceptuel.
+La force rÃ©side dans l'utilisation de facettes permettant de focaliser la crÃ©ation de code sur une partie unique de votre application. Les facettes peuvent Ã©galement servir de documentation explicative/conceptuel.
 
-DevApps est conçu pour ne pas imposer de concept interne inaliénable. Le logiciel ne fait que poser les bases d'objets interagissant avec des scripts. Le gros de la valeur ajouté se trouve dans les bibliothèques d'objets totalement personnalisables et échangeable. DevApps n'a pas pour objectif d'être auto suffisant mais d'accompagner le développement de projet.
+DevApps est conÃ§u pour ne pas imposer de concept interne inaliÃ©nable. Le logiciel ne fait que poser les bases d'objets interagissant avec des scripts. Le gros de la valeur ajoutÃ© se trouve dans les bibliothÃ¨ques d'objets totalement personnalisables et Ã©changeable. DevApps n'a pas pour objectif d'Ãªtre auto suffisant mais d'accompagner le dÃ©veloppement de projet.
 
-## Instances, Modèles et Références
+## Tags
 
-Un objet peux être de 2 types Instance ou Référence.
+chaque objet et pointeur d'objet est taggable, il donne une indication sur le contenu et les associations possibles entre les objets. Un Tag est simplement un mot-clÃ© prÃ©cÃ©dÃ© d'un #.
 
-Une référence partage l'ensemble des paramètres d'une instance hormis les données.
+Les Tags sont la base de la construction de l'arbre de la bibliothÃ¨que partagÃ©. Un objet prend gÃ©nÃ©ralement 1 ou 2 tags.
 
-Une instance peux être un modèle ou posséder un modèle de base dans ce cas il possède ou référence un GUID. Contrairement à une référence une instance avec un modèle de base peux l'utiliser pour mettre à jour ses paramètres. Un modèle n'est pas une instance car l'objet qui en hérite garde son indépendance vis à vis de ce dernier, mettre à jour une instance depuis un modèle est une action de l'utilisateur.
+Voici quelques tags frÃ©quemment utilisÃ©s:
 
-Un modèle peux faire partie du projet ou d'un projet partagé, le GUID permet de garantir l'unicité d'un objet. DevApps n'a plus qu'a chercher dans les différents projets partagés pour retrouver l'objet de base.  
+```
+#cs indiquÃ© du code csharp
+#cpp indiquÃ© du code c++
+#c indiquÃ© du code c
+#script indique du code scriptable
+#text indique un format texte 
+#image un format image (png,bmp,jpg,...)
+#codegen indique un gÃ©nÃ©rateur de code
+#csv format comma separator
+#raw donnÃ©es brutes 
+#codemerge indique un fusionneur de code
+#pdf fichier pdf
+#yml format Yml
+#json format Json 
+#layout une structuration d'Ã©lÃ©ments visuels
+#form un formulaire de saisie de donnÃ©es 
+#canvas une zone graphique animable
+#rust indique du code rust
+#erd entity relational diagram
+#dbml database markup langage 
+#md markdown
+```
+
+En plus de categoriser les objets, les tags sont utilisÃ©s sur les pointeurs pour dÃ©terminer qu'elle objet est compatible avec le lien attendue.
+
+
+## Instances, ModÃ¨les et RÃ©fÃ©rences
+
+Un objet peux Ãªtre de 2 types Instance ou RÃ©fÃ©rence.
+
+Une rÃ©fÃ©rence partage l'ensemble des paramÃ¨tres d'une instance hormis les donnÃ©es.
+
+Une instance peux Ãªtre un modÃ¨le ou possÃ©der un modÃ¨le de base dans ce cas il possÃ¨de ou rÃ©fÃ©rence un GUID. Contrairement Ã  une rÃ©fÃ©rence une instance avec un modÃ¨le de base peux l'utiliser pour mettre Ã  jour ses paramÃ¨tres. Un modÃ¨le n'est pas une instance car l'objet qui en hÃ©rite garde son indÃ©pendance vis Ã  vis de ce dernier, mettre Ã  jour une instance depuis un modÃ¨le est une action de l'utilisateur.
+
+Un modÃ¨le peux faire partie du projet ou d'un projet partagÃ©, le GUID permet de garantir l'unicitÃ© d'un objet. DevApps n'a plus qu'a chercher dans les diffÃ©rents projets partagÃ©s pour retrouver l'objet de base.  
