@@ -212,7 +212,7 @@ namespace DevApps.GUI
                         RemoveAdorner();
 
                         AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(RootGrid);
-                        if (adornerLayer != null)
+                        if (adornerLayer != null && String.IsNullOrWhiteSpace(fe.Name) == false)
                         {
                             currentAdorner = new TooltipAdorner(RootGrid, fe.Name);
                             adornerLayer.Add(currentAdorner);
@@ -989,13 +989,13 @@ namespace DevApps.GUI
                         Cursor = Cursors.SizeNESW;
                         break;
                     default:
-                        Cursor = Cursors.Arrow;
+                        Cursor = Cursors.ScrollAll;
                         break;
                 }
             }
             else if(selectedElement != null)
             {
-                Cursor = Cursors.Cross;
+                Cursor = Cursors.ScrollAll;
             }
             else
             {
