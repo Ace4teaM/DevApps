@@ -622,6 +622,14 @@ namespace DevApps.PythonExtends
 
             return this;
         }
+        public GUI background()
+        {
+            // Dessiner un rectangle avec des coins arrondis
+            Rect rect = new Rect(Left, Top, Width, Height);
+            drawingContext?.DrawRoundedRectangle(Brushes.LightGray, null, rect, 4, 4);
+
+            return this;
+        }
         public GUI circle()
         {
             return this;
