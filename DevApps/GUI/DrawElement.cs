@@ -92,6 +92,11 @@ namespace DevApps.GUI
                 }
             }
         }
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            InvalidateVisual();
+        }
 
         /// <summary>
         /// Rendu de l'objet
@@ -156,6 +161,11 @@ namespace DevApps.GUI
                     Rect rect = new Rect(0, 0, ContentWidth, ContentHeight);
                     drawingContext.DrawRectangle(background, null, rect);
 
+                    // Actualise les dimensions de l'objet et dans les propriétés de la facette
+                    DrawProp.SetZone(new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight));
+                    reference.gui.Right = ContentWidth;
+                    reference.gui.Bottom = ContentHeight;
+
                     // Execute le script de dessin
                     if (reference.DrawCode.Item2 != null)
                     {
@@ -164,9 +174,6 @@ namespace DevApps.GUI
                         {
                             try
                             {
-                                DrawProp.SetZone(new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), ContentWidth, ContentHeight));
-                                reference.gui.baseZone = new DevApps.PythonExtends.Zone { Rect = rect };
-
                                 var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
                                 pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.buildStream, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
                                 pyScope.SetVariable("gui", reference.gui);
