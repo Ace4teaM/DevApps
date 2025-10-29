@@ -13,6 +13,9 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Brushes = System.Windows.Media.Brushes;
+using Pen = System.Windows.Media.Pen;
+using Point = System.Windows.Point;
 
 namespace DevApps.PythonExtends
 {
@@ -50,12 +53,15 @@ namespace DevApps.PythonExtends
     }
 
     /// <summary>
-    /// représente le positionnement du prochain dessin
+    /// Fournit les méthodes de dessins au lanage python pour les objets les plus fréquents (csv,svg,textes,...)
     /// </summary>
-    [Obsolete("A remplacer par un appel directe à GUI")]
-    public class Fill
+    public class GUI
     {
-        public Zone Base { get; set; }
+        /// <summary>
+        /// Texte pour les messages d'erreurs et autres
+        /// </summary>
+        internal double TextEmSize = 16.0;
+
         /// <summary>
         /// Position en cours
         /// </summary>
@@ -81,82 +87,157 @@ namespace DevApps.PythonExtends
         /// </summary>
         public double Height { get { return Bottom - Top; } }
 
-        public Fill(Zone zone)
+        /// <summary>
+        /// Contexte de dessin à utiliser pour cette instance
+        /// Chaque objet possède sa propre instance de la classe GUI
+        /// </summary>
+        internal DrawingContext? drawingContext;
+
+        public GUI()
         {
-            this.Base = zone;
-            this.Top = zone.Rect.Top;
-            this.Left = zone.Rect.Left;
-            this.Right = zone.Rect.Right;
-            this.Bottom = zone.Rect.Bottom;
+            Top = 0;//todo récupération depuis constructeur
+            Left = 0;
+            Right = 100;
+            Bottom = 100;
         }
 
-        internal virtual void level(GUI gui, Output content, string unit, float min, float max, float step)
+        /// <summary>
+        /// Début du dessin
+        /// </summary>
+        /// <remarks>
+        /// context doit déjà être ouvert et prêt au dessin
+        /// </remarks>
+        internal void Begin(DrawingContext context)
         {
-            var _progress = (1.0 / (max - min)) * (step * content.number());
-
-            // Dessiner le fond de la barre de progression
-            Rect backgroundRect = new Rect(0, 0, Width, Height);
-            gui.drawingContext?.DrawRectangle(gui.BackgroundBrush, gui.BackgroundPen, backgroundRect);
-
-            // Dessiner la barre de progression
-            Rect progressRect = new Rect(0, 0, Width * _progress, Height);
-            gui.drawingContext?.DrawRectangle(gui.ForegroundBrush, gui.ForegroundPen, progressRect);
-
-            // Dessiner une bordure
-            Pen borderPen = new Pen(Brushes.Black, 2);
-            gui.drawingContext?.DrawRectangle(null, gui.BackgroundPen, backgroundRect);
+            drawingContext = context;
         }
-        internal virtual void image(GUI gui, Output data, string format = "auto")
+
+        /// <summary>
+        /// Fin du dessin
+        /// </summary>
+        internal void End()
         {
-            if(data.size() == 0)
-                return;
+            drawingContext = null;
+        }
+
+        /// <summary>
+        /// Méthode Python : Ouvre une boite de dialogue et obtient un texte de l'utilisateur
+        /// </summary>
+        /// <returns>
+        /// Retourne la valeur sélectionné ou la valeur de base si l'utilisateur annule
+        /// </returns>
+        /// <param name="selection">Valeur de base</param>
+        /// <param name="format">Regex de validation de la valeur, si null aucune vérification</param>
+        public string gettext(Output selection, string? format = null)
+        {
+            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
+            var wnd = new DevApps.GUI.GetText();
+            wnd.Value = selection.text();
+            if (format != null)
+                wnd.Format = new System.Text.RegularExpressions.Regex(format);
+            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+            wnd.Left = mousePos.X + 10;
+            wnd.Top = mousePos.Y + 10;
+
+            if (wnd.ShowDialog() == true)
+            {
+                return wnd.Value;
+            }
+
+            return selection.text();
+        }
+
+        /// <summary>
+        /// Méthode Python : Obtient un texte de l'utilisateur (sans passage de ligne)
+        /// </summary>
+        /// <returns>
+        /// Retourne la valeur sélectionné ou la valeur de base si l'utilisateur annule
+        /// </returns>
+        /// <param name="selection">Valeur de base</param>
+        /// <param name="format">Regex de validation de la valeur, si null aucune vérification</param>
+        public string getline(Output selection, string? format = null)
+        {
+            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
+            var wnd = new DevApps.GUI.GetText();
+            wnd.Value = selection.text();
+            wnd.IsMultiline = false;
+            if(format != null)
+                wnd.Format = new System.Text.RegularExpressions.Regex(format);
+            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+            wnd.Left = mousePos.X + 10;
+            wnd.Top = mousePos.Y + 10;
+
+            if (wnd.ShowDialog() == true)
+            {
+                return wnd.Value;
+            }
+
+            return selection.text();
+        }
+
+        /// <summary>
+        /// Méthode Python : Edite les données du contenu 
+        /// </summary>
+        /// <remarks>
+        /// Ouvre un processus enfant sur l'éditeur et attend la fermeture de ce dernier pour mettre à jour les données
+        /// Le fichier à modifier est inséré à la place de "%1" dans le chemin vers l'éditeur ou à la fin si introuvable
+        /// </remarks>
+        /// <param name="editor">Nom de l'éditeur tel que définit dans la liste des éditeurs externes</param>
+        /// <param name="output">Données à éditer</param>
+        public void edit(string editor, Output output)
+        {
+            // exécute l'environnement de commandes
             try
             {
-                // Créer une instance de BitmapImage
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = new MemoryStream(data.Stream.ToArray());
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad; // Charge l'image dans la mémoire
-                bitmapImage.EndInit();
+                // enregistre le contenu dans le fichier si ce n'est pas déjà le cas
+                output.Flush();
 
-                gui.drawingContext?.DrawImage(bitmapImage, new Rect(Top, Left, Right, Bottom));
+                var editorName = Service.associatedEditors[editor];
+                var editorPath = Service.externalsEditors[editorName];
+
+                var path = Path.GetDirectoryName(editorPath)?.Replace(@"""","");
+
+                // creation de l'environnement de commandes
+                using System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = "cmd.exe";
+                startInfo.Arguments = "/C \"" + ((editorPath.Contains("%1") == false) ? editorPath + " \"" + Path.GetFullPath(output.Filename) + "\"" : editorPath.Replace("%1", Path.GetFullPath(output.Filename))) + "\"";
+                //startInfo.WorkingDirectory = path;
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
+
+                output.Reload();
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
+                System.Console.WriteLine("edit: Echec de l'ouverture de l'éditeur");
+                System.Console.WriteLine(ex.ToString());
             }
         }
-        internal virtual void text(GUI gui, string text)
-        {
-            double x = Left;
-            double y = Top;
-            if (String.IsNullOrEmpty(text))
-                return;
-            var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
-            gui.drawingContext?.DrawGlyphRun(gui.ForegroundBrush, glyphRun);
 
-            Top = y;
-        }
-        internal virtual void separator(GUI gui)
-        {
-
-        }
-
-        internal virtual void list(GUI gui, Output output)
-        {
-
-        }
-
-        internal virtual void rectangle(GUI gui, double cornerRadius)
-        {
-            // Dessiner un rectangle avec des coins arrondis
-            Rect rect = new Rect(Left, Top, Width, Height);
-            gui.drawingContext?.DrawRoundedRectangle(gui.BackgroundBrush, gui.BackgroundPen, rect, cornerRadius, cornerRadius);
-        }
         /// <summary>
-        /// Utiliser pour représenter une ligne dans un tableau CSV
+        /// Obtient une sélection de valeur de l'utilisateur
         /// </summary>
-        [Obsolete("A remplacer par un appel directe à GUI")]
+        /// <param name="values"></param>
+        public string select(IronPython.Runtime.PythonDictionary values, Output selection)
+        {
+            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
+            var wnd = new DevApps.GUI.Select();
+            wnd.Items = values.ToDictionary();
+            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
+            wnd.Left = mousePos.X + 10;
+            wnd.Top = mousePos.Y + 10;
+
+            if (wnd.ShowDialog() == true && wnd.SelectedItem is KeyValuePair<object, object> sel)
+            {
+                return sel.Key.ToString() ?? String.Empty;
+            }
+
+            return selection.text();
+        }
+
         public class Row
         {
             public string? A, B, C, D, E, F, G, H, I, J;
@@ -178,15 +259,12 @@ namespace DevApps.PythonExtends
                 return null;
             }
         }
-        /// <summary>
-        /// Détermine la taille des textes pour conserver une harmonie entre les différents objets
-        /// </summary>
-        internal double TextEmSize = 16.0;
-        internal virtual void csv(GUI gui, Output content, bool header, string? delimiter)
+
+        public GUI csv(Output output, bool header, string? delimiter = null)
         {
             try
             {
-                content.Stream.Seek(0, SeekOrigin.Begin);
+                output.Stream.Seek(0, SeekOrigin.Begin);
                 DataTable dataTable = new DataTable();
 
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture);
@@ -200,10 +278,10 @@ namespace DevApps.PythonExtends
                 config.BadDataFound = null;
                 config.IgnoreBlankLines = true;
                 config.TrimOptions = TrimOptions.Trim;
-                if(String.IsNullOrEmpty(delimiter) == false)
+                if (String.IsNullOrEmpty(delimiter) == false)
                     config.Delimiter = delimiter;
 
-                using (var csv = new CsvReader(new StreamReader(content.Stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true), config))
+                using (var csv = new CsvReader(new StreamReader(output.Stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true), config))
                 {
                     if (csv != null)
                     {
@@ -213,7 +291,7 @@ namespace DevApps.PythonExtends
                         int colCount = 0;
                         int rowCount = 0;
 
-                        var dc = gui.drawingContext;
+                        var dc = drawingContext;
 
                         var height = 0.0;
                         List<Row> rows = new List<Row>();
@@ -364,629 +442,28 @@ namespace DevApps.PythonExtends
             }
             catch (Exception ex)
             {
-                gui.drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture,
+                drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture,
                     System.Windows.FlowDirection.LeftToRight, Service.typeface, TextEmSize, Brushes.Red,
                     1.0), new Point(0, 0));
             }
+            return this;
         }
-        internal virtual void circle(GUI gui)
+        public GUI md(Output output)
         {
-
-        }
-        internal virtual void code(GUI gui, string text, string syntax)
-        {
-
-        }
-        internal virtual void state(GUI gui, Output content, string titleA, string stateA, string titleB, string stateB)
-        {
-            var _isOn = content.text() == stateA;
-
-            double targetPosition = _isOn ? Width - Height : 0;
-
-            // Fond du bouton
-            gui.drawingContext?.DrawRoundedRectangle(gui.BackgroundBrush, gui.BackgroundPen, new Rect(0, 0, Width, Height), 10, 10);
-
-            // Curseur glissant
-            gui.drawingContext?.DrawEllipse(gui.ForegroundBrush, gui.ForegroundPen, new Point(targetPosition + Height / 2, Height / 2), Height / 2 - 2, Height / 2 - 2);
-        }
-
-        [Obsolete("A remplacer par un appel directe à GUI")]
-        public class Stack : Fill
-        {
-            public Stack(Zone zone) : base(zone)
-            {
-            }
-
-            internal override void text(GUI gui, string text)
-            {
-                double x = Left;
-                double y = Top;
-                if (String.IsNullOrEmpty(text))
-                    return;
-                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
-                gui.drawingContext?.DrawGlyphRun(gui.ForegroundBrush, glyphRun);
-
-                Top = y;
-            }
-
-            internal override void code(GUI gui, string text, string syntax)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void rectangle(GUI gui, double cornerRadius)
-            {
-                // Création d'un pinceau et d'un stylo
-                /* SolidColorBrush fillBrush = new SolidColorBrush(gui.color);
-                 Pen borderPen = new Pen(Brushes.Black, cornerRadius);
-
-                 borderPen.Brush = new LinearGradientBrush(
-                     GUI.AdjustColorBrightness(gui.color, 1.2),// Teinte plus claire
-                     GUI.AdjustColorBrightness(gui.color, 0.8),// Teinte plus sombre
-                     new Point(0, 0), // Dégradé du coin supérieur gauche
-                     new Point(1, 1)  // vers le coin inférieur droit
-                 );*/
-
-                // Dessiner un rectangle avec des coins arrondis
-                Rect rect = new Rect(Left, Top, Width, Height);
-                gui.drawingContext?.DrawRoundedRectangle(gui.backgroundBrush, gui.backgroundPen, rect, cornerRadius, cornerRadius);
-
-                Top += Height;
-            }
-
-            internal override void circle(GUI gui)
-            {
-                var radiusX = (Right - Left) / 2.0;
-                var radiusY = (Bottom - Top) / 2.0;
-                gui.drawingContext?.DrawEllipse(gui.ForegroundBrush, null, new Point(Top + radiusX, Left + radiusY), radiusX, radiusY);
-            }
-            internal override void separator(GUI gui)
-            {
-                SolidColorBrush fillBrush = new SolidColorBrush(gui.color);
-                Pen pen = new Pen(Brushes.Black, 2.0);
-                gui.drawingContext?.DrawLine(pen, new Point(Left, Top + 5), new Point(Right, Top + 5));
-
-                Top += 10;
-            }
-            internal override void image(GUI gui, Output data, string format)
-            {
-                // Créer une instance de BitmapImage
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = new MemoryStream(data.Stream.ToArray());
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad; // Charge l'image dans la mémoire
-                bitmapImage.EndInit();
-
-                gui.drawingContext?.DrawImage(bitmapImage, new Rect(Top, Left, Right, Bottom));
-            }
-        }
-
-        [Obsolete("A remplacer par un appel directe à GUI")]
-        public class Stars : Fill
-        {
-            public int Current { get; set; }
-            public int Count { get; set; }
-            public double Diameter { get; set; }
-
-            public Stars(Zone zone, int count, double diameter) : base(zone)
-            {
-                Count = count;
-                Diameter = diameter;
-            }
-
-            internal override void code(GUI gui, string text, string syntax)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void image(GUI gui, Output data, string format)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void text(GUI gui, string text)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void rectangle(GUI gui, double cornerRadius)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void circle(GUI gui)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        [Obsolete("A remplacer par un appel directe à GUI")]
-        public class Wrap : Fill
-        {
-            public Wrap(Zone zone) : base(zone)
-            {
-
-            }
-
-            internal override void code(GUI gui, string text, string syntax)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void image(GUI gui, Output data, string format)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void text(GUI gui, string text)
-            {
-                double x = 0;
-                double y = 0;
-                if (String.IsNullOrEmpty(text))
-                    return;
-                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
-                gui.drawingContext?.DrawGlyphRun(gui.ForegroundBrush, glyphRun);
-            }
-
-            internal override void rectangle(GUI gui, double cornerRadius)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void circle(GUI gui)
-            {
-                var radiusX = (Right - Left) / 2.0;
-                var radiusY = (Bottom - Top) / 2.0;
-                gui.drawingContext?.DrawEllipse(gui.ForegroundBrush, null, new Point(Top + radiusX, Left + radiusY), radiusX, radiusY);
-            }
-        }
-
-        [Obsolete("A remplacer par un appel directe à GUI")]
-        public class Grid : Fill
-        {
-            public double Columns { get; set; }
-            public double Rows { get; set; }
-            public double CurrentColumn { get; set; }
-            public double CurrentRow { get; set; }
-
-            public Grid(Zone zone, double columns, double rows) : base(zone)
-            {
-                Columns = columns;
-                Rows = rows;
-            }
-
-            internal override void code(GUI gui, string text, string syntax)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void image(GUI gui, Output data, string format)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void text(GUI gui, string text)
-            {
-                double x = Left;
-                double y = Top;
-                if (String.IsNullOrEmpty(text))
-                    return;
-                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
-                gui.drawingContext?.DrawGlyphRun(gui.ForegroundBrush, glyphRun);
-
-                CurrentColumn++;
-                if (CurrentColumn >= Columns)
-                {
-                    CurrentColumn = 0;
-                    CurrentRow++;
-
-                    Left = this.Base.Rect.Left;
-                    Top = y;
-                }
-                else
-                {
-                    Left = x + 10;//todo gérer la largeur de colonne
-                }
-            }
-
-            internal override void rectangle(GUI gui, double cornerRadius)
-            {
-                throw new NotImplementedException();
-            }
-
-            internal override void circle(GUI gui)
-            {
-                throw new NotImplementedException();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Fournit les méthodes de dessins au lanage python pour les objets les plus fréquents (csv,svg,textes,...)
-    /// </summary>
-    public class GUI
-    {
-        /// <summary>
-        /// Propriétés à la gestion des pinceaux pour le dessin
-        /// </summary>
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        #region 
-        internal bool gradient = false;
-        internal Color color = Colors.Black;
-        internal double thickness = 2.0;
-        internal Pen? foregroundPen;
-        internal Brush? foregroundBrush;
-        internal Pen? backgroundPen;
-        internal Brush? backgroundBrush;
-        #endregion
-
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        internal void InvalidateForeground()
-        {
-            if (gradient)
-            {
-                foregroundBrush = new LinearGradientBrush(
-                    AdjustColorBrightness(color, 1.2),// Teinte plus claire
-                    AdjustColorBrightness(color, 0.8),// Teinte plus sombre
-                    new Point(0, 0), // Dégradé du coin supérieur gauche
-                    new Point(1, 1)  // vers le coin inférieur droit
-                );
-            }
-            else
-            {
-                foregroundBrush = new SolidColorBrush(color);
-            }
-            foregroundPen = new Pen(foregroundBrush, thickness);
-        }
-
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        internal void InvalidateBackground()
-        {
-            if (gradient)
-            {
-                backgroundBrush = new LinearGradientBrush(
-                    AdjustColorBrightness(color, 1.2),// Teinte plus claire
-                    AdjustColorBrightness(color, 0.8),// Teinte plus sombre
-                    new Point(0, 0), // Dégradé du coin supérieur gauche
-                    new Point(1, 1)  // vers le coin inférieur droit
-                );
-            }
-            else
-            {
-                backgroundBrush = new SolidColorBrush(color);
-            }
-            backgroundPen = new Pen(backgroundBrush, thickness);
-        }
-
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        public Pen ForegroundPen { 
-            get {
-                if(foregroundPen == null)
-                {// créé ici dans le thread de l'appelant
-                    foregroundBrush = new SolidColorBrush(color);
-                    foregroundPen = new Pen(foregroundBrush, thickness);
-                }
-                return foregroundPen;
-            }
-        }
-
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        public Brush ForegroundBrush
-        {
-            get
-            {
-                if (foregroundBrush == null)
-                {// créé ici dans le thread de l'appelant
-                    foregroundBrush = new SolidColorBrush(color);
-                    foregroundPen = new Pen(foregroundBrush, thickness);
-                }
-                return foregroundBrush;
-            }
-        }
-
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        public Pen BackgroundPen
-        {
-            get
-            {
-                if (backgroundPen == null)
-                {// créé ici dans le thread de l'appelant
-                    backgroundBrush = new SolidColorBrush(Colors.Gray);
-                    backgroundPen = new Pen(backgroundBrush, 2.0);
-                }
-                return backgroundPen;
-            }
-        }
-
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        public Brush BackgroundBrush
-        {
-            get
-            {
-                if (backgroundBrush == null)
-                {// créé ici dans le thread de l'appelant
-                    backgroundBrush = new SolidColorBrush(Colors.Gray);
-                    backgroundPen = new Pen(backgroundBrush, 2.0);
-                }
-                return backgroundBrush;
-            }
-        }
-
-        /// <summary>
-        /// Contexte de dessin à utiliser pour cette instance
-        /// Chaque objet possède sa propre instance de la classe GUI
-        /// </summary>
-        internal DrawingContext? drawingContext;
-
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        public Layout layout { get; set; } = new Layout(new Rect(0, 0, 100, 100));
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        internal Zone baseZone = new Zone { Rect = new Rect(0, 0, 100, 100) };
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        internal Fill filling { get; set; }
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        internal Zone current { get { return zones.First(); } }
-        [Obsolete("A remplacer par un appel directe à DrawingContext")]
-        internal Stack<Zone> zones { get; set; }
-
-        public GUI()
-        {
-            filling = new Fill(baseZone);
-            zones = new Stack<Zone>([baseZone]);
-        }
-
-        /// Méthode pour limiter les valeurs entre min et max
-        internal static double Clamp(double value, double min, double max)
-        {
-            if (value < min) return min;
-            if (value > max) return max;
-            return value;
-        }
-
-        /// Méthode pour ajuster la luminosité d'une couleur
-        internal static Color AdjustColorBrightness(Color baseColor, double factor)
-        {
-            // Factor > 1.0 pour rendre la couleur plus claire, < 1.0 pour plus sombre
-            byte r = (byte)Clamp(baseColor.R * factor, 0, 255);
-            byte g = (byte)Clamp(baseColor.G * factor, 0, 255);
-            byte b = (byte)Clamp(baseColor.B * factor, 0, 255);
-            return Color.FromRgb(r, g, b);
-        }
-
-        /// <summary>
-        /// Début du dessin
-        /// </summary>
-        /// <remarks>
-        /// context doit déjà être ouvert et prêt au dessin
-        /// </remarks>
-        internal void Begin(DrawingContext context)
-        {
-            drawingContext = context;
-            fill();
-            full();
-        }
-
-        /// <summary>
-        /// Fin du dessin
-        /// </summary>
-        internal void End()
-        {
-            drawingContext = null;
-        }
-
-        /// <summary>
-        /// Méthode Python : Ouvre une boite de dialogue et obtient un texte de l'utilisateur
-        /// </summary>
-        /// <returns>
-        /// Retourne la valeur sélectionné ou la valeur de base si l'utilisateur annule
-        /// </returns>
-        /// <param name="selection">Valeur de base</param>
-        /// <param name="format">Regex de validation de la valeur, si null aucune vérification</param>
-        public string gettext(Output selection, string? format = null)
-        {
-            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
-            var wnd = new DevApps.GUI.GetText();
-            wnd.Value = selection.text();
-            if (format != null)
-                wnd.Format = new System.Text.RegularExpressions.Regex(format);
-            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
-            wnd.Left = mousePos.X + 10;
-            wnd.Top = mousePos.Y + 10;
-
-            if (wnd.ShowDialog() == true)
-            {
-                return wnd.Value;
-            }
-
-            return selection.text();
-        }
-
-        /// <summary>
-        /// Méthode Python : Obtient un texte de l'utilisateur (sans passage de ligne)
-        /// </summary>
-        /// <returns>
-        /// Retourne la valeur sélectionné ou la valeur de base si l'utilisateur annule
-        /// </returns>
-        /// <param name="selection">Valeur de base</param>
-        /// <param name="format">Regex de validation de la valeur, si null aucune vérification</param>
-        public string getline(Output selection, string? format = null)
-        {
-            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
-            var wnd = new DevApps.GUI.GetText();
-            wnd.Value = selection.text();
-            wnd.IsMultiline = false;
-            if(format != null)
-                wnd.Format = new System.Text.RegularExpressions.Regex(format);
-            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
-            wnd.Left = mousePos.X + 10;
-            wnd.Top = mousePos.Y + 10;
-
-            if (wnd.ShowDialog() == true)
-            {
-                return wnd.Value;
-            }
-
-            return selection.text();
-        }
-
-        /// <summary>
-        /// Méthode Python : Edite les données du contenu 
-        /// </summary>
-        /// <remarks>
-        /// Ouvre un processus enfant sur l'éditeur et attend la fermeture de ce dernier pour mettre à jour les données
-        /// Le fichier à modifier est inséré à la place de "%1" dans le chemin vers l'éditeur ou à la fin si introuvable
-        /// </remarks>
-        /// <param name="editor">Nom de l'éditeur tel que définit dans la liste des éditeurs externes</param>
-        /// <param name="output">Données à éditer</param>
-        public void edit(string editor, Output output)
-        {
-            // exécute l'environnement de commandes
             try
             {
-                // enregistre le contenu dans le fichier si ce n'est pas déjà le cas
-                output.Flush();
-
-                var editorName = Service.associatedEditors[editor];
-                var editorPath = Service.externalsEditors[editorName];
-
-                var path = Path.GetDirectoryName(editorPath)?.Replace(@"""","");
-
-                // creation de l'environnement de commandes
-                using System.Diagnostics.Process process = new System.Diagnostics.Process();
-                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
-                startInfo.FileName = "cmd.exe";
-                startInfo.Arguments = "/C \"" + ((editorPath.Contains("%1") == false) ? editorPath + " \"" + Path.GetFullPath(output.Filename) + "\"" : editorPath.Replace("%1", Path.GetFullPath(output.Filename))) + "\"";
-                //startInfo.WorkingDirectory = path;
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
-
-                output.Reload();
+                if (drawingContext != null)
+                {
+                    MarkdownRenderer renderer = new MarkdownRenderer();
+                    renderer.DrawMarkdown(drawingContext, output.text(), new Point(20, 20), new Point(Right - 20, Bottom - 20));
+                }
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("edit: Echec de l'ouverture de l'éditeur");
-                System.Console.WriteLine(ex.ToString());
+                drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture,
+                    System.Windows.FlowDirection.LeftToRight, Service.typeface, TextEmSize, Brushes.Red,
+                    1.0), new Point(0, 0));
             }
-        }
-
-        /// <summary>
-        /// Obtient une sélection de valeur de l'utilisateur
-        /// </summary>
-        /// <param name="values"></param>
-        public string select(IronPython.Runtime.PythonDictionary values, Output selection)
-        {
-            var mousePos = System.Windows.Input.Mouse.GetPosition(null);
-            var wnd = new DevApps.GUI.Select();
-            wnd.Items = values.ToDictionary();
-            wnd.WindowStartupLocation = WindowStartupLocation.Manual;
-            wnd.Left = mousePos.X + 10;
-            wnd.Top = mousePos.Y + 10;
-
-            if (wnd.ShowDialog() == true && wnd.SelectedItem is KeyValuePair<object, object> sel)
-            {
-                return sel.Key.ToString() ?? String.Empty;
-            }
-
-            return selection.text();
-        }
-
-        #region zoning
-        public GUI left()
-        {
-            zones.Push(current.left());
-            return this;
-        }
-        public GUI top()
-        {
-            zones.Push(current.top());
-            return this;
-        }
-        public GUI right()
-        {
-            zones.Push(current.right());
-            return this;
-        }
-        public GUI bottom()
-        {
-            zones.Push(current.bottom());
-            return this;
-        }
-        public GUI inflate(double size)
-        {
-            zones.Push(current.inflate(size));
-            return this;
-        }
-        public GUI full()
-        {
-            zones.Clear();
-            zones.Push(baseZone);
-            return this;
-        }
-        #endregion
-        #region filling
-        public GUI fill()
-        {
-            filling = new Fill(current);
-            return this;
-        }
-        public GUI stack()
-        {
-            filling = new Fill.Stack(current);
-            return this;
-        }
-        public GUI grid(int rows, int cols)
-        {
-            filling = new Fill.Grid(current, cols, rows);
-            return this;
-        }
-        public GUI wrap()
-        {
-            filling = new Fill.Wrap(current);
-            return this;
-        }
-        public GUI stars(int count, double diameter)
-        {
-            filling = new Fill.Stars(current, count, diameter);
-            return this;
-        }
-        public GUI pop()
-        {
-            if(zones.Count > 1)
-                zones.Pop();
-            return this;
-        }
-        #endregion
-        #region painting
-        public GUI foreground()
-        {
-            InvalidateForeground();
-            return this;
-        }
-        public GUI background()
-        {
-            InvalidateBackground();
-            return this;
-        }
-        public GUI style(byte R, byte G, byte B, double thickness, bool gradient)
-        {
-            this.color = Color.FromRgb(R, G, B);
-            this.thickness = thickness;
-            this.gradient = gradient;
-            return this;
-        }
-        public GUI style(string colorName, double thickness, bool gradient)
-        {
-            System.Drawing.Color systemColor = System.Drawing.Color.FromName(colorName);
-            this.color = Color.FromRgb(systemColor.R, systemColor.G, systemColor.B);
-            this.thickness = thickness;
-            this.gradient = gradient;
-            return this;
-        }
-        public GUI csv(Output output, bool header, string? delimiter = null)
-        {
-            filling.csv(this, output, header, delimiter);
             return this;
         }
         public GUI svg(Output output)
@@ -1004,7 +481,7 @@ namespace DevApps.PythonExtends
                 output.Stream.Seek(0, SeekOrigin.Begin);
                 var drawing = svgReader.Read(output.Stream);
 
-                var fHeight = (1.0 / drawing.Bounds.Height) * filling.Height;
+                var fHeight = (1.0 / drawing.Bounds.Height) * Height;
 
                 var mx = new Matrix();
                 mx.Translate(-drawing.Bounds.X, -drawing.Bounds.Y);
@@ -1046,7 +523,6 @@ namespace DevApps.PythonExtends
         }
         public GUI list(Output output)
         {
-            filling.list(this, output);
             return this;
         }
         /// <summary>
@@ -1054,7 +530,19 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI level(Output content, string unit, float min, float max, float step)
         {
-            filling.level(this, content, unit, min, max, step);
+            var _progress = (1.0 / (max - min)) * (step * content.number());
+
+            // Dessiner le fond de la barre de progression
+            Rect backgroundRect = new Rect(0, 0, Width, Height);
+            drawingContext?.DrawRectangle(System.Windows.Media.Brushes.Gray, null, backgroundRect);
+
+            // Dessiner la barre de progression
+            Rect progressRect = new Rect(0, 0, Width * _progress, Height);
+            drawingContext?.DrawRectangle(System.Windows.Media.Brushes.Blue, null, progressRect);
+
+            // Dessiner une bordure
+            drawingContext?.DrawRectangle(null, new System.Windows.Media.Pen(System.Windows.Media.Brushes.Black, 1), backgroundRect);
+
             return this;
         }
         /// <summary>
@@ -1062,7 +550,16 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI state(Output content, string titleA, string stateA, string titleB, string stateB)
         {
-            filling.state(this, content, titleA, stateA, titleB, stateB);
+            var _isOn = content.text() == stateA;
+
+            double targetPosition = _isOn ? Width - Height : 0;
+
+            // Fond du bouton
+            drawingContext?.DrawRoundedRectangle(System.Windows.Media.Brushes.Gray, null, new Rect(0, 0, Width, Height), 10, 10);
+
+            // Curseur glissant
+            drawingContext?.DrawEllipse(System.Windows.Media.Brushes.Blue, null, new System.Windows.Point(targetPosition + Height / 2, Height / 2), Height / 2 - 2, Height / 2 - 2);
+
             return this;
         }
         /// <summary>
@@ -1070,7 +567,6 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI separator()
         {
-            filling.separator(this);
             return this;
         }
         /// <summary>
@@ -1120,14 +616,14 @@ namespace DevApps.PythonExtends
         }
         public GUI rectangle(float cornerRadius = 0.0f)
         {
-            filling.rectangle(this, cornerRadius);
+            // Dessiner un rectangle avec des coins arrondis
+            Rect rect = new Rect(Left, Top, Width, Height);
+            drawingContext?.DrawRoundedRectangle(Brushes.Black, null, rect, cornerRadius, cornerRadius);
 
             return this;
         }
         public GUI circle()
         {
-            filling.circle(this);
-
             return this;
         }
         public GUI text(byte[] bytes, int encoding = 65001)
@@ -1137,7 +633,12 @@ namespace DevApps.PythonExtends
             var en = Encoding.GetEncoding(encoding);
             var text = en.GetString(bytes);
 
-            filling.text(this, text);
+            double x = Left;
+            double y = Top;
+            if (String.IsNullOrEmpty(text))
+                return this;
+            var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+            drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
 
             return this;
         }
@@ -1146,7 +647,14 @@ namespace DevApps.PythonExtends
             if (String.IsNullOrEmpty(text))
                 return this;
 
-            filling.text(this, text);
+            double x = Left;
+            double y = Top;
+            if (String.IsNullOrEmpty(text))
+                return this;
+            var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+            drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
+
+            Top = y;
 
             return this;
         }
@@ -1159,7 +667,12 @@ namespace DevApps.PythonExtends
 
             foreach (var text in Encoding.UTF8.GetString(in1.Stream.ToArray()).Split(new char[] { '\n', '\r' }))
             {
-                filling.text(this, text);
+                double x = Left;
+                double y = Top;
+                if (String.IsNullOrEmpty(text))
+                    return this;
+                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+                drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
             }
 
             return this;
@@ -1169,7 +682,12 @@ namespace DevApps.PythonExtends
             if (String.IsNullOrEmpty(text))
                 return this;
 
-            filling.code(this, text, syntax);
+            double x = Left;
+            double y = Top;
+            if (String.IsNullOrEmpty(text))
+                return this;
+            var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+            drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
 
             return this;
         }
@@ -1180,7 +698,12 @@ namespace DevApps.PythonExtends
 
             foreach (var text in texts)
             {
-                filling.text(this, text);
+                double x = Left;
+                double y = Top;
+                if (String.IsNullOrEmpty(text))
+                    return this;
+                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+                drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
             }
             return this;
         }
@@ -1191,51 +714,37 @@ namespace DevApps.PythonExtends
 
             foreach (var text in texts)
             {
-                filling.text(this, text?.ToString());
+                double x = Left;
+                double y = Top;
+                if (String.IsNullOrEmpty(text?.ToString()))
+                    return this;
+                var glyphRun = GUI.ConvertTextToGlyphRun(text?.ToString() ?? String.Empty, ref x, ref y);
+                drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
             }
             return this;
         }
         public GUI image(Output data, string format = "auto")
         {
-            filling.image(this, data, format);
+            if (data.size() == 0)
+                return this;
+            try
+            {
+                // Créer une instance de BitmapImage
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = new MemoryStream(data.Stream.ToArray());
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad; // Charge l'image dans la mémoire
+                bitmapImage.EndInit();
+
+                drawingContext?.DrawImage(bitmapImage, new Rect(Top, Left, Right, Bottom));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
 
             return this;
         }
-        /* public void grid(string[] lines, string columnsExp)
-         {
-             if (lines.Length == 0)
-                 return;
-
-             var reg = new Regex(columnsExp, RegexOptions.IgnoreCase);
-
-             var results = lines.Select(p => reg.Match(p)).ToArray();
-
-             var columns = results.Select(p => p.Groups.Values.Count() - 1).Max();
-
-             x = 10;
-             double xMax = 0;
-             for (int i = 0; i < columns; i++)
-             {
-                 double yy = y;
-                 for (int j = 0; j < results.Length; j++)
-                 {
-                     double xx = x;
-                     var text = results[j].Groups[1 + i].Value;
-                     if (String.IsNullOrEmpty(text))
-                         continue;
-                     var glyphRun = ConvertTextToGlyphRun(glyphTypeface, renderingEmSize, advanceWidth, advanceHeight, baselineOrigin, text, ref xx, ref yy);
-                     drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
-
-                     xMax = Math.Max(xMax, xx);
-                     y += 10;
-                 }
-
-                 x = xMax + 10;
-                 y = 10;
-             }
-         }
-        */
-        #endregion
 
         /// <summary>
         /// Caractères de dessin par défaut
