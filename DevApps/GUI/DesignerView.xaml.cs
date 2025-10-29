@@ -412,7 +412,7 @@ namespace DevApps.GUI
                 startMousePosition = e.GetPosition(MyCanvas);
                 resizeDirection = GetResizeDirection(startMousePosition);
 
-                if (resizeDirection != DesignerView.ResizeDirection.None)
+                if (selectedElement is DrawElement && resizeDirection != DesignerView.ResizeDirection.None)
                 {
                     isResizing = true;
                 }
@@ -967,28 +967,39 @@ namespace DevApps.GUI
 
         internal void UpdateCursor(Point mousePosition)
         {
-            ResizeDirection direction = GetResizeDirection(mousePosition);
-            switch (direction)
+            if (selectedElement is DrawElement)
             {
-                case ResizeDirection.Left:
-                case ResizeDirection.Right:
-                    Cursor = Cursors.SizeWE;
-                    break;
-                case ResizeDirection.Top:
-                case ResizeDirection.Bottom:
-                    Cursor = Cursors.SizeNS;
-                    break;
-                case ResizeDirection.TopLeft:
-                case ResizeDirection.BottomRight:
-                    Cursor = Cursors.SizeNWSE;
-                    break;
-                case ResizeDirection.TopRight:
-                case ResizeDirection.BottomLeft:
-                    Cursor = Cursors.SizeNESW;
-                    break;
-                default:
-                    Cursor = Cursors.Arrow;
-                    break;
+                ResizeDirection direction = GetResizeDirection(mousePosition);
+                switch (direction)
+                {
+                    case ResizeDirection.Left:
+                    case ResizeDirection.Right:
+                        Cursor = Cursors.SizeWE;
+                        break;
+                    case ResizeDirection.Top:
+                    case ResizeDirection.Bottom:
+                        Cursor = Cursors.SizeNS;
+                        break;
+                    case ResizeDirection.TopLeft:
+                    case ResizeDirection.BottomRight:
+                        Cursor = Cursors.SizeNWSE;
+                        break;
+                    case ResizeDirection.TopRight:
+                    case ResizeDirection.BottomLeft:
+                        Cursor = Cursors.SizeNESW;
+                        break;
+                    default:
+                        Cursor = Cursors.Arrow;
+                        break;
+                }
+            }
+            else if(selectedElement != null)
+            {
+                Cursor = Cursors.Cross;
+            }
+            else
+            {
+                Cursor = Cursors.Arrow;
             }
         }
 
