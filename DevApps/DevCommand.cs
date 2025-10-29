@@ -20,6 +20,7 @@ internal partial class Program
         public static Dictionary<string, DevCommandDefinition> BuiltIn = new Dictionary<string, DevCommandDefinition>(){
             { "print", new DevPrintCommand() },
             { "build", new DevBuildCommand() },
+            { "buildall", new DevBuildAllCommand() },
             { "read", new DevReadCommand() },
             { "write", new DevWriteCommand() },
         };
@@ -72,6 +73,49 @@ internal partial class Program
                 if (currentView != null)
                 {
                     currentView.InvalidateObjects();
+                }
+
+                return 0;
+            }
+        }
+
+        public class DevBuildAllCommand : DevCommandDefinition
+        {
+            public override string? Description { get { return "Build all objects contents"; } }
+            public override Func<DevCommand, int> Execute { get { return Run; } }
+            private static int Run(DevCommand cmd)
+            {
+                if (cmd.Arguments == null)
+                    throw new ArgumentException();
+
+                var handle = false;
+
+                try
+                {
+                    handle = DevObject.mutexCheckObjectList.WaitOne();
+
+                    if (handle)
+                    {
+                        DevObject.Build(DevObject.References);
+
+                        var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
+
+                        if (currentView != null)
+                        {
+                            currentView.InvalidateObjects();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    if (handle)
+                    {
+                        DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
                 }
 
                 return 0;
@@ -367,8 +411,8 @@ internal partial class Program
                 }
                 // commande ?
                 else{
-                    var match = Regex.Match(line, @"^(\w+)(?:\s+(\w+))*$");
-                    if (match != null)
+                    var match = Regex.Match(line, @"^(\w+)(?:\s+([^\s]+))*\s*$");
+                    if (match.Success)
                     {
                         DevCommand command = new DevCommand();
                         command.Name = match.Groups[1].Value;
