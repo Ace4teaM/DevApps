@@ -15,6 +15,7 @@ internal partial class Program
     public abstract class DevCommandDefinition
     {
         public abstract string? Description { get; }
+        public abstract string? Syntaxe { get; }
         public abstract Func<DevCommand, int> Execute { get; }
 
         public static Dictionary<string, DevCommandDefinition> BuiltIn = new Dictionary<string, DevCommandDefinition>(){
@@ -32,14 +33,15 @@ internal partial class Program
 
         public class DevPrintCommand : DevCommandDefinition
         {
-            public override string? Description { get { return "Print"; } }
+            public override string? Description { get { return "Imprime un message"; } }
+            public override string? Syntaxe { get { return "print [votre message]"; } }
             public override Func<DevCommand, int> Execute { get { return Print; } }
             private static int Print(DevCommand cmd)
             {
                 if (cmd.Arguments.Count < 1)
                     throw new ArgumentException();
 
-                var message = cmd.Arguments[0]; // todo : validation format
+                var message = String.Join("", cmd.Arguments); // todo : validation format
                 ParseString(ref message);
 
                 Console.WriteLine(message);
@@ -49,7 +51,8 @@ internal partial class Program
 
         public class DevBuildCommand : DevCommandDefinition
         {
-            public override string? Description { get { return "Build object content"; } }
+            public override string? Description { get { return "Construit le contenu d'un objet"; } }
+            public override string? Syntaxe { get { return "build [NomObjet]"; } }
             public override Func<DevCommand, int> Execute { get { return Build; } }
             private static int Build(DevCommand cmd)
             {
@@ -81,7 +84,8 @@ internal partial class Program
 
         public class DevBuildAllCommand : DevCommandDefinition
         {
-            public override string? Description { get { return "Build all objects contents"; } }
+            public override string? Description { get { return "Construit le contenu de tous les objets"; } }
+            public override string? Syntaxe { get { return "buildall"; } }
             public override Func<DevCommand, int> Execute { get { return Run; } }
             private static int Run(DevCommand cmd)
             {
@@ -124,7 +128,8 @@ internal partial class Program
 
         public class DevWriteCommand : DevCommandDefinition
         {
-            public override string? Description { get { return "Write object content to file"; } }
+            public override string? Description { get { return "Ecrit le contenu d'un objet dans un fichier"; } }
+            public override string? Syntaxe { get { return "write [NomObjet] [CheminFichier]"; } }
             public override Func<DevCommand, int> Execute { get { return Run; } }
             private static int Run(DevCommand cmd)
             {
@@ -162,7 +167,8 @@ internal partial class Program
 
         public class DevReadCommand : DevCommandDefinition
         {
-            public override string? Description { get { return "Read object content to file"; } }
+            public override string? Description { get { return "Ecrit le contenu d'un fichier dans un objet"; } }
+            public override string? Syntaxe { get { return "read [NomObjet] [CheminFichier]"; } }
             public override Func<DevCommand, int> Execute { get { return Run; } }
             private static int Run(DevCommand cmd)
             {
@@ -229,6 +235,7 @@ internal partial class Program
                                         BuiltIn.Add(subKeyName, new DevShellCommand
                                         {
                                             description = arguments["description"].ToString().Trim(),
+                                            syntaxe = arguments["syntaxe"].ToString().Trim(),
                                             command = arguments["command"].ToString().Trim(),
                                         });
                                     }
@@ -250,8 +257,10 @@ internal partial class Program
             }
 
             internal required string description;
+            internal required string syntaxe;
             internal required string command;
             public override string Description { get { return description; } }
+            public override string? Syntaxe { get { return syntaxe; } }
             public string Command { get { return command; } }
             public override Func<DevCommand, int> Execute { get { return RunShell; } }
             public static int RunShell(DevCommand cmd)

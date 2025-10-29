@@ -9,11 +9,13 @@
         Title="Editeur de commandes" Height="450" Width="800">
     <DockPanel Margin="6">
         <TextBlock DockPanel.Dock="Bottom" Text="{Binding ValidationMessage}" Background="LightGray"></TextBlock>
-        <StackPanel DockPanel.Dock="Right" Margin="8" Orientation="Vertical" HorizontalAlignment="Right" Width="auto">
+        <StackPanel DockPanel.Dock="Bottom" Margin="8" Orientation="Vertical" HorizontalAlignment="Right" Width="auto">
             <Button Width="100" Click="ButtonOK_Click">OK</Button>
         </StackPanel>
-        <GroupBox DockPanel.Dock="Bottom" Header="Commandes disponibles" Height="200" Padding="6">
-            <TextBlock Text="{Binding AvailableCommands}" TextWrapping="Wrap"/>
+        <GroupBox DockPanel.Dock="Right" Header="Commandes disponibles" Width="300" Padding="6">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible">
+                <TextBlock Text="{Binding AvailableCommands}" TextWrapping="Wrap"/>
+            </ScrollViewer>
         </GroupBox>
         <GroupBox Header="Commandes">
             <TextBox Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" FontFamily="Consolas" FontSize="10pt" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"></TextBox>

@@ -18,7 +18,8 @@ namespace DevApps.GUI
                 StringBuilder sb = new StringBuilder();
                 foreach (var cmd in Program.DevCommandDefinition.BuiltIn)
                 {
-                    sb.AppendLine(cmd.Key + " - " + cmd.Value.Description);
+                    sb.AppendLine(cmd.Value.Description);
+                    sb.AppendLine("  " + cmd.Value.Syntaxe);
                 }
                 return sb.ToString();
             }
