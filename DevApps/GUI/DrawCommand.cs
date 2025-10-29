@@ -23,8 +23,8 @@ namespace DevApps.GUI
             this.Name = objectName;
             this.Width = 100;
             this.Height = 100;
-            this.Y = pos.X;
-            this.X = pos.Y;
+            this.X = pos.X;
+            this.Y = pos.Y;
 
             this.Title = new FormattedText(objectName, CultureInfo.InvariantCulture,
                 System.Windows.FlowDirection.LeftToRight, GuiService.typeface, 10, Brushes.Blue,

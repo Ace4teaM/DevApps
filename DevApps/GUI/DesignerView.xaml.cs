@@ -494,6 +494,22 @@ namespace DevApps.GUI
                         menu.Items.Add(m);
                     }
 
+                    menu.Items.Add(new Separator());
+
+                    {
+                        var name = curElement?.Name ?? string.Empty;
+
+                        var m = new MenuItem { Header = "Retirer" };
+                        m.Click += (s, e) =>
+                        {
+                            MyCanvas.Children.Remove(curElement);
+                            selectedElement = null;
+
+                            facette.Commands.Remove(name);
+                        };
+                        menu.Items.Add(m);
+                    }
+
                     menu.Placement = PlacementMode.Mouse;
                     menu.IsOpen = true;
                 }
