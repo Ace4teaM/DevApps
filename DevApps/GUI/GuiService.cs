@@ -14,9 +14,9 @@ using System.Windows.Threading;
 namespace DevApps.GUI
 {
     /// <summary>
-    /// Implément les fonctions de gestion lié à l'interface utilisateur
+    /// Implémente les fonctions de gestion lié à l'interface utilisateur
     /// </summary>
-    internal static class Service
+    internal static class GuiService
     {
         internal static ManualResetEvent? ShowWindowEvent;
         internal static ManualResetEvent? CloseWindowEvent;
@@ -35,7 +35,7 @@ namespace DevApps.GUI
         internal static Dictionary<string, string> externalsEditors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         internal static Dictionary<string, string> externalsTools = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        static Service()
+        static GuiService()
         {
             InitEditors();
         }
@@ -674,9 +674,9 @@ namespace DevApps.GUI
             // récupère l'éditeur associé
             if (editorKey != null)
             {
-                var editor = Service.associatedEditors.Where(p => p.Key == editorKey).Select(p => p.Value).FirstOrDefault();
+                var editor = GuiService.associatedEditors.Where(p => p.Key == editorKey).Select(p => p.Value).FirstOrDefault();
                 if (editor != null)
-                    editorPath = Service.externalsEditors[editor];
+                    editorPath = GuiService.externalsEditors[editor];
                 else
                 {
                     MessageBox.Show("L'éditeur \"" + editorKey + "\" est introuvable, veuillez spécifier l'éditeur associé à cet objet ou renseigner l'éditeur dans les préférences", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);

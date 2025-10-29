@@ -67,7 +67,7 @@ internal partial class Program
 
                 DevObject.Build(new Dictionary<string, DevObject> { { name, obj } });
 
-                var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerDataView;
+                var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
 
                 if (currentView != null)
                 {

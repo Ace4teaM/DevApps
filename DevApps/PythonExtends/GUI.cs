@@ -192,8 +192,8 @@ namespace DevApps.PythonExtends
                 // enregistre le contenu dans le fichier si ce n'est pas déjà le cas
                 output.Flush();
 
-                var editorName = Service.associatedEditors[editor];
-                var editorPath = Service.externalsEditors[editorName];
+                var editorName = GuiService.associatedEditors[editor];
+                var editorPath = GuiService.externalsEditors[editorName];
 
                 var path = Path.GetDirectoryName(editorPath)?.Replace(@"""","");
 
@@ -443,7 +443,7 @@ namespace DevApps.PythonExtends
             catch (Exception ex)
             {
                 drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture,
-                    System.Windows.FlowDirection.LeftToRight, Service.typeface, TextEmSize, Brushes.Red,
+                    System.Windows.FlowDirection.LeftToRight, GuiService.typeface, TextEmSize, Brushes.Red,
                     1.0), new Point(0, 0));
             }
             return this;
@@ -461,7 +461,7 @@ namespace DevApps.PythonExtends
             catch (Exception ex)
             {
                 drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture,
-                    System.Windows.FlowDirection.LeftToRight, Service.typeface, TextEmSize, Brushes.Red,
+                    System.Windows.FlowDirection.LeftToRight, GuiService.typeface, TextEmSize, Brushes.Red,
                     1.0), new Point(0, 0));
             }
             return this;

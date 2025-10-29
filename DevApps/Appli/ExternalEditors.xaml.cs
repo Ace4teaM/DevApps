@@ -43,8 +43,8 @@ namespace DevApps.Appli
             }
         }
 
-        public ObservableCollectionKeyValue KeysList { get; set; } = new ObservableCollectionKeyValue(Service.associatedEditors);
-        public ObservableCollectionKeyValue AppsList { get; set; } = new ObservableCollectionKeyValue(Service.externalsEditors);
+        public ObservableCollectionKeyValue KeysList { get; set; } = new ObservableCollectionKeyValue(GuiService.associatedEditors);
+        public ObservableCollectionKeyValue AppsList { get; set; } = new ObservableCollectionKeyValue(GuiService.externalsEditors);
 
         public ExternalEditors()
         {
@@ -60,21 +60,21 @@ namespace DevApps.Appli
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Service.associatedEditors.Clear();
+            GuiService.associatedEditors.Clear();
 
             foreach (var item in KeysList)
             {
-                Service.associatedEditors[item.Key] = item.Value;
+                GuiService.associatedEditors[item.Key] = item.Value;
             }
 
-            Service.externalsEditors.Clear();
+            GuiService.externalsEditors.Clear();
 
             foreach (var item in AppsList)
             {
-                Service.externalsEditors[item.Key] = item.Value;
+                GuiService.externalsEditors[item.Key] = item.Value;
             }
 
-            Service.SaveEditors();
+            GuiService.SaveEditors();
 
             DialogResult = true;
         }
@@ -98,7 +98,7 @@ namespace DevApps.Appli
         {
             var found = new Dictionary<string, string>();
             var search = new string[] { appName.Text };
-            Service.ResolveApplicationNames(search, found);
+            GuiService.ResolveApplicationNames(search, found);
 
             int count = 0;
             foreach (var app in found)

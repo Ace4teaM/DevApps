@@ -31,11 +31,11 @@ namespace DevApps.GUI
             this.X = rect.Left;
 
             this.Title = new FormattedText(title, CultureInfo.InvariantCulture,
-                System.Windows.FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue,
+                System.Windows.FlowDirection.LeftToRight, GuiService.typeface, 10, Brushes.Blue,
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
             this.SubTitle = new FormattedText(subtitle, CultureInfo.InvariantCulture,
-                System.Windows.FlowDirection.LeftToRight, Service.typeface, 8, Brushes.DarkViolet,
+                System.Windows.FlowDirection.LeftToRight, GuiService.typeface, 8, Brushes.DarkViolet,
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
         }
 

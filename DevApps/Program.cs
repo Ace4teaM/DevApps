@@ -177,13 +177,13 @@ internal partial class Program
         // ouvre l'éditeur
         if (args.Contains("-w"))
         {
-            Service.OpenEditor();
-            Service.WaitWindowLoaded();
+            GuiService.OpenEditor();
+            GuiService.WaitWindowLoaded();
         }
 
         LoadProject();
 
-        Service.InvalidateFacets();
+        GuiService.InvalidateFacets();
 
         DevObject.CompilObjects();
 
@@ -195,7 +195,7 @@ internal partial class Program
         DevFacet.Get("Model")?.Build();
 
         // Attend la fermeture de la fenêtre
-        Service.WaitWindowClosed();
+        GuiService.WaitWindowClosed();
 
         DevObject.Stop();
 

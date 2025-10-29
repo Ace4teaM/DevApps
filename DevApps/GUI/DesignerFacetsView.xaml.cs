@@ -33,7 +33,7 @@ namespace DevApps.GUI
             if (wnd.ShowDialog() == true)
             {
                 Program.DevFacet.Create(wnd.Value, []);
-                Service.EditorWindow?.InvalidateFacets();
+                GuiService.EditorWindow?.InvalidateFacets();
             }
         }
     }

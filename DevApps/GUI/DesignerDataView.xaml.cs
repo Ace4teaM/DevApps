@@ -272,7 +272,7 @@ namespace DevApps.GUI
             if (wnd.ShowDialog() == true)
             {
                 Program.DevFacet.Create(wnd.Value, selection ?? Array.Empty<string>());
-                Service.InvalidateFacets();
+                GuiService.InvalidateFacets();
             }
         }
 
@@ -360,7 +360,7 @@ namespace DevApps.GUI
                         var handle2 = reference.mutexReadOutput.WaitOne();
                         if (handle2)
                         {
-                            Service.OpenEditorOrDefault(reference.buildStream, reference.Editor);
+                            GuiService.OpenEditorOrDefault(reference.buildStream, reference.Editor);
 
                             reference.mutexReadOutput.ReleaseMutex();
                         }
@@ -579,7 +579,7 @@ namespace DevApps.GUI
                     menuItem.Items.Add(new Separator());
                 }
 
-                foreach (var editor in Service.associatedEditors)
+                foreach (var editor in GuiService.associatedEditors)
                 {
                     var item = new MenuItem();
                     item.Header = String.Format("{0} ⇒ {1}", editor.Key, editor.Value);

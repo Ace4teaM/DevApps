@@ -88,7 +88,7 @@ internal partial class Program
 
                             facet.Geometries.Add(geometry);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
+                            var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -114,7 +114,7 @@ internal partial class Program
 
                             var geometry = facet.Geometries[index];
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
+                            var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -136,7 +136,7 @@ internal partial class Program
 
                             var size = new Point(cmd.size.width, cmd.size.height);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
+                            var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -158,7 +158,7 @@ internal partial class Program
 
                             facet.Objects.Remove(cmd.name);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
+                            var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -182,7 +182,7 @@ internal partial class Program
 
                             var size = new Point(cmd.size.width, cmd.size.height);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
+                            var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerView;
 
                             if (currentView != null && currentView.facette == facet)
                             {
@@ -206,7 +206,7 @@ internal partial class Program
 
                             DevObject.DeleteObject(cmd.name);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerDataView;
+                            var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
 
                             if (currentView != null)
                             {
@@ -224,7 +224,7 @@ internal partial class Program
 
                             var obj = DevObject.Create(cmd.name, cmd.description, cmd.tags ?? new string[0]);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerDataView;
+                            var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
 
                             if (currentView != null)
                             {
@@ -248,7 +248,7 @@ internal partial class Program
                             DevObject.References[cmd.name] = obj;
                             DevObject.References.Remove(cmd.new_name);
 
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerDataView;
+                            var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
 
                             if (currentView != null)
                             {

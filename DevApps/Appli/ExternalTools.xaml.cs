@@ -41,7 +41,7 @@ namespace DevApps.Appli
             }
         }
 
-        public ObservableCollectionKeyValue AppsList { get; set; } = new ObservableCollectionKeyValue(Service.externalsTools);
+        public ObservableCollectionKeyValue AppsList { get; set; } = new ObservableCollectionKeyValue(GuiService.externalsTools);
 
         public ExternalTools()
         {
@@ -59,10 +59,10 @@ namespace DevApps.Appli
         {
             foreach (var item in AppsList)
             {
-                Service.externalsTools[item.Key] = item.Value;
+                GuiService.externalsTools[item.Key] = item.Value;
             }
 
-            Service.SaveTools();
+            GuiService.SaveTools();
 
             DialogResult = true;
         }

@@ -286,7 +286,7 @@ internal partial class Program
             try
             {
                 // Signal la fin du thread
-                Service.SignalWorkerStatusChange();
+                GuiService.SignalWorkerStatusChange();
 
                 int i = 0;
                 while (run)
@@ -306,11 +306,11 @@ internal partial class Program
                     }
 
                     // Attend la fin des opérations de dessin
-                    Service.WaitDrawOperations();
+                    GuiService.WaitDrawOperations();
                 }
 
                 // Signal la fin du thread
-                Service.SignalWorkerStatusChange();
+                GuiService.SignalWorkerStatusChange();
             }
             catch (Exception e )
             {
@@ -365,7 +365,7 @@ internal partial class Program
         /// </summary>
         private static void Draw()
         {
-            if (Service.IsInitialized == false)
+            if (GuiService.IsInitialized == false)
                 return;
 
             KeyValuePair<string, DevObject>[]? list = null;
@@ -381,7 +381,7 @@ internal partial class Program
             {
                 foreach (var o in list)
                 {
-                    Service.Invalidate(o.Key); // appeler uniquement si le contenu de out a changé
+                    GuiService.Invalidate(o.Key); // appeler uniquement si le contenu de out a changé
                 }
             }
         }
@@ -544,7 +544,7 @@ internal partial class Program
                         }
                         var result = o.Value.BuildMethod.Item2?.Execute(pyScope);
 
-                        Service.Invalidate(o.Key);
+                        GuiService.Invalidate(o.Key);
                     }
                     catch (Exception ex)
                     {

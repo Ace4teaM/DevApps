@@ -368,7 +368,7 @@ namespace DevApps.GUI
 
                             Program.DevObject.CompilObjects(proj.Objects.Select(p=>p.Value.content));
                             Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
-                            Service.InvalidateFacets();
+                            GuiService.InvalidateFacets();
                         };
                         menu.Items.Add(m);
                     }
@@ -413,16 +413,16 @@ namespace DevApps.GUI
                 return;
             }
 
-            if (Service.IsObjectsView)
+            if (GuiService.IsObjectsView)
             {
                 Console.WriteLine("Construit tous les objets...");
                 Program.DevObject.Build();
                 Console.WriteLine("Terminé");
             }
-            else if (Service.IsFacetsView)
+            else if (GuiService.IsFacetsView)
             {
                 Console.WriteLine("Construit la facette active...");
-                var facet = Service.GetSelectedFacet();
+                var facet = GuiService.GetSelectedFacet();
                 if(facet != null)
                 {
                     facet.Build();

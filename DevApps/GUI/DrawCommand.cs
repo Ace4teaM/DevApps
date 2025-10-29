@@ -27,7 +27,7 @@ namespace DevApps.GUI
             this.X = pos.Y;
 
             this.Title = new FormattedText(objectName, CultureInfo.InvariantCulture,
-                System.Windows.FlowDirection.LeftToRight, Service.typeface, 10, Brushes.Blue,
+                System.Windows.FlowDirection.LeftToRight, GuiService.typeface, 10, Brushes.Blue,
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
         }
 

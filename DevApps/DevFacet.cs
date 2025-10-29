@@ -319,7 +319,7 @@ internal partial class Program
                         ws.WriteLine(String.Format(shellSet, "dir", Path.GetFullPath(".")));
 
                         // ajout les chemins d'accès aux outils
-                        foreach (var o in Service.externalsTools)
+                        foreach (var o in GuiService.externalsTools)
                             ws.WriteLine(String.Format(shellEnv, o.Value.Replace("\"", "")));
 
                         // ajout lien vers les objets

@@ -177,7 +177,7 @@ namespace DevApps.GUI
                 RemoveAdorner();
 
                 // Masque le nom dans la barre de status
-                Service.SetStatusText(String.Empty);
+                GuiService.SetStatusText(String.Empty);
 
                 // Masque le cadre de l'objet
                 borderOver.Visibility = Visibility.Hidden;
@@ -222,7 +222,7 @@ namespace DevApps.GUI
                     }
 
                     // Affiche le nom dans la barre de status
-                    Service.SetStatusText(overElement.Name);
+                    GuiService.SetStatusText(overElement.Name);
 
                     // supprime les connecteurs
                     foreach (var c in MyCanvas.Children.OfType<ConnectorElement>().ToArray())
@@ -1119,7 +1119,7 @@ namespace DevApps.GUI
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Service.IsInitialized)
+            if (GuiService.IsInitialized)
             {
                 foreach (var obj in this.facette.Objects)
                 {
@@ -1165,7 +1165,7 @@ namespace DevApps.GUI
         }
         private void SaveDisposition()
         {
-            if (Service.IsInitialized)
+            if (GuiService.IsInitialized)
             {
                 foreach (var element in MyCanvas.Children.OfType<DrawElement>())
                 {
@@ -1193,7 +1193,7 @@ namespace DevApps.GUI
         }
         private void SaveDisposition(DrawBase element)
         {
-            if (Service.IsInitialized)
+            if (GuiService.IsInitialized)
             {
                 if (element is DrawElement && this.facette.Objects.TryGetValue(element.Name, out var props))
                 {
@@ -1231,7 +1231,7 @@ namespace DevApps.GUI
 
         internal void InvalidateObjects()
         {
-            if (Service.IsInitialized)
+            if (GuiService.IsInitialized)
             {
                 var elements = MyCanvas.Children.OfType<DrawElement>().ToArray();
                 foreach (var element in elements)
@@ -1246,7 +1246,7 @@ namespace DevApps.GUI
 
         internal void InvalidateCommands()
         {
-            if (Service.IsInitialized)
+            if (GuiService.IsInitialized)
             {
                 var elements = MyCanvas.Children.OfType<DrawCommand>().ToArray();
                 foreach (var element in elements)
@@ -1346,7 +1346,7 @@ namespace DevApps.GUI
 
                 Program.DevObject.CompilObjects([item.Value.content]);
                 Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
-                Service.InvalidateFacets();
+                GuiService.InvalidateFacets();
             }
         }
 
@@ -1781,7 +1781,7 @@ namespace DevApps.GUI
                 Program.DevObject.CompilObjects([obj.content]);
                 Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
                 Program.DevObject.Build(Program.DevObject.References.Where(p=>p.Key == name));// construit le nouvel objet
-                Service.InvalidateFacets();
+                GuiService.InvalidateFacets();
             }
         }
 
