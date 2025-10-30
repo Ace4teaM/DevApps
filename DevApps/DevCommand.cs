@@ -22,8 +22,7 @@ internal partial class Program
             { "print", new DevPrintCommand() },
             { "build", new DevBuildCommand() },
             { "buildall", new DevBuildAllCommand() },
-            { "read", new DevReadCommand() },
-            { "write", new DevWriteCommand() },
+            { "copy", new DevCopyCommand() },
         };
 
         private static bool ParseString(ref string argument)
@@ -126,10 +125,10 @@ internal partial class Program
             }
         }
 
-        public class DevWriteCommand : DevCommandDefinition
+        public class DevCopyCommand : DevCommandDefinition
         {
-            public override string? Description { get { return "Ecrit le contenu d'un objet dans un fichier"; } }
-            public override string? Syntaxe { get { return "write [NomObjet] [CheminFichier]"; } }
+            public override string? Description { get { return "Copie le contenu d'un objet dans un autre"; } }
+            public override string? Syntaxe { get { return "copy [ObjetSource] [ObjetDestination]"; } }
             public override Func<DevCommand, int> Execute { get { return Run; } }
             private static int Run(DevCommand cmd)
             {
@@ -139,69 +138,25 @@ internal partial class Program
                 if (cmd.Arguments.Count < 2)
                     throw new ArgumentException();
 
-                var name = cmd.Arguments[0]; // todo : validation format
-                var filename = cmd.Arguments[1]; // todo : validation format
+                var name1 = cmd.Arguments[0]; // todo : validation format
+                var name2 = cmd.Arguments[1]; // todo : validation format
 
-                var obj = DevObject.Get(name);
+                var obj1 = DevObject.Get(name1);
+                var obj2 = DevObject.Get(name2);
 
-                if (obj == null)
-                    throw new Exception(@"L'objet {name} n'existe pas");
+                if (obj1 == null)
+                    throw new Exception(@"L'objet {name1} n'existe pas");
 
-                if (obj.Content == null)
-                    throw new Exception(@"L'objet {name} ne contient pas de données");
+                if (obj2 == null)
+                    throw new Exception(@"L'objet {name2} n'existe pas");
 
-                var file = File.OpenWrite(filename);
+                if (obj1.Content == null)
+                    throw new Exception(@"L'objet {name1} ne contient pas de données");
 
-                if (file == null)
-                    throw new Exception(@"Le fichier {filename} ne peut pas être ouvert");
+                if (obj2.Content == null)
+                    throw new Exception(@"L'objet {name2} ne contient pas de données");
 
-                obj.Content.CopyTo(file);
-
-                obj.Content.Position = 0;
-
-                file.Close();
-
-                return 0;
-            }
-        }
-
-        public class DevReadCommand : DevCommandDefinition
-        {
-            public override string? Description { get { return "Ecrit le contenu d'un fichier dans un objet"; } }
-            public override string? Syntaxe { get { return "read [NomObjet] [CheminFichier]"; } }
-            public override Func<DevCommand, int> Execute { get { return Run; } }
-            private static int Run(DevCommand cmd)
-            {
-                if (cmd.Arguments == null)
-                    throw new ArgumentException();
-
-                if (cmd.Arguments.Count < 2)
-                    throw new ArgumentException();
-
-                var name = cmd.Arguments[0]; // todo : validation format
-                var filename = cmd.Arguments[1]; // todo : validation format
-
-                var obj = DevObject.Get(name);
-
-                if (obj == null)
-                    throw new Exception(@"L'objet {name} n'existe pas");
-
-                var file = File.OpenRead(filename);
-
-                if (file == null)
-                    throw new Exception(@"Le fichier {filename} ne peut pas être ouvert");
-
-                if (obj.Content == null)
-                    throw new Exception(@"L'objet {name} ne contient pas de données");
-
-                obj.Content.Position = 0;
-
-                file.CopyTo(obj.Content);
-
-                obj.Content.Position = 0;
-                obj.Content.SetLength(file.Length);
-
-                file.Close();
+                obj1.Content.CopyTo(obj2.Content);
 
                 return 0;
             }
@@ -420,7 +375,7 @@ internal partial class Program
                 }
                 // commande ?
                 else{
-                    var match = Regex.Match(line, @"^(\w+)(?:\s+([^\s]+))*\s*$");
+                    var match = Regex.Match(line, @"^(\w+)(?:\s+([\w]+))*\s*$");
                     if (match.Success)
                     {
                         DevCommand command = new DevCommand();
