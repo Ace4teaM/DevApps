@@ -29,6 +29,9 @@ internal partial class Program
         {
             if(filename != null && this.fileStream == null && File.Exists(filename))
             {
+                if(Path.GetFullPath(filename).StartsWith(Environment.CurrentDirectory) == false)
+                    throw new Exception("Accès aux fichiers en dehors du répertoire de travail interdit");
+
                 this.fileStream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
                 Description = filename;
             }
