@@ -132,15 +132,24 @@ internal partial class Program
             var newName = Program.RemoveDiacritics(name);
             int n = 2;
 
-            var allowedChars = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+            const string allowedChars = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
 
-            newName = newName.Replace(' ', '_');
-            newName = newName.Replace('\t', '_');
-            newName = newName.Replace('-', '_');
+            const string allowedFirstChars = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
 
-            newName = Regex.Replace(newName, "[^" + allowedChars + "]", "");
+            name = name.Replace(' ', '_');
+            name = name.Replace('\t', '_');
+            name = name.Replace('-', '_');
 
-            if(anotherNames != null)
+            name = Regex.Replace(name, "[^" + allowedChars + "]", "");
+
+            // le nom doit commencer par un caractère valide (FrameworkElement.Name l'exige)
+            if (allowedFirstChars.Contains(name[0]) == false)
+                name = "_" + name;
+
+
+            newName = name;
+
+            if (anotherNames != null)
             {
                 while (References.ContainsKey(newName) || Program.Keywords.Contains(newName) || anotherNames.Contains(newName))
                 {
