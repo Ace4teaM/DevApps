@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace DevApps.GUI
 {
@@ -64,6 +65,18 @@ namespace DevApps.GUI
             string rootPath = Environment.CurrentDirectory;
             var rootItem = new FileSystemItem(rootPath);
             FileTree.Items.Add(rootItem);
+        }
+
+        private void FileTree_MouseMove(object sender, MouseEventArgs e)
+        {
+            var over = e.MouseDevice.DirectlyOver;
+            if (over != null && e.LeftButton == MouseButtonState.Pressed)
+            {
+                if (over is FrameworkElement element && element.DataContext is FileSystemItem)
+                    DragDrop.DoDragDrop(FileTree,
+                                     element.DataContext,
+                                     DragDropEffects.Copy);
+            }
         }
 
         private void FileTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)

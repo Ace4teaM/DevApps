@@ -79,6 +79,35 @@ namespace Serializer
         public KeyValuePair<string, string>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, string>(value); } }
     }
 
+    internal class DevObjectFile
+    {
+        [Newtonsoft.Json.JsonIgnore]
+        internal Program.DevObjectFile content;
+
+        public DevObjectFile()
+        {
+            this.content = new Program.DevObjectFile();
+        }
+        public DevObjectFile(Program.DevObjectFile content)
+        {
+            this.content = content;
+        }
+
+        public HashSet<string> Tags { get { return content.tags; } set { content.tags = value; } }
+        public String? Filename { get { return content.filename; } set { content.filename = value; } }
+        public String Description { get { return content.Description; } set { content.Description = value; } }
+        public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
+        public KeyValuePair<string, Program.DevObjectFile.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, DevObject.Pointer>(value); } }
+        public KeyValuePair<string, string?>[] Functions { get { return content.functions.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.functions = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value ?? string.Empty, null)))); } }
+        public KeyValuePair<string, string?>[] Properties { get { return content.properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.properties = new Dictionary<string, (string, Microsoft.Scripting.Hosting.CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value ?? string.Empty, null)))); } }
+        public string UserAction { get { return content.userAction.Item1; } set { content.userAction = (value, null); } }
+        public string LoopMethod { get { return content.loopMethod.Item1; } set { content.loopMethod = (value, null); ; } }
+        public string InitMethod { get { return content.initMethod.Item1; } set { content.initMethod = (value, null); ; } }
+        public string BuildMethod { get { return content.buildMethod.Item1; } set { content.buildMethod = (value, null); } }
+        public string ObjectCode { get { return content.objectCode.Item1; } set { content.objectCode = (value, null); } }
+        public string DrawCode { get { return content.drawCode.Item1; } set { content.drawCode = (value, null); } }
+    }
+
     internal class DevCommands
     {
         [Newtonsoft.Json.JsonIgnore]
@@ -133,6 +162,23 @@ namespace Serializer
                 foreach (var o in value)
                 {
                     Program.DevVariable.References.Add(o.Key, o.Value.content);
+                }
+            }
+        }
+        public KeyValuePair<string, DevObjectFile>[] Files { 
+            get {
+                return Program.DevObjectFile.References.Where(p => p.Value is Program.DevObjectFile).Select(p=>new KeyValuePair<string, DevObjectFile>(p.Key, new DevObjectFile((Program.DevObjectFile)p.Value))).ToArray();
+            }
+            set
+            {
+                foreach (var s in Program.DevObjectFile.References.Where(p => p.Value is Program.DevObjectFile).ToArray())
+                {
+                    Program.DevObjectFile.References.Remove(s.Key);
+                }
+
+                foreach (var o in value)
+                {
+                    Program.DevObjectFile.References.Add(o.Key, o.Value.content);
                 }
             }
         }
@@ -225,6 +271,25 @@ namespace Serializer
                 foreach (var o in value)
                 {
                     ReferencesV.Add(o.Key, o.Value.content);
+                }
+            }
+        }
+        public KeyValuePair<string, DevObjectFile>[] Files
+        {
+            get
+            {
+                return ReferencesO.Where(p => p.Value is Program.DevObjectFile).Select(p => new KeyValuePair<string, DevObjectFile>(p.Key, new DevObjectFile((Program.DevObjectFile)p.Value))).ToArray();
+            }
+            set
+            {
+                foreach (var s in ReferencesO.Where(p => p.Value is Program.DevObjectFile).ToArray())
+                {
+                    ReferencesO.Remove(s.Key);
+                }
+
+                foreach (var o in value)
+                {
+                    ReferencesO.Add(o.Key, o.Value.content);
                 }
             }
         }

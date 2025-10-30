@@ -6,38 +6,49 @@ using System.Text;
 internal partial class Program
 {
     /// <summary>
-    /// Instance d'objet
-    /// Un objet d'instance possède ses propres données et codes
+    /// Objet de fichier
+    /// Un objet pointant sur le contenu d'un fichier du dossier de travail
     /// </summary>
-    public class DevObjectInstance : DevObject
+    public class DevObjectFile : DevObject
     {
+        public DevObjectFile()
+        {
+        }
+
+        public DevObjectFile(string filename)
+        {
+            var ext = Path.GetExtension(filename);
+            this.filename = filename;
+            if(ext.Length > 1)
+                this.tags = new HashSet<string>([ext.Substring(1)]);
+            this.Description = filename;
+            this.drawCode = ("gui.text(out)", null);
+        }
+
         public override void OnInit()
         {
+            if(filename != null && this.fileStream == null && File.Exists(filename))
+            {
+                this.fileStream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+                Description = filename;
+            }
         }
 
         public override void OnDelete()
         {
-            if (this.buildStream != null)
+            if (this.fileStream != null)
             {
-                this.buildStream.Close();
+                this.fileStream.Close();
+                this.fileStream = null;
             }
         }
 
         /// <summary>
-        /// identifiant de l'objet modèle de celui-ci (pour mise à jour)
-        /// </summary>
-        internal Guid? baseGuid = null;
-
-        /// <summary>
-        /// identifiant unique de l'objet (si déclaré comme modèle)
-        /// </summary>
-        internal Guid? guid = null;
-
-        /// <summary>
         /// Accès aux données de l'objet
         /// </summary>
-        internal MemoryStream buildStream = new MemoryStream();
-        public override Stream Content { get { return buildStream; } }
+        internal string? filename;
+        internal FileStream? fileStream;
+        public override Stream Content { get { return fileStream ?? MemoryStream.Null; } }
 
         /// <summary>
         /// Pointeurs vers des objets existants
@@ -95,76 +106,29 @@ internal partial class Program
         {
             get
             {
-                return Encoding.UTF8.GetString(buildStream.GetBuffer());
+                if (fileStream != null && fileStream.CanRead)
+                {
+                    using (var reader = new StreamReader(fileStream, Encoding.UTF8, true, 1024, true))//encoding a détecter
+                    {
+                        fileStream.Position = 0;
+                        var text = reader.ReadToEnd();
+                        fileStream.Position = 0;
+                        return text;
+                    }
+                }
+                return String.Empty;
             }
         }
 
 
-        /// <summary>
-        /// Actualise un objet depuis un modèle d'instance
-        /// </summary>
-        /// <param name="inst">Objet modèle</param>
-        public void UpdateFrom(DevObjectInstance inst)
+        public override DevObjectFile Clone()
         {
-            baseGuid = inst.guid;
-            buildMethod = inst.buildMethod;
-            drawCode = inst.drawCode;
-            functions = inst.functions;
-            properties = inst.properties;
-            initMethod = inst.initMethod;
-            loopMethod = inst.loopMethod;
-            objectCode = inst.objectCode;
-            userAction = inst.userAction;
-
-            // marque comme non initialisé
-            IsInitialized = false;
-
-            // vérifie si de nouveaux pointeurs existents
-            // ne modifie pas les objets pointés actuellement
-            foreach (var p in inst.pointers)
-            {
-                if (pointers.TryGetValue(p.Key, out var thisp))
-                {
-                    thisp.tags = p.Value.tags;
-                }
-                else
-                {
-                    inst.pointers.Add(p.Key, new Pointer { tags = p.Value.tags, target = string.Empty });
-                }
-            }
-
-            // supprime les pointeurs inutiles
-            foreach (var thisp in pointers.ToArray())
-            {
-                if (inst.pointers.ContainsKey(thisp.Key) == false)
-                {
-                    pointers.Remove(thisp.Key);
-                }
-            }
-        }
-
-        public override DevObjectInstance Clone()
-        {
-            return new DevObjectInstance { 
-                baseGuid = this.guid,
-                guid = null,
-                buildMethod = this.buildMethod,
-                buildStream = new MemoryStream(buildStream.ToArray()),
-                drawCode = this.drawCode,
-                functions = new Dictionary<string, (string, CompiledCode?)>(this.functions),
-                properties = new Dictionary<string, (string, CompiledCode?)>(this.properties),
-                initMethod = this.initMethod,
-                loopMethod = this.loopMethod,
-                objectCode = this.objectCode,
-                userAction = this.userAction,
-                tags = new HashSet<string>(this.tags),
-                pointers = new Dictionary<string, Pointer>(this.pointers),
-            };
+            throw new Exception("Un objet de fichier ne peut pas être cloné");
         }
 
         public override bool IsModel()
         {
-            return this.guid != null;
+            return false;
         }
 
         public override string? GetDrawCode()
@@ -180,39 +144,33 @@ internal partial class Program
 
         public override DevObject SetOutput(byte[] data)
         {
-            buildStream.Seek(0, SeekOrigin.Begin);
-            buildStream.Write(data);
-            buildStream.SetLength(data.Length);
+            if(fileStream == null || fileStream.CanWrite == false)
+                return this;
+            fileStream.Seek(0, SeekOrigin.Begin);
+            fileStream.Write(data);
+            fileStream.SetLength(data.Length);
             return this;
         }
 
         public override DevObject SetOutput(string text, bool removeIdent = false)
         {
+            if (fileStream == null || fileStream.CanWrite == false)
+                return this;
             var data = Encoding.UTF8.GetBytes(removeIdent ? RemoveIdent(text) : text);
-            buildStream.Seek(0, SeekOrigin.Begin);
-            buildStream.Write(data);
-            buildStream.SetLength(data.Length);
+            fileStream.Seek(0, SeekOrigin.Begin);
+            fileStream.Write(data);
+            fileStream.SetLength(data.Length);
             return this;
         }
 
         public override DevObject LoadOutput(string name, string? path = null)
         {
-            if (path == null)
-                path = DataDir;
-
-            var data = File.ReadAllBytes(Path.Combine(path, name));
-            buildStream.Write(data);
-            buildStream.SetLength(data.Length);
-            return this;
+            throw new Exception("Un objet de fichier ne contient pas de données locales");
         }
 
         public override DevObject SaveOutput(string name, string? path = null)
         {
-            if (path == null)
-                path = DataDir;
-
-            File.WriteAllBytes(Path.Combine(path, name), buildStream.GetBuffer());
-            return this;
+            throw new Exception("Un objet de fichier ne contient pas de données locales");
         }
 
         public override string? GetCode()
@@ -282,7 +240,7 @@ internal partial class Program
             Functions.Clear();
             foreach (var p in items)
             {
-                if(p.Value == null)
+                if (p.Value == null)
                 {
                     Console.WriteLine($"Fonction {p.Key} sans code ignoré");
                     continue;
@@ -324,7 +282,7 @@ internal partial class Program
 
         public override DevObject AddPointer(string name, string reference, string[] tags)
         {
-            Pointers[name] = new Pointer { target=reference, tags=new HashSet<string>(tags) };
+            Pointers[name] = new Pointer { target = reference, tags = new HashSet<string>(tags) };
             return this;
         }
 

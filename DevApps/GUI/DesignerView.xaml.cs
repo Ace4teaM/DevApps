@@ -1318,10 +1318,7 @@ namespace DevApps.GUI
                 var item = (DesignerWindow.ObjectModel)e.Data.GetData(typeof(DesignerWindow.ObjectModel));
 
                 var name = item.Key;
-                if (Program.DevObject.References.ContainsKey(name) == true)
-                {
-                    Program.DevObject.MakeUniqueName(ref name, null);
-                }
+                Program.DevObject.MakeUniqueName(ref name, null);
 
                 // Actualise les pointeurs
                 foreach (var ptr in item.Value.content.Pointers)
@@ -1361,6 +1358,31 @@ namespace DevApps.GUI
                 AddElement(name, props);
 
                 Program.DevObject.CompilObjects([item.Value.content]);
+                Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                GuiService.InvalidateFacets();
+            }
+            else if (e.Data.GetDataPresent(typeof(FileSystemItem)))
+            {
+                var item = (FileSystemItem)e.Data.GetData(typeof(FileSystemItem));
+
+                var name = item.Name;
+                Program.DevObject.MakeUniqueName(ref name, null);
+
+                // Crée l'objet
+                var obj = new DevObjectFile(Path.GetRelativePath(Environment.CurrentDirectory, item.FullPath));
+
+                // Ajoute aux références
+                Program.DevObject.References.Add(name, obj);
+
+                // Ajoute à la facette en cours
+                var pos = e.GetPosition(MyCanvas);
+                pos.X -= _translateTransform.X;
+                pos.Y -= _translateTransform.Y;
+                var props = new ObjectProperties() { zone = new Rect(pos, new Point(pos.X + 200, pos.Y + 200)) };
+                this.facette.Objects.Add(name, props);
+                AddElement(name, props);
+
+                Program.DevObject.CompilObjects([obj]);
                 Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
                 GuiService.InvalidateFacets();
             }

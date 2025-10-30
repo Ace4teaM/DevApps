@@ -642,10 +642,11 @@ namespace DevApps.PythonExtends
             var en = Encoding.GetEncoding(encoding);
             var text = en.GetString(bytes);
 
-            double x = Left;
-            double y = Top;
             if (String.IsNullOrEmpty(text))
                 return this;
+
+            double x = Left;
+            double y = Top;
             var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
             drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
 
@@ -658,8 +659,6 @@ namespace DevApps.PythonExtends
 
             double x = Left;
             double y = Top;
-            if (String.IsNullOrEmpty(text))
-                return this;
             var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
             drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
 
@@ -680,12 +679,15 @@ namespace DevApps.PythonExtends
                 string text = reader.ReadToEnd();
                 in1.Stream.Position = 0;
 
+                double y = Top;
                 foreach (var line in text.Split(new char[] { '\n', '\r' }))
                 {
                     double x = Left;
-                    double y = Top;
                     if (String.IsNullOrEmpty(line))
-                        return this;
+                    {
+                        y -= advanceHeight;
+                        continue;
+                    }
                     var glyphRun = GUI.ConvertTextToGlyphRun(line, ref x, ref y);
                     drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
                 }
@@ -701,8 +703,6 @@ namespace DevApps.PythonExtends
 
             double x = Left;
             double y = Top;
-            if (String.IsNullOrEmpty(text))
-                return this;
             var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
             drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
 
@@ -713,13 +713,16 @@ namespace DevApps.PythonExtends
             if (texts.Length == 0)
                 return this;
 
-            foreach (var text in texts)
+            foreach (var line in texts)
             {
                 double x = Left;
                 double y = Top;
-                if (String.IsNullOrEmpty(text))
-                    return this;
-                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+                if (String.IsNullOrEmpty(line))
+                {
+                    y += advanceHeight;
+                    continue;
+                }
+                var glyphRun = GUI.ConvertTextToGlyphRun(line, ref x, ref y);
                 drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
             }
             return this;
@@ -729,13 +732,16 @@ namespace DevApps.PythonExtends
             if (texts.Count == 0)
                 return this;
 
-            foreach (var text in texts)
+            foreach (var line in texts)
             {
                 double x = Left;
                 double y = Top;
-                if (String.IsNullOrEmpty(text?.ToString()))
-                    return this;
-                var glyphRun = GUI.ConvertTextToGlyphRun(text?.ToString() ?? String.Empty, ref x, ref y);
+                if (String.IsNullOrEmpty(line?.ToString()))
+                {
+                    y += advanceHeight;
+                    continue;
+                }
+                var glyphRun = GUI.ConvertTextToGlyphRun(line?.ToString() ?? String.Empty, ref x, ref y);
                 drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
             }
             return this;

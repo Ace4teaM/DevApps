@@ -11,6 +11,9 @@ internal partial class Program
     /// </summary>
     public abstract class DevObject
     {
+        public abstract void OnInit();
+        public abstract void OnDelete();
+
         public class Pointer
         {
             public string target = string.Empty;
@@ -196,12 +199,17 @@ internal partial class Program
                 var handle2 = mutexCheckObjectList.WaitOne();
                 if (handle2)
                 {
-                    References.Remove(name);
-                    foreach (var o in DevFacet.References)
+                    var obj = References.GetValueOrDefault(name);
+                    if (obj != null)
                     {
-                        if (o.Value.Objects.ContainsKey(name) == false)
-                            continue;
-                        o.Value.Objects.Remove(name);
+                        References.Remove(name);
+                        foreach (var o in DevFacet.References)
+                        {
+                            if (o.Value.Objects.ContainsKey(name) == false)
+                                continue;
+                            o.Value.Objects.Remove(name);
+                        }
+                        obj.OnDelete();
                     }
                     mutexCheckObjectList.ReleaseMutex();
                 }
@@ -471,6 +479,22 @@ internal partial class Program
             {
                 foreach (var o in References.Where(p => p.Value.IsInitialized == false))
                 {
+                    // Initialisation interne
+                    try
+                    {
+                        o.Value.OnInit();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Console.WriteLine("******************************************");
+                        System.Console.WriteLine("Init: " + o.Key);
+                        ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                        string error = eo.FormatException(ex);
+                        Console.WriteLine(error);
+                        System.Console.WriteLine("******************************************");
+                    }
+
+                    // Execute le script d'initialisation
                     try
                     {
                         var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
@@ -659,7 +683,7 @@ internal partial class Program
         /// </summary>
         public static void CompilObjects(IEnumerable<DevObject>? objects = null)
         {
-            foreach (var o in (objects ?? References.Values).OfType<DevObjectInstance>())
+            foreach (var o in (objects ?? References.Values).Where(p=>p is DevObjectInstance || p is DevObjectFile))
             {
                 o.CompilDraw();
                 o.CompilObject();

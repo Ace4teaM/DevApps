@@ -8,7 +8,7 @@
              Loaded="UserControl_Loaded"
              d:DesignHeight="450" d:DesignWidth="400">
     <Grid>
-        <TreeView Name="FileTree" SelectedItemChanged="FileTree_SelectedItemChanged">
+        <TreeView Name="FileTree" SelectedItemChanged="FileTree_SelectedItemChanged" MouseMove="FileTree_MouseMove">
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
                     <EventSetter Event="Expanded" Handler="TreeViewItem_Expanded"/>

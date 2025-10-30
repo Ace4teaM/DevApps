@@ -1,10 +1,6 @@
-﻿using DevApps.GUI;
-using Microsoft.Scripting.Hosting;
+﻿using Microsoft.Scripting.Hosting;
 using System.IO;
 using System.Text;
-using System.Windows.Forms;
-using System.Windows.Input;
-using static Program;
 
 internal partial class Program
 {
@@ -14,6 +10,18 @@ internal partial class Program
     /// </summary>
     public class DevObjectReference : DevObject
     {
+        public override void OnInit()
+        {
+        }
+
+        public override void OnDelete()
+        {
+            if (this.buildStream != null)
+            {
+                this.buildStream.Close();
+            }
+        }
+
         internal string? baseObjectName;
 
         internal DevObjectInstance? baseObject; //mettre en cache GetBaseObject
