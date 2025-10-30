@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using DevApps.GUI;
+using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using SharpVectors.Converters;
@@ -673,15 +674,23 @@ namespace DevApps.PythonExtends
 
             in1.Stream.Seek(0, SeekOrigin.Begin);
 
-            foreach (var text in Encoding.UTF8.GetString(in1.Stream.ToArray()).Split(new char[] { '\n', '\r' }))
+            using (var reader = new StreamReader(in1.Stream, Encoding.UTF8, true, 1024, true))
             {
-                double x = Left;
-                double y = Top;
-                if (String.IsNullOrEmpty(text))
-                    return this;
-                var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
-                drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
+                in1.Stream.Position = 0;
+                string text = reader.ReadToEnd();
+                in1.Stream.Position = 0;
+
+                foreach (var line in text.Split(new char[] { '\n', '\r' }))
+                {
+                    double x = Left;
+                    double y = Top;
+                    if (String.IsNullOrEmpty(line))
+                        return this;
+                    var glyphRun = GUI.ConvertTextToGlyphRun(line, ref x, ref y);
+                    drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
+                }
             }
+
 
             return this;
         }
@@ -740,7 +749,7 @@ namespace DevApps.PythonExtends
                 // Créer une instance de BitmapImage
                 BitmapImage bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
-                bitmapImage.StreamSource = new MemoryStream(data.Stream.ToArray());
+                bitmapImage.StreamSource = data.Stream;
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad; // Charge l'image dans la mémoire
                 bitmapImage.EndInit();
 

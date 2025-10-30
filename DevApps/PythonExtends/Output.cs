@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using static IronPython.Modules._ast;
 
 namespace DevApps.PythonExtends
 {
@@ -16,7 +17,7 @@ namespace DevApps.PythonExtends
         /// <summary>
         /// Flux mémoire en cours
         /// </summary>
-        MemoryStream stream;
+        Stream stream;
         /// <summary>
         /// utilisé pour optimiser les accès au contenu UTF8 dans une string .NET
         /// </summary>
@@ -47,7 +48,7 @@ namespace DevApps.PythonExtends
             stream.SetLength(file.Length);
         }
 
-        public Output(MemoryStream stream, string filename)
+        public Output(Stream stream, string filename)
         {
             this.stream = stream;
             Filename = filename;
@@ -119,7 +120,7 @@ namespace DevApps.PythonExtends
         /// </summary>
         public IronPython.Runtime.Bytes bytes()
         {
-            return new IronPython.Runtime.Bytes(stream.ToArray());
+            return new IronPython.Runtime.Bytes(Bytes());
         }
 
         /// <summary>
@@ -127,7 +128,11 @@ namespace DevApps.PythonExtends
         /// </summary>
         public byte[] Bytes()
         {
-            return stream.ToArray();
+            byte[] bytes = new byte[stream.Length];
+            stream.Seek(0, SeekOrigin.Begin); 
+            stream.Write(bytes);
+            stream.Seek(0, SeekOrigin.Begin); 
+            return bytes;
         }
 
         /// <summary>
@@ -145,7 +150,7 @@ namespace DevApps.PythonExtends
         {
             double val = 0;
             if (cachedText == null)
-                cachedText = Encoding.UTF8.GetString(stream.ToArray());
+                cachedText = Encoding.UTF8.GetString(Bytes());
             if(double.TryParse(cachedText, out val) == false)
                 System.Console.WriteLine("number(): Failed to parse output to number");
             return val;
@@ -161,8 +166,14 @@ namespace DevApps.PythonExtends
             {
                 if (cachedText != null)
                     return cachedText;
-                cachedText = Encoding.UTF8.GetString(stream.ToArray());
-                //new IronPython.Runtime.PythonEnumerable.Create(stream.GetBuffer());
+
+                using (var reader = new StreamReader(Stream, Encoding.UTF8, true, 1024, true))//encoding a détecter
+                {
+                    Stream.Position = 0;
+                    cachedText = reader.ReadToEnd();
+                    Stream.Position = 0;
+                }
+
                 return cachedText;
             }
             catch (Exception)
@@ -184,7 +195,7 @@ namespace DevApps.PythonExtends
             {
                 if (cachedText != null)
                     return Regex.Split(cachedText, "\r\n|\r|\n");
-                cachedText = Encoding.UTF8.GetString(stream.ToArray());
+                cachedText = Encoding.UTF8.GetString(Bytes());
                 //new IronPython.Runtime.PythonEnumerable.Create(stream.GetBuffer());
                 return Regex.Split(cachedText, "\r\n|\r|\n");
             }
@@ -229,7 +240,7 @@ namespace DevApps.PythonExtends
         /// <summary>
         /// Flux de données interne
         /// </summary>
-        internal MemoryStream Stream
+        internal Stream Stream
         {
             get
             {

@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Xml.Linq;
+using static IronPython.Modules._ast;
 using static IronPython.Runtime.Profiler;
 
 namespace DevApps.Print
@@ -76,7 +77,7 @@ namespace DevApps.Print
                         try
                         {
                             var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                            pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.buildStream, Path.Combine(Program.DataDir, key)));// mise en cache dans l'objet ?
+                            pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Content, Path.Combine(Program.DataDir, key)));// mise en cache dans l'objet ?
                             pyScope.SetVariable("gui", o.gui);
                             pyScope.SetVariable("name", key);
                             pyScope.SetVariable("dc", dc);
@@ -86,7 +87,7 @@ namespace DevApps.Print
                             foreach (var pointer in o.Pointers)
                             {
                                 Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                                pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, key)));// mise en cache dans l'objet ?
+                                pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, key)));// mise en cache dans l'objet ?
                             }
 
                             o.gui.Begin(dc);
@@ -260,7 +261,7 @@ namespace DevApps.Print
                     if (o == null)
                         continue;
 
-                    var content = o.buildStream;
+                    var content = o.Content;
 
                     if (contentType == ContentType.Undefined && IsJPEG(content))
                     {
@@ -334,9 +335,15 @@ namespace DevApps.Print
                                 break;
 
                             case ContentType.Text_UTF8:
-                                var text = Encoding.UTF8.GetString(content.GetBuffer(), 0, (int)content.Length);
 
-                                gfx.DrawString(text, xFont, XBrushes.Black, xRect, XStringFormats.Center);
+                                using (var reader = new StreamReader(content, Encoding.UTF8, true, 1024, true))
+                                {
+                                    content.Position = 0;
+                                    string text = reader.ReadToEnd();
+                                    content.Position = 0;
+                                    gfx.DrawString(text, xFont, XBrushes.Black, xRect, XStringFormats.Center);
+                                }
+
                                 break;
 
                             case ContentType.Image_PNG:

@@ -56,6 +56,12 @@ internal partial class Program
         }
 
         /// <summary>
+        /// Accès aux données de l'objet
+        /// </summary>
+        internal MemoryStream buildStream = new MemoryStream();
+        public override Stream Content { get { return buildStream; } }
+
+        /// <summary>
         /// Tags de l'objet
         /// </summary>
         public override string[] Tags { get { return baseObject != null ? baseObject.Tags : []; } }

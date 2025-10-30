@@ -24,6 +24,12 @@ internal partial class Program
         internal Guid? guid = null;
 
         /// <summary>
+        /// Accès aux données de l'objet
+        /// </summary>
+        internal MemoryStream buildStream = new MemoryStream();
+        public override Stream Content { get { return buildStream; } }
+
+        /// <summary>
         /// Pointeurs vers des objets existants
         /// </summary>
         internal Dictionary<string, Pointer> pointers = new Dictionary<string, Pointer>(); // name, refName

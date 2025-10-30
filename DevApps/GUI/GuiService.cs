@@ -639,7 +639,7 @@ namespace DevApps.GUI
                 })) as Program.DevFacet;
         }
 
-        internal static bool OpenEditorOrDefault(MemoryStream stream, string? editorKey = null)
+        internal static bool OpenEditorOrDefault(Stream stream, string? editorKey = null)
         {
             string? fileExt = null;
             string? editorPath = null;

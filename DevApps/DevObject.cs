@@ -1,7 +1,6 @@
 ﻿using DevApps;
 using DevApps.GUI;
 using Microsoft.Scripting.Hosting;
-using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -52,7 +51,11 @@ internal partial class Program
         /// Bloque l'accès en écriture pour Output (permet la lecture sans modification)
         /// </summary>
         internal Mutex mutexReadOutput = new Mutex();
-        public MemoryStream buildStream = new MemoryStream();
+
+        /// <summary>
+        /// Accès aux données de l'objet
+        /// </summary>
+        public abstract Stream Content { get; }
 
         public DevApps.PythonExtends.GUI gui = new DevApps.PythonExtends.GUI();
 
@@ -340,7 +343,7 @@ internal partial class Program
                     {
                         try
                         {
-                            pyScope.SetVariable("out", o.Value.buildStream.GetBuffer());
+                            pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.Content, Path.Combine(Program.DataDir, o.Key)));
                             pyScope.RemoveVariable("gui");
                             o.Value.LoopMethod.Item2?.Execute(pyScope);
                         }
@@ -403,9 +406,9 @@ internal partial class Program
                         if (File.Exists(path))
                         {
                             using var file = File.Open(path, FileMode.Open);
-                            o.Value.buildStream.Seek(0, SeekOrigin.Begin);
-                            file.CopyTo(o.Value.buildStream);
-                            o.Value.buildStream.SetLength(file.Length);
+                            o.Value.Content.Seek(0, SeekOrigin.Begin);
+                            file.CopyTo(o.Value.Content);
+                            o.Value.Content.SetLength(file.Length);
                         }
                     }
                     catch (Exception ex)
@@ -428,15 +431,15 @@ internal partial class Program
             {
                 foreach (var o in References)
                 {
-                    if (o.Value.buildStream.Length == 0)
+                    if (o.Value.Content.Length == 0)
                         continue;
 
                     try
                     {
                         var path = Path.Combine(DataDir, o.Key);
                         using var file = File.Open(path, File.Exists(path) ? FileMode.Truncate : FileMode.Create, FileAccess.Write);
-                        o.Value.buildStream.Seek(0, SeekOrigin.Begin);
-                        o.Value.buildStream.CopyTo(file);
+                        o.Value.Content.Seek(0, SeekOrigin.Begin);
+                        o.Value.Content.CopyTo(file);
                     }
                     catch (Exception ex)
                     {
@@ -463,7 +466,7 @@ internal partial class Program
                     {
                         var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
                         pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
-                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.Content, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                         pyScope.SetVariable("name", o.Key);
                         pyScope.SetVariable("desc", o.Value.Description);
 
@@ -480,7 +483,7 @@ internal partial class Program
                         foreach (var pointer in o.Value.Pointers)
                         {
                             Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                         }
                         foreach (var property in o.Value.Properties)
                         {
@@ -519,7 +522,7 @@ internal partial class Program
                         var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
                         pyScope.SetVariable("interpreter", DevApps.PythonExtends.Interpreter.Instance);
                         pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
-                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.buildStream, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.Content, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                         pyScope.SetVariable("name", o.Key);
                         pyScope.SetVariable("desc", o.Value.Description);
 
@@ -536,7 +539,7 @@ internal partial class Program
                         foreach (var pointer in o.Value.Pointers)
                         {
                             Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.buildStream : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
                         }
                         foreach (var property in o.Value.Properties)
                         {

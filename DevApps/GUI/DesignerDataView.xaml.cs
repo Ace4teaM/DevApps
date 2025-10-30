@@ -1,4 +1,5 @@
-﻿using IronPython.Runtime;
+﻿using ComponentAce.Compression.Libs.ZLib;
+using IronPython.Runtime;
 using Microsoft.Scripting.Utils;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -360,7 +361,7 @@ namespace DevApps.GUI
                         var handle2 = reference.mutexReadOutput.WaitOne();
                         if (handle2)
                         {
-                            GuiService.OpenEditorOrDefault(reference.buildStream, reference.Editor);
+                            GuiService.OpenEditorOrDefault(reference.Content, reference.Editor);
 
                             reference.mutexReadOutput.ReleaseMutex();
                         }
@@ -776,10 +777,15 @@ namespace DevApps.GUI
                         {
                             if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
                             {
-                                if (selectedObject.buildStream.Length == 0 && MessageBox.Show("L'objet ne contient pas de données, voulez vous tout de même continuer ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                                if (selectedObject.Content.Length == 0 && MessageBox.Show("L'objet ne contient pas de données, voulez vous tout de même continuer ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
                                     throw new Exception("Pas de données à initialiser dans l'objet " + selectedItem.Name);
 
-                                selectedObject.InitialDataBase64 = Convert.ToBase64String(selectedObject.buildStream.ToArray());
+                                byte[] bytes = new byte[selectedObject.Content.Length];
+                                selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                                selectedObject.Content.Write(bytes);
+                                selectedObject.Content.Seek(0, SeekOrigin.Begin);
+
+                                selectedObject.InitialDataBase64 = Convert.ToBase64String(bytes);
                             }
                         }
                         catch (Exception ex)
@@ -812,9 +818,10 @@ namespace DevApps.GUI
                                     throw new Exception("Pas de données à restorer dans l'objet " + selectedItem.Name);
 
                                 var bytes = Convert.FromBase64String(selectedObject.InitialDataBase64);
-                                selectedObject.buildStream.Seek(0, SeekOrigin.Begin);
-                                selectedObject.buildStream.Write(bytes);
-                                selectedObject.buildStream.SetLength(bytes.Length);
+                                selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                                selectedObject.Content.Write(bytes);
+                                selectedObject.Content.SetLength(bytes.Length);
+                                selectedObject.Content.Seek(0, SeekOrigin.Begin);
                             }
                         }
                         catch (Exception ex)

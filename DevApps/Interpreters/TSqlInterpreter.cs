@@ -123,8 +123,22 @@ namespace DevApps.Interpreters
                 return this;
             }
 
-            var input1 = Encoding.UTF8.GetString(in1.Stream.ToArray());//encoding a détecter
-            var input2 = Encoding.UTF8.GetString(in2.Stream.ToArray());//encoding a détecter
+            string? input1;
+            string? input2;
+
+            using (var reader = new StreamReader(in1.Stream, Encoding.UTF8, true, 1024, true))//encoding a détecter
+            {
+                in1.Stream.Position = 0;
+                input1 = reader.ReadToEnd();
+                in1.Stream.Position = 0;
+            }
+
+            using (var reader = new StreamReader(in2.Stream, Encoding.UTF8, true, 1024, true))//encoding a détecter
+            {
+                in2.Stream.Position = 0;
+                input2 = reader.ReadToEnd();
+                in2.Stream.Position = 0;
+            }
 
             TSqlGlobalCollector? sqlGlobalCollector1;
             TSqlGlobalCollector? sqlGlobalCollector2;
@@ -272,7 +286,14 @@ namespace DevApps.Interpreters
             in1.Stream.Seek(0, SeekOrigin.Begin);
             output.Stream.Seek(0, SeekOrigin.Begin);
 
-            var input1 = Encoding.UTF8.GetString(in1.Stream.ToArray());//encoding a détecter
+            string? input1;
+
+            using (var reader = new StreamReader(in1.Stream, Encoding.UTF8, true, 1024, true))//encoding a détecter
+            {
+                in1.Stream.Position = 0;
+                input1 = reader.ReadToEnd();
+                in1.Stream.Position = 0;
+            }
 
             //TSqlGlobalCollector? sqlGlobalCollector1 = null;
 
@@ -326,8 +347,22 @@ namespace DevApps.Interpreters
                 return this;
             }
 
-            var input1 = Encoding.UTF8.GetString(in1.Stream.ToArray());//encoding a détecter
-            var input2 = Encoding.UTF8.GetString(in2.Stream.ToArray());//encoding a détecter
+            string? input1;
+            string? input2;
+
+            using (var reader = new StreamReader(in1.Stream, Encoding.UTF8, true, 1024, true))//encoding a détecter
+            {
+                in1.Stream.Position = 0;
+                input1 = reader.ReadToEnd();
+                in1.Stream.Position = 0;
+            }
+
+            using (var reader = new StreamReader(in2.Stream, Encoding.UTF8, true, 1024, true))//encoding a détecter
+            {
+                in2.Stream.Position = 0;
+                input2 = reader.ReadToEnd();
+                in2.Stream.Position = 0;
+            }
 
             TSqlGlobalCollector? sqlGlobalCollector1;
             TSqlGlobalCollector? sqlGlobalCollector2;

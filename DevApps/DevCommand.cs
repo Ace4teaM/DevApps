@@ -147,7 +147,7 @@ internal partial class Program
                 if (obj == null)
                     throw new Exception(@"L'objet {name} n'existe pas");
 
-                if (obj.buildStream == null)
+                if (obj.Content == null)
                     throw new Exception(@"L'objet {name} ne contient pas de données");
 
                 var file = File.OpenWrite(filename);
@@ -155,9 +155,9 @@ internal partial class Program
                 if (file == null)
                     throw new Exception(@"Le fichier {filename} ne peut pas être ouvert");
 
-                obj.buildStream.CopyTo(file);
+                obj.Content.CopyTo(file);
 
-                obj.buildStream.Position = 0;
+                obj.Content.Position = 0;
 
                 file.Close();
 
@@ -191,15 +191,15 @@ internal partial class Program
                 if (file == null)
                     throw new Exception(@"Le fichier {filename} ne peut pas être ouvert");
 
-                if (obj.buildStream == null)
-                    obj.buildStream = new MemoryStream((int)file.Length);
+                if (obj.Content == null)
+                    throw new Exception(@"L'objet {name} ne contient pas de données");
 
-                obj.buildStream.Position = 0;
+                obj.Content.Position = 0;
 
-                file.CopyTo(obj.buildStream);
+                file.CopyTo(obj.Content);
 
-                obj.buildStream.Position = 0;
-                obj.buildStream.SetLength(file.Length);
+                obj.Content.Position = 0;
+                obj.Content.SetLength(file.Length);
 
                 file.Close();
 
