@@ -14,8 +14,20 @@
         <local:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Window.Resources>
-    <DockPanel>
-        <DockPanel DockPanel.Dock="Top" Background="Gray" Height="35" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown"
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="100*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*" MinWidth="550"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="3*" MinWidth="300"/>
+        </Grid.ColumnDefinitions>
+        <!-- Barre de Tire -->
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" DockPanel.Dock="Top" Background="Gray" Height="35" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown"
                      Focusable="False"
                      FocusVisualStyle="{x:Null}">
             <DockPanel.Resources>
@@ -92,7 +104,8 @@
                 </TextBlock>
             </StackPanel>
         </DockPanel>
-        <Grid DockPanel.Dock="Top" Margin="0,5,0,0" >
+        <!-- Facettes -->
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,5,0,0" >
             <DockPanel Height="26" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock DockPanel.Dock="Left" Text="Facettes:" VerticalAlignment="Center" Margin="10,0,10,0" FontWeight="Bold"></TextBlock>
                 <ListBox
@@ -196,14 +209,70 @@
                 <Label></Label>
             </DockPanel>
         </Grid>
-        <Grid DockPanel.Dock="Right" Margin="0,0,0,0">
-            <DockPanel Margin="6" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TextBlock DockPanel.Dock="Top" Margin="0,6,0,6">
+        <!-- Paneau droite -->
+        <Grid Grid.Row="2" Grid.Column="2">
+            <TabControl TabStripPlacement="Right">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Width" Value="30"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border Name="border" Background="Transparent" Padding="0,8,0,8">
+                                        <ContentPresenter ContentSource="Header"/>
+                                    </Border>
+                                    
+                                    <ControlTemplate.Triggers>
+                                        <!-- Onglet sélectionné -->
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="LightBlue"/>
+                                            <Setter TargetName="border" Property="BorderBrush" Value="SteelBlue"/>
+                                        </Trigger>
+
+                                        <!-- Onglet non sélectionné -->
+                                        <Trigger Property="IsSelected" Value="False">
+                                            <Setter TargetName="border" Property="Background" Value="Transparent"/>
+                                        </Trigger>
+
+                                        <!-- Survol -->
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="LightGray"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+                <TabItem>
+                    <TabItem.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="📁" TextAlignment="Center"/>
+                        </DataTemplate>
+                    </TabItem.HeaderTemplate>
+                    <Grid HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch">
+                        <Border Margin="6">
+                            <local:FilesExplorerControl 
+                                Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Border}}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"/>
+                            </Border>
+                    </Grid>
+                </TabItem>
+                <TabItem>
+                    <TabItem.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="☰" TextAlignment="Center"/>
+                        </DataTemplate>
+                    </TabItem.HeaderTemplate>
+                    <DockPanel Margin="6">
+                        <TextBlock DockPanel.Dock="Top">
                     <Run FontWeight="Bold" Text="Importer un objet:"></Run>
                     <Run Text="(glisser/déposer)"></Run>
-                </TextBlock>
-                <Separator DockPanel.Dock="Top"></Separator>
-                <ListBox
+                        </TextBlock>
+                        <Separator DockPanel.Dock="Top"></Separator>
+                        <ListBox
                     x:Name="ObjectListBox"
                     HorizontalAlignment="Stretch"
                     ItemsSource="{Binding ObjectModels}"
@@ -215,74 +284,86 @@
                     Focusable="False"
                     FocusVisualStyle="{x:Null}"
                     Background="Transparent"
-                    Width="200"
                     MouseMove="Grid_MouseMove">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="SnapsToDevicePixels" Value="True"/>
-                            <Setter Property="OverridesDefaultStyle" Value="True"/>
-                            <Setter Property="Cursor" Value="Hand"/>
-                            <Setter Property="Margin" Value="0"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListBoxItem">
-                                        <Border x:Name="Bd"
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Bd"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="3"
                         Padding="0">
-                                            <Border.ContextMenu>
-                                                <ContextMenu>
-                                                    <MenuItem Header="Ouvrir le projet parent" Click="MenuItem_Click_OpenParentProject"/>
-                                                </ContextMenu>
-                                            </Border.ContextMenu>
-                                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="Bd" Property="Background" Value="LightBlue"/>
-                                                <Setter TargetName="Bd" Property="BorderBrush" Value="DodgerBlue"/>
-                                            </Trigger>
-                                            <Trigger Property="IsSelected" Value="False">
-                                                <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
-                                                <Setter TargetName="Bd" Property="BorderBrush" Value="Gray"/>
-                                            </Trigger>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="Bd" Property="Background" Value="#FFE0F0FF"/>
-                                                <Setter TargetName="Bd" Property="BorderBrush" Value="CornflowerBlue"/>
-                                            </Trigger>
-                                            <Trigger Property="IsEnabled" Value="False">
-                                                <Setter Property="Foreground" Value="Gray"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="BorderBrush" Value="Transparent"/>
-                            <Setter Property="BorderThickness" Value="1"/>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.ItemTemplate>
-                        <!-- Style pour les items -->
-                        <DataTemplate>
-                            <Grid ToolTip="{Binding Dirname}">
-                                <TextBlock Background="Transparent" Text="{Binding Header}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="10" FontFamily="Verdana" FontWeight="SemiBold"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-            </DockPanel>
+                                                    <Border.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Ouvrir le projet parent" Click="MenuItem_Click_OpenParentProject"/>
+                                                        </ContextMenu>
+                                                    </Border.ContextMenu>
+                                                    <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="LightBlue"/>
+                                                        <Setter TargetName="Bd" Property="BorderBrush" Value="DodgerBlue"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="False">
+                                                        <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
+                                                        <Setter TargetName="Bd" Property="BorderBrush" Value="Gray"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#FFE0F0FF"/>
+                                                        <Setter TargetName="Bd" Property="BorderBrush" Value="CornflowerBlue"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Foreground" Value="Gray"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <!-- Style pour les items -->
+                                <DataTemplate>
+                                    <Grid ToolTip="{Binding Dirname}">
+                                        <TextBlock Background="Transparent" Text="{Binding Header}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="10" FontFamily="Verdana" FontWeight="SemiBold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
         </Grid>
-        <Border DockPanel.Dock="Bottom" Background="LightGray">
+        <!-- Splitter (colonne Auto) -->
+        <GridSplitter Grid.Row="2" Grid.Column="1"
+                  Width="5"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Stretch"
+                  Background="LightGray"
+                  ResizeDirection="Columns"
+                  ResizeBehavior="PreviousAndNext"
+                  ShowsPreview="True"
+                  Panel.ZIndex="10"/>
+        <!-- Barre d'état -->
+        <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Background="LightGray">
             <DockPanel>
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Settings_MouseLeftButtonUp" ToolTip="Préférences">⚙️</TextBlock>
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Menu_MouseLeftButtonUp" ToolTip="Importer">🡅</TextBlock>
@@ -336,8 +417,9 @@
                 <TextBlock Foreground="Black" Text="{Binding StatusText}" Margin="6,0,0,0"></TextBlock>
             </DockPanel>
         </Border>
-        <ContentControl x:Name="content">
+        <!-- Vue -->
+        <ContentControl Grid.Row="2" Grid.Column="0" x:Name="content">
             <local:WelcomeView></local:WelcomeView>
         </ContentControl>
-    </DockPanel>
+    </Grid>
 </Window>

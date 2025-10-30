@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using static Community.CsharpSqlite.Sqlite3;
 using static Program;
 
 namespace DevApps.GUI
