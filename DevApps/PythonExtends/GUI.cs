@@ -747,6 +747,7 @@ namespace DevApps.PythonExtends
             try
             {
                 // Créer une instance de BitmapImage
+                data.Stream.Position = 0;
                 BitmapImage bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
                 bitmapImage.StreamSource = data.Stream;
