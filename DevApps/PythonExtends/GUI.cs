@@ -832,51 +832,6 @@ namespace DevApps.PythonExtends
                 null,
                 null);
         }
-        internal static GlyphRun ConvertTextLinesToGlyphRun(string[] lines, Layout layout)
-        {
-            var pixelsPerDip = VisualTreeHelper.GetDpi(Application.Current.MainWindow).PixelsPerDip;
-            var glyphIndices = new List<ushort>();
-            var advanceWidths = new List<double>();
-            var glyphOffsets = new List<Point>();
-
-            double x = layout.CurrentRect.X;
-            double y = layout.CurrentRect.Y;
-
-            for (int i = 0; i < lines.Length; ++i)
-            {
-                var line = lines[i];
-
-                x = baselineOrigin.X;
-                for (int j = 0; j < line.Length; ++j)
-                {
-                    var glyphIndex = glyphTypeface.CharacterToGlyphMap[line[j]];
-                    glyphIndices.Add(glyphIndex);
-                    advanceWidths.Add(0);
-                    glyphOffsets.Add(new Point(x, y - advanceHeight));
-
-                    x += advanceWidth;
-
-                }
-
-                y += advanceHeight;
-            }
-
-            return new GlyphRun(
-                glyphTypeface,
-                0,
-                false,
-                renderingEmSize,
-                ((float)pixelsPerDip),
-                glyphIndices,
-                baselineOrigin,
-                advanceWidths,
-                glyphOffsets,
-                null,
-                null,
-                null,
-                null,
-                null);
-        }
         #endregion
     }
 }
