@@ -15,6 +15,7 @@ namespace DevApps.PythonExtends
         public CInterpreter C = new CInterpreter();
         public CSharpInterpreter CSharp = new CSharpInterpreter();
         public TSqlInterpreter TSql = new TSqlInterpreter();
+        public DartInterpreter Dart = new DartInterpreter();
     }
 
 }

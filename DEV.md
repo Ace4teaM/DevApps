@@ -22,4 +22,19 @@ https://github.com/antlr/grammars-v4/tree/master
 java -jar antlr-4.13.2-complete.jar -Dlanguage=CSharp C.g4
 ```
 
+**-Dlanguage** : indique le langage de destination de interpréteur
+
+**C.g4** : A remplacer par le langage interprété en fonction des grammaires téléchargés
+
+
+
+Si le dossier contient plusieurs fichiers '.g4' il faut les compiler individuellement:
+
+```
+grammars-v4-master\dart2\Dart2Lexer.g4
+grammars-v4-master\dart2\Dart2Parser.g4
+```
+
+
+
 * Copier le contenu des fichiers `*.cs` générés dans le code **DevApps** sous `DevApps\ANTLR\[LANG]`
