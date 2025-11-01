@@ -753,5 +753,22 @@ internal partial class Program
         public abstract DevObject SetUserAction(string code);
         public abstract Pointer? GetPointer(string name);
         public abstract DevObject AddPointer(string name, string reference, string[] tags);
+
+        internal static (string, CompiledCode?) DrawCodeFromExt(string ext)
+        {
+            switch (ext)
+            {
+                case ".md":
+                    return ("gui.md(out)", null);
+                case ".txt":
+                case ".log":
+                case ".csv":
+                case ".json":
+                case ".xml":
+                    return ("gui.text(out)", null);
+                default:
+                    return ("gui.icon('file')", null);
+            }
+        }
     }
 }

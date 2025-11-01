@@ -86,6 +86,8 @@ internal partial class Program
             }
 
             FindCloseChangeNotification(handle);
+
+            Console.WriteLine($"Fin de la surveillance de {path}");
         }
     }
 
@@ -148,18 +150,6 @@ internal partial class Program
 
                         Console.WriteLine($"Rebuild {objectname}");
                         DevObject.Build([new KeyValuePair<string, DevObject>(objectname, obj)]);
-
-                        // différences ?
-                        // todo implémenter ? peux causer une incompréhension avec l'éditeur
-                        /*if (Diff())
-                        {
-                            Console.WriteLine("Write differences.");
-                            Write();
-                        }
-                        else
-                        {
-                            Console.WriteLine("No difference after build.");
-                        }*/
                     }
                     return 0;
                 });
@@ -277,6 +267,8 @@ internal partial class Program
         {
             if(cancelNotifyChange != null)
                 cancelNotifyChange.Cancel();
+
+            //todo attendre la fin du thread ?
         }
     }
 }

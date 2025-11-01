@@ -1,8 +1,8 @@
 ﻿using Microsoft.Scripting.Utils;
+using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Security.AccessControl;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -89,33 +89,166 @@ namespace DevApps.GUI
             InvalidateItems();
         }
 
+        private void DataGrid_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                if (CheckFilenames(files) == false)
+                    return;
+
+                AddFromFile(files);
+
+            }
+            if (e.Data.GetDataPresent(typeof(FileSystemItem)))
+            {
+                var item = (FileSystemItem)e.Data.GetData(typeof(FileSystemItem));
+
+                if (CheckFilenames(item.Name) == false)
+                    return;
+
+                AddFromFile(item.Name);
+            }
+        }
+
+        private static bool CheckFilenames(params string[] filenames)
+        {
+            foreach (var filename in filenames)
+            {
+                var path = Path.GetFullPath(filename);
+                var data = Path.GetFullPath(DataDir);
+                var wdir = Environment.CurrentDirectory;
+
+                if (path.StartsWith(data) == true)
+                {
+                    MessageBox.Show("Le fichier ne peut pas être dans le répertoire du cache", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    return false;
+                }
+                if (path.StartsWith(wdir) == false)
+                {
+                    MessageBox.Show("Le fichier ne peut pas être en dehors du répertoire de travail", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    return false;
+                }
+                if (Path.GetFileName(path) == Filename)
+                {
+                    MessageBox.Show("Le fichier ne peut pas être le fichier du projet", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void AddFromFile(params string[] filenames)
+        {
+            foreach (var filename in filenames)
+            {
+                var name = Path.GetFileNameWithoutExtension(filename);
+                Program.DevObject.MakeUniqueName(ref name, null);
+
+                // Crée l'objet
+                var obj = new DevObjectFile(Path.Combine(DataDir, name));
+
+                var ext = Path.GetExtension(filename);
+                if (ext.Length > 1)
+                    obj.tags = new HashSet<string>([ext.Substring(1)]);
+
+                // Détermine le dessin de l'objet en fonction des tags
+                obj.drawCode = DevObject.DrawCodeFromExt(ext);
+
+                // Crée la référence vers le fichier
+                var file = new DevFile(Path.GetRelativePath(Environment.CurrentDirectory, filename), name);
+
+                obj.Description = file.Filename;
+
+                // Ajoute aux références
+                Program.DevFile.References.Add(file.filename, file);
+                Program.DevObject.References.Add(name, obj);
+
+                // Copie le contenu du fichier
+                if (File.Exists(file.Filename) && obj.filename != null)
+                {
+                    File.Copy(file.Filename, obj.filename, true);
+                    obj.LoadContent();
+                }
+
+                Program.DevObject.CompilObjects([obj]);
+            }
+
+            Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+            InvalidateItems();
+        }
+
+
         private void CreateObject()
         {
-            // ouvre l'explorateur de fichiers
-            /*var wnd = new NewObject();
-            wnd.Owner = Window.GetWindow(this);
-            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            if (wnd.ShowDialog() == true)
+            var dlg = new OpenFileDialog
             {
-                Program.DevObject.Create(wnd.Value, String.Empty, wnd.Tags);
-                InvalidateObjects();
-            }*/
+                Filter = "Fichiers (*.*)|*.*"
+            };
+
+            bool ok = false;
+            do{
+                dlg.InitialDirectory = Environment.CurrentDirectory;
+
+                if (dlg.ShowDialog() != true)
+                    break;
+
+                var path = Path.GetFullPath(dlg.FileName);
+                if (CheckFilenames(path) == false)
+                    continue;
+
+                ok = true;
+            } while (ok == false);
+
+            // ouvre l'explorateur de fichiers
+            if(ok)
+            {
+                AddFromFile(dlg.FileName);
+            }
         }
 
         private void DeleteObject()
         {
-            /*
             var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Filename ?? String.Empty).ToArray();
 
             foreach (var name in selection)
             {
-                if (Program.DevFile.References.ContainsKey(name))
+                if (Program.DevFile.References.TryGetValue(name, out var file))
                 {
-                    Program.DevFile.Delete(name);
+                    Program.DevFile.References.Remove(name);
+                    file.Dispose();
+
+                    if (Program.DevObject.References.TryGetValue(file.objectname, out var obj))
+                    {
+                        Program.DevObject.DeleteObject(file.objectname);
+                    }
                 }
             }
 
-            InvalidateItems();*/
+            InvalidateItems();
+        }
+
+        private void ExecuteObject()
+        {
+            var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Filename ?? String.Empty).ToArray();
+
+            foreach (var name in selection)
+            {
+                if (Program.DevFile.References.TryGetValue(name, out var file))
+                {
+                    // différent ?
+                    if (file.Diff())
+                    {
+                        file.Write();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Pas de difference entre les fichiers.");
+                    }
+                }
+            }
         }
 
         public void OnKeyCommand(KeyCommand command)
@@ -231,26 +364,9 @@ namespace DevApps.GUI
             DeleteObject();
         }
 
-        private void ExecuteFileEntry()
-        {
-            /*var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Filename ?? String.Empty).ToArray();
-
-            foreach (var name in selection)
-            {
-                if (Program.DevFile.References.ContainsKey(name))
-                {
-                    Program.DevFile.References[name].Execute();
-                }
-                else
-                {
-                    Console.WriteLine($"Command group '{name}' not found.");
-                }
-            }*/
-        }
-
         private void MenuItem_Click_ExecuteFileEntry(object sender, RoutedEventArgs e)
         {
-            ExecuteFileEntry();
+            ExecuteObject();
         }
 
         public void OnKeyState(ModifierKeys modifier)

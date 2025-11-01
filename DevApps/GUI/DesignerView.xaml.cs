@@ -1377,22 +1377,7 @@ namespace DevApps.GUI
                     obj.tags = new HashSet<string>([ext.Substring(1)]);
 
                 // Détermine le dessin de l'objet en fonction des tags
-                switch(ext)
-                {
-                    case ".md":
-                        obj.drawCode = ("gui.md(out)", null);
-                        break;
-                    case ".txt":
-                    case ".log":
-                    case ".csv":
-                    case ".json":
-                    case ".xml":
-                        obj.drawCode = ("gui.text(out)", null);
-                        break;
-                    default:
-                        obj.drawCode = ("gui.icon('file')", null);
-                        break;
-                }
+                obj.drawCode = DevObject.DrawCodeFromExt(ext);
 
                 // Crée la référence vers le fichier
                 var file = new DevFile(Path.GetRelativePath(Environment.CurrentDirectory, item.FullPath), name);
@@ -1411,6 +1396,7 @@ namespace DevApps.GUI
                 this.facette.Objects.Add(name, props);
                 AddElement(name, props);
 
+                // Copie le contenu du fichier
                 if (File.Exists(file.Filename) && obj.filename != null)
                 {
                     File.Copy(file.Filename, obj.filename, true);

@@ -35,11 +35,11 @@
         <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
     </UserControl.Resources>
     <Grid>
-        <DataGrid x:Name="dataGrid" BeginningEdit="DataGrid_BeginningEdit" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
+        <DataGrid x:Name="dataGrid" AllowDrop="True" Drop="DataGrid_Drop" BeginningEdit="DataGrid_BeginningEdit" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Nouvelle entrée..." Click="MenuItem_Click_CreateFileEntry"></MenuItem>
-                    <MenuItem Header="Forcer l'execution" Click="MenuItem_Click_ExecuteFileEntry"></MenuItem>
+                    <MenuItem Header="Ajouter..." Click="MenuItem_Click_CreateFileEntry"></MenuItem>
+                    <MenuItem Header="Appliquer les modifications" Click="MenuItem_Click_ExecuteFileEntry"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteFileEntry"></MenuItem>
                 </ContextMenu>
