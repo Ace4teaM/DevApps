@@ -137,19 +137,19 @@ internal partial class Program
             {
                 this.notifyChange.Wait(() => {
                     // lit les modifications
-                    Console.WriteLine($"Read file modification... {filename}");
+                    Console.WriteLine($"Read file modification... {this.filename}");
                     if (Read())
                     {
                         // reconstruit l'objet
-                        var obj = DevObject.Get(objectname);
+                        var obj = DevObject.Get(this.objectname);
                         if(obj == null)
                         {
-                            Console.WriteLine($"Object {objectname} not found !");
+                            Console.WriteLine($"Object {this.objectname} not found !");
                             return 0;
                         }
 
-                        Console.WriteLine($"Rebuild {objectname}");
-                        DevObject.Build([new KeyValuePair<string, DevObject>(objectname, obj)]);
+                        Console.WriteLine($"Rebuild {this.objectname}");
+                        DevObject.Build([new KeyValuePair<string, DevObject>(this.objectname, obj)]);
                     }
                     return 0;
                 });
@@ -180,6 +180,11 @@ internal partial class Program
                         DevObject.mutexExecuteObjects.ReleaseMutex();
 
                         return true;
+                    }
+                    else
+                    {
+                        if(DevObject.References.ContainsKey(objectname) == false)
+                            Console.Error.WriteLine($"L'objet \"{objectname}\" n'existe pas");
                     }
                 }
             }
@@ -221,6 +226,11 @@ internal partial class Program
                         obj.Content.Position = 0;
 
                         return hash1.SequenceEqual(hash2) == false;
+                    }
+                    else
+                    {
+                        if (DevObject.References.ContainsKey(objectname) == false)
+                            Console.Error.WriteLine($"L'objet \"{objectname}\" n'existe pas ou n'a pas de contenu");
                     }
                 }
                 catch (Exception ex)

@@ -120,6 +120,11 @@ namespace DevApps.GUI
                 var data = Path.GetFullPath(DataDir);
                 var wdir = Environment.CurrentDirectory;
 
+                if (String.IsNullOrWhiteSpace(path) == true)
+                {
+                    MessageBox.Show("Le nom de fichier n'est pas valide", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    return false;
+                }
                 if (path.StartsWith(data) == true)
                 {
                     MessageBox.Show("Le fichier ne peut pas être dans le répertoire du cache", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
@@ -270,25 +275,26 @@ namespace DevApps.GUI
 
         private bool RecreateFileEntry(string filename, string objectname, string newFilename)
         {
-            if (String.IsNullOrEmpty(newFilename))
+            var path = Path.GetFullPath(newFilename);
+            if (CheckFilenames(path) == false)
+                return false;
+
+            // recrée l'objet
+            try
             {
-                // recrée l'objet
-                try
-                {
-                    var newEntry = new Program.DevFile(newFilename, objectname);
+                var newEntry = new Program.DevFile(newFilename, objectname);
 
-                    var existing = Program.DevFile.References[filename];
-                    existing.Dispose();
+                var existing = Program.DevFile.References[filename];
+                existing.Dispose();
 
-                    Program.DevFile.References.Remove(filename);
-                    Program.DevFile.References.Add(newFilename, newEntry);
+                Program.DevFile.References.Remove(filename);
+                Program.DevFile.References.Add(newFilename, newEntry);
 
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
 
             return false;
@@ -306,8 +312,9 @@ namespace DevApps.GUI
                 if (e.EditAction == DataGridEditAction.Commit)
                 {
                     var item = e.Row.DataContext as TabItem;
-                    var text = (e.EditingElement as TextBox)?.Text;
-                    if (text != null && item != null)
+                    var textBox = e.EditingElement as TextBox;
+                    var text = textBox?.Text;
+                    if (text != null && textBox != null && item != null)
                     {
                         var handle = Program.DevFile.mutexCheckList.WaitOne();
                         if (handle)
@@ -322,10 +329,17 @@ namespace DevApps.GUI
                                     {
                                         if (text != item.Filename)
                                         {
-                                            RecreateFileEntry(item.Filename, item.ObjectName, text);
-
-                                            // renomme l'objet
-                                            item.Filename = text;
+                                            if (RecreateFileEntry(item.Filename, item.ObjectName, text))
+                                            {
+                                                // renomme l'objet
+                                                item.Filename = text;
+                                            }
+                                            else
+                                            {
+                                                // annule et rétablit l'ancienne valeur
+                                                textBox.Text = item.Filename;
+                                                e.Cancel = true;
+                                            }
                                         }
                                     }
                                     else if (e.Column.Header.ToString() == "Objet")
