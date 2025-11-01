@@ -30,9 +30,24 @@ Mais un objet n'est pas qu'un contenu, il est également scriptable. Vous pouvez
 
 En fait, un objet est par défaut totalement nue car DevApps ne vous impose pas de modèle c'est a vous de les créer et de vous appuyer sur les objets partagés.
 
-## Instances, Modèles et Références
+## Fichiers
 
-Il existe plusieurs types d'objets.
+DevApps permet interagir avec les fichiers finaux du projet, c'est à dire insérer ou modifier du code de votre projet pour assister le développement.
+
+Pour ce faire de façon sécurisé, DevApps utilise un manageur dédié (hors objets) ayant pour but de lire/écrire/surveiller les modifications dans le projet final.
+
+Une fois le lien ajouter au projet :
+
+*  A chaque modification extérieur du fichier, le contenu est rechargé et le build exécuté si des modifications sont trouvée le fichier est réécrit pour être ajusté automatiquement.
+
+## Objets : Instances, Modèles, Références et Fichiers
+
+Il existe plusieurs types d'objets:
+
+* Les instances sont les objets les plus courants
+* Les références sont des objet héritant de certaines propriétés d'une instance
+* Les fichiers sont des objets dont le contenu est mappé à un fichier
+* Les modèles sont des instances considéré comme modèle pour d'autres instances
 
 Une référence partage l'ensemble des paramètres d'une instance hormis les données.
 
@@ -41,6 +56,8 @@ Une instance peux être un modèle ou être lié à un modèle de base, dans ces
 Contrairement à une référence, l'instance avec modèle utilise le GUID pour mettre à jour son contenu. Un modèle n'est pas une référence car l'objet qui en hérite garde son indépendance vis à vis de ce dernier, mettre à jour une instance depuis un modèle est une action de l'utilisateur et donc son intégritée est garantie.
 
 Un modèle peux faire partie du projet ou d'un projet partagé, le GUID permet de garantir l'unicité d'un modèle. N'importe quel objet peut devenir un modèle est étendre la bibliothèque. DevApps recherche dans les projets partagés pour retrouver l'objet de base.  
+
+Les objets de fichiers maintiennent un flux sur le fichier cible, il est généralement utilisé pour les objets ayant un Timer avec lecture/écriture rapide vers un fichier de données. Pour interagir avec les fichiers de code du projet final il faut préférer l'utilisation des fichiers managées.
 
 ## Tags
 

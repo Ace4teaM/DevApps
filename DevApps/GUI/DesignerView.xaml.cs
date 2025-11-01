@@ -10,6 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using static Community.CsharpSqlite.Sqlite3;
 using static Program;
 using static Program.DevFacet;
 
@@ -1365,13 +1366,41 @@ namespace DevApps.GUI
             {
                 var item = (FileSystemItem)e.Data.GetData(typeof(FileSystemItem));
 
-                var name = item.Name;
+                var name = Path.GetFileNameWithoutExtension(item.Name);
                 Program.DevObject.MakeUniqueName(ref name, null);
 
                 // Crée l'objet
-                var obj = new DevObjectFile(Path.GetRelativePath(Environment.CurrentDirectory, item.FullPath));
+                var obj = new DevObjectFile(Path.Combine(DataDir, name));
+
+                var ext = Path.GetExtension(item.Name);
+                if (ext.Length > 1)
+                    obj.tags = new HashSet<string>([ext.Substring(1)]);
+
+                // Détermine le dessin de l'objet en fonction des tags
+                switch(ext)
+                {
+                    case ".md":
+                        obj.drawCode = ("gui.md(out)", null);
+                        break;
+                    case ".txt":
+                    case ".log":
+                    case ".csv":
+                    case ".json":
+                    case ".xml":
+                        obj.drawCode = ("gui.text(out)", null);
+                        break;
+                    default:
+                        obj.drawCode = ("gui.icon('file')", null);
+                        break;
+                }
+
+                // Crée la référence vers le fichier
+                var file = new DevFile(Path.GetRelativePath(Environment.CurrentDirectory, item.FullPath), name);
+
+                obj.Description = file.Filename;
 
                 // Ajoute aux références
+                Program.DevFile.References.Add(file.filename, file);
                 Program.DevObject.References.Add(name, obj);
 
                 // Ajoute à la facette en cours
@@ -1381,6 +1410,12 @@ namespace DevApps.GUI
                 var props = new ObjectProperties() { zone = new Rect(pos, new Point(pos.X + 200, pos.Y + 200)) };
                 this.facette.Objects.Add(name, props);
                 AddElement(name, props);
+
+                if (File.Exists(file.Filename) && obj.filename != null)
+                {
+                    File.Copy(file.Filename, obj.filename, true);
+                    obj.LoadContent();
+                }
 
                 Program.DevObject.CompilObjects([obj]);
                 Program.DevObject.Init();// initialise les objets qui ne le sont pas encore

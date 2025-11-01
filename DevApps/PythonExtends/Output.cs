@@ -75,6 +75,25 @@ namespace DevApps.PythonExtends
         }
 
         /// <summary>
+        /// Méthode Python: Remplace le contenu
+        /// </summary>
+        public void write(Output content)
+        {
+            try
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                content.stream.CopyTo(stream);
+                stream.SetLength(content.stream.Length);
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("write(): Failed to write in output");
+                System.Console.WriteLine(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Méthode Python: Remplace le contenu par un texte encodé UTF8
         /// </summary>
         public void append(string text)
@@ -154,6 +173,14 @@ namespace DevApps.PythonExtends
             if(double.TryParse(cachedText, out val) == false)
                 System.Console.WriteLine("number(): Failed to parse output to number");
             return val;
+        }
+
+        /// <summary>
+        /// Méthode Python: True si le contenu est vide
+        /// </summary>
+        public bool isEmpty()
+        {
+            return !(Stream != null && Stream.Length > 0);
         }
 
 

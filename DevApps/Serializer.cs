@@ -151,6 +151,21 @@ namespace Serializer
         public DevProject()
         {
         }
+        public KeyValuePair<string, string>[] Files
+        {
+            get
+            {
+                return Program.DevFile.References.Select(p => new KeyValuePair<string, string>(p.Key, p.Value.ObjectName)).ToArray();
+            }
+            set
+            {
+                Program.DevFile.References.Clear();
+                foreach (var o in value)
+                {
+                    Program.DevFile.References.Add(o.Key, new Program.DevFile(o.Key, o.Value));
+                }
+            }
+        }
         public KeyValuePair<string, DevVariable>[] Variables
         { 
             get {
@@ -165,7 +180,8 @@ namespace Serializer
                 }
             }
         }
-        public KeyValuePair<string, DevObjectFile>[] Files { 
+        public KeyValuePair<string, DevObjectFile>[] ObjectsFiles
+        { 
             get {
                 return Program.DevObjectFile.References.Where(p => p.Value is Program.DevObjectFile).Select(p=>new KeyValuePair<string, DevObjectFile>(p.Key, new DevObjectFile((Program.DevObjectFile)p.Value))).ToArray();
             }
@@ -255,9 +271,25 @@ namespace Serializer
         public Dictionary<string, Program.DevObject> ReferencesO = new Dictionary<string, Program.DevObject>();
         public Dictionary<string, Program.DevFacet> ReferencesF = new Dictionary<string, Program.DevFacet>();
         public Dictionary<string, Program.DevVariable> ReferencesV = new Dictionary<string, Program.DevVariable>();
+        public Dictionary<string, string> ReferencesFiles = new Dictionary<string, string>();
 
         public DevExternalProject()
         {
+        }
+        public KeyValuePair<string, string>[] Files
+        {
+            get
+            {
+                return ReferencesFiles.Select(p => new KeyValuePair<string, string>(p.Key, p.Value)).ToArray();
+            }
+            set
+            {
+                ReferencesFiles.Clear();
+                foreach (var o in value)
+                {
+                    ReferencesFiles.Add(o.Key, o.Value);
+                }
+            }
         }
         public KeyValuePair<string, DevVariable>[] Variables
         {
@@ -274,7 +306,7 @@ namespace Serializer
                 }
             }
         }
-        public KeyValuePair<string, DevObjectFile>[] Files
+        public KeyValuePair<string, DevObjectFile>[] ObjectsFiles
         {
             get
             {

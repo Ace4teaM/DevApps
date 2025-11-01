@@ -26,15 +26,31 @@ java -jar antlr-4.13.2-complete.jar -Dlanguage=CSharp C.g4
 
 **C.g4** : A remplacer par le langage interprété en fonction des grammaires téléchargés
 
+* Copier le contenu des fichiers `*.cs` générés dans le code **DevApps** sous `DevApps\ANTLR\[LANG]`
 
 
-Si le dossier contient plusieurs fichiers '.g4' il faut les compiler individuellement:
+
+**NOTE: Si le dossier contient plusieurs fichiers '.g4' il faut les compiler individuellement:**
 
 ```
 grammars-v4-master\dart2\Dart2Lexer.g4
 grammars-v4-master\dart2\Dart2Parser.g4
 ```
 
+**NOTE: Les commentaires de code sont parfois 'skip', il ne peuvent pas être détecté dans le Lexer.**
 
+Pour les inclure il faut remplacer `skip` par `channel(HIDDEN)`
 
-* Copier le contenu des fichiers `*.cs` générés dans le code **DevApps** sous `DevApps\ANTLR\[LANG]`
+Remplacer:
+
+```
+SINGLE_LINE_COMMENT : '//' ~[\r\n]*                         -> skip;
+MULTI_LINE_COMMENT  : '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> skip; 
+```
+
+Par
+
+```
+SINGLE_LINE_COMMENT : '//' ~[\r\n]*                         -> channel(HIDDEN);
+MULTI_LINE_COMMENT  : '/*' ( MULTI_LINE_COMMENT | .)*? '*/' -> channel(HIDDEN); 
+```

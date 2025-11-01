@@ -16,6 +16,7 @@ namespace DevApps.GUI
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+
         public class TabItem : INotifyPropertyChanged
         {
             public event PropertyChangedEventHandler? PropertyChanged;

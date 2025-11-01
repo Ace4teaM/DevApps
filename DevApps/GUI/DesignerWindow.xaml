@@ -82,6 +82,7 @@
                 <Image RenderOptions.BitmapScalingMode="HighQuality" Source="pack://application:,,,/DevApps;component/DevApps.ico" Margin="10,0,10,0" Width="30" Height="30"/>
             </Button>
             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsFilesView, Mode=OneWay}" Click="Files_MouseLeftButtonUp">Fichiers</ToggleButton>
                 <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsVariablesView, Mode=OneWay}" Click="Variables_MouseLeftButtonUp">Variables</ToggleButton>
                 <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsObjectsView, Mode=OneWay}" Click="Objects_MouseLeftButtonUp">Objets</ToggleButton>
                 <ToggleButton Style="{StaticResource ToggleButtonStyle}" IsChecked="{Binding IsCommandsView, Mode=OneWay}" Click="Commands_MouseLeftButtonUp">Commandes</ToggleButton>
@@ -90,23 +91,25 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}" ToolTip="{Binding AppPath, Mode=OneWay}">
-                    <TextBlock.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
-                        </ContextMenu>
-                    </TextBlock.ContextMenu>
-                </TextBlock>
-                <TextBlock Style="{StaticResource SubTitleStyle}">
+            <Border BorderBrush="White" BorderThickness="0" CornerRadius="5">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}" ToolTip="{Binding AppPath, Mode=OneWay}">
+                        <TextBlock.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
+                            </ContextMenu>
+                        </TextBlock.ContextMenu>
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource SubTitleStyle}">
                     <Run Text="- DevApps - v"></Run>
                     <Run Text="{Binding AppVersion, Mode=OneWay}"></Run>
-                </TextBlock>
-            </StackPanel>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
         </DockPanel>
         <!-- Facettes -->
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,5,0,0" >
-            <DockPanel Height="26" Visibility="{Binding IsDesignerView, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <DockPanel Height="26">
                 <TextBlock DockPanel.Dock="Left" Text="Facettes:" VerticalAlignment="Center" Margin="10,0,10,0" FontWeight="Bold"></TextBlock>
                 <ListBox
                      x:Name="FacetListBox"

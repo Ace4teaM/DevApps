@@ -407,7 +407,35 @@ internal partial class Program
         }
 
         /// <summary>
-        /// Charge la sortie standard des objets
+        /// Obtient le nom de fichier de l'objet
+        /// </summary>
+        public static string? GetContentFileName(DevObject obj)
+        {
+            try
+            {
+                var contentFileName = DevObject.References.Where(p => p.Value == obj).Select(p => p.Key).FirstOrDefault();
+
+                if (contentFileName != null)
+                    return Path.Combine(DataDir, contentFileName);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Force la création du contenu à partir de son stockage permanent
+        /// </summary>
+        public abstract void LoadContent();
+        /// <summary>
+        /// Force l'écriture du contenu dans son stockage permanent
+        /// </summary>
+        public abstract void FlushContent();
+
+        /// <summary>
+        /// Charge le contenu des objets
         /// </summary>
         public static void LoadOutput()
         {
@@ -416,30 +444,14 @@ internal partial class Program
             {
                 foreach (var o in References)
                 {
-                    try
-                    {
-                        var path = Path.Combine(DataDir, o.Key);
-
-                        if (File.Exists(path))
-                        {
-                            using var file = File.Open(path, FileMode.Open);
-                            o.Value.Content.Seek(0, SeekOrigin.Begin);
-                            file.CopyTo(o.Value.Content);
-                            o.Value.Content.SetLength(file.Length);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Console.WriteLine("load object data " + o.Key + " failed");
-                        System.Console.WriteLine(ex.Message);
-                    }
+                    o.Value.LoadContent();
                 }
                 mutexExecuteObjects.ReleaseMutex();
             }
         }
 
         /// <summary>
-        /// Sauvegarde la sortie standard des objets
+        /// Sauvegarde le contenu des objets
         /// </summary>
         public static void SaveOutput()
         {
@@ -448,21 +460,7 @@ internal partial class Program
             {
                 foreach (var o in References)
                 {
-                    if (o.Value.Content.Length == 0)
-                        continue;
-
-                    try
-                    {
-                        var path = Path.Combine(DataDir, o.Key);
-                        using var file = File.Open(path, File.Exists(path) ? FileMode.Truncate : FileMode.Create, FileAccess.Write);
-                        o.Value.Content.Seek(0, SeekOrigin.Begin);
-                        o.Value.Content.CopyTo(file);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Console.WriteLine("save object data " + o.Key + " failed");
-                        System.Console.WriteLine(ex.Message);
-                    }
+                    o.Value.FlushContent();
                 }
                 mutexExecuteObjects.ReleaseMutex();
             }

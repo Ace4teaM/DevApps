@@ -47,6 +47,7 @@ namespace DevApps.GUI
             set
             {
                 this.content.Content = value;
+                OnPropertyChange(nameof(IsFilesView));
                 OnPropertyChange(nameof(IsCommandsView));
                 OnPropertyChange(nameof(IsObjectsView));
                 OnPropertyChange(nameof(IsVariablesView));
@@ -520,6 +521,22 @@ namespace DevApps.GUI
 
             this.Content = new DesignerVariablesView();
             e.Handled = true;
+        }
+
+        private void Files_MouseLeftButtonUp(object sender, RoutedEventArgs e)
+        {
+            SelectedFacet = null;
+            OnPropertyChange(nameof(SelectedFacet));
+
+            this.Content = new DesignerFilesView();
+            e.Handled = true;
+        }
+        public bool IsFilesView
+        {
+            get
+            {
+                return this.Content is DesignerFilesView;
+            }
         }
 
         public bool IsObjectsView

@@ -7,7 +7,8 @@ internal partial class Program
 {
     /// <summary>
     /// Objet de fichier
-    /// Un objet pointant sur le contenu d'un fichier du dossier de travail
+    /// Un objet pointant son contenu directement sur un flux de fichier du répertoire de données
+    /// Ce type d'objet est généralement utilisé pour les fichiers volumineux ou au besoin persistant
     /// </summary>
     public class DevObjectFile : DevObject
     {
@@ -17,23 +18,15 @@ internal partial class Program
 
         public DevObjectFile(string filename)
         {
-            var ext = Path.GetExtension(filename);
             this.filename = filename;
-            if(ext.Length > 1)
-                this.tags = new HashSet<string>([ext.Substring(1)]);
-            this.Description = filename;
-            this.drawCode = ("gui.text(out)", null);
         }
 
         public override void OnInit()
         {
-            if(filename != null && this.fileStream == null && File.Exists(filename))
+            if(filename != null)
             {
-                if(Path.GetFullPath(filename).StartsWith(Environment.CurrentDirectory) == false)
-                    throw new Exception("Accès aux fichiers en dehors du répertoire de travail interdit");
-
-                this.fileStream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
-                Description = filename;
+                if(Path.GetFullPath(filename).StartsWith(Path.GetFullPath(DataDir)) == false)
+                    throw new Exception("L'Accès aux fichiers en dehors du répertoire de données est interdit");
             }
         }
 
@@ -43,6 +36,47 @@ internal partial class Program
             {
                 this.fileStream.Close();
                 this.fileStream = null;
+            }
+        }
+
+        /// <summary>
+        /// Force la création du contenu à partir de son stockage permanent
+        /// </summary>
+        public override void LoadContent()
+        {
+            try
+            {
+                if (this.filename != null && this.fileStream == null && File.Exists(this.filename))
+                {
+                    this.fileStream = new FileStream(this.filename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("load object data " + this.filename + " failed");
+                System.Console.WriteLine(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Force l'écriture du contenu dans son stockage permanent
+        /// </summary>
+        public override void FlushContent()
+        {
+            if (Content == null)
+                return;
+
+            try
+            {
+                if (this.fileStream != null)
+                {
+                    this.fileStream.Flush();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("save object data " + this.fileStream?.Name + " failed");
+                System.Console.WriteLine(ex.Message);
             }
         }
 

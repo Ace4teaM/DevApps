@@ -22,6 +22,56 @@ internal partial class Program
             }
         }
 
+        /// <summary>
+        /// Force la création du contenu à partir de son stockage permanent
+        /// </summary>
+        public override void LoadContent()
+        {
+            var path = DevObject.GetContentFileName(this);
+
+            try
+            {
+                if (path != null && File.Exists(path))
+                {
+                    using var file = File.Open(path, FileMode.Open);
+                    Content.Seek(0, SeekOrigin.Begin);
+                    file.CopyTo(Content);
+                    Content.SetLength(file.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("load object data " + path + " failed");
+                System.Console.WriteLine(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Force l'écriture du contenu dans son stockage permanent
+        /// </summary>
+        public override void FlushContent()
+        {
+            if (Content == null)
+                return;
+
+            var path = DevObject.GetContentFileName(this);
+
+            try
+            {
+                if (path != null)
+                {
+                    using var file = File.Open(path, File.Exists(path) ? FileMode.Truncate : FileMode.Create, FileAccess.Write);
+                    Content.Seek(0, SeekOrigin.Begin);
+                    Content.CopyTo(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("save object data " + path + " failed");
+                System.Console.WriteLine(ex.Message);
+            }
+        }
+
         internal string? baseObjectName;
 
         internal DevObjectInstance? baseObject; //mettre en cache GetBaseObject

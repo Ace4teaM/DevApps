@@ -77,6 +77,12 @@ namespace DevApps.Interpreters
                         text = context.methodSignature().constructorSignature().constructorName()?.GetText();
                         //Console.WriteLine("Constructeur sans nom trouvé");
                     }
+                    else if (context.methodSignature().STATIC_() != null)
+                    {
+                        type = "var";
+                        text = context.methodSignature().STATIC_().GetText();
+                        return;
+                    }
                     else
                     {
                         type = "method";
@@ -133,6 +139,21 @@ namespace DevApps.Interpreters
                         return;
                         //Console.WriteLine("Constructeur sans nom trouvé");
                     }
+                    else if (context.declaration().staticFinalDeclarationList() != null)
+                    {
+                        type = "var";
+                        foreach (var init in context.declaration().staticFinalDeclarationList().staticFinalDeclaration())
+                        {
+                            text = init.identifier()?.GetText();
+                            Members.Add(new(type, curClass + "." + text), new(start, stop));
+                        }
+                        return;
+                    }
+                    else
+                    {
+                        type = "???";
+                        text = context.GetText();
+                    }
                 }
 
                 Members.Add(new(type, curClass+"."+text), new (start, stop));
@@ -166,6 +187,39 @@ namespace DevApps.Interpreters
                 return found.Value;
 
             return null;
+        }
+
+        /// <summary>
+        /// Recherche une région de code
+        /// </summary>
+        /// <remarks>
+        /// En Dart et par convention les régions sont définies par des commentaires: #region XXXXX et #endregion
+        /// </remarks>
+        public Tuple<int, int>? findregion(string regionName, Output content)
+        {
+            content.Stream.Position = 0;
+
+            var inputStream = new AntlrInputStream(content.Stream);
+            var lexer = new Dart2Lexer(inputStream);
+
+            // Tous les tokens
+            var allTokens = lexer.GetAllTokens();
+
+            // Filtrer ceux sur le canal caché
+            var comments = allTokens
+                .Where(t => t.Channel == Lexer.Hidden)
+                .Select(t => t)
+                .ToList();
+
+            //foreach (var c in comments)
+           //     System.Console.WriteLine($"Commentaire ligne {c.Line}:{c.Column} -> {c.Text}");
+
+            var start = comments.First(p => p.Text.Replace("//","").Trim().StartsWith("#region") && p.Text.Trim().EndsWith(regionName));
+            var end = comments.FirstOrDefault(p => p.Text.Replace("//", "").Trim().StartsWith("#endregion") && p.Line > start.Line && p.Text.Trim().EndsWith(regionName));
+            if(end == null) // prend le "#endregion" suivant
+                end = comments.Where(p => p.Text.Replace("//", "").Trim().StartsWith("#endregion") && p.Line > start.Line).OrderBy(p=>p.Line).First();
+
+            return new Tuple<int, int> (start.StartIndex, end.StopIndex);
         }
 
         public void replace(string elementName, Output content, Output output)
