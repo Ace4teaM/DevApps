@@ -1,5 +1,4 @@
-﻿using ComponentAce.Compression.Libs.ZLib;
-using IronPython.Runtime;
+﻿using IronPython.Runtime;
 using Microsoft.Scripting.Utils;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -362,6 +361,42 @@ namespace DevApps.GUI
                         if (handle2)
                         {
                             GuiService.OpenEditorOrDefault(reference.Content, reference.Editor);
+
+                            reference.mutexReadOutput.ReleaseMutex();
+                        }
+                        //DrawObject.InvalidateVisual();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void MenuItem_Click_ShowOutput(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var selection = (dataGrid.SelectedItem as TabItem)?.Name;
+
+                if (selection != null)
+                {
+                    DevObject? reference = null;
+
+                    var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                    if (handle)
+                    {
+                        Program.DevObject.References.TryGetValue(selection, out reference);
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+
+                    if (reference != null)
+                    {
+                        var handle2 = reference.mutexReadOutput.WaitOne();
+                        if (handle2)
+                        {
+                            GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, false);
 
                             reference.mutexReadOutput.ReleaseMutex();
                         }

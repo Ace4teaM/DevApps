@@ -639,7 +639,7 @@ namespace DevApps.GUI
                 })) as Program.DevFacet;
         }
 
-        internal static bool OpenEditorOrDefault(Stream stream, string? editorKey = null)
+        internal static bool OpenEditorOrDefault(Stream stream, string? editorKey = null, bool waitForUpdate = true)
         {
             string? fileExt = null;
             string? editorPath = null;
@@ -710,17 +710,21 @@ namespace DevApps.GUI
                 startInfo.Arguments = "/C \"" + ((editorPath.Contains("%1") == false) ? editorPath + " \"" + tmpFile + "\"" : editorPath.Replace("%1", tmpFile)) + "\"";
                 process.StartInfo = startInfo;
                 process.Start();
-                process.WaitForExit();
 
-                if (MessageBox.Show("Voulez vous appliquer les modifications ?", "Edition des données", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                if (waitForUpdate)
                 {
-                    // récupère les données
-                    file = File.OpenRead(tmpFile);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    file.CopyTo(stream);
-                    stream.SetLength(file.Length);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    return true;
+                    process.WaitForExit();
+
+                    if (MessageBox.Show("Voulez vous appliquer les modifications ?", "Edition des données", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    {
+                        // récupère les données
+                        file = File.OpenRead(tmpFile);
+                        stream.Seek(0, SeekOrigin.Begin);
+                        file.CopyTo(stream);
+                        stream.SetLength(file.Length);
+                        stream.Seek(0, SeekOrigin.Begin);
+                        return true;
+                    }
                 }
             }
             catch (Exception ex)

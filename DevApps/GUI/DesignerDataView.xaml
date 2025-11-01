@@ -40,6 +40,7 @@
         <DataGrid x:Name="dataGrid" SelectionChanged="DataGrid_SelectionChanged" BeginningEdit="DataGrid_BeginningEdit" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False" AllowDrop="True" Drop="DataGrid_Drop">
             <DataGrid.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="Afficher le contenu..." Click="MenuItem_Click_ShowOutput"></MenuItem>
                     <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>
                     <MenuItem Header="Créer une référence" Click="MenuItem_Click_CreateReference"></MenuItem>
                     <MenuItem Header="Construire (Build)" Click="MenuItem_Click_Build" DataContext="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}" IsEnabled="{Binding CanBuild}"></MenuItem>
