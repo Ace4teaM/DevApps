@@ -455,7 +455,10 @@ namespace DevApps.GUI
 
                         if (items != null)
                         {
-                            Program.DevObject.Build(items);
+                            foreach(var item in items)
+                            {
+                                Program.DevObject.BuildTree(item);
+                            }
 
                             // Actualise les compteurs
                             foreach(var i in Items)

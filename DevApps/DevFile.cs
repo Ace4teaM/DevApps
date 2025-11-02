@@ -141,8 +141,7 @@ internal partial class Program
                     if (Read())
                     {
                         // reconstruit l'objet
-                        var obj = DevObject.Get(this.objectname);
-                        if(obj == null)
+                        if(DevObject.TryGet(this.objectname, out var obj) == false)
                         {
                             Console.WriteLine($"Object {this.objectname} not found !");
                             return 0;

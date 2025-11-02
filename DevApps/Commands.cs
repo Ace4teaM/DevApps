@@ -154,8 +154,6 @@ internal partial class Program
                             if (facet == null)
                                 throw new Exception(@"La facette {cmd.facet} n'existe pas");
 
-                            var obj = DevObject.Get(cmd.name);
-
                             facet.Objects.Remove(cmd.name);
 
                             var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerView;
@@ -175,8 +173,6 @@ internal partial class Program
 
                             if (facet == null)
                                 throw new Exception(@"La facette {cmd.facet} n'existe pas");
-
-                            var obj = DevObject.Get(cmd.name);
 
                             var position = new Point(cmd.position.x, cmd.position.y);
 
@@ -201,8 +197,6 @@ internal partial class Program
                         {
                             if (cmd.name == null)
                                 throw new ArgumentException();
-
-                            var obj = DevObject.Get(cmd.name);
 
                             DevObject.DeleteObject(cmd.name);
 
@@ -237,9 +231,7 @@ internal partial class Program
                             if (cmd.name == null || cmd.new_name == null)
                                 throw new ArgumentException();
 
-                            var obj = DevObject.Get(cmd.name);
-
-                            if (obj == null)
+                            if (DevObject.TryGet(cmd.name, out var obj) == false)
                                 throw new Exception(@"L'objet {cmd.name} n'existe pas");
 
                             if (DevObject.References.ContainsKey(cmd.new_name) == true)

@@ -41,17 +41,19 @@ internal partial class Program
         /// <summary>
         /// Incrément les builds des objets liés
         /// </summary>
-        /// <remarks>La fonction est récursive</remarks>
         internal static void IncrementBuilt(string key)
         {
-            foreach (var o in References)
+            if(TryGet(key, out var obj) == false)
+                return;
+
+            var tree = CreateDependancesTree(new KeyValuePair<string, DevObject>( key, obj ));
+            foreach (var o in tree)
             {
-                // directement lié à l'objet reconstruit
-                if (o.Key != key && o.Value.Pointers != null && o.Value.Pointers.Any(p=>p.Value.target == key))
+                System.Console.WriteLine($"Increment {o.Item2}");
+                if (TryGet(o.Item2, out var i))
                 {
-                    System.Console.WriteLine($"Increment {o.Key}");
-                    Interlocked.Increment(ref o.Value.buildIndex);
-                    IncrementBuilt(o.Key);
+                    for (int j = 0; j < o.Item1; j++)
+                        Interlocked.Increment(ref i.buildIndex);
                 }
             }
         }
@@ -304,10 +306,13 @@ internal partial class Program
             return new DevSelect { devObjects = References.Select(p => p.Value).ToList() };
         }
 
-        public static DevObject? Get(string name)
+        public static bool TryGet(string name, out DevObject obj)
         {
-            return References.GetValueOrDefault(name);
+            obj = References.GetValueOrDefault(name) ?? NullObject;
+            return obj != NullObject;
         }
+
+        public static readonly DevObject NullObject = new DevObjectInstance();
 
         public static bool IsRunning
         {
@@ -581,19 +586,63 @@ internal partial class Program
         }
 
         /// <summary>
+        /// Construit l'objet et son arbre de dépendances en commençant par le plus profond
+        /// </summary>
+        /// <remarks>Seul les objets ayant un buildIndex > 0 sont construit</remarks>
+        public static void BuildTree(KeyValuePair<string, DevObject> item)
+        {
+            var handle = mutexCheckObjectList.WaitOne();
+            if (handle)
+            {
+                var tree = Program.DevObject.CreateBuildTree(item);
+
+                foreach (var t in tree)
+                {
+                    if (References.TryGetValue(t.Item2, out var obj))
+                    {
+                        if (obj.MustBeBuild)
+                        {
+                            Program.DevObject.Build(new KeyValuePair<string, DevObject>(t.Item2, obj));
+                            obj.buildIndex = 0;
+                        }
+                    }
+                }
+
+                Program.DevObject.Build(item);
+                item.Value.buildIndex = 0;
+
+                mutexCheckObjectList.ReleaseMutex();
+            }
+        }
+
+        /// <summary>
         /// Construit la sortie des objets
         /// </summary>
-        public static void Build(IEnumerable<KeyValuePair<string,DevObject>>? objects = null)
+        public static void Build(KeyValuePair<string, DevObject> obj)
+        {
+            Build([obj]);
+        }
+
+        /// <summary>
+        /// Construit la sortie des objets
+        /// </summary>
+        public static void Build()
+        {
+            Build(DevObject.References);
+        }
+
+        /// <summary>
+        /// Construit la sortie des objets
+        /// </summary>
+        public static void Build(IEnumerable<KeyValuePair<string, DevObject>> objects)
         {
             var handle = mutexExecuteObjects.WaitOne();
             if (handle)
             {
-                foreach (var o in objects ?? References)
+                foreach (var o in objects)
                 {
                     try
                     {
-                        DevApps.PythonExtends.Output.BeginCollect();
-
                         var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
                         pyScope.SetVariable("interpreter", DevApps.PythonExtends.Interpreter.Instance);
                         pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
@@ -636,21 +685,96 @@ internal partial class Program
                         Console.WriteLine(error);
                         System.Console.WriteLine("******************************************");
                     }
-                    finally
-                    {
-                        // Nettoie la collecte et provoque la mise à jour des objets
-                        DevApps.PythonExtends.Output.EndCollect((output) => {
-                            if (output.AsChanged && output.objectName != null)
-                            {
-                                Program.DevObject.IncrementBuilt(output.objectName);
-                                return true;
-                            }
-                            return false;
-                        });
-                    }
                 }
                 mutexExecuteObjects.ReleaseMutex();
             }
+        }
+
+        /// <summary>
+        /// Retourne l'arbre de construction d'un objet
+        /// </summary>
+        /// <returns>
+        /// Liste des objets dans l'ordre de profondeur.
+        /// La liste est trié du plus petit au plus grand (le plus éloigné)
+        /// </returns>
+        /// <remarks>Les boucles et les répétitions de pointeurs sont gérées</remarks>
+        internal static List<Tuple<int, string>> CreateBuildTree(KeyValuePair<string, DevObject> obj)
+        {
+            var explored = new List<string>([obj.Key]);
+
+            var tuples = new List<Tuple<int, string>>();
+            var handle = mutexCheckObjectList.WaitOne();
+            if (handle)
+            {
+                void Explore(string key, int level)
+                {
+                    explored.Add(key);
+                    tuples.Add(new Tuple<int, string>(level, key));
+
+                    level++;
+                    if (TryGet(key, out var obj))
+                    {
+                        foreach (var o in obj.Pointers)
+                        {
+                            if (explored.Contains(o.Value.target))
+                                continue;
+                            Explore(o.Value.target, level);
+                        }
+                    }
+                }
+
+                foreach (var o in obj.Value.Pointers)
+                {
+                    if (explored.Contains(o.Value.target))
+                        continue;
+                    Explore(o.Value.target, 1);
+                }
+
+                mutexCheckObjectList.ReleaseMutex();
+            }
+
+            return tuples.OrderBy(t => t.Item1).ToList();
+        }
+
+        /// <summary>
+        /// Retourne l'arbre des dépendances d'un objet
+        /// </summary>
+        /// <returns>
+        /// Liste des objets dans l'ordre de profondeur.
+        /// La liste est trié du plus petit au plus grand (le plus éloigné)
+        /// </returns>
+        /// <remarks>Les boucles et les répétitions de pointeurs sont gérées</remarks>
+        internal static List<Tuple<int, string>> CreateDependancesTree(KeyValuePair<string, DevObject> obj)
+        {
+            var explored = new List<string>([obj.Key]);
+
+            var tuples = new List<Tuple<int, string>>();
+            var handle = mutexCheckObjectList.WaitOne();
+            if (handle)
+            {
+                void Explore(string key, int level)
+                {
+                    explored.Add(key);
+
+                    level++;
+                    if (TryGet(key, out var obj))
+                    {
+                        foreach (var o in References.Where(p => p.Value.Pointers.Any(q => q.Value.target == key)))
+                        {
+                            if (explored.Contains(o.Key))
+                                continue;
+                            tuples.Add(new Tuple<int, string>(level, o.Key));
+                            Explore(o.Key, level);
+                        }
+                    }
+                }
+
+                Explore(obj.Key, 0);
+
+                mutexCheckObjectList.ReleaseMutex();
+            }
+
+            return tuples.OrderBy(t => t.Item1).ToList();
         }
 
         /// <summary>

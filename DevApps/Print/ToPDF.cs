@@ -256,9 +256,7 @@ namespace DevApps.Print
                 {
                     ContentType contentType = ContentType.Undefined;
 
-                    var o = Program.DevObject.Get(obj.Key);
-
-                    if (o == null)
+                    if (Program.DevObject.TryGet(obj.Key, out var o) == false)
                         continue;
 
                     var content = o.Content;

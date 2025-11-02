@@ -62,13 +62,10 @@ internal partial class Program
                     throw new ArgumentException();
 
                 var name = cmd.Arguments[0]; // todo : validation format
-
-                var obj = DevObject.Get(name);
-
-                if (obj == null)
+                if (DevObject.TryGet(name, out var obj) == false)
                     throw new Exception(@"L'objet {name} n'existe pas");
 
-                DevObject.Build(new Dictionary<string, DevObject> { { name, obj } });
+                DevObject.Build(new KeyValuePair<string, DevObject>( name, obj ));
 
                 var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
 
@@ -141,13 +138,10 @@ internal partial class Program
                 var name1 = cmd.Arguments[0]; // todo : validation format
                 var name2 = cmd.Arguments[1]; // todo : validation format
 
-                var obj1 = DevObject.Get(name1);
-                var obj2 = DevObject.Get(name2);
-
-                if (obj1 == null)
+                if (DevObject.TryGet(name1, out var obj1) == false)
                     throw new Exception(@"L'objet {name1} n'existe pas");
 
-                if (obj2 == null)
+                if (DevObject.TryGet(name1, out var obj2) == false)
                     throw new Exception(@"L'objet {name2} n'existe pas");
 
                 if (obj1.Content == null)

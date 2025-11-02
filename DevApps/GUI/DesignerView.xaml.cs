@@ -534,7 +534,7 @@ namespace DevApps.GUI
 
                                 if (reference != null)
                                 {
-                                    Program.DevObject.Build([new KeyValuePair<string, DevObject>(name, reference)]);
+                                    Program.DevObject.BuildTree(new KeyValuePair<string, DevObject>(name, reference));
                                 }
                             }
                         };
