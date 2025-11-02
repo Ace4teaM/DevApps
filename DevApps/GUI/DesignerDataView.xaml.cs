@@ -438,6 +438,16 @@ namespace DevApps.GUI
             }
         }
 
+        public void InvalidateObjectsStatus()
+        {
+            // Actualise les compteurs
+            foreach (var i in Items)
+            {
+                i.OnPropertyChanged(nameof(i.BuildIndex));
+                i.OnPropertyChanged(nameof(i.MustBeBuild));
+            }
+        }
+
         private void MenuItem_Click_Build(object sender, RoutedEventArgs e)
         {
             try
@@ -461,11 +471,7 @@ namespace DevApps.GUI
                             }
 
                             // Actualise les compteurs
-                            foreach(var i in Items)
-                            {
-                                i.OnPropertyChanged(nameof(i.BuildIndex));
-                                i.OnPropertyChanged(nameof(i.MustBeBuild));
-                            }
+                            InvalidateObjectsStatus();
                         }
                     }
                 }

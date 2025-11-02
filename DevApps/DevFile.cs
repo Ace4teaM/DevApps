@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using DevApps.GUI;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Windows;
@@ -149,6 +150,15 @@ internal partial class Program
 
                         Console.WriteLine($"Rebuild {this.objectname}");
                         DevObject.BuildTree(new KeyValuePair<string, DevObject>(this.objectname, obj));
+
+                        if (GuiService.IsInitialized && GuiService.IsObjectsView)
+                        {
+                            GuiService.InvalidateObjectsStatus();
+                        }
+                        if (GuiService.IsInitialized && GuiService.IsFacetsView)
+                        {
+                            GuiService.Invalidate(this.objectname);
+                        }
                     }
                     return 0;
                 });

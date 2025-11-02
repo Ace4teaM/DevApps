@@ -440,6 +440,10 @@ namespace DevApps.GUI
                 })));
         }
 
+        /// <summary>
+        /// Invalide le visuel d'un objet dans la vue designer
+        /// </summary>
+        /// <param name="name">Nom de l'objet</param>
         internal static void Invalidate(string name)
         {
             if (EditorWindow == null)
@@ -457,6 +461,29 @@ namespace DevApps.GUI
                         if (host != null)
                         {
                             host.InvalidateVisual();
+                        }
+                    }
+                })));
+        }
+
+        /// <summary>
+        /// Invalide le visuel des états des objets dans la vue des objets
+        /// </summary>
+        internal static void InvalidateObjectsStatus()
+        {
+            if (EditorWindow == null)
+                return;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() =>
+                {
+                    if (EditorWindow?.Content is DesignerDataView)
+                    {
+                        var editor = (EditorWindow?.Content as DesignerDataView);
+                        if (editor != null)
+                        {
+                            editor.InvalidateObjectsStatus();
                         }
                     }
                 })));
