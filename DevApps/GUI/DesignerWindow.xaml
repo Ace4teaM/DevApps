@@ -22,9 +22,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*" MinWidth="550"/>
+            <ColumnDefinition Width="10*" MinWidth="750"/>
             <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="3*" MinWidth="300"/>
+            <ColumnDefinition Width="3*" MinWidth="200"/>
         </Grid.ColumnDefinitions>
         <!-- Barre de Tire -->
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" DockPanel.Dock="Top" Background="Gray" Height="35" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown"

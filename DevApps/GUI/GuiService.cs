@@ -715,6 +715,11 @@ namespace DevApps.GUI
                 {
                     process.WaitForExit();
 
+                    // Si aucune différence, ne rien faire
+                    if (stream.IsDifferent(tmpFile) == false)
+                        return false;
+
+                    // 
                     if (MessageBox.Show("Voulez vous appliquer les modifications ?", "Edition des données", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                     {
                         // récupère les données

@@ -1,6 +1,77 @@
-﻿using System.Windows.Controls;
+﻿using DevApps.GUI;
+using System.IO;
+using System.Security.Cryptography;
 using System.Windows;
-using DevApps.GUI;
+using System.Windows.Controls;
+
+public static class FileExtensions
+{
+    /// <summary>
+    /// Compare la différence entre 2 fichiers
+    /// </summary>
+    public static bool IsDifferent(string filename, string filename2)
+    {
+        var fi1 = new FileInfo(filename);
+        var fi2 = new FileInfo(filename2);
+
+        if (fi1.Length != fi2.Length)
+            return true;
+
+        using var sha256 = SHA256.Create();
+        using var fs1 = File.OpenRead(filename);
+        using var fs2 = File.OpenRead(filename2);
+
+        var hash1 = sha256.ComputeHash(fs1);
+        var hash2 = sha256.ComputeHash(fs2);
+
+        return hash1.SequenceEqual(hash2) == false;
+    }
+
+    /// <summary>
+    /// Compare la différence entre le flux et le fichier
+    /// </summary>
+    public static bool IsDifferent(this Stream stream, string filename)
+    {
+        var fi1 = new FileInfo(filename);
+
+        if (fi1.Length != stream.Length)
+            return true;
+
+        stream.Position = 0;
+
+        using var sha256 = SHA256.Create();
+        using var fs1 = File.OpenRead(filename);
+
+        var hash1 = sha256.ComputeHash(fs1);
+        var hash2 = sha256.ComputeHash(stream);
+
+        stream.Position = 0;
+
+        return hash1.SequenceEqual(hash2) == false;
+    }
+
+    /// <summary>
+    /// Compare la différence entre 2 flux 
+    /// </summary>
+    public static bool IsDifferent(this Stream stream, Stream stream2)
+    {
+        if (stream2.Length != stream.Length)
+            return true;
+
+        stream.Position = 0;
+        stream2.Position = 0;
+
+        using var sha256 = SHA256.Create();
+
+        var hash1 = sha256.ComputeHash(stream2);
+        var hash2 = sha256.ComputeHash(stream);
+
+        stream.Position = 0;
+        stream2.Position = 0;
+
+        return hash1.SequenceEqual(hash2) == false;
+    }
+}
 
 public static class EnumerableExtensions
 {

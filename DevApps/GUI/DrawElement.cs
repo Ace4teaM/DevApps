@@ -61,7 +61,7 @@ namespace DevApps.GUI
                             try
                             {
                                 var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                                pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
                                 pyScope.SetVariable("gui", reference.gui);
                                 pyScope.SetVariable("name", this.Name);
                                 pyScope.SetVariable("desc", reference.Description);

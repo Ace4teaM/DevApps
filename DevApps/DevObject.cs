@@ -11,8 +11,50 @@ internal partial class Program
     /// </summary>
     public abstract class DevObject
     {
-        public abstract void OnInit();
-        public abstract void OnDelete();
+        /// <summary>
+        /// Appelé lorsque l'objet est créé
+        /// </summary>
+        public virtual void OnInit() { }
+        /// <summary>
+        /// Appelé lorsque l'objet est détruit
+        /// </summary>
+        public virtual void OnDelete() { }
+        /// <summary>
+        /// Appelé lorsque l'objet est construit
+        /// </summary>
+        public virtual void OnBuilt() { }
+
+        /// <summary>
+        /// True si l'objet doit être reconstruit
+        /// </summary>
+        public bool MustBeBuild { get { return BuildIndex > 0; } }
+
+        /// <summary>
+        /// Indice de reconstruction
+        /// </summary>
+        /// <remarks>
+        /// Lorsque la méthode Build d'un objet lié est appelée, cet indice est incrémenté de 1 pour chaque profondeur de pointeur qui lie cette objet à l'objet reconstruit.
+        /// </remarks>
+        internal int buildIndex = 0;
+        public int BuildIndex { get { return buildIndex; } }
+
+        /// <summary>
+        /// Incrément les builds des objets liés
+        /// </summary>
+        /// <remarks>La fonction est récursive</remarks>
+        internal static void IncrementBuilt(string key)
+        {
+            foreach (var o in References)
+            {
+                // directement lié à l'objet reconstruit
+                if (o.Key != key && o.Value.Pointers != null && o.Value.Pointers.Any(p=>p.Value.target == key))
+                {
+                    System.Console.WriteLine($"Increment {o.Key}");
+                    Interlocked.Increment(ref o.Value.buildIndex);
+                    IncrementBuilt(o.Key);
+                }
+            }
+        }
 
         public class Pointer
         {
@@ -550,10 +592,12 @@ internal partial class Program
                 {
                     try
                     {
+                        DevApps.PythonExtends.Output.BeginCollect();
+
                         var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
                         pyScope.SetVariable("interpreter", DevApps.PythonExtends.Interpreter.Instance);
                         pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
-                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.Content, Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                        pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Value.Content, Path.Combine(Program.DataDir, o.Key)));
                         pyScope.SetVariable("name", o.Key);
                         pyScope.SetVariable("desc", o.Value.Description);
 
@@ -570,13 +614,16 @@ internal partial class Program
                         foreach (var pointer in o.Value.Pointers)
                         {
                             Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, o.Key)));// mise en cache dans l'objet ?
+                            pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, pointer.Value.target)));
                         }
                         foreach (var property in o.Value.Properties)
                         {
                             pyScope.SetVariable(property.Key, property.Value.Item2?.Execute(pyScope));
                         }
                         var result = o.Value.BuildMethod.Item2?.Execute(pyScope);
+
+                        // Evènement de build
+                        o.Value.OnBuilt();
 
                         GuiService.Invalidate(o.Key);
                     }
@@ -588,6 +635,18 @@ internal partial class Program
                         string error = eo.FormatException(ex);
                         Console.WriteLine(error);
                         System.Console.WriteLine("******************************************");
+                    }
+                    finally
+                    {
+                        // Nettoie la collecte et provoque la mise à jour des objets
+                        DevApps.PythonExtends.Output.EndCollect((output) => {
+                            if (output.AsChanged && output.objectName != null)
+                            {
+                                Program.DevObject.IncrementBuilt(output.objectName);
+                                return true;
+                            }
+                            return false;
+                        });
                     }
                 }
                 mutexExecuteObjects.ReleaseMutex();

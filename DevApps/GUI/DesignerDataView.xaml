@@ -68,19 +68,21 @@
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Width="16" Height="16" Visibility="{Binding IsPointed, Converter={StaticResource booleanToVisibilityConverter}}" ToolTip="La sélection pointe sur cet objet">
-                                <Image.Source>
-                                    <DrawingImage>
-                                        <DrawingImage.Drawing>
-                                            <GeometryDrawing Pen="{StaticResource ResourceKey=shapePen}">
-                                                <GeometryDrawing.Geometry>
-                                                    <Geometry>M 0,0.5 H 1 M 1,0.5 L 0.75,0.25 M 1,0.5 L 0.75,0.75</Geometry>
-                                                </GeometryDrawing.Geometry>
-                                            </GeometryDrawing>
-                                        </DrawingImage.Drawing>
-                                    </DrawingImage>
-                                </Image.Source>
-                            </Image>
+                            <Grid>
+                                <Image Width="16" Height="16" Visibility="{Binding IsPointed, Converter={StaticResource booleanToVisibilityConverter}}" ToolTip="La sélection pointe sur cet objet">
+                                    <Image.Source>
+                                        <DrawingImage>
+                                            <DrawingImage.Drawing>
+                                                <GeometryDrawing Pen="{StaticResource ResourceKey=shapePen}">
+                                                    <GeometryDrawing.Geometry>
+                                                        <Geometry>M 0,0.5 H 1 M 1,0.5 L 0.75,0.25 M 1,0.5 L 0.75,0.75</Geometry>
+                                                    </GeometryDrawing.Geometry>
+                                                </GeometryDrawing>
+                                            </DrawingImage.Drawing>
+                                        </DrawingImage>
+                                    </Image.Source>
+                                </Image>
+                            </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -99,7 +101,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="UserAction" Tag="{Binding UserAction}" Text="{Binding UserAction,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="UserAction" Width="20" Tag="{Binding UserAction}" Text="{Binding UserAction,  Converter={StaticResource editConverter}}" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -114,7 +116,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="InitMethod" Tag="{Binding InitMethod}" Text="{Binding InitMethod,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="InitMethod" Width="20" Tag="{Binding InitMethod}" Text="{Binding InitMethod,  Converter={StaticResource editConverter}}" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -129,7 +131,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="LoopMethod" Tag="{Binding LoopMethod}" Text="{Binding LoopMethod,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="LoopMethod" Width="20" Tag="{Binding LoopMethod}" Text="{Binding LoopMethod,  Converter={StaticResource editConverter}}" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -144,7 +146,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="BuildMethod" Tag="{Binding BuildMethod}" Text="{Binding BuildMethod,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="BuildMethod" Width="20" Tag="{Binding BuildMethod}" Text="{Binding BuildMethod,  Converter={StaticResource editConverter}}" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -159,7 +161,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl MouseDoubleClick="OnDoubleClick">
-                                <TextBlock x:Name="DrawCode" Tag="{Binding DrawCode}" Text="{Binding DrawCode,  Converter={StaticResource editConverter}}" Width="30" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="DrawCode"  Width="20" Tag="{Binding DrawCode}" Text="{Binding DrawCode,  Converter={StaticResource editConverter}}" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -174,7 +176,34 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate >
                             <ContentControl>
-                                <TextBlock x:Name="IsReference" Tag="{Binding IsReference}" Text="{Binding IsReference,  Converter={StaticResource boolConverter}}" Width="30" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="IsReference" Width="20" Tag="{Binding IsReference}" Text="{Binding IsReference,  Converter={StaticResource boolConverter}}"  TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                            </ContentControl>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="*" Width="20" HeaderStyle="{StaticResource CenterGridHeaderStyle}">
+                    <DataGridTemplateColumn.CellStyle>
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
+                            <Setter Property="ToolTip" Value="Index de mise à jour" />
+                            <Setter Property="HorizontalAlignment"  Value="Center"/>
+                        </Style>
+                    </DataGridTemplateColumn.CellStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate >
+                            <ContentControl>
+                                <Grid>
+                                    <TextBlock x:Name="BuildIndex" Width="20" Tag="{Binding BuildIndex}" Text="{Binding BuildIndex}" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding MustBeBuild}" Value="True">
+                                                        <Setter Property="Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
                             </ContentControl>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

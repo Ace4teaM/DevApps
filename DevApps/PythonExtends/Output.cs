@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using static IronPython.Modules._ast;
 
 namespace DevApps.PythonExtends
 {
@@ -25,12 +24,17 @@ namespace DevApps.PythonExtends
         /// <summary>
         /// Nom du fichier associé aux données persistantes
         /// </summary>
-        internal string Filename;
+        internal string Filename; // todo changer en nom d'objet et nullable ?
+        internal string? objectName;
+        /// <summary>
+        /// True si le contenu du stream a changé
+        /// </summary>
+        public bool AsChanged = false;
 
         /// <summary>
         /// Stock les données mémoire en fichier
         /// </summary>
-        internal void Flush()
+        internal void Flush()//todo a supprimer ?
         {
             using var file = File.Open(Filename, FileMode.OpenOrCreate);
             stream.Seek(0, SeekOrigin.Begin);
@@ -40,18 +44,61 @@ namespace DevApps.PythonExtends
         /// <summary>
         /// Recharge les données du fichier en mémoire
         /// </summary>
-        internal void Reload()
+        internal void Reload()//todo a supprimer ?
         {
             using var file = File.Open(Filename, FileMode.Open);
             stream.Seek(0, SeekOrigin.Begin);
             file.CopyTo(stream);
             stream.SetLength(file.Length);
+
+            AsChanged = true;
+        }
+
+        internal static List<Output>? Collector = null;
+
+        /// <summary>
+        /// Débute la collecte des instances Output créées
+        /// </summary>
+        internal static void BeginCollect()
+        {
+            Collector = new List<Output>();
+        }
+
+        /// <summary>
+        /// Termine la collecte des instances Output créées
+        /// </summary>
+        /// <returns>Tableau des instances ayant retourné true à l'appel de action</returns>
+        /// <remarks>
+        /// action permet d'appliquer une action sur chaque instance créée
+        /// </remarks>
+        internal static Output[] EndCollect(Func<Output,bool>? action)
+        {
+            List<Output> retval = new List<Output>();
+
+            if (Collector != null)
+            {
+                if (action != null)
+                {
+                    foreach (var instance in Collector)
+                    {
+                        if(action.Invoke(instance))
+                            retval.Add(instance);
+                    }
+                }
+                Collector.Clear();
+            }
+
+            Collector = null;
+
+            return retval.ToArray();
         }
 
         public Output(Stream stream, string filename)
         {
             this.stream = stream;
             Filename = filename;
+            objectName = Path.GetFileNameWithoutExtension(filename);
+            Collector?.Add(this);
         }
 
         /// <summary>
@@ -66,6 +113,8 @@ namespace DevApps.PythonExtends
                 stream.Seek(0, SeekOrigin.Begin);
                 stream.Write(bytes);
                 stream.SetLength(bytes.Length);
+
+                AsChanged = true;
             }
             catch (Exception ex)
             {
@@ -85,6 +134,8 @@ namespace DevApps.PythonExtends
                 content.stream.CopyTo(stream);
                 stream.SetLength(content.stream.Length);
                 stream.Seek(0, SeekOrigin.Begin);
+
+                AsChanged = true;
             }
             catch (Exception ex)
             {
@@ -106,6 +157,8 @@ namespace DevApps.PythonExtends
                 stream.Write(bytes);
                 cachedText = null;
                 stream.SetLength(length + bytes.Length);
+
+                AsChanged = true;
             }
             catch (Exception ex)
             {
@@ -126,6 +179,8 @@ namespace DevApps.PythonExtends
                 stream.Seek(0, SeekOrigin.Begin);
                 stream.Write(bytes);
                 stream.SetLength(bytes.Length);
+
+                AsChanged = true;
             }
             catch (Exception ex)
             {

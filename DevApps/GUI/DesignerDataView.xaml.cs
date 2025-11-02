@@ -22,6 +22,10 @@ namespace DevApps.GUI
         public class TabItem : INotifyPropertyChanged
         {
             public event PropertyChangedEventHandler? PropertyChanged;
+            public void OnPropertyChanged(string name)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            }
             private bool isPointed = false;
             public bool IsPointed { get { return isPointed; } set { isPointed = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPointed))); } }
             private bool isPointer = false;
@@ -32,6 +36,22 @@ namespace DevApps.GUI
                 {
                     var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
                     return obj?.IsReference;
+                }
+            }
+            public bool? MustBeBuild
+            {
+                get
+                {
+                    var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
+                    return obj?.MustBeBuild;
+                }
+            }
+            public int? BuildIndex
+            {
+                get
+                {
+                    var obj = Program.DevObject.References.FirstOrDefault(p => p.Key == Name).Value;
+                    return obj?.BuildIndex;
                 }
             }
             public string? Name { get; set; }
@@ -360,11 +380,20 @@ namespace DevApps.GUI
                         var handle2 = reference.mutexReadOutput.WaitOne();
                         if (handle2)
                         {
-                            GuiService.OpenEditorOrDefault(reference.Content, reference.Editor);
+                            if(GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, true))
+                            {
+                                DevObject.IncrementBuilt(selection);
+
+                                // Actualise les compteurs
+                                foreach (var i in Items)
+                                {
+                                    i.OnPropertyChanged(nameof(i.BuildIndex));
+                                    i.OnPropertyChanged(nameof(i.MustBeBuild));
+                                }
+                            }
 
                             reference.mutexReadOutput.ReleaseMutex();
                         }
-                        //DrawObject.InvalidateVisual();
                     }
                 }
             }
@@ -400,7 +429,6 @@ namespace DevApps.GUI
 
                             reference.mutexReadOutput.ReleaseMutex();
                         }
-                        //DrawObject.InvalidateVisual();
                     }
                 }
             }
@@ -429,7 +457,12 @@ namespace DevApps.GUI
                         {
                             Program.DevObject.Build(items);
 
-                            //DrawObject.InvalidateVisual();
+                            // Actualise les compteurs
+                            foreach(var i in Items)
+                            {
+                                i.OnPropertyChanged(nameof(i.BuildIndex));
+                                i.OnPropertyChanged(nameof(i.MustBeBuild));
+                            }
                         }
                     }
                 }
