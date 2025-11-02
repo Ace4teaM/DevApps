@@ -148,7 +148,7 @@ internal partial class Program
                         }
 
                         Console.WriteLine($"Rebuild {this.objectname}");
-                        DevObject.Build([new KeyValuePair<string, DevObject>(this.objectname, obj)]);
+                        DevObject.BuildTree(new KeyValuePair<string, DevObject>(this.objectname, obj));
                     }
                     return 0;
                 });
