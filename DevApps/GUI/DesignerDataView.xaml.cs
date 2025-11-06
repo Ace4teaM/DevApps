@@ -863,7 +863,7 @@ namespace DevApps.GUI
 
                                 byte[] bytes = new byte[selectedObject.Content.Length];
                                 selectedObject.Content.Seek(0, SeekOrigin.Begin);
-                                selectedObject.Content.Write(bytes);
+                                selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
                                 selectedObject.Content.Seek(0, SeekOrigin.Begin);
 
                                 selectedObject.InitialDataBase64 = Convert.ToBase64String(bytes);
