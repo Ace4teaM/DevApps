@@ -203,8 +203,8 @@ namespace DevApps.PythonExtends
         public byte[] Bytes()
         {
             byte[] bytes = new byte[stream.Length];
-            stream.Seek(0, SeekOrigin.Begin); 
-            stream.Write(bytes);
+            stream.Seek(0, SeekOrigin.Begin);
+            stream.Read(bytes, 0, (int)stream.Length);
             stream.Seek(0, SeekOrigin.Begin); 
             return bytes;
         }
