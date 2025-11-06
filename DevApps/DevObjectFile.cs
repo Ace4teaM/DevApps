@@ -46,7 +46,7 @@ internal partial class Program
         {
             try
             {
-                if (this.filename != null && this.fileStream == null && File.Exists(this.filename))
+                if (this.filename != null && this.fileStream == null)
                 {
                     this.fileStream = new FileStream(this.filename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
                 }
