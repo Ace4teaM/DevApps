@@ -105,10 +105,10 @@ namespace DevApps.GUI
             {
                 var item = (FileSystemItem)e.Data.GetData(typeof(FileSystemItem));
 
-                if (CheckFilenames(item.Name) == false)
+                if (CheckFilenames(item.FullPath) == false)
                     return;
 
-                AddFromFile(item.Name);
+                AddFromFile(item.FullPath);
             }
         }
 
