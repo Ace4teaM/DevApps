@@ -122,7 +122,8 @@ namespace Serializer
             this.content = content;
         }
         public String Label { get { return content.Label; } set { content.Label = value; } }
-        public String Commands { get { return content.ToString(); } set { content = Program.DevCommandGroup.FromString(value); } }
+        public String Output { get { return content.Output; } set { content.Output = value; } }
+        public String Commands { get { return content.Content; } set { content = Program.DevCommandGroup.FromString(content.Label, content.Output, value); } }
     }
 
     internal class DevFacet

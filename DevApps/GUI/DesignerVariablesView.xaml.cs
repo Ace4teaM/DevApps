@@ -16,6 +16,11 @@ namespace DevApps.GUI
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        /// <summary>
+        /// true Si une cellule est en cours d'édition
+        /// </summary>
+        private bool IsEditing = false;
+
         public class TabItem
         {
             public string Name { get; set; } = String.Empty;
@@ -100,6 +105,11 @@ namespace DevApps.GUI
             this.DataContext = this;
         }
 
+        private void DataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            IsEditing = true;
+        }
+
         private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (e.EditAction == DataGridEditAction.Commit)
@@ -165,6 +175,8 @@ namespace DevApps.GUI
                         }
                     }
                 }
+
+                IsEditing = e.Cancel == true;
             }
         }
 
@@ -231,6 +243,8 @@ namespace DevApps.GUI
                         }
                     }
                 }
+
+                IsEditing = e.Cancel == true;
             }
         }
 
@@ -344,6 +358,9 @@ namespace DevApps.GUI
 
         public void OnKeyCommand(KeyCommand command)
         {
+            if (IsEditing == true)
+                return;
+
             if (command == KeyCommand.Create)
             {
                 CreateVariable();

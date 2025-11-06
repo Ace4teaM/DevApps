@@ -23,7 +23,7 @@
             <RowDefinition Height="auto" MinHeight="160"></RowDefinition>
         </Grid.RowDefinitions>
         <GroupBox Grid.Row="0" Header="Variables Publiques">
-        <DataGrid x:Name="dataGrid" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
+        <DataGrid x:Name="dataGrid" BeginningEdit="DataGrid_BeginningEdit" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Nouvelle variable..." Click="MenuItem_Click_CreateVariable"></MenuItem>
@@ -31,14 +31,14 @@
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="auto" MinWidth="130" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
-                    <DataGridTextColumn Header="Valeur" Binding="{Binding Value}" Width="auto" MinWidth="160" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
-                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Nom" Binding="{Binding Name, UpdateSourceTrigger=LostFocus}" Width="auto" MinWidth="130" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Valeur" Binding="{Binding Value, UpdateSourceTrigger=LostFocus}" Width="auto" MinWidth="160" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Description" Binding="{Binding Description, UpdateSourceTrigger=LostFocus}" Width="100*" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
                 </DataGrid.Columns>
         </DataGrid>
         </GroupBox>
         <GroupBox Grid.Row="1" Header="Variables Privées">
-            <DataGrid x:Name="dataGrid2" CellEditEnding="DataGrid_CellEditEnding2" AutoGenerateColumns="False" ItemsSource="{Binding PrivateItems}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
+            <DataGrid x:Name="dataGrid2" BeginningEdit="DataGrid_BeginningEdit" CellEditEnding="DataGrid_CellEditEnding2" AutoGenerateColumns="False" ItemsSource="{Binding PrivateItems}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="True" CanUserDeleteRows="False">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Nouvelle variable..." Click="MenuItem_Click_CreateVariable2"></MenuItem>
@@ -46,9 +46,9 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nom" Binding="{Binding Name}" Width="auto" MinWidth="130" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
-                    <DataGridTextColumn Header="Valeur" Binding="{Binding Value}" Width="auto" MinWidth="160" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
-                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="100*" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Nom" Binding="{Binding Name, UpdateSourceTrigger=LostFocus}" Width="auto" MinWidth="130" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Valeur" Binding="{Binding Value, UpdateSourceTrigger=LostFocus}" Width="auto" MinWidth="160" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
+                    <DataGridTextColumn Header="Description" Binding="{Binding Description, UpdateSourceTrigger=LostFocus}" Width="100*" EditingElementStyle="{StaticResource CenteredEditingStyle}" ElementStyle="{StaticResource CenteredTextStyle}" />
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>

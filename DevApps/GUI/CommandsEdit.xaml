@@ -18,7 +18,14 @@
             </ScrollViewer>
         </GroupBox>
         <GroupBox Header="Commandes">
-            <TextBox Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" FontFamily="Consolas" FontSize="10pt" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"></TextBox>
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top">Label</TextBlock>
+                <TextBox DockPanel.Dock="Top" Text="{Binding Label,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" FontWeight="Bold" FontSize="12pt" Margin="0,0,0,6" ></TextBox>
+                <TextBox DockPanel.Dock="Bottom" Text="{Binding Output,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <TextBlock DockPanel.Dock="Bottom">Sortie</TextBlock>
+                <TextBlock DockPanel.Dock="Top">Commandes</TextBlock>
+                <TextBox Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" FontFamily="Consolas" FontSize="10pt"></TextBox>
+            </DockPanel>
         </GroupBox>
     </DockPanel>
 </Window>

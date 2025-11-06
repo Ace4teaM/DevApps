@@ -1,7 +1,6 @@
 ﻿using Microsoft.Scripting.Utils;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -29,6 +28,7 @@ namespace DevApps.GUI
                     throw new ArgumentException(nameof(Name));
 
                 this.label = Program.DevCommandGroup.References[Name].Label;
+                this.output = Program.DevCommandGroup.References[Name].Output;
                 this.commands = Program.DevCommandGroup.References[Name].ToString();
             }
 
@@ -39,6 +39,7 @@ namespace DevApps.GUI
                 Program.DevCommandGroup.References[Name] = new DevCommandGroup();
 
                 this.label = String.Empty;
+                this.output = String.Empty;
                 this.commands = String.Empty;
             }
 
@@ -56,7 +57,7 @@ namespace DevApps.GUI
 
                     if (String.IsNullOrEmpty(name))
                     {
-                        Program.DevCommandGroup.References.Add(value, DevCommandGroup.FromString(commands));
+                        Program.DevCommandGroup.References.Add(value, DevCommandGroup.FromString("Nouvelle commande","",commands));
                         name = value;
                     }
                     else
@@ -82,6 +83,19 @@ namespace DevApps.GUI
                     Program.DevCommandGroup.References[Name].Label = label;
                 }
             }
+            internal string output;
+            public string Output
+            {
+                get
+                {
+                    return output;
+                }
+                set
+                {
+                    output = value;
+                    Program.DevCommandGroup.References[Name].Output = output;
+                }
+            }
             internal string commands;
             public string Commands
             {
@@ -92,7 +106,7 @@ namespace DevApps.GUI
                 set
                 {
                     commands = value;
-                    Program.DevCommandGroup.References[Name] = DevCommandGroup.FromString(value);
+                    Program.DevCommandGroup.References[Name].Content = commands;
                 }
             }
         }
@@ -147,11 +161,15 @@ namespace DevApps.GUI
                 {
                     var wnd = new CommandsEdit();
                     wnd.Value = group.Content;
+                    wnd.Label = group.Label;
+                    wnd.Output = group.Output;
                     wnd.Owner = Window.GetWindow(this);
                     wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                     if (wnd.ShowDialog() == true)
                     {
-                        Program.DevCommandGroup.References[context.Name] = DevCommandGroup.FromString(wnd.Value);
+                        var cmd = DevCommandGroup.FromString(wnd.Label, wnd.Output, wnd.Value);
+                        cmd.MakeCommands();
+                        Program.DevCommandGroup.References[context.Name] = cmd;
                         InvalidateItems();
                     }
                 }

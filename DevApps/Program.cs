@@ -191,6 +191,8 @@ internal partial class Program
 
         DevObject.Init();
 
+        DevCommandGroup.Init();
+
         // Construit les données permanentes
         DevFacet.Get("Model")?.Build();
 

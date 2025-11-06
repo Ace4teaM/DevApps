@@ -32,6 +32,22 @@ namespace DevApps.GUI
         internal static Dictionary<string, string> externalsEditors = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         internal static Dictionary<string, string> externalsTools = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        internal static string ExternalToolsPaths
+        {
+            get
+            {
+                return string.Join(";", externalsTools.Values);
+            }
+        }
+
+        internal static string ExternalEditorsPaths
+        {
+            get
+            {
+                return string.Join(";", externalsEditors.Values);
+            }
+        }
+
         static GuiService()
         {
             InitEditors();

@@ -54,6 +54,7 @@
                 <DataGridTextColumn Header="Nom" Binding="{Binding Name}" MinWidth="120" IsReadOnly="True" ElementStyle="{StaticResource CenteredTextStyle}" />
                 <DataGridTextColumn Header="Libellé" Binding="{Binding Label}" MinWidth="300" IsReadOnly="True" ElementStyle="{StaticResource CenteredTextStyle}" />
                 <DataGridTextColumn Header="Commandes" Binding="{Binding Commands}" Width="100*" IsReadOnly="True" ElementStyle="{StaticResource CenteredTextStyle}"  />
+                <DataGridTextColumn Header="Sortie" Binding="{Binding Output}" Width="100*" IsReadOnly="True" ElementStyle="{StaticResource CenteredTextStyle}"  />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

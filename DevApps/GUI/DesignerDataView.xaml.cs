@@ -124,6 +124,9 @@ namespace DevApps.GUI
             }
         }
 
+        /// <summary>
+        /// true Si une cellule est en cours d'édition
+        /// </summary>
         private bool IsEditing = false;
 
         public System.Windows.Media.SolidColorBrush AccentBrush
@@ -768,13 +771,14 @@ namespace DevApps.GUI
                             }
                         }
                     }
+
+                    IsEditing = false;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            IsEditing = false;
         }
 
         public void OnKeyCommand(KeyCommand command)

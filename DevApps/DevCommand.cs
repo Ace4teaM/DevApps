@@ -221,16 +221,48 @@ internal partial class Program
 
                     var def = (DevShellCommand)DevCommandDefinition.BuiltIn[cmd.Name];
 
+                    var args = cmd.Arguments.ToArray();
+                    for (int i = 0; i < args.Length; i++)
+                    {
+                        if (args[i].StartsWith("$"))
+                        {
+                            if (DevVariable.References.TryGetValue(args[i].Substring(1), out var variable))
+                            {
+                                args[i] = variable.Value.ToString() ?? String.Empty;
+                            }
+                        }
+                    }
+
                     Process process = new Process();
                     process.StartInfo.FileName = "cmd.exe";
-                    process.StartInfo.Arguments = "/C " + String.Format(def.Command, cmd.Arguments.ToArray());
+                    process.StartInfo.Arguments = "/C " + String.Format(def.Command, args);
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.EnvironmentVariables["PATH"] += $";{GuiService.ExternalToolsPaths}";
+
+                    if (cmd.Input != null)
+                    {
+                        process.StartInfo.RedirectStandardInput = true;
+                    }
 
                     process.Start();
-                    string result = process.StandardOutput.ReadToEnd();
+
+                    if (cmd.Input != null)
+                    {
+                        if (!process.HasExited)
+                            process.StandardInput.BaseStream.Write(cmd.Input.ToArray(), 0, (int)cmd.Input.Length);
+                        if(!process.HasExited)
+                            process.StandardInput.BaseStream.Flush();
+                        if (!process.HasExited)
+                            process.StandardInput.Close();
+                    }
+
+                    if (cmd.Output != null)
+                    {
+                        process.StandardOutput.BaseStream.CopyTo(cmd.Output);
+                        cmd.Output.Position = 0;
+                    }
                     process.WaitForExit();
-                    Console.WriteLine(result);
                     return process.ExitCode;
                 }
                 catch (Exception ex)
@@ -250,6 +282,8 @@ internal partial class Program
     {
         public string Name { get; set; } = "";
         public List<string> Arguments = new List<string>();
+        public MemoryStream? Input;
+        public MemoryStream? Output;
     }
     /// <summary>
     /// Représente un groupe de commandes exécutables 
@@ -278,23 +312,77 @@ internal partial class Program
         public void Execute()
         {
             Console.WriteLine($"Execute Command group '{Label}'...");
+            if (this.IO.Length != 0)
+            {
+                this.IO.Close();
+                this.IO = new MemoryStream();
+            }
             foreach (var cmd in Commands)
             {
                 try
                 {
                     Console.Write($"   Run {cmd.Name} => ");
                     var def = DevCommandDefinition.BuiltIn[cmd.Name];
+
+                    // si une entrée est présente, la copie dans la commande
+                    if (this.IO.Length > 0)
+                    {
+                        cmd.Input = new MemoryStream();
+                        this.IO.Position = 0;
+                        this.IO.CopyTo(cmd.Input);
+                        cmd.Input.SetLength(this.IO.Length);
+                    }
+
+                    // prépare la sortie
+                    cmd.Output = new MemoryStream();
+
+                    // exécute la commande
                     var result = def.Execute(cmd);
-                    if(result == 0)
-                        Console.WriteLine();
+                    if (result == 0)
+                        Console.WriteLine("... OK");
                     else
+                    {
                         Console.WriteLine($"... Failed with code ({result})");
+                        return;
+                    }
+
+                    // récupère la sortie
+                    if (cmd.Output.Length > 0)
+                    {
+                        cmd.Output.Position = 0;
+                        this.IO.Position = 0;
+                        cmd.Output.CopyTo(this.IO);
+                        this.IO.SetLength(cmd.Output.Length);
+                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"... Failed with error ({ex.Message})");
                 }
             }
+
+            // copie la sortie dans l'objet de destination
+            if(String.IsNullOrEmpty(this.Output) == false)
+            {
+                var handle = DevObject.mutexExecuteObjects.WaitOne();
+                if (handle && DevObject.TryGet(this.Output, out var obj))
+                {
+                    var handle2 = DevObject.mutexExecuteObjects.WaitOne();
+                    if (handle2 && obj.Content != null && obj.Content.CanWrite == true)
+                    {
+                        obj.Content.Position = 0;
+                        this.IO.Position = 0;
+                        this.IO.CopyTo(obj.Content);
+                        obj.Content.SetLength(this.IO.Length);
+                        obj.Content.Position = 0;
+                        this.IO.Position = 0;
+                        DevObject.mutexExecuteObjects.ReleaseMutex();
+                    }
+
+                    DevObject.mutexExecuteObjects.ReleaseMutex();
+                }
+            }
+
             Console.WriteLine();
         }
 
@@ -322,6 +410,16 @@ internal partial class Program
         public string Content { get; set; } = "";
 
         /// <summary>
+        /// Flux d'entrée/sortie utilisé par les commandes
+        /// </summary>
+        public MemoryStream IO = new MemoryStream();
+
+        /// <summary>
+        /// Nom de l'objet de sortie, si vide aucun
+        /// </summary>
+        public string Output = "";
+
+        /// <summary>
         /// Liste des commandes à exécuter
         /// </summary>
         public List<DevCommand> Commands = new List<DevCommand>();
@@ -344,7 +442,6 @@ internal partial class Program
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"# {Label}");
             foreach (DevCommand command in Commands)
             {
                 sb.AppendLine($"{command.Name} " + String.Join(" ", command.Arguments));
@@ -352,45 +449,17 @@ internal partial class Program
             return sb.ToString();
         }
 
-        public static DevCommandGroup FromString(string sb)
+        public static DevCommandGroup FromString(string label, string output, string sb)
         {
-            DevCommandGroup group = new DevCommandGroup();
-            group.Content = sb;
-
-            foreach (var line in sb.Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            DevCommandGroup group = new DevCommandGroup()
             {
-                if (String.IsNullOrWhiteSpace(line))
-                    continue;
+                Content = sb,
+                Label = label,
+                Output = output,
+            };
 
-                // label ?
-                if(line.StartsWith("#") && String.IsNullOrWhiteSpace(group.Label))
-                {
-                    group.Label = line.Substring(1).Trim();
-                }
-                // commande ?
-                else{
-                    var match = Regex.Match(line, @"^(\w+)(?:\s+([\w]+))*\s*$");
-                    if (match.Success)
-                    {
-                        DevCommand command = new DevCommand();
-                        command.Name = match.Groups[1].Value;
+            group.MakeCommands();
 
-                        // obtient la définition de la commande (avec les arguments)
-                        DevCommandDefinition.BuiltIn.TryGetValue(command.Name, out var commandDef);
-                        if (commandDef == null)
-                        {
-                            Console.WriteLine($"La commande '{command.Name}' n'existe pas.");
-                            continue;
-                        }
-
-                        for (int i=0; i< match.Groups[2].Captures.Count; i++)
-                        {
-                            command.Arguments.Add(match.Groups[2].Captures[i].Value);
-                        }
-                        group.Commands.Add(command);
-                    }
-                }
-            }
             return group;
         }
 
@@ -414,6 +483,47 @@ internal partial class Program
                 {
                     Console.WriteLine($"La commande '{cmd.Name}' n'existe pas.");
                 }
+            }
+        }
+
+        internal void MakeCommands()
+        {
+            Commands.Clear();
+
+            foreach (var line in Content.Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (String.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var match = Regex.Match(line, @"^(\w+)(?:\s+(\${0,1}[\w]+))*\s*$");
+                if (match.Success)
+                {
+                    DevCommand command = new DevCommand();
+                    command.Name = match.Groups[1].Value;
+
+                    // obtient la définition de la commande (avec les arguments)
+                    DevCommandDefinition.BuiltIn.TryGetValue(command.Name, out var commandDef);
+                    if (commandDef == null)
+                    {
+                        Console.WriteLine($"La commande '{command.Name}' n'existe pas.");
+                        continue;
+                    }
+
+                    for (int i = 0; i < match.Groups[2].Captures.Count; i++)
+                    {
+                        command.Arguments.Add(match.Groups[2].Captures[i].Value);
+                    }
+
+                    Commands.Add(command);
+                }
+            }
+        }
+
+        internal static void Init()
+        {
+            foreach (var cmd in References)
+            {
+                cmd.Value.MakeCommands();
             }
         }
     }
