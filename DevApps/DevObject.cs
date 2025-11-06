@@ -641,6 +641,8 @@ internal partial class Program
             {
                 foreach (var o in objects)
                 {
+                    if (o.Value.BuildMethod.Item2 == null)
+                        continue;
                     try
                     {
                         var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
