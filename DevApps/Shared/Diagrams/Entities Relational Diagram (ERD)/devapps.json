@@ -1,5 +1,15 @@
 {
-  "Variables": [],
+  "Files": [],
+  "Variables": [
+    {
+      "Key": "connexionstring",
+      "Value": {
+        "Description": "Chaine de connexion à la base de données de test",
+        "Value": "Server=AceTeaM;Database=test;Integrated Security=true;TrustServerCertificate=true;"
+      }
+    }
+  ],
+  "ObjectsFiles": [],
   "Objects": [
     {
       "Key": "visual",
@@ -46,7 +56,7 @@
         ],
         "Description": "ERD Data Model",
         "InitialDataBase64": "W1RFU1RdDQp1bg0KZGV1eA0KDQpbQ29tbWFuZGVdDQoqbnVtZXJvDQoqZGF0ZQ0KDQpbQ2xpZW50XQ0KKm51bWVybw0KKm5vbQ0KKnByZW5vbQ0KKmFkcmVzc2UNCip2aWxsZQ0KKmNvZGVfcG9zdGFsDQoqdGVsZXBob25lDQoqZW1haWwNCg0KW1Byb2R1aXRdDQoqbnVtZXJvDQoqbm9tDQoqZGVzY3JpcHRpb24NCipwcml4DQoqcXVhbnRpdGUNCg0KW0RldGFpbENvbW1hbmRlXQ0KKm51bWVybw0KKnF1YW50aXRlDQoqcHJpeA0KKnRvdGFsDQoqY29tbWFuZGUNCipwcm9kdWl0DQoNCkNvbW1hbmRlIDEtLTEgRGV0YWlsQ29tbWFuZGUNCkNvbW1hbmRlICotLTEgQ2xpZW50DQpDb21tYW5kZSAqLS0qIFByb2R1aXQNCg==",
-        "Editor": null,
+        "Editor": "text",
         "Pointers": [],
         "Functions": [],
         "Properties": [],
@@ -55,7 +65,7 @@
         "InitMethod": "",
         "BuildMethod": "",
         "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())"
+        "DrawCode": "gui.text(out)"
       }
     },
     {
@@ -70,7 +80,7 @@
         ],
         "Description": "ERD to C#",
         "InitialDataBase64": "CnVzaW5nIFN5c3RlbTsKdXNpbmcgU3lzdGVtLkNvbGxlY3Rpb25zLkdlbmVyaWM7Cm5hbWVzcGFjZSBFUkRpYWdyYW0KewogICAgcHVibGljIGNsYXNzIENsaWVudAogICAgewogICAgICAgIHB1YmxpYyBzdHJpbmcgZW1haWwgeyBnZXQ7IHNldDsgfQogICAgfQogICAgcHVibGljIGNsYXNzIFRFU1QKICAgIHsKICAgICAgICBwdWJsaWMgc3RyaW5nIHVuIHsgZ2V0OyBzZXQ7IH0KICAgICAgICBwdWJsaWMgc3RyaW5nIGRldXggeyBnZXQ7IHNldDsgfQogICAgfQogICAgcHVibGljIGNsYXNzIFByb2R1aXQKICAgIHsKICAgICAgICBwdWJsaWMgc3RyaW5nIHF1YW50aXRlIHsgZ2V0OyBzZXQ7IH0KICAgIH0KICAgIHB1YmxpYyBjbGFzcyBEZXRhaWxDb21tYW5kZQogICAgewogICAgICAgIHB1YmxpYyBzdHJpbmcgQ29tbWFuZGUgMS0tMSBEZXRhaWxDb21tYW5kZSB7IGdldDsgc2V0OyB9CiAgICAgICAgcHVibGljIHN0cmluZyBDb21tYW5kZSAqLS0xIENsaWVudCB7IGdldDsgc2V0OyB9CiAgICAgICAgcHVibGljIHN0cmluZyBDb21tYW5kZSAqLS0qIFByb2R1aXQgeyBnZXQ7IHNldDsgfQogICAgICAgIHB1YmxpYyBzdHJpbmcgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACB7IGdldDsgc2V0OyB9CiAgICAgICAgcHVibGljIHN0cmluZyBwcm9kdWl0IHsgZ2V0OyBzZXQ7IH0KICAgIH0KICAgIHB1YmxpYyBjbGFzcyBDb21tYW5kZQogICAgewogICAgICAgIHB1YmxpYyBzdHJpbmcgZGF0ZSB7IGdldDsgc2V0OyB9CiAgICB9Cn0=",
-        "Editor": null,
+        "Editor": "code.cs",
         "Pointers": [
           {
             "Key": "input_data",
@@ -90,15 +100,26 @@
         "InitMethod": "",
         "BuildMethod": "def generate_csharp_code(erd_text):\r\n    # Dictionnaire pour stocker les entités et leurs attributs\r\n    entities = {}\r\n    relationships = []\r\n    # Diviser le texte en lignes pour le traitement\r\n    lines = erd_text.strip().split('\\n')\r\n    current_entity = None\r\n    for line in lines:\r\n        line = line.strip()\r\n        if line.startswith('[') and line.endswith(']'):\r\n            # Nouvelle entité\r\n            current_entity = line[1:-1]\r\n            entities[current_entity] = {'primary_key': None, 'attributes': [], 'foreign_keys': []}\r\n        elif line.startswith('*'):\r\n            # Clé primaire\r\n            entities[current_entity]['primary_key'] = line[1:]\r\n        elif line.startswith('+'):\r\n            # Clé étrangère\r\n            entities[current_entity]['foreign_keys'].append(line[1:])\r\n        elif line:\r\n            # Attribut standard\r\n            entities[current_entity]['attributes'].append(line)\r\n        elif '--' in line:\r\n            # Relation\r\n            relationships.append(line)\r\n    # Générer le code C#\r\n    csharp_code = \"\"\"\r\nusing System;\r\nusing System.Collections.Generic;\r\nnamespace ERDiagram\r\n{\r\n\"\"\"\r\n    # Ajouter les classes pour chaque entité\r\n    for entity, details in entities.items():\r\n        csharp_code += f\"    public class {entity}\\n    {{\\n\"\r\n        # Ajouter les attributs\r\n        for attr in details['attributes']:\r\n            csharp_code += f\"        public string {attr} {{ get; set; }}\\n\"\r\n        # Ajouter la clé primaire\r\n        if details['primary_key']:\r\n            csharp_code += f\"        public string {details['primary_key']} {{ get; set; }}\\n\"\r\n        # Ajouter les clés étrangères\r\n        for fk in details['foreign_keys']:\r\n            csharp_code += f\"        public string {fk} {{ get; set; }}\\n\"\r\n        csharp_code += \"    }\\n\"\r\n    # Ajouter les relations (simplifié pour l'exemple)\r\n    for relation in relationships:\r\n        csharp_code += f\"    // Relation: {relation}\\n\"\r\n    csharp_code += \"}\"\r\n    return csharp_code\r\n# Exemple d'utilisation\r\nerd_content = input_data.text()\r\n# Générer le code C# à partir du contenu ERD\r\ncsharp_code = generate_csharp_code(erd_content)\r\nout.write(csharp_code)",
         "ObjectCode": "",
-        "DrawCode": "gui.style('Black', 2, False).foreground().stack().text(out.lines())"
+        "DrawCode": "gui.text(out)"
       }
     }
   ],
   "References": [],
+  "Commands": [
+    {
+      "Key": "ImportExisting",
+      "Value": {
+        "Label": "Récupère le modèle de données depuis la BDD",
+        "Output": "datamodel",
+        "Commands": "db2erd sqlserver $connexionstring\r\n"
+      }
+    }
+  ],
   "Facets": [
     {
       "Key": "ERD",
       "Value": {
+        "Description": "0,0,1000,1000",
         "Objects": [
           {
             "Key": "codegen",
@@ -111,7 +132,7 @@
           {
             "Key": "datamodel",
             "Value": {
-              "zone": "504.4,23.30000000000001,200,400",
+              "zone": "527.5523167152572,28.17417194005418,200,400",
               "background": "#FFFFFFFF",
               "TitlePos": "TopLeft"
             }
@@ -119,7 +140,7 @@
           {
             "Key": "visual",
             "Value": {
-              "zone": "831.9,17.799999999999955,250,400",
+              "zone": "831.9,17.799999999999955,256.3526196928635,406.3526196928635",
               "background": "#FFFFFFFF",
               "TitlePos": "TopLeft"
             }
