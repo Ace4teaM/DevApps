@@ -1,22 +1,12 @@
-﻿#if DEBUG
-#define CREATE
-#else
-#define LOAD
-#endif
-
-using DevApps.GUI;
-using DevApps.Print;
+﻿using DevApps.GUI;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Windows;
 using System.Windows.Threading;
-using static IronPython.Modules.PythonWeakRef;
 using static Program.DevCommandDefinition;
 
 internal partial class Program
