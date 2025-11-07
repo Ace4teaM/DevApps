@@ -9,10 +9,22 @@
         PreviewKeyDown="Window_PreviewKeyDown"
         PreviewKeyUp="Window_PreviewKeyUp"
         WindowStyle="None"
-        Title="DesignerWindow" Height="509" Width="979">
+        Title="DesignerWindow" Height="471" Width="552" MinWidth="1000">
     <Window.Resources>
         <local:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Style x:Key="SubTitleStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="Background" Value="Transparent"></Setter>
+            <Setter Property="FontFamily" Value="Bauhaus 93"></Setter>
+            <Setter Property="FontSize" Value="12"></Setter>
+            <Setter Property="FontWeight" Value="Normal"></Setter>
+            <Setter Property="Foreground" Value="Black"></Setter>
+            <Setter Property="Focusable" Value="False"></Setter>
+            <Setter Property="Margin" Value="10,0,10,0"></Setter>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -20,13 +32,14 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="100*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10*" MinWidth="750"/>
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="3*" MinWidth="200"/>
         </Grid.ColumnDefinitions>
-        <!-- Barre de Tire -->
+        <!-- Barre de Titre -->
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" DockPanel.Dock="Top" Background="Gray" Height="35" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown"
                      Focusable="False"
                      FocusVisualStyle="{x:Null}">
@@ -56,23 +69,11 @@
                 <Style x:Key="TitleStyle" TargetType="TextBlock">
                     <Setter Property="Margin" Value="10,0,0,0"></Setter>
                     <Setter Property="VerticalAlignment" Value="Center"></Setter>
-                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                    <Setter Property="HorizontalAlignment" Value="Center"></Setter>
                     <Setter Property="Background" Value="Transparent"></Setter>
                     <Setter Property="FontFamily" Value="Tahoma"></Setter>
                     <Setter Property="FontSize" Value="16"></Setter>
                     <Setter Property="FontWeight" Value="DemiBold"></Setter>
-                    <Setter Property="Foreground" Value="Black"></Setter>
-                    <Setter Property="Focusable" Value="False"></Setter>
-                    <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
-                </Style>
-                <Style x:Key="SubTitleStyle" TargetType="TextBlock">
-                    <Setter Property="Margin" Value="10,0,0,6"></Setter>
-                    <Setter Property="VerticalAlignment" Value="Bottom"></Setter>
-                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>
-                    <Setter Property="Background" Value="Transparent"></Setter>
-                    <Setter Property="FontFamily" Value="Bauhaus 93"></Setter>
-                    <Setter Property="FontSize" Value="12"></Setter>
-                    <Setter Property="FontWeight" Value="Normal"></Setter>
                     <Setter Property="Foreground" Value="Black"></Setter>
                     <Setter Property="Focusable" Value="False"></Setter>
                     <Setter Property="FocusVisualStyle" Value="{x:Null}"></Setter>
@@ -91,29 +92,23 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
-            <Border BorderBrush="White" BorderThickness="0" CornerRadius="5">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}" ToolTip="{Binding AppPath, Mode=OneWay}">
-                        <TextBlock.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
-                            </ContextMenu>
-                        </TextBlock.ContextMenu>
-                    </TextBlock>
-                    <TextBlock Style="{StaticResource SubTitleStyle}">
-                    <Run Text="- DevApps - v"></Run>
-                    <Run Text="{Binding AppVersion, Mode=OneWay}"></Run>
-                    </TextBlock>
-                </StackPanel>
+            <Border BorderBrush="White" BorderThickness="1" Background="WhiteSmoke" CornerRadius="5" Margin="2,5,2,5">
+                <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}" ToolTip="{Binding AppPath, Mode=OneWay}">
+                    <TextBlock.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
+                        </ContextMenu>
+                    </TextBlock.ContextMenu>
+                </TextBlock>
             </Border>
         </DockPanel>
         <!-- Facettes -->
-        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,5,0,0" >
+        <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="0" Background="LightGray" >
             <DockPanel Height="26">
                 <TextBlock DockPanel.Dock="Left" Text="Facettes:" VerticalAlignment="Center" Margin="10,0,10,0" FontWeight="Bold"></TextBlock>
                 <ListBox
                      x:Name="FacetListBox"
-                    DockPanel.Dock="Left"
+                     DockPanel.Dock="Left"
                      HorizontalAlignment="Center"
                      ItemsSource="{Binding FacetItems}"
                      SelectedItem="{Binding SelectedFacet, Mode=TwoWay}"
@@ -137,11 +132,11 @@
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListBoxItem">
                                         <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="4,4,0,0"
-                            Padding="0">
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="0,0,4,4"
+                                                Padding="0">
                                             <Border.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteFacet"/>
@@ -152,12 +147,14 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="Bd" Property="Background" Value="LightBlue"/>
-                                                <Setter TargetName="Bd" Property="BorderBrush" Value="DodgerBlue"/>
+                                                <Setter TargetName="Bd" Property="Background" Value="White"/>
+                                                <Setter TargetName="Bd" Property="BorderBrush" Value="Gray"/>
+                                                <Setter TargetName="Bd" Property="BorderThickness" Value="1,0,1,1"/>
                                             </Trigger>
                                             <Trigger Property="IsSelected" Value="False">
                                                 <Setter TargetName="Bd" Property="Background" Value="LightGray"/>
                                                 <Setter TargetName="Bd" Property="BorderBrush" Value="Gray"/>
+                                                <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
                                             </Trigger>
                                             <Trigger Property="IsMouseOver" Value="True">
                                                 <Setter TargetName="Bd" Property="Background" Value="#FFE0F0FF"/>
@@ -189,12 +186,7 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
-                <Border DockPanel.Dock="Left"
-                            Background="Gray"
-                            BorderBrush="Gray"
-                            BorderThickness="2"
-                            CornerRadius="4,4,0,0"
-                            Padding="0">
+                <Border DockPanel.Dock="Left">
                     <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" MouseLeftButtonUp="Add_MouseLeftButtonUp" Cursor="Hand">➕</TextBlock>
                 </Border>
                 <Button DockPanel.Dock="Right" x:Name="DropdownButton" Margin="0,0,10,0" Content="▼" Click="DropdownBtn_Click" />
@@ -224,7 +216,7 @@
                                     <Border Name="border" Background="Transparent" Padding="0,8,0,8">
                                         <ContentPresenter ContentSource="Header"/>
                                     </Border>
-                                    
+
                                     <ControlTemplate.Triggers>
                                         <!-- Onglet sélectionné -->
                                         <Trigger Property="IsSelected" Value="True">
@@ -260,7 +252,7 @@
                                 Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Border}}"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"/>
-                            </Border>
+                        </Border>
                     </Grid>
                 </TabItem>
                 <TabItem>
@@ -355,6 +347,10 @@
                 </TabItem>
             </TabControl>
         </Grid>
+        <!-- Espacement -->
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                  Height="3"
+                  Background="LightGray"/>
         <!-- Splitter (colonne Auto) -->
         <GridSplitter Grid.Row="2" Grid.Column="1"
                   Width="5"
@@ -366,7 +362,7 @@
                   ShowsPreview="True"
                   Panel.ZIndex="10"/>
         <!-- Barre d'état -->
-        <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Background="LightGray">
+        <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray">
             <DockPanel>
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Settings_MouseLeftButtonUp" ToolTip="Préférences">⚙️</TextBlock>
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Menu_MouseLeftButtonUp" ToolTip="Importer">🡅</TextBlock>
@@ -417,6 +413,10 @@
                         </Border>
                     </Grid>
                 </Popup>
+                <TextBlock DockPanel.Dock="Left" Style="{StaticResource SubTitleStyle}">
+                    <Run Text="DevApps - v"></Run>
+                    <Run Text="{Binding AppVersion, Mode=OneWay}"></Run>
+                </TextBlock>
                 <TextBlock Foreground="Black" Text="{Binding StatusText}" Margin="6,0,0,0"></TextBlock>
             </DockPanel>
         </Border>
