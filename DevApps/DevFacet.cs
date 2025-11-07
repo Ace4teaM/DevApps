@@ -289,9 +289,6 @@ internal partial class Program
 
                 DevObject.Build(refs);
 
-                // on rétablie la sortie standard vers la console
-                pyEngine.Runtime.IO.RedirectToConsole();
-
                 // exécute l'environnement de commandes
                 try
                 {

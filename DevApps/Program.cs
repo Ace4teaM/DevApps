@@ -150,7 +150,7 @@ internal partial class Program
 
         pyEngine.ImportModule("array");
 
-        // on rétablie la sortie standard vers la console
+        // redirige la sortie standard vers la console
         pyEngine.Runtime.IO.RedirectToConsole();
 
         var modules = pyEngine.GetModuleFilenames();
