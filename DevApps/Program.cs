@@ -63,17 +63,34 @@ internal partial class Program
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
 
+    /// <summary>
+    /// Sauvegarde le projet courant.
+    /// </summary>
+    /// <remarks>Pour sécuriser la sauvegarde (éviter un crash après avoir tronqué le fichier), un fichier temporaire est construit puis la destination remplacée par copie de fichier</remarks>
     internal static void SaveProject()
     {
-        using TextWriter writer = new StreamWriter(Filename);
-
-        var settings = new JsonSerializerSettings
+        try
         {
-            Formatting = Formatting.Indented
-        };
-        JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+            var tmpFilename = Path.GetTempFileName();
 
-        serializer.Serialize(writer, new Serializer.DevProject());
+            using (TextWriter writer = new StreamWriter(tmpFilename))
+            {
+                var settings = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented
+                };
+                JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+
+                serializer.Serialize(writer, new Serializer.DevProject());
+            }
+
+            File.Move(tmpFilename, Filename, true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Erreur lors de la sauvegarde du projet.");
+            Console.WriteLine(ex.Message);
+        }
     }
 
     internal static void LoadProject()
