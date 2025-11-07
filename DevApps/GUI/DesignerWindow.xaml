@@ -345,6 +345,21 @@
                         </ListBox>
                     </DockPanel>
                 </TabItem>
+                <TabItem>
+                    <TabItem.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="C:\" TextAlignment="Center"/>
+                        </DataTemplate>
+                    </TabItem.HeaderTemplate>
+                    <Grid HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch">
+                        <Border>
+                            <local:SystemConsole 
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"/>
+                        </Border>
+                    </Grid>
+                </TabItem>
             </TabControl>
         </Grid>
         <!-- Espacement -->
@@ -362,7 +377,7 @@
                   ShowsPreview="True"
                   Panel.ZIndex="10"/>
         <!-- Barre d'état -->
-        <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray">
+        <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Background="Gray" BorderBrush="LightGray" BorderThickness="0,0,0,2">
             <DockPanel>
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Settings_MouseLeftButtonUp" ToolTip="Préférences">⚙️</TextBlock>
                 <TextBlock Cursor="Hand" Width="20" TextAlignment="Center" DockPanel.Dock="Right" Background="LightSlateGray" MouseLeftButtonUp="Menu_MouseLeftButtonUp" ToolTip="Importer">🡅</TextBlock>
