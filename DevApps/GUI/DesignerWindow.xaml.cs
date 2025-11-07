@@ -8,7 +8,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using static Community.CsharpSqlite.Sqlite3;
 using static Program;
 
 namespace DevApps.GUI
@@ -101,6 +100,7 @@ namespace DevApps.GUI
                 {
                     objectModels = new List<ObjectModel>();
                     AddRecursiveSharedModelObjects(Program.CommonSharedPath, objectModels);
+                    objectModels.Sort((a,b)=>a.Header.CompareTo(b.Header));
                 }
                 return objectModels;
             }
