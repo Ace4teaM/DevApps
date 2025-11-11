@@ -1,4 +1,5 @@
 ﻿using IronPython.Runtime;
+using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -8,6 +9,8 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using static Program;
 
 namespace DevApps.GUI
@@ -966,6 +969,201 @@ namespace DevApps.GUI
                             selectedObject.Content.Seek(0, SeekOrigin.Begin);
 
                             Clipboard.SetText(Convert.ToBase64String(bytes));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+                }
+            }
+        }
+        private void MenuItem_Click_CopyVisual(object sender, RoutedEventArgs e)
+        {
+            if (dataGrid.SelectedItem is TabItem selectedItem)
+            {
+                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                if (handle)
+                {
+                    try
+                    {
+                        if (DevObject.References.TryGetValue(selectedItem.Name, out var reference))
+                        {
+                            // Execute le script de dessin
+                            if (reference.DrawCode.Item2 != null)
+                            {
+                                var handle2 = reference.mutexReadOutput.WaitOne();
+                                if (handle2)
+                                {
+                                    DrawingVisual visual = new DrawingVisual();
+
+                                    // Ouvre le DrawingContext
+                                    using (DrawingContext drawingContext = visual.RenderOpen())
+                                    {
+                                        try
+                                        {
+                                            var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                                            pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
+                                            pyScope.SetVariable("gui", reference.gui);
+                                            pyScope.SetVariable("name", this.Name);
+                                            pyScope.SetVariable("dc", drawingContext);
+                                            pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
+                                            pyScope.SetVariable("desc", reference.Description);
+
+                                            foreach (var pointer in reference.Pointers)
+                                            {
+                                                Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                                pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                            }
+
+                                            reference.gui.Begin(drawingContext);
+                                            reference.DrawCode.Item2?.Execute(pyScope);
+                                            reference.gui.End();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            System.Console.WriteLine("******************************************");
+                                            System.Console.WriteLine("OnRender: " + this.Name);
+                                            ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                                            string error = eo.FormatException(ex);
+                                            System.Console.WriteLine(error);
+                                            System.Console.WriteLine("******************************************");
+                                        }
+                                    }
+
+                                    try
+                                    {
+                                        var mx = new Matrix();
+                                        mx.Translate(-visual.ContentBounds.X, -visual.ContentBounds.Y);
+                                        visual.Transform = new MatrixTransform(mx);
+
+                                        // Rendu du bitmap en mémoire
+                                        RenderTargetBitmap bmp = new RenderTargetBitmap((int)visual.ContentBounds.Width, (int)visual.ContentBounds.Height, 96, 96, PixelFormats.Pbgra32);
+                                        bmp.Render(visual);
+
+                                        // Encode en PNG
+                                        var encoder = new PngBitmapEncoder();
+                                        encoder.Frames.Add(BitmapFrame.Create(bmp));
+
+                                        using var stream = new MemoryStream();
+                                        encoder.Save(stream);
+                                        stream.Position = 0;
+
+                                        var data = new DataObject();
+                                        data.SetData("PNG", stream, autoConvert: false); // format personnalisé PNG
+                                        data.SetImage(bmp); // optionnel : pour compatibilité
+                                        Clipboard.SetDataObject(data, true);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        System.Console.WriteLine(ex.Message);
+                                    }
+
+                                    reference.mutexReadOutput.ReleaseMutex();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+                }
+            }
+        }
+
+        private void MenuItem_Click_CopyBase64Visual(object sender, RoutedEventArgs e)
+        {
+            if (dataGrid.SelectedItem is TabItem selectedItem)
+            {
+                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                if (handle)
+                {
+                    try
+                    {
+                        if (DevObject.References.TryGetValue(selectedItem.Name, out var reference))
+                        {
+                            // Execute le script de dessin
+                            if (reference.DrawCode.Item2 != null)
+                            {
+                                var handle2 = reference.mutexReadOutput.WaitOne();
+                                if (handle2)
+                                {
+                                    DrawingVisual visual = new DrawingVisual();
+
+                                    // Ouvre le DrawingContext
+                                    using (DrawingContext drawingContext = visual.RenderOpen())
+                                    {
+                                        try
+                                        {
+                                            var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                                            pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
+                                            pyScope.SetVariable("gui", reference.gui);
+                                            pyScope.SetVariable("name", this.Name);
+                                            pyScope.SetVariable("dc", drawingContext);
+                                            pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
+                                            pyScope.SetVariable("desc", reference.Description);
+
+                                            foreach (var pointer in reference.Pointers)
+                                            {
+                                                Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                                pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                            }
+
+                                            reference.gui.Begin(drawingContext);
+                                            reference.DrawCode.Item2?.Execute(pyScope);
+                                            reference.gui.End();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            System.Console.WriteLine("******************************************");
+                                            System.Console.WriteLine("OnRender: " + this.Name);
+                                            ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
+                                            string error = eo.FormatException(ex);
+                                            System.Console.WriteLine(error);
+                                            System.Console.WriteLine("******************************************");
+                                        }
+                                    }
+
+                                    try
+                                    {
+                                        var mx = new Matrix();
+                                        mx.Translate(-visual.ContentBounds.X, -visual.ContentBounds.Y);
+                                        visual.Transform = new MatrixTransform(mx);
+
+                                        // Rendu du bitmap en mémoire
+                                        RenderTargetBitmap bmp = new RenderTargetBitmap((int)visual.ContentBounds.Width, (int)visual.ContentBounds.Height, 96, 96, PixelFormats.Pbgra32);
+                                        bmp.Render(visual);
+
+                                        // Encodage PNG
+                                        PngBitmapEncoder encoder = new PngBitmapEncoder();
+                                        encoder.Frames.Add(BitmapFrame.Create(bmp));
+
+                                        // Conversion en base64
+                                        using (MemoryStream stream = new MemoryStream())
+                                        {
+                                            encoder.Save(stream);
+                                            string base64 = Convert.ToBase64String(stream.ToArray());
+
+                                            Clipboard.SetText(base64);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        System.Console.WriteLine(ex.Message);
+                                    }
+
+                                    reference.mutexReadOutput.ReleaseMutex();
+                                }
+                            }
                         }
                     }
                     catch (Exception ex)

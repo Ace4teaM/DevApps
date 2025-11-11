@@ -63,6 +63,8 @@
                     <Separator></Separator>
                     <MenuItem Header="Copier le contenu (Texte)" Click="MenuItem_Click_CopyContent"></MenuItem>
                     <MenuItem Header="Copier le contenu (Base64)" Click="MenuItem_Click_CopyBase64Content"></MenuItem>
+                    <MenuItem Header="Copier le visuel (Image)" Click="MenuItem_Click_CopyVisual"></MenuItem>
+                    <MenuItem Header="Copier le visuel (Base64)" Click="MenuItem_Click_CopyBase64Visual"></MenuItem>
                     <Separator></Separator>
                     <MenuItem Header="Supprimer" Click="MenuItem_Click_DeleteObject"></MenuItem>
                 </ContextMenu>
