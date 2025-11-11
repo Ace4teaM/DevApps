@@ -917,5 +917,67 @@ namespace DevApps.GUI
                 }
             }
         }
+
+        private void MenuItem_Click_CopyContent(object sender, RoutedEventArgs e)
+        {
+            if (dataGrid.SelectedItem is TabItem selectedItem)
+            {
+                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                if (handle)
+                {
+                    try
+                    {
+                        if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
+                        {
+                            byte[] bytes = new byte[selectedObject.Content.Length];
+                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                            selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
+                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+
+                            Clipboard.SetText(Encoding.UTF8.GetString(bytes));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+                }
+            }
+        }
+
+        private void MenuItem_Click_CopyBase64Content(object sender, RoutedEventArgs e)
+        {
+            if (dataGrid.SelectedItem is TabItem selectedItem)
+            {
+                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
+                if (handle)
+                {
+                    try
+                    {
+                        if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
+                        {
+                            byte[] bytes = new byte[selectedObject.Content.Length];
+                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                            selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
+                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+
+                            Clipboard.SetText(Convert.ToBase64String(bytes));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+                }
+            }
+        }
     }
 }
