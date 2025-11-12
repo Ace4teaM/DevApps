@@ -106,6 +106,7 @@ internal class Program
                         if (key != null)
                         {
                             key.SetValue(null, "Ouvrir avec DevApps");
+                            key.SetValue("Icon", pathToDevApps);
 
                             using (RegistryKey? subKey = key.CreateSubKey(@"command"))
                             {
