@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using Markdig;
+using Markdig.Renderers.Wpf.Extensions;
+using System.IO;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DevApps.GUI
 {
@@ -20,9 +10,43 @@ namespace DevApps.GUI
     /// </summary>
     public partial class WelcomeView : UserControl
     {
+        public string Journal { get; set; }
+
+        MarkdownPipeline? pipeline;
+
+
+        public MarkdownPipeline MarkdownPipeline
+        {
+            get
+            {
+                if (pipeline == null)
+                {
+                    pipeline = new MarkdownPipelineBuilder()
+                        .UseAdvancedExtensions()
+                        .Use<Base64Extension>()
+                        .Build();
+                }
+
+                return pipeline;
+            }
+        }
+
         public WelcomeView()
         {
             InitializeComponent();
+            this.DataContext = this;
+
+            try
+            {
+                using (StreamReader reader = new StreamReader(Program.JournalFilename))
+                {
+                    Journal = reader.ReadToEnd();
+                }
+            }
+            catch
+            {
+                Journal = Path.GetFileName(Environment.CurrentDirectory);
+            }
         }
     }
 }
