@@ -150,11 +150,16 @@ namespace DevApps
         }
         public void Print(params object[] values)
         {
+            StringBuilder sb = new StringBuilder();
             foreach (var value in values)
             {
-                Write(value.ToString());
+                if (value != null)
+                {
+                    sb.Append(value.ToString());
+                    sb.Append(" ");
+                }
             }
-            Write(Environment.NewLine);
+            WriteLine(sb.ToString());
         }
         public void Backup(string key, Program.DevObject obj)
         {

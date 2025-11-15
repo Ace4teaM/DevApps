@@ -61,6 +61,9 @@
                     <MenuItem Header="Appliquer la valeur initiale" Click="MenuItem_Click_InitialOutputObject"></MenuItem>
                     <MenuItem Header="Restaurer la valeur initiale" Click="MenuItem_Click_RestoreInitialOutputObject"></MenuItem>
                     <Separator></Separator>
+                    <MenuItem Header="Mettre à jour le modèle" Click="MenuItem_Click_UpdateObjectModel"></MenuItem>
+                    <MenuItem Header="Mettre à jour cet objet" Click="MenuItem_Click_UpdateFromObjectModel"></MenuItem>
+                    <Separator></Separator>
                     <MenuItem Header="Copier le contenu (Texte)" Click="MenuItem_Click_CopyContent"></MenuItem>
                     <MenuItem Header="Copier le contenu (Base64)" Click="MenuItem_Click_CopyBase64Content"></MenuItem>
                     <MenuItem Header="Copier le visuel (Image)" Click="MenuItem_Click_CopyVisual"></MenuItem>

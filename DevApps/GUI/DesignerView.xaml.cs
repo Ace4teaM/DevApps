@@ -547,18 +547,7 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Définir comme modèle" };
                         m.Click += (s, e) =>
                         {
-                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                            if (handle)
-                            {
-                                Program.DevObject.References.TryGetValue(name, out var reference);
-                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                                if (reference != null && reference is DevObjectInstance inst)
-                                {
-                                    if (inst.guid == null)
-                                        inst.guid = Guid.NewGuid();
-                                }
-                            }
+                            Features.Objects.SetAsModel(name);
                         };
                         menu.Items.Add(m);
                     }
@@ -569,53 +558,7 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Mettre à jour depuis le modèle" };
                         m.Click += (s, e) =>
                         {
-                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                            if (handle)
-                            {
-                                Program.DevObject.References.TryGetValue(name, out var reference);
-                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                                if (reference != null && reference is DevObjectInstance inst)
-                                {
-                                    if (inst.baseGuid != null)
-                                    {
-                                        var list = new List<Serializer.DevObjectInstance>();
-                                        SharedServices.EnumerateObjects(p => p.Guid == inst.baseGuid, Program.CommonSharedPath, ref list);
-                                        if (list.Count == 1)
-                                        {
-                                            if (MessageBox.Show($"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                                            {
-                                                // Actualise l'objet
-                                                var handle2 = Program.DevObject.mutexExecuteObjects.WaitOne();
-                                                if (handle2)
-                                                {
-                                                    inst.UpdateFrom(list[0].content);
-                                                    Program.DevObject.mutexExecuteObjects.ReleaseMutex();
-                                                }
-
-                                                Program.DevObject.CompilObjects([inst]);
-                                                Program.DevObject.Init();
-                                                Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));
-                                            }
-                                        }
-                                        else if (list.Count > 1)
-                                        {
-                                            MessageBox.Show("Plusieurs objets partagés possèdent cet identifiant, impossible de déterminer le bon.", "Avertissement", MessageBoxButton.OK);
-
-                                            Console.WriteLine("Multiples objets partagés avec le GUID: " + inst.baseGuid);
-                                            foreach (var item in list)
-                                                Console.WriteLine("* " + item.Description);
-                                            Console.WriteLine();
-                                        }
-                                        else if (list.Count == 0)
-                                        {
-                                            MessageBox.Show("L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
-
-                                            Console.WriteLine("Objet partagé introuvable avec le GUID: " + inst.baseGuid);
-                                        }
-                                    }
-                                }
-                            }
+                            Features.Objects.UpdateFromModel(name);
                         };
                         menu.Items.Add(m);
                     }
@@ -626,20 +569,11 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Dupliquer" };
                         m.Click += (s, e) =>
                         {
-                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                            if (handle)
+                            var newName = Features.Objects.Duplicate(name);
+                            if (String.IsNullOrEmpty(newName) == false && selectedElement != null)
                             {
-                                Program.DevObject.References.TryGetValue(name, out var reference);
-                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                                if (reference != null && selectedElement != null)
-                                {
-                                    var newReference = reference.Clone();
-                                    Program.DevObject.MakeUniqueName(ref name);
-                                    Program.DevObject.References.Add(name, newReference);
-                                    facette.Objects.Add(name, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
-                                    AddElement(name, facette.Objects[name]);
-                                }
+                                facette.Objects.Add(newName, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
+                                AddElement(newName, facette.Objects[name]);
                             }
                         };
                         menu.Items.Add(m);
@@ -659,28 +593,30 @@ namespace DevApps.GUI
 
                                 if (reference != null)
                                 {
-                                    reference.mutexReadOutput.WaitOne();
-
-                                    using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, name));
-
-                                    var settings = new JsonSerializerSettings
+                                    var handle2 = reference.mutexReadOutput.WaitOne();
+                                    if (handle2)
                                     {
-                                        Formatting = Formatting.Indented
-                                    };
-                                    JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+                                        using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, name));
 
-                                    var instance = reference as Program.DevObjectInstance;
-                                    if (instance == null && reference is Program.DevObjectReference)
-                                        instance = ((Program.DevObjectReference)reference).GetBaseObject();
+                                        var settings = new JsonSerializerSettings
+                                        {
+                                            Formatting = Formatting.Indented
+                                        };
+                                        JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
 
-                                    if (instance == null || selectedElement == null)
-                                        return;
+                                        var instance = reference as Program.DevObjectInstance;
+                                        if (instance == null && reference is Program.DevObjectReference)
+                                            instance = ((Program.DevObjectReference)reference).GetBaseObject();
 
-                                    serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
+                                        if (instance == null || selectedElement == null)
+                                            return;
 
-                                    reference.SaveOutput(selectedElement?.Name!, Program.CommonSharedPath);
+                                        serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
 
-                                    reference.mutexReadOutput.ReleaseMutex();
+                                        reference.SaveOutput(selectedElement?.Name!, Program.CommonSharedPath);
+
+                                        reference.mutexReadOutput.ReleaseMutex();
+                                    }
                                 }
                             }
                         };

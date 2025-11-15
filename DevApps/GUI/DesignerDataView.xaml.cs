@@ -1177,5 +1177,21 @@ namespace DevApps.GUI
                 }
             }
         }
+
+        private void MenuItem_Click_UpdateObjectModel(object sender, RoutedEventArgs e)
+        {
+            if (dataGrid.SelectedItem is TabItem selectedItem && MessageBox.Show("Voulez vous mettre à jour la bibliothèque avec le contenu de cet objet ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                Features.Objects.UpdateModel(selectedItem.Name);
+            }
+        }
+
+        private void MenuItem_Click_UpdateFromObjectModel(object sender, RoutedEventArgs e)
+        {
+            if (dataGrid.SelectedItem is TabItem selectedItem && MessageBox.Show("Voulez écraser cet objet avec le contenu de la bibliothèque ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                Features.Objects.UpdateFromModel(selectedItem.Name);
+            }
+        }
     }
 }

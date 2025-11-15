@@ -150,7 +150,6 @@ internal partial class Program
             }
         }
 
-
         /// <summary>
         /// Actualise un objet depuis un modèle d'instance
         /// </summary>
@@ -216,6 +215,11 @@ internal partial class Program
         public override bool IsModel()
         {
             return this.guid != null;
+        }
+
+        public override bool AsModel()
+        {
+            return this.baseGuid != null;
         }
 
         public override string? GetDrawCode()

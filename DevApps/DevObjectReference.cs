@@ -175,6 +175,11 @@ internal partial class Program
             return false;
         }
 
+        public override bool AsModel()
+        {
+            return false;
+        }
+
         public override string? GetDrawCode()
         {
             return baseObject?.GetDrawCode();

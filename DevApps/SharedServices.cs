@@ -6,6 +6,95 @@ namespace DevApps
 {
     internal static class SharedServices
     {
+        /// <summary>
+        /// Applique une action à tous les objets validant le prédicat
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="path"></param>
+        /// <param name="action"></param>
+        internal static int ApplyAllObjects(Func<DevObjectInstance, bool> predicate, string path, Func<string,DevObjectInstance,bool> action)// = Program.CommonDataPath
+        {
+            int count = 0;
+            try
+            {
+                // liste les objets partagés
+                foreach (var dir in Directory.EnumerateDirectories(path))
+                {
+                    var filename = System.IO.Path.Combine(dir, Program.Filename);
+                    if (File.Exists(filename) == true)
+                    {
+                        using StreamReader reader = new StreamReader(filename);
+
+                        var settings = new JsonSerializerSettings
+                        {
+                            Formatting = Formatting.Indented
+                        };
+
+                        JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+                        serializer.Error += (sender, e) =>
+                        {
+                            System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                        };
+
+                        var proj = new Serializer.DevExternalProject();
+
+                        serializer.Populate(reader, proj);
+
+                        // Ajoute les objets au projet
+                        bool save = false;
+
+                        foreach (var o in proj.Objects)
+                        {
+                            if (predicate.Invoke(o.Value))
+                            {
+                                if (action.Invoke(dir, o.Value))
+                                {
+                                    count++;
+                                    save = true;
+                                }
+                            }
+                        }
+
+                        reader.Close();
+
+                        // Sauvegarde les modifications
+                        if (save)
+                        {
+                            try
+                            {
+                                var tmpFilename = Path.GetTempFileName();
+
+                                using (TextWriter writer = new StreamWriter(tmpFilename))
+                                {
+                                    serializer.Serialize(writer, proj);
+                                }
+
+                                File.Move(tmpFilename, filename, true);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Erreur lors de la sauvegarde du projet {filename}.");
+                                Console.WriteLine(ex.Message);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        count += ApplyAllObjects(predicate, dir, action);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// Enumère tous les objets validant le prédicat
+        /// </summary>
         internal static int EnumerateObjects(Func<DevObjectInstance, bool> predicate, string path, ref List<DevObjectInstance> list)// = Program.CommonDataPath
         {
             try
@@ -43,7 +132,6 @@ namespace DevApps
                     }
                     else
                     {
-                        var header = System.IO.Path.GetFileName(dir);
                         EnumerateObjects(predicate, dir, ref list);
                     }
                 }

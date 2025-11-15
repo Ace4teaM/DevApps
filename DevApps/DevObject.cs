@@ -913,6 +913,7 @@ internal partial class Program
 
 
         public abstract DevObject Clone();
+        public abstract bool AsModel();
         public abstract bool IsModel();
         public abstract string? GetDrawCode();
         public abstract DevObject SetDrawCode(string? code);

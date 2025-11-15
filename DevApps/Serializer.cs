@@ -269,10 +269,10 @@ namespace Serializer
     }
     internal class DevExternalProject
     {
-        public Dictionary<string, Program.DevObject> ReferencesO = new Dictionary<string, Program.DevObject>();
-        public Dictionary<string, Program.DevFacet> ReferencesF = new Dictionary<string, Program.DevFacet>();
-        public Dictionary<string, Program.DevVariable> ReferencesV = new Dictionary<string, Program.DevVariable>();
-        public Dictionary<string, string> ReferencesFiles = new Dictionary<string, string>();
+        internal Dictionary<string, Program.DevObject> ReferencesO = new Dictionary<string, Program.DevObject>();
+        internal Dictionary<string, Program.DevFacet> ReferencesF = new Dictionary<string, Program.DevFacet>();
+        internal Dictionary<string, Program.DevVariable> ReferencesV = new Dictionary<string, Program.DevVariable>();
+        internal Dictionary<string, string> ReferencesFiles = new Dictionary<string, string>();
 
         public DevExternalProject()
         {
