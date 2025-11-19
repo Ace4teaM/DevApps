@@ -1,4 +1,5 @@
-﻿using DevApps.GUI;
+﻿using DevApps;
+using DevApps.GUI;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
@@ -180,6 +181,12 @@ internal partial class Program
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+        else
+        {
+            var path = SharedServices.GetRegisterSharedPath();
+            if (path != null)
+                CommonSharedPath = path;
         }
 
         // ouvre l'éditeur

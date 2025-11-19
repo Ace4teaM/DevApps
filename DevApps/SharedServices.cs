@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using IronPython.Modules;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using Serializer;
 using System.IO;
 
@@ -143,5 +145,30 @@ namespace DevApps
 
             return list.Count;
         }
+
+        /// <summary>
+        /// Obtient le chemin d'accès à la bibliothèque d'objets
+        /// </summary>
+        internal static string? GetRegisterSharedPath()
+        {
+            try
+            {
+                var registryKey = @"SOFTWARE\DevApps";
+
+                using (RegistryKey? key = Registry.CurrentUser.OpenSubKey(registryKey))
+                {
+                    if (key != null)
+                    {
+                        return key.GetValue("SharedPath")?.ToString();
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
+
     }
 }
