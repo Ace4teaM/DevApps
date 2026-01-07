@@ -35,9 +35,9 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*" MinWidth="750"/>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="3*" MinWidth="200"/>
+            <ColumnDefinition x:Name="leftColumn" Width="7*"/>
+            <ColumnDefinition x:Name="splitColumn" Width="0"/>
+            <ColumnDefinition x:Name="rightColumn" Width="0"/>
         </Grid.ColumnDefinitions>
         <!-- Barre de Titre -->
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" DockPanel.Dock="Top" Background="Gray" Height="35" MouseLeftButtonDown="DockPanel_MouseLeftButtonDown"
@@ -92,13 +92,13 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
-            <Border BorderBrush="White" BorderThickness="1" Background="WhiteSmoke" CornerRadius="5" Margin="2,5,2,5">
-                <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}" ToolTip="{Binding AppPath, Mode=OneWay}">
-                    <TextBlock.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
-                        </ContextMenu>
-                    </TextBlock.ContextMenu>
+            <Border BorderBrush="White" BorderThickness="1" Background="WhiteSmoke" CornerRadius="5" Margin="2,5,2,5" ToolTip="{Binding AppPath, Mode=OneWay}">
+                <Border.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Ouvrir le dossier contenant..." Click="MenuItem_Click"></MenuItem>
+                    </ContextMenu>
+                </Border.ContextMenu>
+                <TextBlock Style="{StaticResource TitleStyle}" Text="{Binding AppTitle, Mode=OneWay}">
                 </TextBlock>
             </Border>
         </DockPanel>
@@ -204,8 +204,8 @@
                 <Label></Label>
             </DockPanel>
         </Grid>
-        <!-- Paneau droite -->
-        <Grid Grid.Row="2" Grid.Column="2">
+        <!-- Panneau de droite -->
+        <Grid x:Name="rightPanel" Visibility="Collapsed" Grid.Row="2" Grid.Column="2">
             <TabControl TabStripPlacement="Right">
                 <TabControl.Resources>
                     <Style TargetType="TabItem">
@@ -345,21 +345,6 @@
                         </ListBox>
                     </DockPanel>
                 </TabItem>
-                <TabItem>
-                    <TabItem.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="C:\" TextAlignment="Center"/>
-                        </DataTemplate>
-                    </TabItem.HeaderTemplate>
-                    <Grid HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch">
-                        <Border>
-                            <local:SystemConsole 
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"/>
-                        </Border>
-                    </Grid>
-                </TabItem>
             </TabControl>
         </Grid>
         <!-- Espacement -->
@@ -367,7 +352,7 @@
                   Height="3"
                   Background="LightGray"/>
         <!-- Splitter (colonne Auto) -->
-        <GridSplitter Grid.Row="2" Grid.Column="1"
+        <GridSplitter x:Name="splitter" Grid.Row="2" Grid.Column="1"
                   Width="5"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Stretch"

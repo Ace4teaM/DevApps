@@ -53,9 +53,40 @@ namespace DevApps.GUI
                 OnPropertyChange(nameof(IsDesignerView));
                 OnPropertyChange(nameof(IsFacetsOrDesignerView));
                 OnPropertyChange(nameof(IsFacetsView));
+                OnPropertyChange(nameof(IsWelcomeView));
                 OnPropertyChange(nameof(TogglePrintZone));
+
+                if (IsWelcomeView)
+                    HidePanel();
+                else
+                    ShowLeftPanel();
             }
         }
+
+#region PanelVisibility
+        private GridLength _savedSplitWidth = GridLength.Auto;
+        private GridLength _savedRightWidth = new GridLength(3, GridUnitType.Star);
+
+        private void HidePanel()
+        {
+            _savedRightWidth = rightColumn.Width;
+            _savedSplitWidth = splitColumn.Width;
+            rightColumn.Width = new GridLength(0);
+            splitColumn.Width = new GridLength(0);
+            splitter.Visibility = Visibility.Collapsed;
+            rightPanel.Visibility = Visibility.Collapsed;
+            InvalidateMeasure();
+        }
+
+        private void ShowLeftPanel()
+        {
+            rightColumn.Width = _savedRightWidth;
+            splitColumn.Width = _savedSplitWidth;
+            splitter.Visibility = Visibility.Visible;
+            rightPanel.Visibility = Visibility.Visible;
+            InvalidateMeasure();
+        }
+        #endregion
 
         public class FacetItem
         {
@@ -576,6 +607,14 @@ namespace DevApps.GUI
             get
             {
                 return this.Content is DesignerFacetsView;
+            }
+        }
+
+        public bool IsWelcomeView
+        {
+            get
+            {
+                return this.Content is WelcomeView;
             }
         }
 

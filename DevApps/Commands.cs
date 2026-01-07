@@ -1,4 +1,5 @@
-﻿using DevApps.GUI;
+﻿using DevApps;
+using DevApps.GUI;
 using System.Windows;
 using System.Windows.Controls;
 using static Program.DevFacet;
@@ -52,26 +53,6 @@ internal partial class Program
             {
                 switch (cmd.action)
                 {
-                    /*case "INSERT_COMMAND":
-                        {
-                            if(cmd.facet == null || cmd.command == null || cmd.arguments == null)
-                                throw new ArgumentException();
-
-                            var facet = DevFacet.Get(cmd.facet);
-
-                            if (facet == null)
-                                throw new Exception(@"La facette {cmd.facet} n'existe pas");
-
-                            facet.Commands.Add(cmd.command, cmd.arguments);
-
-                            var currentView = DevApps.GUI.Service.EditorWindow?.Content as DesignerView;
-
-                            if(currentView != null && currentView.facette == facet)
-                            {
-                                currentView.InvalidateCommands();
-                            }
-                        }
-                        break;*/
                     case "ADD_GEOMETRY":
                         {
                             if (cmd.facet == null || cmd.position == null || cmd.path == null)
@@ -248,7 +229,11 @@ internal partial class Program
                             }
                         }
                         break;
+                    default:
+                        continue;
                 }
+
+                ProgramLogger.Instance.Print(cmd.action);
             }
         }
         catch (Exception ex)
