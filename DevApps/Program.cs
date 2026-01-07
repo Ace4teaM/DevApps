@@ -23,10 +23,32 @@ internal partial class Program
     internal static string ExecutablePath = System.AppDomain.CurrentDomain.BaseDirectory;
     internal static string CommonSharedPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Shared");
     internal static readonly string CommonObjPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Objects");
-    internal static ScriptEngine pyEngine;
-    internal static ScriptScope pyScope;
     internal static Thread MainThread = Thread.CurrentThread;
     internal static Dispatcher Dispatcher = Dispatcher.CurrentDispatcher;
+
+    /// <summary>
+    /// Python script engine
+    /// </summary>
+    internal static ScriptEngine pythonEngine;
+    internal static ScriptScope pythonScope;
+
+    internal static ScriptScope GetGlobalScope(ScriptEngine engine)
+    {
+        if (pythonEngine == engine)
+            return pythonScope;
+
+        throw new Exception("Invalid engine instance");
+    }
+
+    internal static ScriptEngine GetScriptEngine(string code)
+    {
+        return pythonEngine;
+    }
+
+
+    static Program()
+    {
+    }
 
     public class DevFunction
     {
@@ -104,11 +126,6 @@ internal partial class Program
 
         serializer.Populate(reader, proj);
     }
-    static Program()
-    {
-        pyEngine = Python.CreateEngine();
-        pyScope = pyEngine.CreateScope();
-    }
 
     private static void Main(string[] args)
     {
@@ -147,27 +164,8 @@ internal partial class Program
         // énumère les commandes disponibles
         DevShellCommand.EnumPrivate();
 
-        // initialise le moteur IronPython
-        pyEngine.Runtime.LoadAssembly(typeof(Scriban.Template).Assembly);
-
-        pyEngine.ImportModule("array");
-
-        // redirige la sortie standard vers la console
-        pyEngine.Runtime.IO.RedirectToConsole();
-
-        var modules = pyEngine.GetModuleFilenames();
-        
-        var paths = pyEngine.GetSearchPaths().ToArray();
-
-
-        pyScope.SetVariable("interpreter", DevApps.PythonExtends.Interpreter.Instance);
-        pyScope.SetVariable("console", new DevApps.PythonExtends.Console());
-        pyScope.SetVariable("requests", new DevApps.PythonExtends.Requests());
-        pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
-
-        //pyScope.ImportModule("openai");
-        //pyScope.ImportModule("requests");
-        pyScope.ImportModule("json");
+        // initialise les moteurs de scripts
+        DevApps.PythonExtends.Engine.Initialize(out pythonEngine, out pythonScope);
 
         // change le chemin par défaut de la bibliothèque
         if (args.Contains("-b"))

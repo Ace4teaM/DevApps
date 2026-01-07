@@ -74,36 +74,39 @@ namespace DevApps.Print
                     var handle2 = o.mutexReadOutput.WaitOne();
                     if (handle2)
                     {
-                        try
+                        var engine = o.DrawCode.Item2?.Engine;
+                        if (engine != null)
                         {
-                            var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                            pyScope.SetVariable("out", new DevApps.PythonExtends.Output(o.Content, Path.Combine(Program.DataDir, key)));// mise en cache dans l'objet ?
-                            pyScope.SetVariable("gui", o.gui);
-                            pyScope.SetVariable("name", key);
-                            pyScope.SetVariable("dc", dc);
-                            pyScope.SetVariable("rect", rect);
-                            pyScope.SetVariable("desc", o.Description);
-
-                            foreach (var pointer in o.Pointers)
+                            try
                             {
-                                Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                                pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, key)));// mise en cache dans l'objet ?
+                                var pyScope = engine.CreateScope();//lock Program.pyEngine !
+                                pyScope.SetVariable("out", new DevApps.Scripts.Output(o.Content, Path.Combine(Program.DataDir, key)));// mise en cache dans l'objet ?
+                                pyScope.SetVariable("gui", o.gui);
+                                pyScope.SetVariable("name", key);
+                                pyScope.SetVariable("dc", dc);
+                                pyScope.SetVariable("rect", rect);
+                                pyScope.SetVariable("desc", o.Description);
+
+                                foreach (var pointer in o.Pointers)
+                                {
+                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                    pyScope.SetVariable(pointer.Key, new DevApps.Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, key)));// mise en cache dans l'objet ?
+                                }
+
+                                o.gui.Begin(dc);
+                                o.DrawCode.Item2?.Execute(pyScope);
+                                o.gui.End();
                             }
-
-                            o.gui.Begin(dc);
-                            o.DrawCode.Item2?.Execute(pyScope);
-                            o.gui.End();
+                            catch (Exception ex)
+                            {
+                                System.Console.WriteLine("******************************************");
+                                System.Console.WriteLine("OnRender: " + key);
+                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
+                                string error = eo.FormatException(ex);
+                                Console.WriteLine(error);
+                                System.Console.WriteLine("******************************************");
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            System.Console.WriteLine("******************************************");
-                            System.Console.WriteLine("OnRender: " + key);
-                            ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                            string error = eo.FormatException(ex);
-                            Console.WriteLine(error);
-                            System.Console.WriteLine("******************************************");
-                        }
-
                         o.mutexReadOutput.ReleaseMutex();
                     }
                 }

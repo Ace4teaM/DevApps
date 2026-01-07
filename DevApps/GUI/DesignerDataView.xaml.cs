@@ -1004,34 +1004,38 @@ namespace DevApps.GUI
                                     // Ouvre le DrawingContext
                                     using (DrawingContext drawingContext = visual.RenderOpen())
                                     {
-                                        try
+                                        var engine = reference.DrawCode.Item2?.Engine;
+                                        if (engine != null)
                                         {
-                                            var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                                            pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
-                                            pyScope.SetVariable("gui", reference.gui);
-                                            pyScope.SetVariable("name", this.Name);
-                                            pyScope.SetVariable("dc", drawingContext);
-                                            pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
-                                            pyScope.SetVariable("desc", reference.Description);
-
-                                            foreach (var pointer in reference.Pointers)
+                                            try
                                             {
-                                                Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                                                pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                                            }
+                                                var pyScope = engine.CreateScope();//lock Program.pyEngine !
+                                                pyScope.SetVariable("out", new DevApps.Scripts.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
+                                                pyScope.SetVariable("gui", reference.gui);
+                                                pyScope.SetVariable("name", this.Name);
+                                                pyScope.SetVariable("dc", drawingContext);
+                                                pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
+                                                pyScope.SetVariable("desc", reference.Description);
 
-                                            reference.gui.Begin(drawingContext);
-                                            reference.DrawCode.Item2?.Execute(pyScope);
-                                            reference.gui.End();
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            System.Console.WriteLine("******************************************");
-                                            System.Console.WriteLine("OnRender: " + this.Name);
-                                            ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                                            string error = eo.FormatException(ex);
-                                            System.Console.WriteLine(error);
-                                            System.Console.WriteLine("******************************************");
+                                                foreach (var pointer in reference.Pointers)
+                                                {
+                                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                                    pyScope.SetVariable(pointer.Key, new DevApps.Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                                }
+
+                                                reference.gui.Begin(drawingContext);
+                                                reference.DrawCode.Item2?.Execute(pyScope);
+                                                reference.gui.End();
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                System.Console.WriteLine("******************************************");
+                                                System.Console.WriteLine("OnRender: " + this.Name);
+                                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
+                                                string error = eo.FormatException(ex);
+                                                System.Console.WriteLine(error);
+                                                System.Console.WriteLine("******************************************");
+                                            }
                                         }
                                     }
 
@@ -1102,34 +1106,38 @@ namespace DevApps.GUI
                                     // Ouvre le DrawingContext
                                     using (DrawingContext drawingContext = visual.RenderOpen())
                                     {
-                                        try
+                                        var engine = reference.DrawCode.Item2?.Engine;
+                                        if (engine != null)
                                         {
-                                            var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                                            pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
-                                            pyScope.SetVariable("gui", reference.gui);
-                                            pyScope.SetVariable("name", this.Name);
-                                            pyScope.SetVariable("dc", drawingContext);
-                                            pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
-                                            pyScope.SetVariable("desc", reference.Description);
-
-                                            foreach (var pointer in reference.Pointers)
+                                            try
                                             {
-                                                Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                                                pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                                            }
+                                                var pyScope = engine.CreateScope();//lock Program.pyEngine !
+                                                pyScope.SetVariable("out", new DevApps.Scripts.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
+                                                pyScope.SetVariable("gui", reference.gui);
+                                                pyScope.SetVariable("name", this.Name);
+                                                pyScope.SetVariable("dc", drawingContext);
+                                                pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
+                                                pyScope.SetVariable("desc", reference.Description);
 
-                                            reference.gui.Begin(drawingContext);
-                                            reference.DrawCode.Item2?.Execute(pyScope);
-                                            reference.gui.End();
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            System.Console.WriteLine("******************************************");
-                                            System.Console.WriteLine("OnRender: " + this.Name);
-                                            ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                                            string error = eo.FormatException(ex);
-                                            System.Console.WriteLine(error);
-                                            System.Console.WriteLine("******************************************");
+                                                foreach (var pointer in reference.Pointers)
+                                                {
+                                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                                    pyScope.SetVariable(pointer.Key, new DevApps.Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                                }
+
+                                                reference.gui.Begin(drawingContext);
+                                                reference.DrawCode.Item2?.Execute(pyScope);
+                                                reference.gui.End();
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                System.Console.WriteLine("******************************************");
+                                                System.Console.WriteLine("OnRender: " + this.Name);
+                                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
+                                                string error = eo.FormatException(ex);
+                                                System.Console.WriteLine(error);
+                                                System.Console.WriteLine("******************************************");
+                                            }
                                         }
                                     }
 

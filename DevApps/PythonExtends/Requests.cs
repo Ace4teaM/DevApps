@@ -3,12 +3,12 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
 
-namespace DevApps.PythonExtends
+namespace DevApps.Scripts
 {
     /// <summary>
     /// Fournit un objet pour la gestion des requêtes HTTP
     /// </summary>
-    public class Requests
+    public partial class Requests
     {
         public HttpResponseMessage? post(string url, PythonDictionary headers, PythonDictionary json)
         {
@@ -59,10 +59,6 @@ namespace DevApps.PythonExtends
             }
 
             return null;
-        }
-        public string json()
-        {
-            return string.Empty;
         }
     }
 }

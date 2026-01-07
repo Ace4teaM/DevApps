@@ -1,6 +1,6 @@
 ﻿using DevApps.Interpreters;
 
-namespace DevApps.PythonExtends
+namespace DevApps.Scripts
 {
     /// <summary>
     /// Fournit les instances vers les différents interpréteurs de langages
