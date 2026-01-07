@@ -1,8 +1,7 @@
-﻿using DevApps.Scripts;
-using IronPython.Hosting;
+﻿using IronPython.Hosting;
 
 
-namespace DevApps.PythonExtends
+namespace DevApps.Scripts.PythonExtends
 {
     public sealed class PythonScriptEngine : ScriptEngine
     {

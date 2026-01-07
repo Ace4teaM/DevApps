@@ -1,8 +1,6 @@
-﻿using DevApps.Scripts;
-using Microsoft.ClearScript.V8;
+﻿using Microsoft.ClearScript.V8;
 
-
-namespace DevApps.ClearScriptExtends
+namespace DevApps.Scripts.ClearScriptExtends
 {
 
     public sealed class V8ScriptEngineAdapter : ScriptEngine

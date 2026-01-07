@@ -163,7 +163,7 @@ internal partial class Program
         DevShellCommand.EnumPrivate();
 
         // initialise les moteurs de scripts
-        DevApps.PythonExtends.Engine.Initialize(out pythonEngine, out pythonScope);
+        DevApps.Scripts.PythonExtends.Engine.Initialize(out pythonEngine, out pythonScope);
 
         // change le chemin par défaut de la bibliothèque
         if (args.Contains("-b"))

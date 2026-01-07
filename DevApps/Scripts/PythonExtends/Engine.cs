@@ -1,7 +1,6 @@
 ﻿using IronPython.Hosting;
-using DevApps.Scripts;
 
-namespace DevApps.PythonExtends
+namespace DevApps.Scripts.PythonExtends
 {
     /// <summary>
     /// Implémente l'intégration du moteur IronPython dans le programme WPF

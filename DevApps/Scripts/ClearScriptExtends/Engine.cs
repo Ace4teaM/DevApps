@@ -1,7 +1,6 @@
-﻿using DevApps.Scripts;
-using Microsoft.ClearScript.V8;
+﻿using Microsoft.ClearScript.V8;
 
-namespace DevApps.ClearScriptExtends
+namespace DevApps.Scripts.ClearScriptExtends
 {
     /// <summary>
     /// Implémente l'intégration du moteur ClearScript dans le programme WPF
