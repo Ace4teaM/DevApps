@@ -1,6 +1,4 @@
-﻿using IronPython.Runtime;
-using Microsoft.Scripting;
-using Microsoft.Scripting.Hosting;
+﻿using DevApps.Scripts;
 using System.IO;
 using System.Text;
 
@@ -340,7 +338,7 @@ internal partial class Program
                     {
                         string sourceCode = drawCode.Item1;
                         var sourceEngine = Program.GetScriptEngine(sourceCode);
-                        ScriptSource source = sourceEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
+                        ScriptSource source = sourceEngine.CreateStatementsFromString(sourceCode);
                         CompiledCode compiled = source.Compile();
                         drawCode = (sourceCode, compiled);
                     }
@@ -367,7 +365,7 @@ internal partial class Program
                     {
                         string sourceCode = objectCode.Item1;
                         var sourceEngine = Program.GetScriptEngine(sourceCode);
-                        ScriptSource source = sourceEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
+                        ScriptSource source = sourceEngine.CreateStatementsFromString(sourceCode);
                         CompiledCode compiled = source.Compile();
                         objectCode = (sourceCode, compiled);
                     }
@@ -396,7 +394,7 @@ internal partial class Program
                         if (String.IsNullOrWhiteSpace(functionCode) == false)
                         {
                             var sourceEngine = Program.GetScriptEngine(functionCode);
-                            ScriptSource functionScript = sourceEngine.CreateScriptSourceFromString(functionCode, SourceCodeKind.Statements);
+                            ScriptSource functionScript = sourceEngine.CreateStatementsFromString(functionCode);
                             CompiledCode functionCompiled = functionScript.Compile();
                             functions[f.Key] = (functionCode, functionCompiled);
                         }
@@ -426,7 +424,7 @@ internal partial class Program
                         if (String.IsNullOrWhiteSpace(propertyCode) == false)
                         {
                             var sourceEngine = Program.GetScriptEngine(propertyCode);
-                            ScriptSource propertyScript = sourceEngine.CreateScriptSourceFromString(propertyCode, SourceCodeKind.Expression);
+                            ScriptSource propertyScript = sourceEngine.CreateExpressionFromString(propertyCode);
                             CompiledCode propertyCompiled = propertyScript.Compile();
                             properties[f.Key] = (propertyCode, propertyCompiled);
                         }
@@ -454,7 +452,7 @@ internal partial class Program
                     {
                         string sourceCode = userAction.Item1;
                         var sourceEngine = Program.GetScriptEngine(sourceCode);
-                        ScriptSource source = sourceEngine.CreateScriptSourceFromString(sourceCode, SourceCodeKind.Statements);
+                        ScriptSource source = sourceEngine.CreateStatementsFromString(sourceCode);
                         CompiledCode compiled = source.Compile();
                         userAction = (sourceCode, compiled);
                     }
@@ -481,7 +479,7 @@ internal partial class Program
                     {
                         string sampleCode = loopMethod.Item1;
                         var sourceEngine = Program.GetScriptEngine(sampleCode);
-                        ScriptSource sampleScript = sourceEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
+                        ScriptSource sampleScript = sourceEngine.CreateStatementsFromString(sampleCode);
                         CompiledCode sampleCompiled = sampleScript.Compile();
                         loopMethod = (sampleCode, sampleCompiled);
                     }
@@ -508,7 +506,7 @@ internal partial class Program
                     {
                         string sampleCode = initMethod.Item1;
                         var sourceEngine = Program.GetScriptEngine(sampleCode);
-                        ScriptSource sampleScript = sourceEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
+                        ScriptSource sampleScript = sourceEngine.CreateStatementsFromString(sampleCode);
                         CompiledCode sampleCompiled = sampleScript.Compile();
                         initMethod = (sampleCode, sampleCompiled);
                     }
@@ -535,7 +533,7 @@ internal partial class Program
                     {
                         string sampleCode = buildMethod.Item1;
                         var sourceEngine = Program.GetScriptEngine(sampleCode);
-                        ScriptSource sampleScript = sourceEngine.CreateScriptSourceFromString(sampleCode, SourceCodeKind.Statements);
+                        ScriptSource sampleScript = sourceEngine.CreateStatementsFromString(sampleCode);
                         CompiledCode sampleCompiled = sampleScript.Compile();
                         buildMethod = (sampleCode, sampleCompiled);
                     }

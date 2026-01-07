@@ -101,9 +101,7 @@ namespace DevApps.Print
                             {
                                 System.Console.WriteLine("******************************************");
                                 System.Console.WriteLine("OnRender: " + key);
-                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
-                                string error = eo.FormatException(ex);
-                                Console.WriteLine(error);
+                                Console.WriteLine(engine.FormatError(ex));
                                 System.Console.WriteLine("******************************************");
                             }
                         }

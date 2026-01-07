@@ -1,8 +1,6 @@
 ﻿using DevApps;
 using DevApps.GUI;
-using IronPython.Hosting;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Utils;
+using DevApps.Scripts;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.IO;
@@ -172,7 +170,7 @@ internal partial class Program
         {
             try
             {
-                var path = Path.GetFullPath(args[args.FindIndex(p => p == "-b") + 1]);
+                var path = Path.GetFullPath(args[Array.FindIndex(args, p => p == "-b") + 1]);
                 CommonSharedPath = path;
             }
             catch (Exception ex)

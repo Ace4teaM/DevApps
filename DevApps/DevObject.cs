@@ -1,6 +1,6 @@
 ﻿using DevApps;
 using DevApps.GUI;
-using Microsoft.Scripting.Hosting;
+using DevApps.Scripts;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -419,9 +419,7 @@ internal partial class Program
                             {
                                 System.Console.WriteLine("******************************************");
                                 System.Console.WriteLine("Timer: " + o.Key);
-                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
-                                string error = eo.FormatException(ex);
-                                System.Console.WriteLine(error);
+                                System.Console.WriteLine(engine.FormatError(ex));
                                 System.Console.WriteLine("******************************************");
                             }
                         }
@@ -581,9 +579,7 @@ internal partial class Program
                         {
                             System.Console.WriteLine("******************************************");
                             System.Console.WriteLine("Init: " + o.Key);
-                            ExceptionOperations eo = engine.GetService<ExceptionOperations>();
-                            string error = eo.FormatException(ex);
-                            Console.WriteLine(error);
+                            System.Console.WriteLine(engine.FormatError(ex));
                             System.Console.WriteLine("******************************************");
                         }
                     }
@@ -693,9 +689,7 @@ internal partial class Program
                         {
                             System.Console.WriteLine("******************************************");
                             System.Console.WriteLine("Build: " + o.Key);
-                            ExceptionOperations eo = engine.GetService<ExceptionOperations>();
-                            string error = eo.FormatException(ex);
-                            Console.WriteLine(error);
+                            System.Console.WriteLine(engine.FormatError(ex));
                             System.Console.WriteLine("******************************************");
                         }
                     }
@@ -819,9 +813,7 @@ internal partial class Program
                             {
                                 System.Console.WriteLine("******************************************");
                                 System.Console.WriteLine("Function: " + func + " to " + obj);
-                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
-                                string error = eo.FormatException(ex);
-                                System.Console.WriteLine(error);
+                                System.Console.WriteLine(engine.FormatError(ex));
                                 System.Console.WriteLine("******************************************");
                             }
                         }
@@ -860,9 +852,7 @@ internal partial class Program
                             {
                                 System.Console.WriteLine("******************************************");
                                 System.Console.WriteLine("Property: " + prop + " to " + obj);
-                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
-                                string error = eo.FormatException(ex);
-                                System.Console.WriteLine(error);
+                                System.Console.WriteLine(engine.FormatError(ex));
                                 System.Console.WriteLine("******************************************");
                             }
                         }

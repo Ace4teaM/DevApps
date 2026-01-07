@@ -1031,9 +1031,7 @@ namespace DevApps.GUI
                                             {
                                                 System.Console.WriteLine("******************************************");
                                                 System.Console.WriteLine("OnRender: " + this.Name);
-                                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
-                                                string error = eo.FormatException(ex);
-                                                System.Console.WriteLine(error);
+                                                System.Console.WriteLine(engine.FormatError(ex));
                                                 System.Console.WriteLine("******************************************");
                                             }
                                         }
@@ -1133,9 +1131,7 @@ namespace DevApps.GUI
                                             {
                                                 System.Console.WriteLine("******************************************");
                                                 System.Console.WriteLine("OnRender: " + this.Name);
-                                                ExceptionOperations eo = engine.GetService<ExceptionOperations>();
-                                                string error = eo.FormatException(ex);
-                                                System.Console.WriteLine(error);
+                                                System.Console.WriteLine(engine.FormatError(ex));
                                                 System.Console.WriteLine("******************************************");
                                             }
                                         }

@@ -1,4 +1,4 @@
-﻿using Microsoft.Scripting.Hosting;
+﻿using DevApps.Scripts;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -18,7 +18,7 @@ namespace DevApps.GUI
         public string ValidationMessage { get; set; } = String.Empty;
         public Dictionary<string, (string, CompiledCode?)> Properties { get; set; }
 
-        public Microsoft.Scripting.Hosting.ScriptEngine CurrentEngine = Program.pythonEngine;
+        public ScriptEngine CurrentEngine = Program.pythonEngine;
 
         public bool IsPython
         {
@@ -149,7 +149,7 @@ namespace DevApps.GUI
                 {
                     try
                     {
-                        ScriptSource source = CurrentEngine.CreateScriptSourceFromString(value, Microsoft.Scripting.SourceCodeKind.Expression);
+                        ScriptSource source = CurrentEngine.CreateExpressionFromString(value);
                         CompiledCode compiled = source.Compile();
 
                         Properties[item.Name] = (value, compiled);
@@ -169,7 +169,7 @@ namespace DevApps.GUI
         {
             try
             {
-                ScriptSource source = CurrentEngine.CreateScriptSourceFromString(textEditor.Document.Text, Microsoft.Scripting.SourceCodeKind.Statements);
+                ScriptSource source = CurrentEngine.CreateStatementsFromString(textEditor.Document.Text);
                 CompiledCode compiled = source.Compile();
                 ValidationMessage = "OK";
                 MessageBox.Show("Compilation OK", "Compilation", MessageBoxButton.OK, MessageBoxImage.Information);

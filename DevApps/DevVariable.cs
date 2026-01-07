@@ -1,6 +1,4 @@
 ﻿using Microsoft.Win32;
-using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
 
 internal partial class Program

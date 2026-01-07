@@ -1,15 +1,4 @@
-﻿using IronPython.Compiler.Ast;
-using Microsoft.Scripting;
-using Microsoft.Scripting.Hosting;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-using static IronPython.Modules._ast;
-using static IronPython.Modules.PythonCsvModule;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-internal partial class Program
+﻿internal partial class Program
 {
     internal class DevSelect
     {
