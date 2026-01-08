@@ -7,6 +7,9 @@ namespace DevApps.Scripts.ClearScriptExtends
     {
         internal readonly V8ScriptEngine engine;
 
+        public override string Name => "Javascript";
+        public override string HighlightName => "JavaScript";
+
         public V8ScriptEngineAdapter()
         {
             engine = new();

@@ -1,11 +1,32 @@
 ﻿using DevApps.Scripts;
+using ICSharpCode.AvalonEdit.Highlighting;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace DevApps.GUI
 {
+    public class SyntaxNameToDefinitionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string syntaxName = value as string;
+            if (string.IsNullOrEmpty(syntaxName))
+                return null;
+
+            return HighlightingManager.Instance.GetDefinition(syntaxName);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var def = value as IHighlightingDefinition;
+            return def?.Name;
+        }
+    }
+
     /// <summary>
     /// Logique d'interaction pour ScriptEdit.xaml
     /// </summary>
@@ -18,7 +39,9 @@ namespace DevApps.GUI
         public string ValidationMessage { get; set; } = String.Empty;
         public Dictionary<string, (string, CompiledCode?)> Properties { get; set; }
 
-        public ScriptEngine CurrentEngine = Program.pythonEngine;
+        public ScriptEngine CurrentEngine;
+
+        public string SyntaxName { get; set; }
 
         public bool IsPython
         {
@@ -32,8 +55,24 @@ namespace DevApps.GUI
         {
             get
             {
-                return false;//CurrentEngine == Program.pythonEngine;
+                return CurrentEngine == Program.javascriptEngine;
             }
+        }
+
+        internal void ToggleJavascriptLanguage()
+        {
+            CurrentEngine = Program.javascriptEngine;
+            SyntaxName = CurrentEngine.HighlightName;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SyntaxName)));
+            textEditor.TextArea.TextView.Redraw();
+        }
+
+        internal void TogglePythonLanguage()
+        {
+            CurrentEngine = Program.pythonEngine;
+            SyntaxName = CurrentEngine.HighlightName;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SyntaxName)));
+            textEditor.TextArea.TextView.Redraw();
         }
 
         public class TabItem : INotifyPropertyChanged
@@ -111,6 +150,8 @@ namespace DevApps.GUI
             textEditor.Document.Text = Value;
             Title = title;
             Properties = properties;
+            CurrentEngine = Program.GetScriptEngine(text);
+            SyntaxName = CurrentEngine.HighlightName;
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -197,6 +238,16 @@ namespace DevApps.GUI
         {
             Value = textEditor.Document.Text;
             DialogResult = true;
+        }
+
+        private void RadioButton_Python_Click(object sender, RoutedEventArgs e)
+        {
+            TogglePythonLanguage();
+        }
+
+        private void RadioButton_Javascript_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleJavascriptLanguage();
         }
     }
 }

@@ -2,6 +2,8 @@
 {
     public abstract class ScriptEngine : IDisposable
     {
+        public abstract string Name { get; }
+        public abstract string HighlightName { get; }
         public abstract ScriptScope CreateScope();
         public abstract ScriptSource CreateStatementsFromString(string code);
         public abstract ScriptSource CreateExpressionFromString(string code);

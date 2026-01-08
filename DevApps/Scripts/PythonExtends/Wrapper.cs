@@ -7,6 +7,9 @@ namespace DevApps.Scripts.PythonExtends
     {
         internal readonly Microsoft.Scripting.Hosting.ScriptEngine engine;
 
+        public override string Name => "Python";
+        public override string HighlightName => "Python";
+
         public PythonScriptEngine()
         {
             engine = Python.CreateEngine();

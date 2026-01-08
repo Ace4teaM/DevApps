@@ -29,18 +29,25 @@ internal partial class Program
     /// </summary>
     internal static ScriptEngine pythonEngine;
     internal static ScriptScope pythonScope;
+    internal static ScriptEngine javascriptEngine;
+    internal static ScriptScope javascriptScope;
 
     internal static ScriptScope GetGlobalScope(ScriptEngine engine)
     {
         if (pythonEngine == engine)
             return pythonScope;
 
+        if (javascriptEngine == engine)
+            return javascriptScope;
+
         throw new Exception("Invalid engine instance");
     }
 
     internal static ScriptEngine GetScriptEngine(string code)
     {
-        return pythonEngine;
+        if(code.StartsWith("//!JS"))
+            return javascriptEngine;
+        return pythonEngine;//todo 
     }
 
 
@@ -164,6 +171,7 @@ internal partial class Program
 
         // initialise les moteurs de scripts
         DevApps.Scripts.PythonExtends.Engine.Initialize(out pythonEngine, out pythonScope);
+        DevApps.Scripts.ClearScriptExtends.Engine.Initialize(out javascriptEngine, out javascriptScope);
 
         // change le chemin par défaut de la bibliothèque
         if (args.Contains("-b"))

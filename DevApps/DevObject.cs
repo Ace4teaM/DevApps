@@ -879,14 +879,22 @@ internal partial class Program
         {
             foreach (var o in (objects ?? References.Values).Where(p=>p is DevObjectInstance || p is DevObjectFile))
             {
-                o.CompilDraw();
-                o.CompilObject();
-                o.CompilFunctions();
-                o.CompilProperties();
-                o.CompilUserAction();
-                o.CompilLoop();
-                o.CompilInit();
-                o.CompilBuild();
+                try
+                {
+                    o.CompilDraw();
+                    o.CompilObject();
+                    o.CompilFunctions();
+                    o.CompilProperties();
+                    o.CompilUserAction();
+                    o.CompilLoop();
+                    o.CompilInit();
+                    o.CompilBuild();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erreur de compilation sur l'objet {o.Description}");
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
 
