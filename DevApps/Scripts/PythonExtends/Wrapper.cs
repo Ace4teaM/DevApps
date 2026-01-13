@@ -75,7 +75,7 @@ namespace DevApps.Scripts.PythonExtends
             this.code = code;
         }
 
-        internal override ScriptEngine Engine => new PythonScriptEngine(code.Engine);
+        public override ScriptEngine Engine => new PythonScriptEngine(code.Engine);
 
         public override object Execute(ScriptScope scope)
         {

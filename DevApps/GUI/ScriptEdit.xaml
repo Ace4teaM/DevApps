@@ -30,10 +30,6 @@
             </DataGrid>
         </GroupBox>
         <DockPanel>
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
-                <RadioButton GroupName="lang" IsChecked="{Binding IsPython, Mode=OneWay}" Width="100" Click="RadioButton_Python_Click">Python</RadioButton>
-                <RadioButton GroupName="lang" IsChecked="{Binding IsJavascript, Mode=OneWay}" Click="RadioButton_Javascript_Click">Javascript</RadioButton>
-            </StackPanel>
             <GroupBox Header="Script">
                 <avalonEdit:TextEditor
                     x:Name="textEditor"

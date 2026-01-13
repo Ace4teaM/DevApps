@@ -39,41 +39,9 @@ namespace DevApps.GUI
         public string ValidationMessage { get; set; } = String.Empty;
         public Dictionary<string, (string, CompiledCode?)> Properties { get; set; }
 
-        public ScriptEngine CurrentEngine;
+        public ScriptEngine CurrentEngine = Program.NativeEngine;
 
-        public string SyntaxName { get; set; }
-
-        public bool IsPython
-        {
-            get
-            {
-                return CurrentEngine == Program.pythonEngine;
-            }
-        }
-
-        public bool IsJavascript
-        {
-            get
-            {
-                return CurrentEngine == Program.javascriptEngine;
-            }
-        }
-
-        internal void ToggleJavascriptLanguage()
-        {
-            CurrentEngine = Program.javascriptEngine;
-            SyntaxName = CurrentEngine.HighlightName;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SyntaxName)));
-            textEditor.TextArea.TextView.Redraw();
-        }
-
-        internal void TogglePythonLanguage()
-        {
-            CurrentEngine = Program.pythonEngine;
-            SyntaxName = CurrentEngine.HighlightName;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SyntaxName)));
-            textEditor.TextArea.TextView.Redraw();
-        }
+        public string SyntaxName { get; set; } = Program.NativeEngine.HighlightName;
 
         public class TabItem : INotifyPropertyChanged
         {
@@ -150,8 +118,6 @@ namespace DevApps.GUI
             textEditor.Document.Text = Value;
             Title = title;
             Properties = properties;
-            CurrentEngine = Program.GetScriptEngine(text);
-            SyntaxName = CurrentEngine.HighlightName;
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -238,16 +204,6 @@ namespace DevApps.GUI
         {
             Value = textEditor.Document.Text;
             DialogResult = true;
-        }
-
-        private void RadioButton_Python_Click(object sender, RoutedEventArgs e)
-        {
-            TogglePythonLanguage();
-        }
-
-        private void RadioButton_Javascript_Click(object sender, RoutedEventArgs e)
-        {
-            ToggleJavascriptLanguage();
         }
     }
 }

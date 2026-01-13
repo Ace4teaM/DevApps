@@ -392,8 +392,7 @@ internal partial class Program
                     if (String.IsNullOrWhiteSpace(drawCode.Item1) == false)
                     {
                         var sourceCode = drawCode.Item1;
-                        var sourceEngine = Program.GetScriptEngine(sourceCode);
-                        ScriptSource source = sourceEngine.CreateStatementsFromString(sourceCode);
+                        ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
                         CompiledCode compiled = source.Compile();
                         drawCode = (sourceCode, compiled);
                     }
@@ -419,8 +418,7 @@ internal partial class Program
                     if (String.IsNullOrWhiteSpace(objectCode.Item1) == false)
                     {
                         string sourceCode = objectCode.Item1;
-                        var sourceEngine = Program.GetScriptEngine(sourceCode);
-                        ScriptSource source = sourceEngine.CreateStatementsFromString(sourceCode);
+                        ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
                         CompiledCode compiled = source.Compile();
                         objectCode = (sourceCode, compiled);
                     }
@@ -448,8 +446,7 @@ internal partial class Program
                         string functionCode = f.Value.Item1;
                         if (String.IsNullOrWhiteSpace(functionCode) == false)
                         {
-                            var sourceEngine = Program.GetScriptEngine(functionCode);
-                            ScriptSource functionScript = sourceEngine.CreateStatementsFromString(functionCode);
+                            ScriptSource functionScript = Program.NativeEngine.CreateStatementsFromString(functionCode);
                             CompiledCode functionCompiled = functionScript.Compile();
                             functions[f.Key] = (functionCode, functionCompiled);
                         }
@@ -478,8 +475,7 @@ internal partial class Program
                         string propertyCode = f.Value.Item1;
                         if (String.IsNullOrWhiteSpace(propertyCode) == false)
                         {
-                            var sourceEngine = Program.GetScriptEngine(propertyCode);
-                            ScriptSource propertyScript = sourceEngine.CreateExpressionFromString(propertyCode);
+                            ScriptSource propertyScript = Program.NativeEngine.CreateExpressionFromString(propertyCode);
                             CompiledCode propertyCompiled = propertyScript.Compile();
                             properties[f.Key] = (propertyCode, propertyCompiled);
                         }
@@ -506,8 +502,7 @@ internal partial class Program
                     if (String.IsNullOrWhiteSpace(userAction.Item1) == false)
                     {
                         string sourceCode = userAction.Item1;
-                        var sourceEngine = Program.GetScriptEngine(sourceCode);
-                        ScriptSource source = sourceEngine.CreateStatementsFromString(sourceCode);
+                        ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
                         CompiledCode compiled = source.Compile();
                         userAction = (sourceCode, compiled);
                     }
@@ -533,8 +528,7 @@ internal partial class Program
                     if (String.IsNullOrWhiteSpace(loopMethod.Item1) == false)
                     {
                         string sampleCode = loopMethod.Item1;
-                        var sourceEngine = Program.GetScriptEngine(sampleCode);
-                        ScriptSource sampleScript = sourceEngine.CreateStatementsFromString(sampleCode);
+                        ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
                         CompiledCode sampleCompiled = sampleScript.Compile();
                         loopMethod = (sampleCode, sampleCompiled);
                     }
@@ -560,8 +554,7 @@ internal partial class Program
                     if (String.IsNullOrWhiteSpace(initMethod.Item1) == false)
                     {
                         string sampleCode = initMethod.Item1;
-                        var sourceEngine = Program.GetScriptEngine(sampleCode);
-                        ScriptSource sampleScript = sourceEngine.CreateStatementsFromString(sampleCode);
+                        ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
                         CompiledCode sampleCompiled = sampleScript.Compile();
                         initMethod = (sampleCode, sampleCompiled);
                     }
@@ -587,8 +580,7 @@ internal partial class Program
                     if (String.IsNullOrWhiteSpace(buildMethod.Item1) == false)
                     {
                         string sampleCode = buildMethod.Item1;
-                        var sourceEngine = Program.GetScriptEngine(sampleCode);
-                        ScriptSource sampleScript = sourceEngine.CreateStatementsFromString(sampleCode);
+                        ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
                         CompiledCode sampleCompiled = sampleScript.Compile();
                         buildMethod = (sampleCode, sampleCompiled);
                     }

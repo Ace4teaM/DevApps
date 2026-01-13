@@ -4,7 +4,9 @@ using DevApps.Scripts;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using static Program.DevCommandDefinition;
 
@@ -25,31 +27,58 @@ internal partial class Program
     internal static Dispatcher Dispatcher = Dispatcher.CurrentDispatcher;
 
     /// <summary>
-    /// Python script engine
+    /// Moteur de script natif pour les objets du programme
     /// </summary>
     internal static ScriptEngine pythonEngine;
     internal static ScriptScope pythonScope;
-    internal static ScriptEngine javascriptEngine;
-    internal static ScriptScope javascriptScope;
+
+    /// <summary>
+    /// Autres moteurs de scripts pouvant être utilisés dans DevApps.md
+    /// </summary>
+    internal static Dictionary<string, ScriptEngine> othersEngine;
+
+    /// <summary>
+    /// charge le moteur de script supplémentaire
+    /// </summary>
+    /// <param name="name">nom du moteur, correspond à la concatenation du nom + "Extends.dll"</param>
+    /// <remarks>Le fichier doit se trouver dans le répertoire de l'executable</remarks>
+    internal static ScriptEngine LoadEngine(string name)
+    {
+        var path = Path.Combine(ExecutablePath, name + "Extends.dll");
+        if (!File.Exists(path))
+            throw new Exception(@"Impossible de trouver le module d'extension {path}");
+
+        var assembly = Assembly.LoadFrom(path);
+
+        var type = assembly.GetTypes()
+            .First(t => typeof(ScriptEngine).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+        var engine = (ScriptEngine)Activator.CreateInstance(type)!;
+        othersEngine[name] = engine;
+
+        return engine;
+    }
+
+    internal static ScriptEngine NativeEngine
+    {
+        get
+        {
+            return pythonEngine;
+        }
+    }
+
+    internal static ScriptScope NativeScope
+    {
+        get
+        {
+            return pythonScope;
+        }
+    }
 
     internal static ScriptScope GetGlobalScope(ScriptEngine engine)
     {
-        if (pythonEngine == engine)
-            return pythonScope;
-
-        if (javascriptEngine == engine)
-            return javascriptScope;
-
-        throw new Exception("Invalid engine instance");
+        return pythonScope;
     }
-
-    internal static ScriptEngine GetScriptEngine(string code)
-    {
-        if(code.StartsWith("//!JS"))
-            return javascriptEngine;
-        return pythonEngine;//todo 
-    }
-
 
     static Program()
     {
@@ -171,7 +200,6 @@ internal partial class Program
 
         // initialise les moteurs de scripts
         DevApps.Scripts.PythonExtends.Engine.Initialize(out pythonEngine, out pythonScope);
-        DevApps.Scripts.ClearScriptExtends.Engine.Initialize(out javascriptEngine, out javascriptScope);
 
         // change le chemin par défaut de la bibliothèque
         if (args.Contains("-b"))

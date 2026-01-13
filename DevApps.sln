@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevAppsSetup", "DevAppsSetu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ANTLR", "ANTLR\ANTLR.csproj", "{38D256C7-6B28-4398-9CA5-4EA410B0C3D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevAppsExtension", "DevAppsExtension\DevAppsExtension.csproj", "{42953FCF-C081-438A-9EBD-716F8709B1E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearScriptExtends", "ClearScriptExtends\ClearScriptExtends.csproj", "{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{38D256C7-6B28-4398-9CA5-4EA410B0C3D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38D256C7-6B28-4398-9CA5-4EA410B0C3D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38D256C7-6B28-4398-9CA5-4EA410B0C3D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42953FCF-C081-438A-9EBD-716F8709B1E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42953FCF-C081-438A-9EBD-716F8709B1E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42953FCF-C081-438A-9EBD-716F8709B1E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42953FCF-C081-438A-9EBD-716F8709B1E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

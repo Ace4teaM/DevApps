@@ -24,7 +24,7 @@
 
     public abstract class CompiledCode
     {
-        internal abstract ScriptEngine Engine { get; }
+        public abstract ScriptEngine Engine { get; }
 
         public abstract object Execute(ScriptScope scope);
     }

@@ -2,7 +2,6 @@
 
 namespace DevApps.Scripts.ClearScriptExtends
 {
-
     public sealed class V8ScriptEngineAdapter : ScriptEngine
     {
         internal readonly V8ScriptEngine engine;
@@ -79,7 +78,7 @@ namespace DevApps.Scripts.ClearScriptExtends
         private readonly V8Script script;
         private readonly bool isExpression;
 
-        internal override ScriptEngine Engine => new V8ScriptEngineAdapter(engine);
+        public override ScriptEngine Engine => new V8ScriptEngineAdapter(engine);
 
         public V8CompiledCode(V8ScriptEngine engine, V8Script script, bool isExpression)
         {
