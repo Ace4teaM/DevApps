@@ -51,6 +51,22 @@ namespace DevApps.Scripts.PythonExtends
             => scope.SetVariable(name, value);
         public override void RemoveVariable(string name)
             => scope.RemoveVariable(name);
+
+        public override IEnumerable<Tuple<string, object>> GetVariables()
+        {
+            List<Tuple<string, object>> tuples = new List<Tuple<string, object>>();
+            foreach(var name in scope.GetVariableNames())
+            {
+                if(scope.TryGetVariable(name, out var value))
+                    tuples.Add(new Tuple<string, object>(name, value));
+            }
+            return tuples;
+        }
+
+        public override bool TryGetVariable(string name, out object value)
+        {
+            return scope.TryGetVariable(name, out value);
+        }
     }
 
     public sealed class PythonScriptSource : ScriptSource

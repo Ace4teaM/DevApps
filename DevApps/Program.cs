@@ -1,7 +1,10 @@
 ﻿using DevApps;
+using DevApps.Extends;
 using DevApps.GUI;
 using DevApps.Scripts;
+using DevApps.Scripts.PythonExtends;
 using Newtonsoft.Json;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -35,7 +38,8 @@ internal partial class Program
     /// <summary>
     /// Autres moteurs de scripts pouvant être utilisés dans DevApps.md
     /// </summary>
-    internal static Dictionary<string, ScriptEngine> othersEngine;
+    internal static Dictionary<string, ScriptEngine> othersEngine = new();
+    internal static Dictionary<string, ExtendedComponent> extendedComponents = new();
 
     /// <summary>
     /// charge le moteur de script supplémentaire
@@ -44,19 +48,59 @@ internal partial class Program
     /// <remarks>Le fichier doit se trouver dans le répertoire de l'executable</remarks>
     internal static ScriptEngine LoadEngine(string name)
     {
+        if (String.Compare(name, Program.NativeEngine.Name, true) == 0)
+        {
+            return Program.NativeEngine;
+        }
+
+        if (othersEngine.TryGetValue(name.ToLower(), out var engine))
+        {
+            return engine;
+        }
+
         var path = Path.Combine(ExecutablePath, name + "Extends.dll");
         if (!File.Exists(path))
-            throw new Exception(@"Impossible de trouver le module d'extension {path}");
+            throw new Exception($"Impossible de trouver le module d'extension {path}");
 
         var assembly = Assembly.LoadFrom(path);
 
         var type = assembly.GetTypes()
             .First(t => typeof(ScriptEngine).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
-        var engine = (ScriptEngine)Activator.CreateInstance(type)!;
-        othersEngine[name] = engine;
+        engine = (ScriptEngine)Activator.CreateInstance(type)!;
+        othersEngine[name.ToLower()] = engine;
 
         return engine;
+    }
+
+    /// <summary>
+    /// charge le moteur de script supplémentaire
+    /// </summary>
+    /// <param name="name">nom du moteur, correspond à la concatenation du nom + "Extends.dll"</param>
+    /// <remarks>Le fichier doit se trouver dans le répertoire de l'executable</remarks>
+    internal static ExtendedComponent GetExtendedComponent(string name)
+    {
+        // convention de nommage
+        name = char.ToUpper(name[0]) + name.Substring(1);
+
+        if (extendedComponents.TryGetValue(name.ToLower(), out var component))
+        {
+            return component;
+        }
+
+        var path = Path.Combine(ExecutablePath, name + "Extends.dll");
+        if (!File.Exists(path))
+            throw new Exception($"Impossible de trouver le module d'extension {path}");
+
+        var assembly = Assembly.LoadFrom(path);
+
+        var type = assembly.GetTypes()
+            .First(t => typeof(ExtendedComponent).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+        component = (ExtendedComponent)Activator.CreateInstance(type)!;
+        extendedComponents[name.ToLower()] = component;
+
+        return component;
     }
 
     internal static ScriptEngine NativeEngine
@@ -221,14 +265,36 @@ internal partial class Program
                 CommonSharedPath = path;
         }
 
+        LoadProject();
+
+        // extensions built-in
+        extendedComponents["Javascript"] = new DevApps.Extends.JavaScriptComponent();
+        extendedComponents["Mermaid"] = new DevApps.Extends.MermaidComponent();
+
+        // charge les variables globales du journal de développement
+        {
+            DevLog.Current = DevLog.ParseContent(File.ReadAllText(JournalFilename));
+//            var globalVar = DevVariable.Create("globals", "Globals variables"); // remplacer par une variable non sérialisable
+            var globals = new List<object>();
+//            globalVar.Value = globals;
+            foreach (var block in DevLog.Current)
+            {
+                if (block.variable != null)
+                {
+                    if (DevVariable.IsCompatible(block.variable))
+                    {
+                        globals.Add(block.variable);
+                    }
+                }
+            }
+        }
+
         // ouvre l'éditeur
         if (args.Contains("-w"))
         {
             GuiService.OpenEditor();
             GuiService.WaitWindowLoaded();
         }
-
-        LoadProject();
 
         GuiService.InvalidateFacets();
 

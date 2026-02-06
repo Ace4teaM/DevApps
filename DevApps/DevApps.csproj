@@ -45,6 +45,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ANTLR\ANTLR.csproj" />
     <ProjectReference Include="..\DevAppsExtension\DevAppsExtension.csproj" />
+    <ProjectReference Include="..\JavaScriptExtends\JavascriptExtends.csproj" />
+    <ProjectReference Include="..\MermaidExtends\MermaidExtends.csproj" />
   </ItemGroup>
 
   <ItemGroup>

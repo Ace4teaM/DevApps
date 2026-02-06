@@ -50,6 +50,17 @@ namespace DevApps.Scripts.ClearScriptExtends
             => engine.AddHostObject(name, value);
         public override void RemoveVariable(string name)
             => engine.Script.DeleteProperty(name);
+
+        public override IEnumerable<Tuple<string, object>> GetVariables()
+        {
+            return Array.Empty<Tuple<string, object>>();
+        }
+
+        public override bool TryGetVariable(string name, out object value)
+        {
+            value = null;
+            return false;
+        }
     }
 
     public sealed class V8ScriptSource : ScriptSource

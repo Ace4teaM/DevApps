@@ -46,10 +46,32 @@ namespace DevApps.GUI
                         break;
 
                     default:
-                        y += lineHeight;
+                        y = DrawText(dc, markdown.Substring(block.Span.Start, block.Span.Length), origin.X, y, max.X - origin.X, max.Y - y);
                         break;
                 }
             }
+        }
+
+        private double DrawText(DrawingContext dc, string text, double x, double y, double w, double h)
+        {
+            double startY = y;
+
+            var ft = new FormattedText(
+                text,
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                normalFont,
+                16,
+                Brushes.Black,
+                VisualTreeHelper.GetDpi(Application.Current.MainWindow).PixelsPerDip)
+            {
+                MaxTextWidth = w,
+                MaxTextHeight = h,
+                //TextWrapping = TextWrapping.Wrap
+            };
+
+            dc.DrawText(ft, new Point(x, y));
+            return y + ft.Height + 8;
         }
 
         private double DrawHeading(DrawingContext dc, HeadingBlock heading, double x, double y, double w, double h)

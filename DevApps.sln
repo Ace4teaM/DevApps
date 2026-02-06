@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevAppsExtension", "DevApps
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClearScriptExtends", "ClearScriptExtends\ClearScriptExtends.csproj", "{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavascriptExtends", "JavaScriptExtends\JavascriptExtends.csproj", "{C6D3B693-BD0F-C28D-ECCA-F1B459976FDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MermaidExtends", "MermaidExtends\MermaidExtends.csproj", "{1561936C-8362-7196-2AF9-6B7698CC623E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6AA440F-5DE9-4663-98A4-0A7F228A72BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6D3B693-BD0F-C28D-ECCA-F1B459976FDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6D3B693-BD0F-C28D-ECCA-F1B459976FDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6D3B693-BD0F-C28D-ECCA-F1B459976FDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6D3B693-BD0F-C28D-ECCA-F1B459976FDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1561936C-8362-7196-2AF9-6B7698CC623E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1561936C-8362-7196-2AF9-6B7698CC623E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1561936C-8362-7196-2AF9-6B7698CC623E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1561936C-8362-7196-2AF9-6B7698CC623E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

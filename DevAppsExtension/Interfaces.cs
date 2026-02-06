@@ -1,4 +1,17 @@
-﻿namespace DevApps.Scripts
+﻿using System.Windows.Media;
+
+namespace DevApps.Extends
+{
+    public abstract class ExtendedComponent : IDisposable
+    {
+        public abstract void SetVariable(string name, object value);
+        public abstract bool TryMakeVariable(object input, out object? variable);
+        public abstract bool TryMakeRender(object input, double width, DrawingContext drawing);
+        public abstract void Dispose();
+    }
+}
+
+namespace DevApps.Scripts
 {
     public abstract class ScriptEngine : IDisposable
     {
@@ -14,6 +27,8 @@
     public abstract class ScriptScope
     {
         public abstract void SetVariable(string name, object value);
+        public abstract IEnumerable<Tuple<string, object>> GetVariables();
+        public abstract bool TryGetVariable(string name, out object value);
         public abstract void RemoveVariable(string v);
     }
 
