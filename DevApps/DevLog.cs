@@ -1,9 +1,9 @@
-﻿using System.Globalization;
+﻿using DevApps.Extends;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
-using static Program;
 
 namespace DevApps
 {
@@ -12,16 +12,45 @@ namespace DevApps
     /// Le contenu est décomposé en block affichable et en variables globales
     /// </summary>
     /// <remarks>Le fichier contient potentiellement des scripts qui initialise des variables globales</remarks>
-    internal static class DevLog
+    public static class DevLog
     {
+        internal static double DefaultWidth = 800;
         internal static List<Block>? Current;
 
-        internal class Block
+        public class Block
         {
-            public static readonly Block Empty = new Block{ text = String.Empty };
+            /// <summary>
+            /// Bloc vide
+            /// </summary>
+            public static readonly Block Empty = new Block{ text = String.Empty, code = String.Empty };
+            /// <summary>
+            /// Texte complet du bloc
+            /// </summary>
             required public string text;
-            public object? variable;
-            public Func<double,DrawingVisual>? visual;
+            /// <summary>
+            /// Si c'est un code, uniquement la partie entre guillemets ```
+            /// </summary>
+            required public string code;
+            /// <summary>
+            /// Composant qui a sert à créer le visuel et la variable
+            /// </summary>
+            public ExtendedComponent? component;
+            /// <summary>
+            /// Tache de rendu, null par défaut car la fenêtre n'est pas forcément rendue
+            /// </summary>
+            public Task<DrawingVisual>? renderTask;
+            /// <summary>
+            /// Crée la tache de rendu, exécuté par le thread appelant (nécessaire pour le WPF)
+            /// </summary>
+            public Func<Block, Task<DrawingVisual>> makeRender;
+            /// <summary>
+            /// Tache d'exécution, null par défaut car uniquement à la demande de l'utilisateur
+            /// </summary>
+            public Task<object>? variableTask;
+            /// <summary>
+            /// Token d'annulation des tâches variableTask et renderTask
+            /// </summary>
+            public CancellationTokenSource tokenSource = new CancellationTokenSource();
         }
 
         internal static List<Block> ParseContent(string md)
@@ -53,25 +82,33 @@ namespace DevApps
                 }
 
                 // fin du bloc libre en cours
-                if (startFree != -1 && (parsed || i == lines.Length-1))
+                if (startFree != -1 && (parsed || i == lines.Length))
                 {
                     var texts = String.Join(Environment.NewLine, lines.Skip(startFree).Take((endFree - startFree) + 1));
 
-                    var visualFunc = new Func<double,DrawingVisual> ((width) =>
+                    var freeBlock = new Block
+                    {
+                        text = texts,
+                        code = String.Empty
+                    };
+
+                    // crée la task mais n'est pas immédiatement exécutée
+                    // elle le sera plus tard par DesignerLogView
+                    freeBlock.makeRender = new Func<Block, Task<DrawingVisual>>((block) =>
                     {
                         var render = new GUI.MarkdownRenderer();
                         var visual = new DrawingVisual();
                         using (DrawingContext dc = visual.RenderOpen())
                         {
-                            dc.DrawRectangle(Brushes.LightBlue, new Pen(Brushes.DarkBlue, 2), new Rect(0, 0, 10, 10));
-                            render.DrawMarkdown(dc, texts, new Point(0, 0), new Point(width, 10000));
+                            dc.DrawRectangle(Brushes.LightBlue, new Pen(Brushes.DarkRed, 2), new Rect(0, 0, 10, 10));
+                            render.DrawMarkdown(dc, block.text, new Point(0, 0), new Point(DefaultWidth, 10000));
                         }
 
-                        return visual;
+                        return Task.FromResult(visual);
                     });
 
                     // ajout du bloc
-                    blocks.Add(new Block { text = texts, variable = null, visual = visualFunc });
+                    blocks.Add(freeBlock);
 
                     startFree = endFree = -1;
                 }
@@ -100,21 +137,30 @@ namespace DevApps
         internal static bool TryParseTitle(string[] lines, ref int offset, out Block block)
         {
             var line = lines[offset].Trim();
-            var start = Regex.Match(line, @"^([#]+)");
+            var start = Regex.Match(line, @"^([#]+)\s");
             if (start.Success)
             {
                 int level = start.Groups[1].Length;
 
                 var text = line.Substring(start.Groups[1].Length).Trim();
 
-                var visualFunc = new Func<double, DrawingVisual>((width) =>
+                block = new Block
+                {
+                    text = lines[offset],
+                    code = text
+                };
+
+                // crée la task mais n'est pas immédiatement exécutée
+                // elle le sera plus tard par DesignerLogView
+                block.makeRender = new Func<Block, Task<DrawingVisual>>(block =>
                 {
                     var visual = new DrawingVisual();
                     using (DrawingContext dc = visual.RenderOpen())
                     {
+                        dc.DrawRectangle(Brushes.LightBlue, new Pen(Brushes.DarkBlue, 2), new Rect(0, 0, 10, 10));
                         //dessine le texte
                         var ft = new FormattedText(
-                            text,
+                            block.code,
                             CultureInfo.CurrentUICulture,
                             FlowDirection.LeftToRight,
                             new Typeface("Segoe UI"),
@@ -122,23 +168,17 @@ namespace DevApps
                             Brushes.Black,
                             1.0);
 
-                        ft.MaxTextWidth = width;
+                        ft.MaxTextWidth = DefaultWidth;
 
                         dc.DrawText(ft, new Point(0, 0));
 
                         // dessine la marge inférieur
                         var margin = ft.Height + 4;
-                        dc.DrawLine(new Pen(Brushes.Gray, 2), new Point(0, margin), new Point(width, margin));
+                        dc.DrawLine(new Pen(Brushes.Gray, 2), new Point(0, margin), new Point(DefaultWidth, margin));
                     }
 
-                    return visual;
+                    return Task.FromResult(visual);
                 });
-
-                block = new Block
-                {
-                    text = lines[offset],
-                    visual = visualFunc
-                };
 
                 offset++;
                 return true;
@@ -167,107 +207,34 @@ namespace DevApps
                         code.AppendLine(lines[j]);
 
                     block = new Block { 
-                        text = String.Join(Environment.NewLine, lines.Skip(offset).Take((end - offset) + 1))
+                        text = String.Join(Environment.NewLine, lines.Skip(offset).Take((end - offset) + 1)),
+                        code = code.ToString()
                     };
 
                     // parse le code
-                    try
+                    if (String.IsNullOrEmpty(name) == false)
                     {
-                        var component = Program.GetExtendedComponent(name);//TryLoadEngine(lang, out eng) // si inconnu le texte est collé dans la variable
-
-                        // ajoute les variables existantes
-                        foreach (var variable in DevVariable.References)
-                            component.SetVariable(variable.Key, variable.Value.Value);
-
-                        // obtient une variable ?
-                        if (component.TryMakeVariable(code, out var outputVar))
+                        try
                         {
-                            block.variable = outputVar!;
+                            var component = Program.GetExtendedComponent(name);//TryLoadEngine(lang, out eng) // si inconnu le texte est collé dans la variable
+
+                            block.component = component;
+                            // ne crée pas la task pour ne pas immédiatement l'exécutée
+                            // elle le sera plus tard par DesignerLogView
+                            //block.variableTask = component.TryMakeVariable(block.tokenSource.Token, code);
+                            block.makeRender = new Func<Block, Task<DrawingVisual>>(async block =>  await block.component!.TryMakeRender(
+                                                                        block.tokenSource.Token,
+                                                                        block.code,
+                                                                        DevLog.DefaultWidth));
                         }
-
-                        // obtient un rendu ?
-                        int startIndex = offset;
-
-                        var texts = lines.Skip(startIndex + 1).Take(end - (startIndex+1)).ToArray();
-
-                        var visualFunc = new Func<double, DrawingVisual>((width) =>
+                        catch (Exception ex)
                         {
-                            var visual = new DrawingVisual();
-                            using (DrawingContext dc = visual.RenderOpen())
-                            {
-                                if (component.TryMakeRender(code, width, dc) == false)
-                                {
-                                    //dessine le texte
-
-                                    double y = 0;
-                                    double lineSpacing = 1.2;
-
-                                    foreach (var text in texts)
-                                    {
-                                        var ft = new FormattedText(
-                                            text,
-                                            CultureInfo.CurrentUICulture,
-                                            FlowDirection.LeftToRight,
-                                            new Typeface("Verdana"),
-                                            14,
-                                            Brushes.Gray,
-                                            1.0);
-
-                                        ft.MaxTextWidth = width;
-
-                                        dc.DrawText(ft, new Point(0, y));
-
-                                        y += ft.Height * lineSpacing;
-                                    }
-                                }
-                            }
-
-                            return visual;
-                        });
-
-                        block.visual = visualFunc;
+                            Console.WriteLine($"Composant introuvable `{name}`. {ex.Message}");
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Console.WriteLine($"Erreur au parsing du contenu `{name}` ({start}:{end}). {ex.Message}");
-
-                        int startIndex = offset;
-
-                        var texts = lines.Skip(startIndex + 1).Take(end - (startIndex + 1)).ToArray();
-
-                        var visualFunc = new Func<double, DrawingVisual>((width) =>
-                        {
-                            var visual = new DrawingVisual();
-                            using (DrawingContext dc = visual.RenderOpen())
-                            {
-                                //dessine le texte
-
-                                double y = 0;
-                                double lineSpacing = 1.2;
-
-                                foreach (var text in texts)
-                                {
-                                    var ft = new FormattedText(
-                                        text,
-                                        CultureInfo.CurrentUICulture,
-                                        FlowDirection.LeftToRight,
-                                        new Typeface("Segoe UI"),
-                                        18,
-                                        Brushes.Black,
-                                        1.0);
-
-                                    ft.MaxTextWidth = width;
-
-                                    dc.DrawText(ft, new Point(0, y));
-
-                                    y += ft.Height * lineSpacing;
-                                }
-                            }
-
-                            return visual;
-                        });
-
-                        block.visual = visualFunc;
+                        // bloc de code anonyme
                     }
 
                     // suivant

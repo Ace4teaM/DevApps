@@ -63,7 +63,7 @@ namespace DevApps.GUI
                 normalFont,
                 16,
                 Brushes.Black,
-                VisualTreeHelper.GetDpi(Application.Current.MainWindow).PixelsPerDip)
+                DesignerWindow.PixelsPerDip)
             {
                 MaxTextWidth = w,
                 MaxTextHeight = h,
@@ -92,7 +92,7 @@ namespace DevApps.GUI
                 boldFont,
                 fontSize,
                 Brushes.SteelBlue,
-                VisualTreeHelper.GetDpi(Application.Current.MainWindow).PixelsPerDip);
+                DesignerWindow.PixelsPerDip);
 
             ft.MaxTextWidth = w;
             ft.MaxTextHeight = h;
@@ -113,7 +113,7 @@ namespace DevApps.GUI
                 normalFont,
                 16,
                 Brushes.Black,
-                VisualTreeHelper.GetDpi(Application.Current.MainWindow).PixelsPerDip)
+                DesignerWindow.PixelsPerDip)
             {
                 MaxTextWidth = w,
                 MaxTextHeight = h,
@@ -141,7 +141,7 @@ namespace DevApps.GUI
                     normalFont,
                     16,
                     Brushes.DimGray,
-                    VisualTreeHelper.GetDpi(Application.Current.MainWindow).PixelsPerDip)
+                    DesignerWindow.PixelsPerDip)
                 {
                     MaxTextWidth = w,
                     MaxTextHeight = h,

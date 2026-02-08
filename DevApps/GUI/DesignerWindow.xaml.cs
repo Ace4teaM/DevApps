@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 using static Program;
 
 namespace DevApps.GUI
@@ -29,6 +30,8 @@ namespace DevApps.GUI
                     return "Annuler";
             }
         }
+
+        internal static double PixelsPerDip = 1.0;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -169,6 +172,8 @@ namespace DevApps.GUI
 
         public DesignerWindow()
         {
+            DesignerWindow.PixelsPerDip = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+
             try
             {
                 // Charger les dictionnaires WPF-UI

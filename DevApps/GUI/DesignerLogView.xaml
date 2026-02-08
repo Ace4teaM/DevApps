@@ -5,8 +5,25 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DevApps.GUI"
              mc:Ignorable="d" 
+             Width="800"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <StackPanel x:Name="stackPanel" Orientation="Vertical"></StackPanel>  
+        <StackPanel x:Name="stackPanel" Orientation="Vertical"></StackPanel>
+        <Popup x:Name="optionsPopup"
+           Placement="Bottom"
+           StaysOpen="False"
+           AllowsTransparency="True">
+
+            <Border Background="White"
+                BorderBrush="Black"
+                BorderThickness="1"
+                Padding="10">
+
+                <StackPanel Orientation="Horizontal" Height="20">
+                    <Button Width="30" Click="Button_MakeVariable_Click">VAR</Button>
+                    <Button Width="30" Click="Button_MakeRender_Click">RD</Button>
+                </StackPanel>
+            </Border>
+        </Popup>
     </Grid>
 </UserControl>

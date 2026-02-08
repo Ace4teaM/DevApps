@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -16,38 +17,47 @@ namespace DevApps.Extends
 
         public override void SetVariable(string name, object value) { }
 
-        public override bool TryMakeVariable(object input, out object? variable)
+        public override async Task<object> TryMakeVariable(CancellationToken cancellationToken, object input)
         {
-            variable = null;
-            return true;
+            return null;
         }
 
-        public override bool TryMakeRender(object input, double width, DrawingContext drawing)
+        public override async Task<DrawingVisual> TryMakeRender(CancellationToken cancellationToken, object input, double width)
         {
-            try
-            {
-                var text = input.ToString();
-                var base64 = GenerateBase64(text);
+            var text = input.ToString();
+            if (text == null)
+                throw new Exception("input text expected");
 
-                if (database.TryGetValue(base64, out var pngBytes) == false)
-                {
-                    var task = GeneratePngAsync(base64);
-                    if (task.Wait(6000))
-                    {
-                        pngBytes = task.Result;
-                        database[base64] = pngBytes;
-                    }
-                }
-                
-                var bitmap = LoadBitmapFromPngBytes(pngBytes);
-                drawing.DrawImage(bitmap, new System.Windows.Rect(0, 0, width, (bitmap.Height / bitmap.Width) * width));
-                return true;
-            }
-            catch (Exception ex)
+            var base64 = GenerateBase64(text);
+
+            var url = $"https://mermaid.ink/img/{base64}?type=png";
+
+            using var http = new HttpClient();
+
+            var visual = new DrawingVisual();
+            var pngBytes = await http.GetByteArrayAsync(url, cancellationToken);
+
+            using (DrawingContext dc = visual.RenderOpen())
             {
-                Console.WriteLine(ex.Message);
-                return false;
+                var bitmap = LoadBitmapFromPngBytes(pngBytes);
+                dc.DrawImage(bitmap, new System.Windows.Rect(0, 0, width, (bitmap.Height / bitmap.Width) * width));
             }
+
+            return visual;
+        }
+
+        internal static BitmapImage LoadBitmapFromPngBytes(byte[] pngBytes)
+        {
+            using var ms = new MemoryStream(pngBytes);
+
+            var bmp = new BitmapImage();
+            bmp.BeginInit();
+            bmp.CacheOption = BitmapCacheOption.OnLoad; // charge tout en mémoire
+            bmp.StreamSource = ms;
+            bmp.EndInit();
+            bmp.Freeze(); // important : perf + thread-safe
+
+            return bmp;
         }
 
         internal static string GenerateBase64(string mermaidCode)
@@ -61,28 +71,6 @@ namespace DevApps.Extends
                 .Replace('+', '-')
                 .Replace('/', '_')
                 .TrimEnd('=');
-        }
-        internal static async Task<byte[]> GeneratePngAsync(string base64)
-        {
-            var url = $"https://mermaid.ink/img/{base64}?type=png";
-
-            using var http = new HttpClient();
-            var pngBytes = await http.GetByteArrayAsync(url);
-
-            return pngBytes;
-        }
-        internal static BitmapImage LoadBitmapFromPngBytes(byte[] pngBytes)
-        {
-            using var ms = new MemoryStream(pngBytes);
-
-            var bmp = new BitmapImage();
-            bmp.BeginInit();
-            bmp.CacheOption = BitmapCacheOption.OnLoad; // charge tout en mémoire
-            bmp.StreamSource = ms;
-            bmp.EndInit();
-            bmp.Freeze(); // important : perf + thread-safe
-
-            return bmp;
         }
     }
 }

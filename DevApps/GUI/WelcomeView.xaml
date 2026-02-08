@@ -10,7 +10,7 @@
     <ScrollViewer>
         <Grid>
             <TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="50pt" FontFamily="Bauhaus 93">DevApps</TextBlock>
-            <local:DesignerLogView VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40,120,40,40"></local:DesignerLogView>
+            <local:DesignerLogView VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,120,0,40"></local:DesignerLogView>
         </Grid>
     </ScrollViewer>
 </UserControl>

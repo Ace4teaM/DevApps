@@ -18,18 +18,20 @@ namespace DevApps.Extends
         public override void SetVariable(string name, object value)
             => engine.AddHostObject(name, value);
 
-        public override bool TryMakeVariable(object input, out object? variable)
+        public override async Task<object> TryMakeVariable(CancellationToken cancellationToken, object input)
         {
+            using var reg = cancellationToken.Register(() => engine.Interrupt());
+
             var script = input.ToString();
-            engine.Execute(script);
-            variable = null;
-            return false;
+
+            var result = await Task.Run(() => engine.Evaluate(script), cancellationToken);
+
+            return result;
         }
 
-        public override bool TryMakeRender(object input, double width, DrawingContext drawing)
+        public override async Task<DrawingVisual> TryMakeRender(CancellationToken cancellationToken, object input, double width)
         {
-            var script = input.ToString();
-            return false;
+            throw new NotImplementedException();
         }
     }
 }

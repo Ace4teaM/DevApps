@@ -265,29 +265,9 @@ internal partial class Program
                 CommonSharedPath = path;
         }
 
-        LoadProject();
-
         // extensions built-in
         extendedComponents["Javascript"] = new DevApps.Extends.JavaScriptComponent();
         extendedComponents["Mermaid"] = new DevApps.Extends.MermaidComponent();
-
-        // charge les variables globales du journal de développement
-        {
-            DevLog.Current = DevLog.ParseContent(File.ReadAllText(JournalFilename));
-//            var globalVar = DevVariable.Create("globals", "Globals variables"); // remplacer par une variable non sérialisable
-            var globals = new List<object>();
-//            globalVar.Value = globals;
-            foreach (var block in DevLog.Current)
-            {
-                if (block.variable != null)
-                {
-                    if (DevVariable.IsCompatible(block.variable))
-                    {
-                        globals.Add(block.variable);
-                    }
-                }
-            }
-        }
 
         // ouvre l'éditeur
         if (args.Contains("-w"))
@@ -295,6 +275,8 @@ internal partial class Program
             GuiService.OpenEditor();
             GuiService.WaitWindowLoaded();
         }
+
+        LoadProject();
 
         GuiService.InvalidateFacets();
 
@@ -308,6 +290,8 @@ internal partial class Program
 
         // Construit les données permanentes
         DevFacet.Get("Model")?.Build();
+
+        // todo annuler les taches en cours dans DevLog.Current
 
         // Attend la fermeture de la fenêtre
         GuiService.WaitWindowClosed();
