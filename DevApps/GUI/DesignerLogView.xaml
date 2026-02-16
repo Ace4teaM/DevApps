@@ -4,24 +4,34 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DevApps.GUI"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d" 
              Width="800"
+             x:Name="root"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid Background="White" PreviewMouseMove="Grid_PreviewMouseMove" MouseLeave="Grid_MouseLeave">
         <StackPanel x:Name="stackPanel" Orientation="Vertical"></StackPanel>
         <Popup x:Name="optionsPopup"
-           Placement="Bottom"
-           StaysOpen="False"
-           AllowsTransparency="True">
+               Placement="Top"
+               StaysOpen="True"
+               Focusable="False"
+               AllowsTransparency="True">
 
-            <Border Background="White"
+            <Border x:Name="contentPopup" Background="White"
                 BorderBrush="Black"
                 BorderThickness="1"
                 Padding="10">
 
-                <StackPanel Orientation="Horizontal" Height="20">
-                    <Button Width="30" Click="Button_MakeVariable_Click">VAR</Button>
-                    <Button Width="30" Click="Button_MakeRender_Click">RD</Button>
+                <StackPanel Orientation="Horizontal">
+                    <Button IsEnabled="{Binding CanRenderCurrentBlock}" Click="Button_MakeRender_Click" ToolTip="Exporter l'image dans un objet">
+                        <iconPacks:PackIconFontAwesome Kind="ImageSolid" Width="24" Height="24"/>
+                    </Button>
+                    <Button IsEnabled="{Binding CanExecuteCurrentBlock}" Click="Button_MakeVariable_Click" ToolTip="Exporter le résultat dans un objet">
+                        <iconPacks:PackIconFontAwesome Kind="CodeSolid" Width="24" Height="24"/>
+                    </Button>
+                    <Button IsEnabled="{Binding CanCopyCurrentBlock}" Click="Button_CopyContent_Click" ToolTip="Copie le contenu">
+                        <iconPacks:PackIconFontAwesome Kind="CopySolid" Width="24" Height="24"/>
+                    </Button>
                 </StackPanel>
             </Border>
         </Popup>

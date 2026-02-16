@@ -1,5 +1,6 @@
 ﻿using DevApps.Extends;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -46,7 +47,11 @@ namespace DevApps
             /// <summary>
             /// Tache d'exécution, null par défaut car uniquement à la demande de l'utilisateur
             /// </summary>
-            public Task<object>? variableTask;
+            public Task<Stream>? variableTask;
+            /// <summary>
+            /// Crée la tache d'execution du script
+            /// </summary>
+            public Func<Block, Task<Stream>> makeVariable;
             /// <summary>
             /// Token d'annulation des tâches variableTask et renderTask
             /// </summary>
@@ -100,7 +105,6 @@ namespace DevApps
                         var visual = new DrawingVisual();
                         using (DrawingContext dc = visual.RenderOpen())
                         {
-                            dc.DrawRectangle(Brushes.LightBlue, new Pen(Brushes.DarkRed, 2), new Rect(0, 0, 10, 10));
                             render.DrawMarkdown(dc, block.text, new Point(0, 0), new Point(DefaultWidth, 10000));
                         }
 
@@ -157,7 +161,6 @@ namespace DevApps
                     var visual = new DrawingVisual();
                     using (DrawingContext dc = visual.RenderOpen())
                     {
-                        dc.DrawRectangle(Brushes.LightBlue, new Pen(Brushes.DarkBlue, 2), new Rect(0, 0, 10, 10));
                         //dessine le texte
                         var ft = new FormattedText(
                             block.code,
@@ -221,7 +224,7 @@ namespace DevApps
                             block.component = component;
                             // ne crée pas la task pour ne pas immédiatement l'exécutée
                             // elle le sera plus tard par DesignerLogView
-                            //block.variableTask = component.TryMakeVariable(block.tokenSource.Token, code);
+                            block.makeVariable = new Func<Block, Task<Stream>>(async block => await component.TryMakeVariable(block.tokenSource.Token, code));
                             block.makeRender = new Func<Block, Task<DrawingVisual>>(async block =>  await block.component!.TryMakeRender(
                                                                         block.tokenSource.Token,
                                                                         block.code,

@@ -1,4 +1,7 @@
-﻿using Microsoft.ClearScript.V8;
+﻿using Microsoft.ClearScript;
+using Microsoft.ClearScript.V8;
+using System.Globalization;
+using System.Text;
 using System.Windows.Media;
 
 namespace DevApps.Extends
@@ -18,7 +21,7 @@ namespace DevApps.Extends
         public override void SetVariable(string name, object value)
             => engine.AddHostObject(name, value);
 
-        public override async Task<object> TryMakeVariable(CancellationToken cancellationToken, object input)
+        public override async Task<Stream> TryMakeVariable(CancellationToken cancellationToken, object input)
         {
             using var reg = cancellationToken.Register(() => engine.Interrupt());
 
@@ -26,7 +29,17 @@ namespace DevApps.Extends
 
             var result = await Task.Run(() => engine.Evaluate(script), cancellationToken);
 
-            return result;
+            if (result == null)
+                return Stream.Null;
+
+
+            string text =
+                result is ScriptObject
+                    ? engine.Script.JSON.stringify(result)
+                    : result?.ToString();
+
+            var stream = new MemoryStream(new UTF8Encoding(true).GetBytes(text));
+            return stream;
         }
 
         public override async Task<DrawingVisual> TryMakeRender(CancellationToken cancellationToken, object input, double width)

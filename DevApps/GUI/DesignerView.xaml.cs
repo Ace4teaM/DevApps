@@ -665,7 +665,7 @@ namespace DevApps.GUI
                                     {
                                         var key = dict.Key;
                                         var obj = dict.Value;
-                                        if (obj != src)
+                                        if (obj != src && key != ptr.Value.target)
                                         {
                                             if (ptr.Value.tags.Count > 0 && obj.Tags.ContainsAll(ptr.Value.tags))
                                             {

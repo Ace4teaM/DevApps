@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Media;
 
 namespace DevApps.Scripts
 {
@@ -29,6 +30,14 @@ namespace DevApps.Scripts
         /// True si le contenu du stream a changé
         /// </summary>
         public bool AsChanged = false;
+
+        /// <summary>
+        /// Méthode Python: True si le contenu est vide
+        /// </summary>
+        public Stream MemoryStream()
+        {
+            return stream;
+        }
 
         /// <summary>
         /// Stock les données mémoire en fichier
@@ -98,6 +107,12 @@ namespace DevApps.Scripts
             Filename = filename;
             objectName = Path.GetFileNameWithoutExtension(filename);
             Collector?.Add(this);
+        }
+
+        public void clear()
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            stream.SetLength(0);
         }
 
         /// <summary>
