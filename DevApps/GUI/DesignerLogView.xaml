@@ -26,10 +26,10 @@
                     <Button IsEnabled="{Binding CanRenderCurrentBlock}" Click="Button_MakeRender_Click" ToolTip="Exporter l'image dans un objet">
                         <iconPacks:PackIconFontAwesome Kind="ImageSolid" Width="24" Height="24"/>
                     </Button>
-                    <Button IsEnabled="{Binding CanExecuteCurrentBlock}" Click="Button_MakeVariable_Click" ToolTip="Exporter le résultat dans un objet">
+                    <Button IsEnabled="{Binding CanExecuteCurrentBlock}" Click="Button_MakeContent_Click" ToolTip="Exporter le résultat dans un objet">
                         <iconPacks:PackIconFontAwesome Kind="CodeSolid" Width="24" Height="24"/>
                     </Button>
-                    <Button IsEnabled="{Binding CanCopyCurrentBlock}" Click="Button_CopyContent_Click" ToolTip="Copie le contenu">
+                    <Button IsEnabled="{Binding CanCopyCurrentBlock}" Click="Button_CopyText_Click" ToolTip="Copier le texte">
                         <iconPacks:PackIconFontAwesome Kind="CopySolid" Width="24" Height="24"/>
                     </Button>
                 </StackPanel>

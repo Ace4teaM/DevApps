@@ -309,24 +309,24 @@ namespace DevApps.GUI
             return stream.ToArray();                       // récupérer le byte[]
         }
 
-        private void Button_MakeVariable_Click(object sender, RoutedEventArgs e)
+        private void Button_MakeContent_Click(object sender, RoutedEventArgs e)
         {
             var block = overVisualHost?._block;
-            if (block?.makeVariable != null)
+            if (block?.makeContent != null)
             {
-                block.variableTask = block.makeVariable(block);
-                if (block.variableTask?.Status == TaskStatus.Created)
-                    block.variableTask?.Start();
-                block.variableTask?.ContinueWith(t =>
+                block.contentTask = block.makeContent(block);
+                if (block.contentTask?.Status == TaskStatus.Created)
+                    block.contentTask?.Start();
+                block.contentTask?.ContinueWith(t =>
                 {
                     //Fin du rendu
-                    if (block.variableTask?.IsFaulted == true || block.variableTask?.IsCanceled == true)
+                    if (block.contentTask?.IsFaulted == true || block.contentTask?.IsCanceled == true)
                     {
                         return;
                     }
 
                     // ajoute la variable au projet ...
-                    var stream = block.variableTask.Result!;
+                    var stream = block.contentTask.Result!;
 
                     if (stream != null && stream != Stream.Null)
                     {
@@ -363,7 +363,7 @@ namespace DevApps.GUI
             }
         }
 
-        private void Button_CopyContent_Click(object sender, RoutedEventArgs e)
+        private void Button_CopyText_Click(object sender, RoutedEventArgs e)
         {
             var block = overVisualHost?._block;
             if (block?.text != null)
@@ -434,7 +434,7 @@ namespace DevApps.GUI
         {
             get
             {
-                return overVisualHost?._block?.makeVariable != null;
+                return overVisualHost?._block?.makeContent != null;
             }
         }
 

@@ -17,7 +17,7 @@ namespace DevApps.Extends
 
         public override void SetVariable(string name, object value) { }
 
-        public override async Task<Stream> TryMakeVariable(CancellationToken cancellationToken, object input)
+        public override async Task<Stream> TryMakeContent(CancellationToken cancellationToken, object input)
         {
             return Stream.Null;
         }

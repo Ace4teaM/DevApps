@@ -47,11 +47,11 @@ namespace DevApps
             /// <summary>
             /// Tache d'exécution, null par défaut car uniquement à la demande de l'utilisateur
             /// </summary>
-            public Task<Stream>? variableTask;
+            public Task<Stream>? contentTask;
             /// <summary>
             /// Crée la tache d'execution du script
             /// </summary>
-            public Func<Block, Task<Stream>> makeVariable;
+            public Func<Block, Task<Stream>> makeContent;
             /// <summary>
             /// Token d'annulation des tâches variableTask et renderTask
             /// </summary>
@@ -224,7 +224,7 @@ namespace DevApps
                             block.component = component;
                             // ne crée pas la task pour ne pas immédiatement l'exécutée
                             // elle le sera plus tard par DesignerLogView
-                            block.makeVariable = new Func<Block, Task<Stream>>(async block => await component.TryMakeVariable(block.tokenSource.Token, code));
+                            block.makeContent = new Func<Block, Task<Stream>>(async block => await component.TryMakeContent(block.tokenSource.Token, code));
                             block.makeRender = new Func<Block, Task<DrawingVisual>>(async block =>  await block.component!.TryMakeRender(
                                                                         block.tokenSource.Token,
                                                                         block.code,

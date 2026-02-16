@@ -21,7 +21,7 @@ namespace DevApps.Extends
         public override void SetVariable(string name, object value)
             => engine.AddHostObject(name, value);
 
-        public override async Task<Stream> TryMakeVariable(CancellationToken cancellationToken, object input)
+        public override async Task<Stream> TryMakeContent(CancellationToken cancellationToken, object input)
         {
             using var reg = cancellationToken.Register(() => engine.Interrupt());
 
