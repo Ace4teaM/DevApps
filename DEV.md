@@ -151,8 +151,6 @@ dotnet publish DevApps/DevApps.csproj --configuration Release --output ./publish
 
 - Le dossier `./publish` contient ton EXE prêt à être testé ou distribué.
 
-------
-
 ## GitHub Actions
 
 Il est possible d'automatiser les actions avec GitHub
