@@ -93,9 +93,9 @@ name: CI/CD DevApps
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build-lint-test:
