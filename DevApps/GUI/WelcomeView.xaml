@@ -3,13 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:DevApps.GUI" xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
+             xmlns:local="clr-namespace:DevApps.GUI"
+             xmlns:wpf="clr-namespace:Markdig.Wpf;assembly=Markdig.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <ScrollViewer>
         <Grid>
             <TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="50pt" FontFamily="Bauhaus 93">DevApps</TextBlock>
-            <wpf:MarkdownViewer Pipeline="{Binding MarkdownPipeline}" Markdown="{Binding Journal}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,120,0,0"></wpf:MarkdownViewer>
+            <Border Padding="30,0,30,0" Margin="0,120,0,40" VerticalAlignment="Top" HorizontalAlignment="Center" Background="White">
+                <local:DesignerLogView></local:DesignerLogView>
+            </Border>
         </Grid>
     </ScrollViewer>
 </UserControl>

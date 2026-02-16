@@ -86,7 +86,74 @@ Aujourd'hui la base de code commence à grandir est DevApps a besoin d'un Workfl
 
 DevApps est hébergé sur GitHub et cette plateforme propose un système d'intégration continue personnalisable : les GitHub Actions.
 
+## Actions manuelles
+
+```powershell
+dotnet tool install -g csharpier
+dotnet tool install -g dotnet-format
+# Ajouter à l'environnement
+setx PATH "$env:PATH;%USERPROFILE%\.dotnet\tools"
+```
+
+### 1. Restaurer les dépendances
+
+```powershell
+dotnet restore DevApps.sln
+```
+
+### 2. Vérifier le format / lint
+
+```powershell
+# Vérifie format avec dotnet format
+dotnet format DevApps.sln --verify-no-changes
+
+# Vérifie format avec CSharpier
+csharpier check .
+```
+
+**Autres commandes utiles**
+
+- Pour **formater réellement les fichiers** :
+
+```powershell
+csharpier format .
+```
+
+- Pour **vérifier un seul fichier** :
+
+```powershell
+csharpier check DevApps/MainWindow.xaml.cs
+```
+
+- Pour **afficher l’aide** :
+
+```powershell
+csharpier -h
+```
+
+### 3. Compiler la solution
+
+```powershell
+dotnet build DevApps.sln --configuration Release
+```
+
+### 4. Exécuter les tests unitaires (si présents)
+
+```powershell
+dotnet test DevApps.sln --no-build --verbosity normal
+```
+
+### 5. Publier l’application (EXE / dossier publish)
+
+```powershell
+dotnet publish DevApps/DevApps.csproj --configuration Release --output ./publish
+```
+
+- Le dossier `./publish` contient ton EXE prêt à être testé ou distribué.
+
 ## GitHub Actions
+
+Il est possible d'automatiser les actions avec GitHub
 
 ```yaml
 name: CI/CD DevApps

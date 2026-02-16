@@ -18,7 +18,7 @@ using Brushes = System.Windows.Media.Brushes;
 using Pen = System.Windows.Media.Pen;
 using Point = System.Windows.Point;
 
-namespace DevApps.PythonExtends
+namespace DevApps.Scripts
 {
     /// <summary>
     /// représente une zone cliente rectangulaire
@@ -47,7 +47,7 @@ namespace DevApps.PythonExtends
         }
         public Zone inflate(double size)
         {
-            var z = new Zone { Rect = this.Rect };
+            var z = new Zone { Rect = Rect };
             z.Rect.Inflate(size, size);
             return z;
         }
@@ -132,7 +132,7 @@ namespace DevApps.PythonExtends
         public string gettext(Output selection, string? format = null)
         {
             var mousePos = System.Windows.Input.Mouse.GetPosition(null);
-            var wnd = new DevApps.GUI.GetText();
+            var wnd = new GetText();
             wnd.Value = selection.text();
             if (format != null)
                 wnd.Format = new System.Text.RegularExpressions.Regex(format);
@@ -159,7 +159,7 @@ namespace DevApps.PythonExtends
         public string getline(Output selection, string? format = null)
         {
             var mousePos = System.Windows.Input.Mouse.GetPosition(null);
-            var wnd = new DevApps.GUI.GetText();
+            var wnd = new GetText();
             wnd.Value = selection.text();
             wnd.IsMultiline = false;
             if(format != null)
@@ -199,11 +199,11 @@ namespace DevApps.PythonExtends
                 var path = Path.GetDirectoryName(editorPath)?.Replace(@"""","");
 
                 // creation de l'environnement de commandes
-                using System.Diagnostics.Process process = new System.Diagnostics.Process();
-                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
+                using Process process = new Process();
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                startInfo.WindowStyle = ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
                 startInfo.FileName = "cmd.exe";
-                startInfo.Arguments = "/C \"" + ((editorPath.Contains("%1") == false) ? editorPath + " \"" + Path.GetFullPath(output.Filename) + "\"" : editorPath.Replace("%1", Path.GetFullPath(output.Filename))) + "\"";
+                startInfo.Arguments = "/C \"" + (editorPath.Contains("%1") == false ? editorPath + " \"" + Path.GetFullPath(output.Filename) + "\"" : editorPath.Replace("%1", Path.GetFullPath(output.Filename))) + "\"";
                 //startInfo.WorkingDirectory = path;
                 process.StartInfo = startInfo;
                 process.Start();
@@ -225,7 +225,7 @@ namespace DevApps.PythonExtends
         public string select(IronPython.Runtime.PythonDictionary values, Output selection)
         {
             var mousePos = System.Windows.Input.Mouse.GetPosition(null);
-            var wnd = new DevApps.GUI.Select();
+            var wnd = new Select();
             wnd.Items = values.ToDictionary();
             wnd.WindowStartupLocation = WindowStartupLocation.Manual;
             wnd.Left = mousePos.X + 10;
@@ -233,7 +233,7 @@ namespace DevApps.PythonExtends
 
             if (wnd.ShowDialog() == true && wnd.SelectedItem is KeyValuePair<object, object> sel)
             {
-                return sel.Key.ToString() ?? String.Empty;
+                return sel.Key.ToString() ?? string.Empty;
             }
 
             return selection.text();
@@ -279,10 +279,10 @@ namespace DevApps.PythonExtends
                 config.BadDataFound = null;
                 config.IgnoreBlankLines = true;
                 config.TrimOptions = TrimOptions.Trim;
-                if (String.IsNullOrEmpty(delimiter) == false)
+                if (string.IsNullOrEmpty(delimiter) == false)
                     config.Delimiter = delimiter;
 
-                using (var csv = new CsvReader(new StreamReader(output.Stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true), config))
+                using (var csv = new CsvReader(new StreamReader(output.Stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true), config))
                 {
                     if (csv != null)
                     {
@@ -373,7 +373,7 @@ namespace DevApps.PythonExtends
 
                         if (header && csv.HeaderRecord != null)
                         {
-                            double x = MarginX + (minWidth / 3.0) + 0.5;
+                            double x = MarginX + minWidth / 3.0 + 0.5;
 
                             for (int col = 0; col < colCount; col++)
                             {
@@ -444,7 +444,7 @@ namespace DevApps.PythonExtends
             catch (Exception ex)
             {
                 drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture,
-                    System.Windows.FlowDirection.LeftToRight, GuiService.typeface, TextEmSize, Brushes.Red,
+                    FlowDirection.LeftToRight, GuiService.typeface, TextEmSize, Brushes.Red,
                     1.0), new Point(0, 0));
             }
             return this;
@@ -462,7 +462,7 @@ namespace DevApps.PythonExtends
             catch (Exception ex)
             {
                 drawingContext?.DrawText(new FormattedText(ex.Message, CultureInfo.InvariantCulture,
-                    System.Windows.FlowDirection.LeftToRight, GuiService.typeface, TextEmSize, Brushes.Red,
+                    FlowDirection.LeftToRight, GuiService.typeface, TextEmSize, Brushes.Red,
                     1.0), new Point(0, 0));
             }
             return this;
@@ -482,7 +482,7 @@ namespace DevApps.PythonExtends
                 output.Stream.Seek(0, SeekOrigin.Begin);
                 var drawing = svgReader.Read(output.Stream);
 
-                var fHeight = (1.0 / drawing.Bounds.Height) * Height;
+                var fHeight = 1.0 / drawing.Bounds.Height * Height;
 
                 var mx = new Matrix();
                 mx.Translate(-drawing.Bounds.X, -drawing.Bounds.Y);
@@ -531,18 +531,18 @@ namespace DevApps.PythonExtends
         /// </summary>
         public GUI level(Output content, string unit, float min, float max, float step)
         {
-            var _progress = (1.0 / (max - min)) * (step * content.number());
+            var _progress = 1.0 / (max - min) * (step * content.number());
 
             // Dessiner le fond de la barre de progression
             Rect backgroundRect = new Rect(0, 0, Width, Height);
-            drawingContext?.DrawRectangle(System.Windows.Media.Brushes.Gray, null, backgroundRect);
+            drawingContext?.DrawRectangle(Brushes.Gray, null, backgroundRect);
 
             // Dessiner la barre de progression
             Rect progressRect = new Rect(0, 0, Width * _progress, Height);
-            drawingContext?.DrawRectangle(System.Windows.Media.Brushes.Blue, null, progressRect);
+            drawingContext?.DrawRectangle(Brushes.Blue, null, progressRect);
 
             // Dessiner une bordure
-            drawingContext?.DrawRectangle(null, new System.Windows.Media.Pen(System.Windows.Media.Brushes.Black, 1), backgroundRect);
+            drawingContext?.DrawRectangle(null, new Pen(Brushes.Black, 1), backgroundRect);
 
             return this;
         }
@@ -556,10 +556,10 @@ namespace DevApps.PythonExtends
             double targetPosition = _isOn ? Width - Height : 0;
 
             // Fond du bouton
-            drawingContext?.DrawRoundedRectangle(System.Windows.Media.Brushes.Gray, null, new Rect(0, 0, Width, Height), 10, 10);
+            drawingContext?.DrawRoundedRectangle(Brushes.Gray, null, new Rect(0, 0, Width, Height), 10, 10);
 
             // Curseur glissant
-            drawingContext?.DrawEllipse(System.Windows.Media.Brushes.Blue, null, new System.Windows.Point(targetPosition + Height / 2, Height / 2), Height / 2 - 2, Height / 2 - 2);
+            drawingContext?.DrawEllipse(Brushes.Blue, null, new Point(targetPosition + Height / 2, Height / 2), Height / 2 - 2, Height / 2 - 2);
 
             return this;
         }
@@ -579,37 +579,37 @@ namespace DevApps.PythonExtends
             switch(name)
             {
                 case "user":
-                    code = Char.ConvertToUtf32("👤",0);
+                    code = char.ConvertToUtf32("👤",0);
                     break;
                 case "lock":
-                    code = Char.ConvertToUtf32("🔒", 0);
+                    code = char.ConvertToUtf32("🔒", 0);
                     break;
                 case "unlock":
-                    code = Char.ConvertToUtf32("🔓", 0);
+                    code = char.ConvertToUtf32("🔓", 0);
                     break;
                 case "key":
-                    code = Char.ConvertToUtf32("🔐", 0);
+                    code = char.ConvertToUtf32("🔐", 0);
                     break;
                 case "left":
-                    code = Char.ConvertToUtf32("←", 0);
+                    code = char.ConvertToUtf32("←", 0);
                     break;
                 case "right":
-                    code = Char.ConvertToUtf32("→", 0);
+                    code = char.ConvertToUtf32("→", 0);
                     break;
                 case "up":
-                    code = Char.ConvertToUtf32("↑", 0);
+                    code = char.ConvertToUtf32("↑", 0);
                     break;
                 case "down":
-                    code = Char.ConvertToUtf32("↓", 0);
+                    code = char.ConvertToUtf32("↓", 0);
                     break;
                 case "left right":
-                    code = Char.ConvertToUtf32("⬌", 0);
+                    code = char.ConvertToUtf32("⬌", 0);
                     break;
                 case "up down":
-                    code = Char.ConvertToUtf32("⬍", 0);
+                    code = char.ConvertToUtf32("⬍", 0);
                     break;
                 case "gear":
-                    code = Char.ConvertToUtf32("⚙", 0);
+                    code = char.ConvertToUtf32("⚙", 0);
                     break;
             }
             //todo draw text
@@ -642,24 +642,24 @@ namespace DevApps.PythonExtends
             var en = Encoding.GetEncoding(encoding);
             var text = en.GetString(bytes);
 
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return this;
 
             double x = Left;
             double y = Top;
-            var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+            var glyphRun = ConvertTextToGlyphRun(text, ref x, ref y);
             drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
 
             return this;
         }
         public GUI text(string text)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return this;
 
             double x = Left;
             double y = Top;
-            var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+            var glyphRun = ConvertTextToGlyphRun(text, ref x, ref y);
             drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
 
             Top = y;
@@ -683,12 +683,12 @@ namespace DevApps.PythonExtends
                 foreach (var line in text.Split(new char[] { '\n', '\r' }))
                 {
                     double x = Left;
-                    if (String.IsNullOrEmpty(line))
+                    if (string.IsNullOrEmpty(line))
                     {
                         y -= advanceHeight;
                         continue;
                     }
-                    var glyphRun = GUI.ConvertTextToGlyphRun(line, ref x, ref y);
+                    var glyphRun = ConvertTextToGlyphRun(line, ref x, ref y);
                     drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
                 }
             }
@@ -698,12 +698,12 @@ namespace DevApps.PythonExtends
         }
         public GUI text(string text, string syntax)
         {
-            if (String.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text))
                 return this;
 
             double x = Left;
             double y = Top;
-            var glyphRun = GUI.ConvertTextToGlyphRun(text, ref x, ref y);
+            var glyphRun = ConvertTextToGlyphRun(text, ref x, ref y);
             drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
 
             return this;
@@ -717,12 +717,12 @@ namespace DevApps.PythonExtends
             {
                 double x = Left;
                 double y = Top;
-                if (String.IsNullOrEmpty(line))
+                if (string.IsNullOrEmpty(line))
                 {
                     y += advanceHeight;
                     continue;
                 }
-                var glyphRun = GUI.ConvertTextToGlyphRun(line, ref x, ref y);
+                var glyphRun = ConvertTextToGlyphRun(line, ref x, ref y);
                 drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
             }
             return this;
@@ -736,12 +736,12 @@ namespace DevApps.PythonExtends
             {
                 double x = Left;
                 double y = Top;
-                if (String.IsNullOrEmpty(line?.ToString()))
+                if (string.IsNullOrEmpty(line?.ToString()))
                 {
                     y += advanceHeight;
                     continue;
                 }
-                var glyphRun = GUI.ConvertTextToGlyphRun(line?.ToString() ?? String.Empty, ref x, ref y);
+                var glyphRun = ConvertTextToGlyphRun(line?.ToString() ?? string.Empty, ref x, ref y);
                 drawingContext?.DrawGlyphRun(Brushes.Black, glyphRun);
             }
             return this;
@@ -801,7 +801,7 @@ namespace DevApps.PythonExtends
                 {
                     glyphIndex = glyphTypeface.CharacterToGlyphMap[line[j]];
                 }
-                catch (System.Collections.Generic.KeyNotFoundException)
+                catch (KeyNotFoundException)
                 {
                     var c = line[j];
                     throw new NotImplementedException("Obtenir le glyph depuis un autre Typeface et l'ajouter au cache");
@@ -821,7 +821,7 @@ namespace DevApps.PythonExtends
                 0,
                 false,
                 renderingEmSize,
-                ((float)pixelsPerDip),
+                (float)pixelsPerDip,
                 glyphIndices,
                 baselineOrigin,
                 advanceWidths,

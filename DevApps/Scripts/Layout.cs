@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace DevApps.PythonExtends
+namespace DevApps.Scripts
 {
     /// <summary>
     /// Fournit des méthodes pour gérer une abstraction de layout-ui avec .net

@@ -1,9 +1,9 @@
-﻿using IronPython.Runtime;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Media;
 
-namespace DevApps.PythonExtends
+namespace DevApps.Scripts
 {
     /// <summary>
     /// Fournit une interface pour manipuler un flux de données d'un objet (DevObject)
@@ -11,16 +11,16 @@ namespace DevApps.PythonExtends
     /// <remarks>
     /// Chaque objet possède un flux de données binaire permettant de stocker les informations généré ou importer.
     /// </remarks>
-    public class Output
+    public partial class Output
     {
         /// <summary>
         /// Flux mémoire en cours
         /// </summary>
-        Stream stream;
+        internal Stream stream;
         /// <summary>
         /// utilisé pour optimiser les accès au contenu UTF8 dans une string .NET
         /// </summary>
-        string? cachedText;
+        internal string? cachedText;
         /// <summary>
         /// Nom du fichier associé aux données persistantes
         /// </summary>
@@ -30,6 +30,14 @@ namespace DevApps.PythonExtends
         /// True si le contenu du stream a changé
         /// </summary>
         public bool AsChanged = false;
+
+        /// <summary>
+        /// Méthode Python: True si le contenu est vide
+        /// </summary>
+        public Stream MemoryStream()
+        {
+            return stream;
+        }
 
         /// <summary>
         /// Stock les données mémoire en fichier
@@ -101,6 +109,12 @@ namespace DevApps.PythonExtends
             Collector?.Add(this);
         }
 
+        public void clear()
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            stream.SetLength(0);
+        }
+
         /// <summary>
         /// Méthode Python: Remplace le contenu par un texte encodé UTF8
         /// </summary>
@@ -165,36 +179,6 @@ namespace DevApps.PythonExtends
                 System.Console.WriteLine("append(): Failed to write in output");
                 System.Console.WriteLine(ex.Message);
             }
-        }
-
-        /// <summary>
-        /// Méthode Python: Remplace le contenu par un texte encodé UTF8
-        /// </summary>
-        public void write_bytes(IronPython.Runtime.Bytes _bytes)
-        {
-            try
-            {
-                var bytes = _bytes.ToArray();
-                cachedText = Encoding.UTF8.GetString(bytes);
-                stream.Seek(0, SeekOrigin.Begin);
-                stream.Write(bytes);
-                stream.SetLength(bytes.Length);
-
-                AsChanged = true;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine("write_bytes(): Failed to write in output");
-                System.Console.WriteLine(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Méthode Python: Obtient les bytes du contenu
-        /// </summary>
-        public IronPython.Runtime.Bytes bytes()
-        {
-            return new IronPython.Runtime.Bytes(Bytes());
         }
 
         /// <summary>
@@ -326,7 +310,7 @@ namespace DevApps.PythonExtends
         {
             get
             {
-                return this.stream;
+                return stream;
             }
         }
     }

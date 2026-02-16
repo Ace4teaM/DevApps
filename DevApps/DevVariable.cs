@@ -1,6 +1,4 @@
 ﻿using Microsoft.Win32;
-using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
 
 internal partial class Program
@@ -250,6 +248,14 @@ internal partial class Program
             }
 
             return list;
+        }
+
+        /// <summary>
+        /// True si le type de variable peut être utilisé dans les scripts natifs
+        /// </summary>
+        internal static bool IsCompatible(object variable)
+        {
+            return true;
         }
     }
 }

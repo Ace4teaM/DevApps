@@ -8,6 +8,9 @@
         mc:Ignorable="d"
         Closing="Window_Closing"
         Title="Editeur de script" Height="524" Width="926">
+    <Window.Resources>
+        <local:SyntaxNameToDefinitionConverter x:Key="SyntaxNameToDefinitionConverter"/>
+    </Window.Resources>
     <DockPanel Margin="6">
         <TextBlock DockPanel.Dock="Bottom" Text="{Binding ValidationMessage}" Background="LightGray"></TextBlock>
         <StackPanel DockPanel.Dock="Right" Margin="8" Orientation="Vertical" HorizontalAlignment="Right" Width="200">
@@ -26,17 +29,16 @@
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>
-        <GroupBox Header="Script">
-            <avalonEdit:TextEditor
-            x:Name="textEditor"
-            Margin="5,5,0,0"
-            FontFamily="Consolas"
-            SyntaxHighlighting="Python"
-            FontSize="10pt"
-            ShowLineNumbers="True"/>
-        </GroupBox>
-        <!-- <TextBox Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="{Binding IsMultiline}" KeyDown="TextBox_KeyDown" TextChanged="TextBox_TextChanged">
-
-        </TextBox>-->
+        <DockPanel>
+            <GroupBox Header="Script">
+                <avalonEdit:TextEditor
+                    x:Name="textEditor"
+                    Margin="5,5,0,0"
+                    FontFamily="Consolas"
+                    SyntaxHighlighting="{Binding SyntaxName, Converter={StaticResource SyntaxNameToDefinitionConverter}}"
+                    FontSize="10pt"
+                    ShowLineNumbers="True"/>
+            </GroupBox>
+        </DockPanel>
     </DockPanel>
 </Window>

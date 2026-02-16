@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace DevApps.GUI
 {
@@ -414,6 +415,7 @@ namespace DevApps.GUI
                 EditorWindow.Closed += EditorWindow_Closed;
                 EditorWindow.Loaded += EditorWindow_Loaded;
                 EditorWindow.Show();
+                //Crée le dispatcher permettant aux appels async de revenir sur le thread UI
                 System.Windows.Threading.Dispatcher.Run();
             }
             catch (Exception ex)
@@ -430,6 +432,7 @@ namespace DevApps.GUI
                 ShowWindowEvent = new ManualResetEvent(false);
                 CloseWindowEvent = new ManualResetEvent(false);
                 WindowThread = new Thread(new ThreadStart(ThreadStartingPoint));
+                WindowThread.Name = "Window UI";
                 WindowThread.SetApartmentState(ApartmentState.STA);
                 WindowThread.IsBackground = true;
                 WindowThread.Start();

@@ -1,4 +1,4 @@
-﻿using Microsoft.Scripting.Hosting;
+﻿using DevApps.Scripts;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -58,32 +58,33 @@ namespace DevApps.GUI
                         var handle2 = reference.mutexReadOutput.WaitOne();
                         if (handle2)
                         {
-                            try
+                            var engine = reference.UserAction.Item2?.Engine;
+                            if (engine != null)
                             {
-                                var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                                pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
-                                pyScope.SetVariable("gui", reference.gui);
-                                pyScope.SetVariable("name", this.Name);
-                                pyScope.SetVariable("desc", reference.Description);
-                                pyScope.SetVariable("editor", reference.Editor);
-                                foreach (var pointer in reference.Pointers)
+                                try
                                 {
-                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                                    pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                    var scope = engine.CreateScope();//lock Program.pyEngine !
+                                    scope.SetVariable("out", new Scripts.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
+                                    scope.SetVariable("gui", reference.gui);
+                                    scope.SetVariable("name", this.Name);
+                                    scope.SetVariable("desc", reference.Description);
+                                    scope.SetVariable("editor", reference.Editor);
+                                    foreach (var pointer in reference.Pointers)
+                                    {
+                                        Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                        scope.SetVariable(pointer.Key, new Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                    }
+
+                                    reference.UserAction.Item2?.Execute(scope);
                                 }
-
-                                reference.UserAction.Item2?.Execute(pyScope);
+                                catch (Exception ex)
+                                {
+                                    System.Console.WriteLine("******************************************");
+                                    System.Console.WriteLine("RunAction: " + this.Name);
+                                    System.Console.WriteLine(engine.FormatError(ex));
+                                    System.Console.WriteLine("******************************************");
+                                }
                             }
-                            catch (Exception ex)
-                            {
-                                System.Console.WriteLine("******************************************");
-                                System.Console.WriteLine("RunAction: " + this.Name);
-                                ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                                string error = eo.FormatException(ex);
-                                System.Console.WriteLine(error);
-                                System.Console.WriteLine("******************************************");
-                            }
-
                             reference.mutexReadOutput.ReleaseMutex();
                         }
 
@@ -172,34 +173,36 @@ namespace DevApps.GUI
                         var handle2 = reference.mutexReadOutput.WaitOne();
                         if (handle2)
                         {
-                            try
+                            var engine = reference.DrawCode.Item2?.Engine;
+                            if (engine != null)
                             {
-                                var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
-                                pyScope.SetVariable("out", new DevApps.PythonExtends.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                                pyScope.SetVariable("gui", reference.gui);
-                                pyScope.SetVariable("name", this.Name);
-                                pyScope.SetVariable("dc", drawingContext);
-                                pyScope.SetVariable("rect", rect);
-                                pyScope.SetVariable("desc", reference.Description);
-
-                                foreach (var pointer in reference.Pointers)
+                                try
                                 {
-                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                                    pyScope.SetVariable(pointer.Key, new DevApps.PythonExtends.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                                }
+                                    var pyScope = engine.CreateScope();//lock Program.pyEngine !
+                                    pyScope.SetVariable("out", new Scripts.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                    pyScope.SetVariable("gui", reference.gui);
+                                    pyScope.SetVariable("name", this.Name);
+                                    pyScope.SetVariable("dc", drawingContext);
+                                    pyScope.SetVariable("rect", rect);
+                                    pyScope.SetVariable("desc", reference.Description);
 
-                                reference.gui.Begin(drawingContext);
-                                reference.DrawCode.Item2?.Execute(pyScope);
-                                reference.gui.End();
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Console.WriteLine("******************************************");
-                                System.Console.WriteLine("OnRender: " + this.Name);
-                                ExceptionOperations eo = Program.pyEngine.GetService<ExceptionOperations>();
-                                string error = eo.FormatException(ex);
-                                System.Console.WriteLine(error);
-                                System.Console.WriteLine("******************************************");
+                                    foreach (var pointer in reference.Pointers)
+                                    {
+                                        Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                        pyScope.SetVariable(pointer.Key, new Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
+                                    }
+
+                                    reference.gui.Begin(drawingContext);
+                                    reference.DrawCode.Item2?.Execute(pyScope);
+                                    reference.gui.End();
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Console.WriteLine("******************************************");
+                                    System.Console.WriteLine("OnRender: " + this.Name);
+                                    System.Console.WriteLine(engine.FormatError(ex));
+                                    System.Console.WriteLine("******************************************");
+                                }
                             }
 
                             reference.mutexReadOutput.ReleaseMutex();

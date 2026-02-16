@@ -1,9 +1,9 @@
-﻿namespace DevApps.PythonExtends
+﻿namespace DevApps.Scripts
 {
     /// <summary>
-    /// Fournit les méthodes d'accès à la console pour le langage Python
+    /// Fournit les méthodes d'accès à la console pour le langage de scripts
     /// </summary>
-    public class Console
+    public class Terminal
     {
         /// <summary>
         /// Méthode Python : Ecrit dans la sortie standard

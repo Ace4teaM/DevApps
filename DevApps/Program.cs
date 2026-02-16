@@ -1,12 +1,15 @@
 ﻿using DevApps;
+using DevApps.Extends;
 using DevApps.GUI;
-using IronPython.Hosting;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Utils;
+using DevApps.Scripts;
+using DevApps.Scripts.PythonExtends;
 using Newtonsoft.Json;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using static Program.DevCommandDefinition;
 
@@ -23,10 +26,107 @@ internal partial class Program
     internal static string ExecutablePath = System.AppDomain.CurrentDomain.BaseDirectory;
     internal static string CommonSharedPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Shared");
     internal static readonly string CommonObjPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Objects");
-    internal static ScriptEngine pyEngine;
-    internal static ScriptScope pyScope;
     internal static Thread MainThread = Thread.CurrentThread;
     internal static Dispatcher Dispatcher = Dispatcher.CurrentDispatcher;
+
+    /// <summary>
+    /// Moteur de script natif pour les objets du programme
+    /// </summary>
+    internal static ScriptEngine pythonEngine;
+    internal static ScriptScope pythonScope;
+
+    /// <summary>
+    /// Autres moteurs de scripts pouvant être utilisés dans DevApps.md
+    /// </summary>
+    internal static Dictionary<string, ScriptEngine> othersEngine = new();
+    internal static Dictionary<string, ExtendedComponent> extendedComponents = new();
+
+    /// <summary>
+    /// charge le moteur de script supplémentaire
+    /// </summary>
+    /// <param name="name">nom du moteur, correspond à la concatenation du nom + "Extends.dll"</param>
+    /// <remarks>Le fichier doit se trouver dans le répertoire de l'executable</remarks>
+    internal static ScriptEngine LoadEngine(string name)
+    {
+        if (String.Compare(name, Program.NativeEngine.Name, true) == 0)
+        {
+            return Program.NativeEngine;
+        }
+
+        if (othersEngine.TryGetValue(name.ToLower(), out var engine))
+        {
+            return engine;
+        }
+
+        var path = Path.Combine(ExecutablePath, name + "Extends.dll");
+        if (!File.Exists(path))
+            throw new Exception($"Impossible de trouver le module d'extension {path}");
+
+        var assembly = Assembly.LoadFrom(path);
+
+        var type = assembly.GetTypes()
+            .First(t => typeof(ScriptEngine).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+        engine = (ScriptEngine)Activator.CreateInstance(type)!;
+        othersEngine[name.ToLower()] = engine;
+
+        return engine;
+    }
+
+    /// <summary>
+    /// charge le moteur de script supplémentaire
+    /// </summary>
+    /// <param name="name">nom du moteur, correspond à la concatenation du nom + "Extends.dll"</param>
+    /// <remarks>Le fichier doit se trouver dans le répertoire de l'executable</remarks>
+    internal static ExtendedComponent GetExtendedComponent(string name)
+    {
+        // convention de nommage
+        name = char.ToUpper(name[0]) + name.Substring(1);
+
+        if (extendedComponents.TryGetValue(name.ToLower(), out var component))
+        {
+            return component;
+        }
+
+        var path = Path.Combine(ExecutablePath, name + "Extends.dll");
+        if (!File.Exists(path))
+            throw new Exception($"Impossible de trouver le module d'extension {path}");
+
+        var assembly = Assembly.LoadFrom(path);
+
+        var type = assembly.GetTypes()
+            .First(t => typeof(ExtendedComponent).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+        component = (ExtendedComponent)Activator.CreateInstance(type)!;
+        extendedComponents[name.ToLower()] = component;
+
+        return component;
+    }
+
+    internal static ScriptEngine NativeEngine
+    {
+        get
+        {
+            return pythonEngine;
+        }
+    }
+
+    internal static ScriptScope NativeScope
+    {
+        get
+        {
+            return pythonScope;
+        }
+    }
+
+    internal static ScriptScope GetGlobalScope(ScriptEngine engine)
+    {
+        return pythonScope;
+    }
+
+    static Program()
+    {
+    }
 
     public class DevFunction
     {
@@ -104,11 +204,6 @@ internal partial class Program
 
         serializer.Populate(reader, proj);
     }
-    static Program()
-    {
-        pyEngine = Python.CreateEngine();
-        pyScope = pyEngine.CreateScope();
-    }
 
     private static void Main(string[] args)
     {
@@ -147,34 +242,15 @@ internal partial class Program
         // énumère les commandes disponibles
         DevShellCommand.EnumPrivate();
 
-        // initialise le moteur IronPython
-        pyEngine.Runtime.LoadAssembly(typeof(Scriban.Template).Assembly);
-
-        pyEngine.ImportModule("array");
-
-        // redirige la sortie standard vers la console
-        pyEngine.Runtime.IO.RedirectToConsole();
-
-        var modules = pyEngine.GetModuleFilenames();
-        
-        var paths = pyEngine.GetSearchPaths().ToArray();
-
-
-        pyScope.SetVariable("interpreter", DevApps.PythonExtends.Interpreter.Instance);
-        pyScope.SetVariable("console", new DevApps.PythonExtends.Console());
-        pyScope.SetVariable("requests", new DevApps.PythonExtends.Requests());
-        pyScope.SetVariable("types", new DevApps.PythonExtends.NetTypes());
-
-        //pyScope.ImportModule("openai");
-        //pyScope.ImportModule("requests");
-        pyScope.ImportModule("json");
+        // initialise les moteurs de scripts
+        DevApps.Scripts.PythonExtends.Engine.Initialize(out pythonEngine, out pythonScope);
 
         // change le chemin par défaut de la bibliothèque
         if (args.Contains("-b"))
         {
             try
             {
-                var path = Path.GetFullPath(args[args.FindIndex(p => p == "-b") + 1]);
+                var path = Path.GetFullPath(args[Array.FindIndex(args, p => p == "-b") + 1]);
                 CommonSharedPath = path;
             }
             catch (Exception ex)
@@ -188,6 +264,10 @@ internal partial class Program
             if (path != null)
                 CommonSharedPath = path;
         }
+
+        // extensions built-in
+        extendedComponents["Javascript"] = new DevApps.Extends.JavaScriptComponent();
+        extendedComponents["Mermaid"] = new DevApps.Extends.MermaidComponent();
 
         // ouvre l'éditeur
         if (args.Contains("-w"))
@@ -210,6 +290,8 @@ internal partial class Program
 
         // Construit les données permanentes
         DevFacet.Get("Model")?.Build();
+
+        // todo annuler les taches en cours dans DevLog.Current
 
         // Attend la fermeture de la fenêtre
         GuiService.WaitWindowClosed();

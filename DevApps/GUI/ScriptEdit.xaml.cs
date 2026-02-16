@@ -1,11 +1,32 @@
-﻿using Microsoft.Scripting.Hosting;
+﻿using DevApps.Scripts;
+using ICSharpCode.AvalonEdit.Highlighting;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace DevApps.GUI
 {
+    public class SyntaxNameToDefinitionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string syntaxName = value as string;
+            if (string.IsNullOrEmpty(syntaxName))
+                return null;
+
+            return HighlightingManager.Instance.GetDefinition(syntaxName);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var def = value as IHighlightingDefinition;
+            return def?.Name;
+        }
+    }
+
     /// <summary>
     /// Logique d'interaction pour ScriptEdit.xaml
     /// </summary>
@@ -18,9 +39,15 @@ namespace DevApps.GUI
         public string ValidationMessage { get; set; } = String.Empty;
         public Dictionary<string, (string, CompiledCode?)> Properties { get; set; }
 
+        public ScriptEngine CurrentEngine = Program.NativeEngine;
+
+        public string SyntaxName { get; set; } = Program.NativeEngine.HighlightName;
+
         public class TabItem : INotifyPropertyChanged
         {
             public event PropertyChangedEventHandler? PropertyChanged;
+
+            internal ScriptEdit editor;
 
             internal string name = String.Empty;
             public string Name
@@ -51,7 +78,7 @@ namespace DevApps.GUI
             public object? Value { get {
                     try
                     {
-                        var pyScope = Program.pyEngine.CreateScope();//lock Program.pyEngine !
+                        var pyScope = editor.CurrentEngine.CreateScope();//lock Program.pyEngine !
 
                         foreach (var variable in Program.DevVariable.References)
                         {
@@ -78,7 +105,7 @@ namespace DevApps.GUI
         {
             get
             {
-                return Properties.Select(p => new TabItem { name = p.Key, expression = p.Value.Item1, CompiledCode = p.Value.Item2 }).ToList();
+                return Properties.Select(p => new TabItem { editor = this, name = p.Key, expression = p.Value.Item1, CompiledCode = p.Value.Item2 }).ToList();
             }
         }
 
@@ -129,7 +156,7 @@ namespace DevApps.GUI
                 {
                     try
                     {
-                        ScriptSource source = Program.pyEngine.CreateScriptSourceFromString(value, Microsoft.Scripting.SourceCodeKind.Expression);
+                        ScriptSource source = CurrentEngine.CreateExpressionFromString(value);
                         CompiledCode compiled = source.Compile();
 
                         Properties[item.Name] = (value, compiled);
@@ -149,7 +176,7 @@ namespace DevApps.GUI
         {
             try
             {
-                ScriptSource source = Program.pyEngine.CreateScriptSourceFromString(textEditor.Document.Text, Microsoft.Scripting.SourceCodeKind.Statements);
+                ScriptSource source = CurrentEngine.CreateStatementsFromString(textEditor.Document.Text);
                 CompiledCode compiled = source.Compile();
                 ValidationMessage = "OK";
                 MessageBox.Show("Compilation OK", "Compilation", MessageBoxButton.OK, MessageBoxImage.Information);
