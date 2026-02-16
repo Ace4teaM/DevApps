@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -14,8 +13,6 @@ namespace DevApps.Extends
         }
 
         public override void Dispose(){ }
-
-        public override void SetVariable(string name, object value) { }
 
         public override async Task<Stream> TryMakeContent(CancellationToken cancellationToken, object input)
         {

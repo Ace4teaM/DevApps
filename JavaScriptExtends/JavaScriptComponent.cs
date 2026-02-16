@@ -1,6 +1,5 @@
 ﻿using Microsoft.ClearScript;
 using Microsoft.ClearScript.V8;
-using System.Globalization;
 using System.Text;
 using System.Windows.Media;
 
@@ -17,9 +16,6 @@ namespace DevApps.Extends
 
         public override void Dispose()
             => engine.Dispose();
-
-        public override void SetVariable(string name, object value)
-            => engine.AddHostObject(name, value);
 
         public override async Task<Stream> TryMakeContent(CancellationToken cancellationToken, object input)
         {
