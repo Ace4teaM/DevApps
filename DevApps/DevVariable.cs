@@ -14,6 +14,14 @@ internal partial class Program
 
         public static NoValue EmptyValue = new NoValue();
 
+        public static readonly DevVariable NullVariable = new DevVariable();
+
+        public static bool TryGet(string name, out DevVariable var)
+        {
+            var = References.GetValueOrDefault(name) ?? NullVariable;
+            return var != NullVariable;
+        }
+
         public static DevVariable Create(string name, string desc)
         {
             var o = new DevVariable(desc, EmptyValue);
@@ -24,16 +32,13 @@ internal partial class Program
 
         public static void Delete(string name)
         {
-            var handle = mutexCheckVariableList.WaitOne();
-            if (handle)
-            {
-                References.Remove(name);
-
-                mutexCheckVariableList.ReleaseMutex();
-            }
+            References.Remove(name);
         }
 
-        internal static Mutex mutexCheckVariableList = new Mutex();
+        /// <summary>
+        /// Synchronise l'accès à la liste (References)
+        /// </summary>
+        internal static readonly SemaphoreSlim _checkLock = new(1, 1);
 
         public static Dictionary<string, DevVariable> References = new Dictionary<string, DevVariable>();
 

@@ -71,9 +71,10 @@ namespace DevApps.Print
                 // Execute le script de dessin
                 if (o.DrawCode.Item2 != null)
                 {
-                    var handle2 = o.mutexReadOutput.WaitOne();
-                    if (handle2)
+                    try
                     {
+                        o._readOutput.Wait();
+
                         var engine = o.DrawCode.Item2?.Engine;
                         if (engine != null)
                         {
@@ -105,8 +106,12 @@ namespace DevApps.Print
                                 Program.Logger.WriteLine("******************************************");
                             }
                         }
-                        o.mutexReadOutput.ReleaseMutex();
                     }
+                    finally
+                    {
+                        o._readOutput.Release();
+                    }
+
                 }
             }
 

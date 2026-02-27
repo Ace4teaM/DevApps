@@ -80,13 +80,14 @@ DevApps est disponible au téléchargement sous forme de **Release** au format *
 
 Voici les règles à respecter pour maintenir le bon développement de l'application:
 
-1. Les **Features** sont les commandes de l'application. elles gères les erreurs et ne retourne pas d'exceptions. Les Features servent de point d'entrée aux différents services pour manipuler de façon sûr et cohérente aux objets métiers.
-2. Les **Services** apportes des mécanismes internes pour manipuler les composants de l'application (*GUI*, *ServeurHTTP*, *logs*...) les classes sont toujours **statics** et **thread-safe** et peuvent être appelés de n'importe où. `AI`, `MPC`, `GUI` sont des services
-3. les **Objets** métiers sont implémenté à la racine de l'application. *DevObject*, *DevVariable*, *Dev...* sont des objets métiers. Ils gèrent leurs propres références et expose des méthodes internes à accés direct (**non thread-safe, les lock sont gérés en amont**)
-4. **DevAppsExtension** est un module d'interface tiers (**third-party**)
-5. **ANTLR** implémente dans un module à part les **définitions des syntaxes de langages** interprétables nativement (optimise les phases de build)
-6. **DevAppsSetup** est un programme tiers permettant la configuration du système pour **installer et upgrader Devapps**
-7. **xxxxExtends** sont les modules d'extensions optionnels chargé par DevApps (**un projet ne dépend jamais d'un module d'extension**)
+1. Les **Features** sont les **fonctionnalités de l'application**. Ce sont des méthodes asynchrone qui interagissent de façon sûr avec le moteur d'exécution. Elles peuvent retourner des exception gérées et formaté pour être transmissent à l'utilisateur. Les Features servent de point d'entrée aux différents services pour manipuler de façon sûr et cohérente les objets métiers. **Les appels ne doivent pas êtres imbriqués** car ils utilisent les verrous internes de l'application.
+2. Les **Commandes** utilise un Wrapper des fonctionnalités et **interagissent avec l'utilisateur**. Elles peuvent mettre à jour l'interface et archiver les commandes passées.
+3. Les **Services** apportes des mécanismes internes pour manipuler les composants de l'application (*GUI*, *ServeurHTTP*, *logs*...) les classes sont toujours **statics** et **thread-safe** et peuvent être appelés de n'importe où. `AI`, `MPC`, `GUI` sont des services
+4. les **Objets** métiers sont implémenté à la racine de l'application. *DevObject*, *DevVariable*, *Dev...* sont des objets métiers. Ils gèrent leurs propres références et exposent des méthodes internes à accès direct (**non thread-safe, les lock doivent être gérés en amont par l'appelant**). Les méthodes des objets métiers ne se bloquent pas entre eux, les locks sont gérés en amont.
+5. **DevAppsExtension** est un module d'interface tiers (**third-party**)
+6. **ANTLR** implémente dans un module à part les **définitions des syntaxes de langages** interprétables nativement (optimise les phases de build)
+7. **DevAppsSetup** est un programme tiers permettant la configuration du système pour **installer et upgrader Devapps**
+8. **xxxxExtends** sont des modules d'extensions optionnels chargé par DevApps (**un projet ne dépend jamais d'un module d'extension**)
 
 # Workflow
 

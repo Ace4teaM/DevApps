@@ -102,15 +102,7 @@ internal partial class Program
 
         internal DevObjectInstance? GetBaseObject()
         {
-            DevObjectInstance? obj = null;
-
-            var handle = DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
-            {
-                obj = DevObject.References.FirstOrDefault(p => p.Key == baseObjectName).Value as DevObjectInstance;
-                DevObject.mutexCheckObjectList.ReleaseMutex();
-            }
-            return obj;
+            return DevObject.References.FirstOrDefault(p => p.Key == baseObjectName).Value as DevObjectInstance;
         }
 
         /// <summary>

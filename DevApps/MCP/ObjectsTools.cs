@@ -1,6 +1,5 @@
 ﻿using ModelContextProtocol.Server;
 using System.ComponentModel;
-using System.Globalization;
 using System.Net.Http;
 
 namespace DevApps.MCP
@@ -9,18 +8,17 @@ namespace DevApps.MCP
     public static class ObjectsTools
     {
         [McpServerTool, Description("Create a new object.")]
-        public static async Task<string> CreateObject(HttpClient client)
+        public static async Task<string> CreateObject()
         {
-            DevApps.Features.Objects.Create(out var name);
-            return name;
+            return await DevApps.Features.Objects.Create("NewObject");
         }
 
         [McpServerTool, Description("Duplicate an existing object.")]
-        public static async Task<string> DuplicateObject(
-            HttpClient client,
-            [Description("Name of objet to duplicate")] string name)
+        public static async Task<string?> DuplicateObject(
+            [Description("Name of objet to duplicate")] string name
+            )
         {
-            return DevApps.Features.Objects.Duplicate(name);
+            return await DevApps.Features.Objects.Duplicate(name);
         }
     }
 }

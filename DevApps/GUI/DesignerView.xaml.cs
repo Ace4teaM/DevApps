@@ -236,9 +236,10 @@ namespace DevApps.GUI
                     if (overElement is DrawElement)
                     {
                         // ajoute les nouveaux connecteurs
-                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (handle)
+                        try
                         {
+                            DevObject._checkLock.Wait();
+
                             if (Program.DevObject.References.TryGetValue(overElement.Name, out var reference))
                             {
                                 foreach (var pointer in reference.Pointers)
@@ -265,7 +266,10 @@ namespace DevApps.GUI
                                     MyCanvas.Children.Add(textBlock);
                                 }
                             }
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
                         }
                     }
                 }
@@ -525,17 +529,27 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Construire (Build)" };
                         m.Click += (s, e) =>
                         {
-                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                            if (handle)
+                            try
                             {
-                                Program.DevObject.References.TryGetValue(name, out var reference);
+                                DevObject._executeLock.Wait();
 
-                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                                if (reference != null)
+                                try
                                 {
-                                    Program.DevObject.BuildTree(new KeyValuePair<string, DevObject>(name, reference));
+                                    DevObject._checkLock.Wait();
+
+                                    if (Program.DevObject.TryGet(name, out var reference))
+                                    {
+                                        Program.DevObject.BuildTree(new KeyValuePair<string, DevObject>(name, reference));
+                                    }
                                 }
+                                finally
+                                {
+                                    DevObject._checkLock.Release();
+                                }
+                            }
+                            finally
+                            {
+                                DevObject._executeLock.Release();
                             }
                         };
                         menu.Items.Add(m);
@@ -569,7 +583,7 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Dupliquer" };
                         m.Click += (s, e) =>
                         {
-                            var newName = Features.Objects.Duplicate(name);
+                            var newName = Features.Objects.Duplicate(name).Result;
                             if (String.IsNullOrEmpty(newName) == false && selectedElement != null)
                             {
                                 facette.Objects.Add(newName, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
@@ -585,17 +599,16 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Ajouter à la bibliothèque" };
                         m.Click += (s, e) =>
                         {
-                            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                            if (handle)
+                            try
                             {
-                                Program.DevObject.References.TryGetValue(name, out var reference);
-                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                                DevObject._checkLock.Wait();
 
-                                if (reference != null)
+                                if (Program.DevObject.TryGet(name, out var reference))
                                 {
-                                    var handle2 = reference.mutexReadOutput.WaitOne();
-                                    if (handle2)
+                                    try
                                     {
+                                        reference._readOutput.Wait();
+
                                         using TextWriter writer = new StreamWriter(System.IO.Path.Combine(Program.CommonObjPath, name));
 
                                         var settings = new JsonSerializerSettings
@@ -614,10 +627,18 @@ namespace DevApps.GUI
                                         serializer.Serialize(writer, new Serializer.DevObjectInstance(instance));
 
                                         reference.SaveOutput(selectedElement?.Name!, Program.CommonSharedPath);
-
-                                        reference.mutexReadOutput.ReleaseMutex();
                                     }
+                                    finally
+                                    {
+                                        reference._readOutput.Release();
+                                    }
+
                                 }
+
+                            }
+                            finally
+                            {
+                                DevObject._checkLock.Release();
                             }
                         };
                         menu.Items.Add(m);
@@ -644,9 +665,10 @@ namespace DevApps.GUI
                         isSelectionMaintained = true;
                         menu.Closed += Menu_Closed;
 
-                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (handle)
+                        try
                         {
+                            DevObject._checkLock.Wait();
+
                             if (DevObject.References.TryGetValue(name, out var src))
                             {
                                 // Pour chaque pointeur, énumère les objets compatibles
@@ -747,7 +769,10 @@ namespace DevApps.GUI
                                     menu.Items.Add(m);
                                 }
                             }
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
                         }
                     }
 
@@ -1244,8 +1269,28 @@ namespace DevApps.GUI
 
                 if (objects.Count > 0)
                 {
-                    Program.DevObject.CompilObjects(objects);
-                    Program.DevObject.Init();
+
+                    try
+                    {
+                        DevObject._executeLock.Wait();
+
+                        try
+                        {
+                            DevObject._checkLock.Wait();
+
+                            Program.DevObject.CompilObjects(objects);
+                            Program.DevObject.Init();
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
+                        }
+                    }
+                    finally
+                    {
+                        DevObject._executeLock.Release();
+                    }
+
 
                     InvalidateObjects();
                 }
@@ -1294,8 +1339,27 @@ namespace DevApps.GUI
                 this.facette.Objects.Add(name, props);
                 AddElement(name, props);
 
-                Program.DevObject.CompilObjects([item.Value.content]);
-                Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                try
+                {
+                    DevObject._executeLock.Wait();
+
+                    try
+                    {
+                        DevObject._checkLock.Wait();
+
+                        Program.DevObject.CompilObjects([item.Value.content]);
+                        Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
+                }
+                finally
+                {
+                    DevObject._executeLock.Release();
+                }
+
                 GuiService.InvalidateFacets();
             }
             else if (e.Data.GetDataPresent(typeof(FileSystemItem)))
@@ -1339,8 +1403,27 @@ namespace DevApps.GUI
                     obj.LoadContent();
                 }
 
-                Program.DevObject.CompilObjects([obj]);
-                Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                try
+                {
+                    DevObject._executeLock.Wait();
+
+                    try
+                    {
+                        DevObject._checkLock.Wait();
+
+                        Program.DevObject.CompilObjects([obj]);
+                        Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
+                }
+                finally
+                {
+                    DevObject._executeLock.Release();
+                }
+
                 GuiService.InvalidateFacets();
             }
         }
@@ -1719,12 +1802,17 @@ namespace DevApps.GUI
                 if (Program.DevObject.References.ContainsKey(name) == true)
                     Program.DevObject.MakeUniqueName(ref name);
 
-                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                if (handle)
+                try
                 {
+                    DevObject._checkLock.Wait();
+
                     Program.DevObject.References.Add(name, obj.content);
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                 }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+
 
                 // importe les données
                 try
@@ -1754,9 +1842,11 @@ namespace DevApps.GUI
                 // sélectionne le pointeur qui correspond aux tags de l'objet
                 if(selectedElement is DrawElement)
                 {
-                    var handle2 = Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (handle2)
+
+                    try
                     {
+                        DevObject._checkLock.Wait();
+
                         if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
                         {
                             try
@@ -1769,13 +1859,36 @@ namespace DevApps.GUI
                                 Program.Logger.WriteLine(ex.Message);
                             }
                         }
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                     }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
+
                 }
 
-                Program.DevObject.CompilObjects([obj.content]);
-                Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
-                Program.DevObject.Build(Program.DevObject.References.Where(p=>p.Key == name));// construit le nouvel objet
+                try
+                {
+                    DevObject._executeLock.Wait();
+
+                    try
+                    {
+                        DevObject._checkLock.Wait();
+
+                        Program.DevObject.CompilObjects([obj.content]);
+                        Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                        Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));// construit le nouvel objet
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
+                }
+                finally
+                {
+                    DevObject._executeLock.Release();
+                }
+
                 GuiService.InvalidateFacets();
             }
         }

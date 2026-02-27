@@ -235,7 +235,7 @@ internal partial class Program
         if (args.Contains("-s"))
         {
             LoadProject();
-            DevObject.LoadOutput();
+            DevObject.LoadOutputs();
 
             DevApps.Print.Services.PrintAll();
 
@@ -306,13 +306,14 @@ internal partial class Program
 
         DevObject.CompilObjects();
 
-        DevObject.LoadOutput();
+        DevObject.LoadOutputs();
 
         DevObject.Init();
 
         DevCommandGroup.Init();
 
         // Construit les données permanentes
+        // todo : a supprimer ?
         DevFacet.Get("Model")?.Build();
 
         // todo annuler les taches en cours dans DevLog.Current

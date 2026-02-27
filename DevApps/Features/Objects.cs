@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Security.Cryptography;
+using System.Windows;
 using static Program;
 
 namespace DevApps.Features
@@ -9,15 +11,297 @@ namespace DevApps.Features
     internal static class Objects
     {
         /// <summary>
+        ///Supprime un objet du projet
+        /// </summary>
+        public static async Task Delete(string name)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    var obj = DevObject.References.GetValueOrDefault(name);
+                    if (obj != null)
+                    {
+                        DevObject.References.Remove(name);
+
+                        foreach (var o in DevFacet.References)
+                        {
+                            if (!o.Value.Objects.ContainsKey(name))
+                                continue;
+
+                            o.Value.Objects.Remove(name);
+                        }
+
+                        obj.OnDelete();
+                    }
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
         /// Ajoute un objet au projet
         /// </summary>
         /// <returns></returns>
-        public static DevObjectInstance Create(out string name)
+        public static async Task<string> Create(string baseName)
         {
-            name = "NewObject";
-            DevObject.MakeUniqueName(ref name);
-            return DevObjectInstance.Create(name, "", []);
+            string name = baseName;
+
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    DevObject.MakeUniqueName(ref name);
+                    DevObjectInstance.Create(name, "", []);
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+            return name;
         }
+
+        /// <summary>
+        /// Copie le contenu du stream dans le contenu de l'objet
+        /// </summary>
+        public static async Task CopyFromStream(string name, MemoryStream content)
+        {
+            // copie la sortie dans l'objet de destination
+            if (String.IsNullOrEmpty(name) == false)
+            {
+                try
+                {
+                    await DevObject._executeLock.WaitAsync();
+
+                    try
+                    {
+                        await DevObject._checkLock.WaitAsync();
+
+                        if (DevObject.TryGet(name, out var obj))
+                        {
+                            if (obj.Content != null && obj.Content.CanWrite == true)
+                            {
+                                obj.Content.Position = 0;
+                                content.Position = 0;
+                                content.CopyTo(obj.Content);
+                                obj.Content.SetLength(content.Length);
+                                obj.Content.Position = 0;
+                                content.Position = 0;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
+                }
+                finally
+                {
+                    DevObject._executeLock.Release();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copie le contenu du stream dans le contenu de l'objet
+        /// </summary>
+        public static async Task<bool> CopyFromFile(string name, string filename)
+        {
+            // copie la sortie dans l'objet de destination
+            if (String.IsNullOrEmpty(name) == false)
+            {
+                try
+                {
+                    await DevObject._executeLock.WaitAsync();
+
+                    try
+                    {
+                        await DevObject._checkLock.WaitAsync();
+
+                        if (DevObject.TryGet(name, out var obj))
+                        {
+                            using (FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            {
+                                // copie le contenu
+                                obj.Content.Position = 0;
+                                fileStream.CopyTo(obj.Content);
+                                obj.Content.SetLength(fileStream.Length);
+                                obj.Content.Position = 0;
+                                return true;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
+                }
+                finally
+                {
+                    DevObject._executeLock.Release();
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Compare le contenu avec un fichier
+        /// </summary>
+        /// <returns>true si les contenus sont différent, null si ils ne peuvent être comparé</returns>
+        public static async Task<bool?> IsDifferentFromFile(string name, string filename)
+        {
+            // copie la sortie dans l'objet de destination
+            if (String.IsNullOrEmpty(name) == false)
+            {
+                try
+                {
+                    await DevObject._executeLock.WaitAsync();
+
+                    try
+                    {
+                        await DevObject._checkLock.WaitAsync();
+
+                        if (DevObject.References.TryGetValue(name, out var obj) && obj.Content != null)
+                        {
+                            var fi1 = new FileInfo(filename);
+
+                            if (fi1.Length != obj.Content.Length)
+                                return true;
+
+                            obj.Content.Position = 0;
+
+                            using var sha256 = SHA256.Create();
+                            using var fs1 = File.OpenRead(filename);
+
+                            var hash1 = sha256.ComputeHash(fs1);
+                            var hash2 = sha256.ComputeHash(obj.Content);
+
+                            obj.Content.Position = 0;
+
+                            return hash1.SequenceEqual(hash2) == false;
+                        }
+                        else
+                        {
+                            Program.Logger.WriteLine($"L'objet \"{name}\" n'existe pas ou n'a pas de contenu");
+                        }
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
+                }
+                finally
+                {
+                    DevObject._executeLock.Release();
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Charge le contenu en cache de tous les objets
+        /// </summary>
+        public static async Task LoadAllOutputs()
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    foreach (var o in DevObject.References)
+                    {
+                        o.Value.LoadContent();
+                    }
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Sauvegarde le contenu tous les objets dans le cache
+        /// </summary>
+        public static async Task SaveAllOutputs()
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    foreach (var o in DevObject.References)
+                    {
+                        o.Value.FlushContent();
+                    }
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// S'assure que tous les objets soit initialisé
+        /// </summary>
+        public static async Task MakeSureAllInitialized()
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    DevObject.Init();
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
         /// <summary>
         /// Ajoute l'objet à la bibliothèque
         /// </summary>
@@ -62,42 +346,67 @@ namespace DevApps.Features
         /// </summary>
         /// <param name="name">Nom de l'objet à dupliquer</param>
         /// <returns>Nom de l'objet dupliqué</returns>
-        public static string Duplicate(string name)
+        public static async Task<string?> Duplicate(string name)
         {
-            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
+            try
             {
-                Program.DevObject.References.TryGetValue(name, out var reference);
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                await DevObject._executeLock.WaitAsync();
 
-                if (reference != null)
+                try
                 {
-                    var newReference = reference.Clone();
-                    Program.DevObject.MakeUniqueName(ref name);
-                    Program.DevObject.References.Add(name, newReference);
-                    return name;
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (DevObject.TryGet(name, out var reference))
+                    {
+                        var newReference = reference.Clone();
+                        DevObject.MakeUniqueName(ref name);
+                        DevObject.References.Add(name, newReference);
+                        return name;
+                    }
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
                 }
             }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
 
-            return string.Empty;
+            return null;
         }
         /// <summary>
         /// Définit l'objet comme modèle en lui attribuant un GUID unique.
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
-        public static void SetAsModel(string name)
+        public static async Task SetAsModel(string name)
         {
-            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
+            try
             {
-                Program.DevObject.References.TryGetValue(name, out var reference);
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                await DevObject._executeLock.WaitAsync();
 
-                if (reference != null && reference is Program.DevObjectInstance inst)
+                try
                 {
-                    if (inst.guid == null)
-                        inst.guid = Guid.NewGuid();
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (DevObject.TryGet(name, out var reference))
+                    {
+                        if (reference != null && reference is Program.DevObjectInstance instance)
+                        {
+                            if (instance.guid == null)
+                                instance.guid = Guid.NewGuid();
+                        }
+                    }
                 }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
             }
         }
 
@@ -105,47 +414,36 @@ namespace DevApps.Features
         /// Met à jour le modèle depuis un objet du projet.
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
-        public static void UpdateModel(string name)
+        public static async Task UpdateModel(string name)
         {
-            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
+            try
             {
+                await DevObject._executeLock.WaitAsync();
+
                 try
                 {
-                    if (DevObject.References.TryGetValue(name, out var reference))
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (DevObject.TryGet(name, out var reference))
                     {
                         // Si l'objet possède un modèle
                         if (reference.AsModel() && reference is DevObjectInstance instance)
                         {
-                            // obtient le modèle de référence...
-                            var handle2 = reference.mutexReadOutput.WaitOne();
-                            if (handle2)
+                            // todo !! Attention pas de lock dans les appels des services SharedServices et LogServices !! 
+
+                            if (SharedServices.ApplyAllObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, (dir, model) =>
                             {
-                                try
+                                // log les modifications
+                                if (LogServices.LogDifference(model.content, instance, dir) == true)
                                 {
-                                    if (SharedServices.ApplyAllObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, (dir, model) =>
-                                    {
-                                        // log les modifications
-                                        if (LogServices.LogDifference(model.content, instance, dir) == true)
-                                        {
-                                            // actualise l'objet du modèle
-                                            model.content.UpdateFrom(instance);
-                                            return true;
-                                        }
-                                        return false;
-                                    }) == 0)
-                                    {
-                                        Program.Logger.WriteLine("Modèle introuvable pour l'objet " + name);
-                                    }
+                                    // actualise l'objet du modèle
+                                    model.content.UpdateFrom(instance);
+                                    return true;
                                 }
-                                catch (Exception ex)
-                                {
-                                    Program.Logger.WriteLine(ex.Message);
-                                }
-                                finally
-                                {
-                                    reference.mutexReadOutput.ReleaseMutex();
-                                }
+                                return false;
+                            }) == 0)
+                            {
+                                Program.Logger.WriteLine("Modèle introuvable pour l'objet " + name);
                             }
                         }
                     }
@@ -156,8 +454,12 @@ namespace DevApps.Features
                 }
                 finally
                 {
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    DevObject._checkLock.Release();
                 }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
             }
         }
 
@@ -165,54 +467,63 @@ namespace DevApps.Features
         /// Met à jour un objet depuis son modèle de la bibliothèque partagée.
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
-        public static void UpdateFromModel(string name)
+        public static async Task UpdateFromModel(string name)
         {
-            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
+            try
             {
-                Program.DevObject.References.TryGetValue(name, out var reference);
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                await DevObject._executeLock.WaitAsync();
 
-                if (reference != null && reference is Program.DevObjectInstance inst)
+                try
                 {
-                    if (inst.baseGuid != null)
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (DevObject.TryGet(name, out var reference))
                     {
-                        var list = new List<Serializer.DevObjectInstance>();
-                        SharedServices.EnumerateObjects(p => p.Guid == inst.baseGuid, Program.CommonSharedPath, ref list);
-                        if (list.Count == 1)
+                        if (reference is Program.DevObjectInstance instance)
                         {
-                            if (MessageBox.Show($"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                            if (instance.baseGuid != null)
                             {
-                                // Actualise l'objet
-                                var handle2 = Program.DevObject.mutexExecuteObjects.WaitOne();
-                                if (handle2)
+                                var list = new List<Serializer.DevObjectInstance>();
+                                SharedServices.EnumerateObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, ref list);
+                                if (list.Count == 1)
                                 {
-                                    inst.UpdateFrom(list[0].content);
-                                    Program.DevObject.mutexExecuteObjects.ReleaseMutex();
+                                    if (MessageBox.Show($"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                                    {
+                                        // Actualise l'objet
+                                        instance.UpdateFrom(list[0].content);
+
+                                        Program.DevObject.CompilObjects([instance]);
+                                        Program.DevObject.Init();
+                                        Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));
+                                    }
                                 }
+                                else if (list.Count > 1)
+                                {
+                                    MessageBox.Show("Il existe plusieurs objets partagés possédant cet identifiant, veuillez corriger la bibliothèque.", "Avertissement", MessageBoxButton.OK);
 
-                                Program.DevObject.CompilObjects([inst]);
-                                Program.DevObject.Init();
-                                Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));
+                                    Program.Logger.WriteLine("Multiples objets partagés avec le GUID: " + instance.baseGuid);
+                                    foreach (var item in list)
+                                        Program.Logger.WriteLine("* " + item.Description);
+                                    Program.Logger.WriteLine();
+                                }
+                                else if (list.Count == 0)
+                                {
+                                    MessageBox.Show("L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
+
+                                    Program.Logger.WriteLine("Objet partagé introuvable avec le GUID: " + instance.baseGuid);
+                                }
                             }
-                        }
-                        else if (list.Count > 1)
-                        {
-                            MessageBox.Show("Il existe plusieurs objets partagés possédant cet identifiant, veuillez corriger la bibliothèque.", "Avertissement", MessageBoxButton.OK);
-
-                            Program.Logger.WriteLine("Multiples objets partagés avec le GUID: " + inst.baseGuid);
-                            foreach (var item in list)
-                                Program.Logger.WriteLine("* " + item.Description);
-                            Program.Logger.WriteLine();
-                        }
-                        else if (list.Count == 0)
-                        {
-                            MessageBox.Show("L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
-
-                            Program.Logger.WriteLine("Objet partagé introuvable avec le GUID: " + inst.baseGuid);
                         }
                     }
                 }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
             }
         }
     }

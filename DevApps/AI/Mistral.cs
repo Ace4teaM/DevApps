@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using static Program;
 
 namespace DevApps.AI
 {
@@ -92,14 +93,19 @@ namespace DevApps.AI
             Program.DevVariable? model = null;
             Program.DevVariable? endpoint = null;
 
-            var handle = Program.DevVariable.mutexCheckVariableList.WaitOne();
-            if (handle)
+            try
             {
+                DevVariable._checkLock.Wait();
+
                 Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_API_KEY", out apiKey);
                 Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_MODEL", out model);
                 Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_UPLOAD_URL", out endpoint);
-                Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
             }
+            finally
+            {
+                DevVariable._checkLock.Release();
+            }
+
 
             if (apiKey == null)
             {
@@ -136,14 +142,19 @@ namespace DevApps.AI
             Program.DevVariable? model = null;
             Program.DevVariable? endpoint = null;
 
-            var handle = Program.DevVariable.mutexCheckVariableList.WaitOne();
-            if (handle)
+            try
             {
+                DevVariable._checkLock.Wait();
+
                 Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_API_KEY", out apiKey);
                 Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_MODEL", out model);
                 Program.DevVariable.EnumPrivate().TryGetValue("MISTRAL_URL", out endpoint);
-                Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
             }
+            finally
+            {
+                DevVariable._checkLock.Release();
+            }
+
 
             if (apiKey == null)
             {

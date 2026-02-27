@@ -147,41 +147,59 @@ namespace DevApps.GUI
 
         private void AddFromFile(params string[] filenames)
         {
-            foreach (var filename in filenames)
+            try
             {
-                var name = Path.GetFileNameWithoutExtension(filename);
-                Program.DevObject.MakeUniqueName(ref name, null);
+                DevObject._executeLock.Wait();
 
-                // Crée l'objet
-                var obj = new DevObjectFile(Path.Combine(DataDir, name));
-
-                var ext = Path.GetExtension(filename);
-                if (ext.Length > 1)
-                    obj.tags = new HashSet<string>([ext.Substring(1)]);
-
-                // Détermine le dessin de l'objet en fonction des tags
-                obj.drawCode = DevObject.DrawCodeFromExt(ext);
-
-                // Crée la référence vers le fichier
-                var file = new DevFile(Path.GetRelativePath(Environment.CurrentDirectory, filename), name);
-
-                obj.Description = file.Filename;
-
-                // Ajoute aux références
-                Program.DevFile.References.Add(file.filename, file);
-                Program.DevObject.References.Add(name, obj);
-
-                // Copie le contenu du fichier
-                if (File.Exists(file.Filename) && obj.filename != null)
+                try
                 {
-                    File.Copy(file.Filename, obj.filename, true);
-                    obj.LoadContent();
+                    DevObject._checkLock.Wait();
+
+                    foreach (var filename in filenames)
+                    {
+                        var name = Path.GetFileNameWithoutExtension(filename);
+                        Program.DevObject.MakeUniqueName(ref name, null);
+
+                        // Crée l'objet
+                        var obj = new DevObjectFile(Path.Combine(DataDir, name));
+
+                        var ext = Path.GetExtension(filename);
+                        if (ext.Length > 1)
+                            obj.tags = new HashSet<string>([ext.Substring(1)]);
+
+                        // Détermine le dessin de l'objet en fonction des tags
+                        obj.drawCode = DevObject.DrawCodeFromExt(ext);
+
+                        // Crée la référence vers le fichier
+                        var file = new DevFile(Path.GetRelativePath(Environment.CurrentDirectory, filename), name);
+
+                        obj.Description = file.Filename;
+
+                        // Ajoute aux références
+                        Program.DevFile.References.Add(file.filename, file);
+                        Program.DevObject.References.Add(name, obj);
+
+                        // Copie le contenu du fichier
+                        if (File.Exists(file.Filename) && obj.filename != null)
+                        {
+                            File.Copy(file.Filename, obj.filename, true);
+                            obj.LoadContent();
+                        }
+
+                        Program.DevObject.CompilObjects([obj]);
+                    }
+
+                    Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
                 }
-
-                Program.DevObject.CompilObjects([obj]);
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
             }
-
-            Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
             InvalidateItems();
         }
 
@@ -225,9 +243,28 @@ namespace DevApps.GUI
                     Program.DevFile.References.Remove(name);
                     file.Dispose();
 
-                    if (Program.DevObject.References.TryGetValue(file.objectname, out var obj))
+                    try
                     {
-                        Program.DevObject.DeleteObject(file.objectname);
+                        DevObject._executeLock.Wait();
+
+                        try
+                        {
+                            DevObject._checkLock.Wait();
+
+                            if (Program.DevObject.TryGet(file.objectname, out var obj))
+                            {
+                                Program.DevObject.DeleteObject(file.objectname);
+                            }
+
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
+                        }
+                    }
+                    finally
+                    {
+                        DevObject._executeLock.Release();
                     }
                 }
             }
@@ -239,20 +276,38 @@ namespace DevApps.GUI
         {
             var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Filename ?? String.Empty).ToArray();
 
-            foreach (var name in selection)
+            try
             {
-                if (Program.DevFile.References.TryGetValue(name, out var file))
+                DevObject._executeLock.Wait();
+
+                try
                 {
-                    // différent ?
-                    if (file.Diff())
+                    DevObject._checkLock.Wait();
+
+                    foreach (var name in selection)
                     {
-                        file.Write();
-                    }
-                    else
-                    {
-                        Program.Logger.WriteLine("Pas de difference entre les fichiers.");
+                        if (Program.DevFile.References.TryGetValue(name, out var file))
+                        {
+                            // différent ?
+                            if (file.Diff() == true)
+                            {
+                                file.Write();
+                            }
+                            else
+                            {
+                                Program.Logger.WriteLine("Pas de difference entre les fichiers.");
+                            }
+                        }
                     }
                 }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
             }
         }
 
@@ -316,47 +371,43 @@ namespace DevApps.GUI
                     var text = textBox?.Text;
                     if (text != null && textBox != null && item != null)
                     {
-                        var handle = Program.DevFile.mutexCheckList.WaitOne();
-                        if (handle)
+                        try
                         {
-                            try
-                            {
-                                Program.DevFile.References.TryGetValue(item.Filename, out var reference);
+                            Program.DevFile._checkLock.Wait();
 
-                                if (reference != null)
+                            if (Program.DevFile.TryGet(item.Filename, out var reference))
+                            {
+                                if (e.Column.Header.ToString() == "Fichier")
                                 {
-                                    if (e.Column.Header.ToString() == "Fichier")
+                                    if (text != item.Filename)
                                     {
-                                        if (text != item.Filename)
+                                        if (RecreateFileEntry(item.Filename, item.ObjectName, text))
                                         {
-                                            if (RecreateFileEntry(item.Filename, item.ObjectName, text))
-                                            {
-                                                // renomme l'objet
-                                                item.Filename = text;
-                                            }
-                                            else
-                                            {
-                                                // annule et rétablit l'ancienne valeur
-                                                textBox.Text = item.Filename;
-                                                e.Cancel = true;
-                                            }
+                                            // renomme l'objet
+                                            item.Filename = text;
+                                        }
+                                        else
+                                        {
+                                            // annule et rétablit l'ancienne valeur
+                                            textBox.Text = item.Filename;
+                                            e.Cancel = true;
                                         }
                                     }
-                                    else if (e.Column.Header.ToString() == "Objet")
-                                    {
-                                        item.ObjectName = text;
-                                        reference.objectname = text;
-                                    }
+                                }
+                                else if (e.Column.Header.ToString() == "Objet")
+                                {
+                                    item.ObjectName = text;
+                                    reference.objectname = text;
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                Program.Logger.WriteLine(ex.Message);
-                            }
-                            finally
-                            {
-                                Program.DevFile.mutexCheckList.ReleaseMutex();
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            Program.DevFile._checkLock.Release();
                         }
                     }
                 }

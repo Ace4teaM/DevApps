@@ -170,7 +170,7 @@ internal partial class Program
         }
 
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
-        internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
+        internal Dictionary<string, ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
         internal Dictionary<string, CommandProperties> Commands = new Dictionary<string, CommandProperties>();
         internal List<Geometry> Geometries = new List<Geometry>();
         internal List<Text> Texts = new List<Text>();
@@ -217,7 +217,7 @@ internal partial class Program
             Commands.Clear();
             foreach (var p in items)
             {
-                if(p.Value != null)
+                if (p.Value != null)
                     Commands.Add(p.Key, p.Value);
             }
         }
@@ -253,12 +253,12 @@ internal partial class Program
         /// <summary>
         /// Représente la zone d'impression de la page
         /// </summary>
-        public System.Windows.Rect PrintLayout { get; set; } = new System.Windows.Rect(0,0,1000,1000);
+        public System.Windows.Rect PrintLayout { get; set; } = new System.Windows.Rect(0, 0, 1000, 1000);
 
         public static DevFacet Create(string name, string[] objectNames)
         {
             var o = new DevFacet();
-            foreach(var obj in objectNames)
+            foreach (var obj in objectNames)
             {
                 o.Objects.Add(obj, new ObjectProperties());
             }
@@ -272,6 +272,14 @@ internal partial class Program
             return References.GetValueOrDefault(name);
         }
 
+        public static readonly DevFacet NullFacet = new DevFacet();
+
+        public static bool TryGet(string name, out DevFacet facet)
+        {
+            facet = References.GetValueOrDefault(name) ?? NullFacet;
+            return facet != NullFacet;
+        }
+
         public string WindowsPathToLinuxPath(string path)
         {
             return path.Replace(@":\", @"/").Insert(0, @"/").Replace(@"\", @"/");
@@ -282,66 +290,59 @@ internal partial class Program
         /// </summary>
         public void Build()
         {
-            var handle = DevObject.mutexExecuteObjects.WaitOne();
-            if (handle)
+            var refs = DevObject.References.Where(p => Objects.ContainsKey(p.Key)).ToArray();
+
+            DevObject.Build(refs);
+
+            // exécute l'environnement de commandes
+            try
             {
-                var refs = DevObject.References.Where(p => Objects.ContainsKey(p.Key)).ToArray();
+                var shellPath = "powershell.exe";
+                var shellSet = @"set {0} ""{1}""";
+                var shellEnv = @"$Env:PATH += "";{0}""";
+                var shellExit = @"exit";
 
-                DevObject.Build(refs);
+                // creation de l'environnement de commandes
+                using System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = shellPath;
+                startInfo.UseShellExecute = false;
+                //startInfo.RedirectStandardOutput = true;
+                startInfo.RedirectStandardInput = true;
+                startInfo.CreateNoWindow = false;
+                process.StartInfo = startInfo;
 
-                // exécute l'environnement de commandes
-                try
+                if (process.Start())
                 {
-                    var shellPath = "powershell.exe";
-                    var shellSet = @"set {0} ""{1}""";
-                    var shellEnv = @"$Env:PATH += "";{0}""";
-                    var shellExit = @"exit";
+                    // ajout des variables locales
+                    StreamWriter ws = process.StandardInput;
 
-                    // creation de l'environnement de commandes
-                    using System.Diagnostics.Process process = new System.Diagnostics.Process();
-                    System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-                    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
-                    startInfo.FileName = shellPath;
-                    startInfo.UseShellExecute = false;
-                    //startInfo.RedirectStandardOutput = true;
-                    startInfo.RedirectStandardInput = true;
-                    startInfo.CreateNoWindow = false;
-                    process.StartInfo = startInfo;
+                    ws.WriteLine(String.Format(shellSet, "dir", Path.GetFullPath(".")));
 
-                    if (process.Start())
+                    // ajout les chemins d'accès aux outils
+                    foreach (var o in GuiService.externalsTools)
+                        ws.WriteLine(String.Format(shellEnv, o.Value.Replace("\"", "")));
+
+                    // ajout lien vers les objets
+                    foreach (var o in refs)
+                        ws.WriteLine(String.Format(shellSet, o.Key, Path.GetFullPath(Path.Combine(DataDir, o.Key))));
+
+                    // on execute les commandes
+                    foreach (var c in Commands)
                     {
-                        // ajout des variables locales
-                        StreamWriter ws = process.StandardInput;
-
-                        ws.WriteLine(String.Format(shellSet, "dir", Path.GetFullPath(".")));
-
-                        // ajout les chemins d'accès aux outils
-                        foreach (var o in GuiService.externalsTools)
-                            ws.WriteLine(String.Format(shellEnv, o.Value.Replace("\"", "")));
-
-                        // ajout lien vers les objets
-                        foreach (var o in refs)
-                            ws.WriteLine(String.Format(shellSet, o.Key, Path.GetFullPath(Path.Combine(DataDir, o.Key))));
-
-                        // on execute les commandes
-                        foreach (var c in Commands)
-                        {
-                            ws.WriteLine(c.Value);
-                        }
-
-                        ws.WriteLine(shellExit);
-                        process.WaitForExit();
+                        ws.WriteLine(c.Value);
                     }
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.WriteLine("Facette: Erreur d'execution de la commande");
-                    Program.Logger.WriteLine(ex.Message);
-                }
 
-                DevObject.mutexExecuteObjects.ReleaseMutex();
+                    ws.WriteLine(shellExit);
+                    process.WaitForExit();
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.WriteLine("Facette: Erreur d'execution de la commande");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
-
     }
 }

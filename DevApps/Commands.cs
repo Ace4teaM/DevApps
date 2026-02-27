@@ -1,4 +1,5 @@
 ﻿using DevApps;
+using DevApps.Features;
 using DevApps.GUI;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,7 +42,7 @@ namespace Commands
 
 internal partial class Program
 {
-    internal static void ParseCommands(string commands)
+    internal static async Task ParseCommands(string commands)
     {
         var cmdList = System.Text.Json.JsonSerializer.Deserialize<List<Commands.Command>>(commands);
         if (cmdList == null)
@@ -179,7 +180,7 @@ internal partial class Program
                             if (cmd.name == null)
                                 throw new ArgumentException();
 
-                            DevObject.DeleteObject(cmd.name);
+                            await DevApps.Features.Objects.Delete(cmd.name);
 
                             var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
 

@@ -404,8 +404,27 @@ namespace DevApps.GUI
                                 Program.DevFacet.References.Add(name, o.Value.content);
                             }
 
-                            Program.DevObject.CompilObjects(proj.Objects.Select(p=>p.Value.content));
-                            Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                            try
+                            {
+                                DevObject._executeLock.Wait();
+
+                                try
+                                {
+                                    DevObject._checkLock.Wait();
+
+                                    Program.DevObject.CompilObjects(proj.Objects.Select(p => p.Value.content));
+                                    Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                                }
+                                finally
+                                {
+                                    DevObject._checkLock.Release();
+                                }
+                            }
+                            finally
+                            {
+                                DevObject._executeLock.Release();
+                            }
+
                             GuiService.InvalidateFacets();
                         };
                         menu.Items.Add(m);
@@ -460,10 +479,10 @@ namespace DevApps.GUI
             else if (GuiService.IsFacetsView)
             {
                 Program.Logger.WriteLine("Construit la facette active...");
-                var facet = GuiService.GetSelectedFacet();
+                var facet = FacetListBox.SelectedItem as FacetItem;
                 if(facet != null)
                 {
-                    facet.Build();
+                    DevApps.Features.Facets.Build(facet.Header).Wait();
                     Program.Logger.WriteLine("Terminé");
                 }
             }
@@ -689,7 +708,7 @@ namespace DevApps.GUI
             if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S)
             {
                 // Sauvegarde les données permanentes
-                DevObject.SaveOutput();
+                DevApps.Features.Objects.SaveAllOutputs();
 
                 Program.SaveProject();
             }

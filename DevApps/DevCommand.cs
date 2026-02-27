@@ -1,6 +1,7 @@
 ﻿using DevApps;
 using DevApps.GUI;
 using Microsoft.Win32;
+using PdfSharp.Quality;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -89,14 +90,15 @@ internal partial class Program
                 if (cmd.Arguments == null)
                     throw new ArgumentException();
 
-                var handle = false;
-
                 try
                 {
-                    handle = DevObject.mutexCheckObjectList.WaitOne();
+                    DevObject._executeLock.Wait();
 
-                    if (handle)
+                    try
                     {
+                        DevObject._checkLock.Wait();
+
+
                         DevObject.Build(DevObject.References);
 
                         var currentView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
@@ -105,18 +107,16 @@ internal partial class Program
                         {
                             currentView.InvalidateObjects();
                         }
+
                     }
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.WriteLine(ex.Message);
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
                 }
                 finally
                 {
-                    if (handle)
-                    {
-                        DevObject.mutexCheckObjectList.ReleaseMutex();
-                    }
+                    DevObject._executeLock.Release();
                 }
 
                 return 0;
@@ -310,7 +310,7 @@ internal partial class Program
             return o;
         }
 
-        public void Execute()
+        public async Task Execute()
         {
             Program.Logger.WriteLine($"Execute Command group '{Label}'...");
             if (this.IO.Length != 0)
@@ -365,23 +365,7 @@ internal partial class Program
             // copie la sortie dans l'objet de destination
             if(String.IsNullOrEmpty(this.Output) == false)
             {
-                var handle = DevObject.mutexExecuteObjects.WaitOne();
-                if (handle && DevObject.TryGet(this.Output, out var obj))
-                {
-                    var handle2 = DevObject.mutexExecuteObjects.WaitOne();
-                    if (handle2 && obj.Content != null && obj.Content.CanWrite == true)
-                    {
-                        obj.Content.Position = 0;
-                        this.IO.Position = 0;
-                        this.IO.CopyTo(obj.Content);
-                        obj.Content.SetLength(this.IO.Length);
-                        obj.Content.Position = 0;
-                        this.IO.Position = 0;
-                        DevObject.mutexExecuteObjects.ReleaseMutex();
-                    }
-
-                    DevObject.mutexExecuteObjects.ReleaseMutex();
-                }
+                await DevApps.Features.Objects.CopyFromStream(this.Output, this.IO);
             }
 
             Program.Logger.WriteLine();

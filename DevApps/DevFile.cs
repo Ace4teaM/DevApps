@@ -97,13 +97,20 @@ internal partial class Program
     /// </summary>
     public class DevFile : IDisposable
     {
-
         public static Dictionary<string, DevFile> References = new Dictionary<string, DevFile>();
 
+        public static readonly DevFile NullFile = new DevFile();
+
+        public static bool TryGet(string name, out DevFile file)
+        {
+            file = References.GetValueOrDefault(name) ?? NullFile;
+            return file != NullFile;
+        }
+
         /// <summary>
-        /// Bloque l'accès à la liste References
+        /// Synchronise l'accès à la liste (References)
         /// </summary>
-        internal static Mutex mutexCheckList = new Mutex();
+        internal static readonly SemaphoreSlim _checkLock = new(1, 1);
 
         internal string filename;
         /// <summary>
@@ -124,6 +131,10 @@ internal partial class Program
         internal FileChangeNotification? notifyChange;
         internal CancellationTokenSource? cancelNotifyChange;
 
+        public DevFile()
+        {
+        }
+
         public DevFile(string filename, string objectname)
         {
             this.filename = filename;
@@ -136,29 +147,49 @@ internal partial class Program
 
             fileChangeNotificationThread = new Thread(() =>
             {
-                this.notifyChange.Wait(() => {
+                this.notifyChange.Wait(() =>
+                {
                     // lit les modifications
                     Program.Logger.WriteLine($"Read file modification... {this.filename}");
-                    if (Read())
+
+                    try
                     {
-                        // reconstruit l'objet
-                        if(DevObject.TryGet(this.objectname, out var obj) == false)
-                        {
-                            Program.Logger.WriteLine($"Object {this.objectname} not found !");
-                            return 0;
-                        }
+                        DevObject._executeLock.Wait();
 
-                        Program.Logger.WriteLine($"Rebuild {this.objectname}");
-                        DevObject.BuildTree(new KeyValuePair<string, DevObject>(this.objectname, obj));
+                        try
+                        {
+                            DevObject._checkLock.Wait();
 
-                        if (GuiService.IsInitialized && GuiService.IsObjectsView)
-                        {
-                            GuiService.InvalidateObjectsStatus();
+                            if (Read())
+                            {
+                                // reconstruit l'objet
+                                if (DevObject.TryGet(this.objectname, out var obj) == false)
+                                {
+                                    Program.Logger.WriteLine($"Object {this.objectname} not found !");
+                                    return 0;
+                                }
+
+                                Program.Logger.WriteLine($"Rebuild {this.objectname}");
+                                DevObject.BuildTree(new KeyValuePair<string, DevObject>(this.objectname, obj));
+
+                                if (GuiService.IsInitialized && GuiService.IsObjectsView)
+                                {
+                                    GuiService.InvalidateObjectsStatus();
+                                }
+                                if (GuiService.IsInitialized && GuiService.IsFacetsView)
+                                {
+                                    GuiService.Invalidate(this.objectname);
+                                }
+                            }
                         }
-                        if (GuiService.IsInitialized && GuiService.IsFacetsView)
+                        finally
                         {
-                            GuiService.Invalidate(this.objectname);
+                            DevObject._checkLock.Release();
                         }
+                    }
+                    finally
+                    {
+                        DevObject._executeLock.Release();
                     }
                     return 0;
                 });
@@ -177,16 +208,13 @@ internal partial class Program
             {
                 using (FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
-                    var handle = DevObject.mutexExecuteObjects.WaitOne();
-                    if (handle && DevObject.References.TryGetValue(objectname, out var obj))
+                    if (DevObject.References.TryGetValue(objectname, out var obj))
                     {
                         // copie le contenu
                         obj.Content.Position = 0;
                         fileStream.CopyTo(obj.Content);
                         obj.Content.SetLength(fileStream.Length);
                         obj.Content.Position = 0;
-
-                        DevObject.mutexExecuteObjects.ReleaseMutex();
 
                         return true;
                     }
@@ -209,49 +237,41 @@ internal partial class Program
         /// <summary>
         /// Compare les différences entre le fichier et l'objet
         /// </summary>
-        /// <returns></returns>
-        public bool Diff()
+        /// <returns>true si les contenus sont différent, null si ils ne peuvent être comparé</returns>
+        public bool? Diff()
         {
-            var handle = DevObject.mutexExecuteObjects.WaitOne();
-            if (handle)
+            try
             {
-                try
+                if (DevObject.References.TryGetValue(objectname, out var obj) && obj.Content != null)
                 {
-                    if (DevObject.References.TryGetValue(objectname, out var obj) && obj.Content != null)
-                    {
-                        var fi1 = new FileInfo(filename);
+                    var fi1 = new FileInfo(filename);
 
-                        if (fi1.Length != obj.Content.Length)
-                            return true;
+                    if (fi1.Length != obj.Content.Length)
+                        return true;
 
-                        obj.Content.Position = 0;
+                    obj.Content.Position = 0;
 
-                        using var sha256 = SHA256.Create();
-                        using var fs1 = File.OpenRead(filename);
+                    using var sha256 = SHA256.Create();
+                    using var fs1 = File.OpenRead(filename);
 
-                        var hash1 = sha256.ComputeHash(fs1);
-                        var hash2 = sha256.ComputeHash(obj.Content);
+                    var hash1 = sha256.ComputeHash(fs1);
+                    var hash2 = sha256.ComputeHash(obj.Content);
 
-                        obj.Content.Position = 0;
+                    obj.Content.Position = 0;
 
-                        return hash1.SequenceEqual(hash2) == false;
-                    }
-                    else
-                    {
-                        if (DevObject.References.ContainsKey(objectname) == false)
-                            Program.Logger.WriteLine($"L'objet \"{objectname}\" n'existe pas ou n'a pas de contenu");
-                    }
+                    return hash1.SequenceEqual(hash2) == false;
                 }
-                catch (Exception ex)
+                else
                 {
-                    Program.Logger.WriteLine(ex.Message);
-                }
-                finally
-                {
-                    DevObject.mutexExecuteObjects.ReleaseMutex();
+                    Program.Logger.WriteLine($"L'objet \"{objectname}\" n'existe pas ou n'a pas de contenu");
                 }
             }
-            return false;
+            catch (Exception ex)
+            {
+                Program.Logger.WriteLine(ex.Message);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -263,15 +283,12 @@ internal partial class Program
             {
                 using (FileStream fileStream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite))
                 {
-                    var handle = DevObject.mutexExecuteObjects.WaitOne();
-                    if (handle && DevObject.References.TryGetValue(objectname, out var obj))
+                    if (DevObject.References.TryGetValue(objectname, out var obj))
                     {
                         // copie le contenu
                         obj.Content.Position = 0;
                         obj.Content.CopyTo(fileStream);
                         fileStream.SetLength(obj.Content.Length);
-
-                        DevObject.mutexExecuteObjects.ReleaseMutex();
                     }
                 }
             }

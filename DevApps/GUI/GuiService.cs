@@ -676,15 +676,6 @@ namespace DevApps.GUI
             }
         }
 
-        internal static Program.DevFacet? GetSelectedFacet()
-        {
-            return EditorWindow?.Dispatcher.Invoke(
-                DispatcherPriority.Render,
-                new Func<Program.DevFacet?>(() => {
-                    return (EditorWindow?.Content as DesignerView)?.facette;
-                })) as Program.DevFacet;
-        }
-
         internal static bool OpenEditorOrDefault(Stream stream, string? editorKey = null, bool waitForUpdate = true)
         {
             string? fileExt = null;

@@ -1,6 +1,7 @@
 ﻿using IronPython.Runtime;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
+using PdfSharp.Snippets;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
@@ -151,14 +152,17 @@ namespace DevApps.GUI
 
         internal void InvalidateObjects()
         {
-            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
+            try
             {
+                DevObject._checkLock.Wait();
+
                 items.Clear();
                 items.AddRange(new ObservableCollection<TabItem>(Program.DevObject.References.Select(p => new TabItem { Name = p.Key, Description = p.Value.Description, Tags = String.Join(' ', p.Value.Tags) })));
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
             }
-            
+            finally
+            {
+                DevObject._checkLock.Release();
+            }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Items)));
         }
 
@@ -202,89 +206,98 @@ namespace DevApps.GUI
                     break;
             }
 
-            DevObject? obj = null;
-
-            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
+            try
             {
-                obj = Program.DevObject.References.First(p => p.Key == context.Name).Value;
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-            }
+                DevObject._executeLock.Wait();
 
-            if (obj != null)
-            {
                 try
                 {
-                    var wnd = new ScriptEdit(String.Format("{0} ({1})", context.Name, item.Name), content ?? string.Empty, obj.Properties);
+                    DevObject._checkLock.Wait();
 
-                    // Infos
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.AppendLine(String.Format("{0} = {1}", "out", "output"));
-                    stringBuilder.AppendLine(String.Format("{0} = {1}", "name", "nom de l'objet"));
-                    stringBuilder.AppendLine(String.Format("{0} = {1}", "desc", "description de l'objet"));
-
-                    if (obj.Pointers.Count > 0)
-                    {
-                        stringBuilder.AppendLine();
-                        stringBuilder.AppendLine(String.Format("Pointeurs:"));
-                        foreach (var pointer in obj.Pointers)
-                        {
-                            stringBuilder.AppendLine(String.Format("{0} => [{1}]", pointer.Key, pointer.Value.target));
-                        }
-                    }
-
-                    if (obj.Properties.Count > 0)
-                    {
-                        stringBuilder.AppendLine();
-                        stringBuilder.AppendLine(String.Format("Propriétés:"));
-                        foreach (var property in obj.Properties)
-                        {
-                            stringBuilder.AppendLine(String.Format("{0} => [{1}]", property.Key, property.Value.Item1));
-                        }
-                    }
-                    wnd.Infos = stringBuilder.ToString();
-
-
-                    wnd.Owner = Window.GetWindow(this);
-                    wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    if (wnd.ShowDialog() == true)
+                    if (context.Name != null && Program.DevObject.TryGet(context.Name, out var obj))
                     {
                         try
                         {
-                            switch (item.Name)
+                            var wnd = new ScriptEdit(String.Format("{0} ({1})", context.Name, item.Name), content ?? string.Empty, obj.Properties);
+
+                            // Infos
+                            StringBuilder stringBuilder = new StringBuilder();
+                            stringBuilder.AppendLine(String.Format("{0} = {1}", "out", "output"));
+                            stringBuilder.AppendLine(String.Format("{0} = {1}", "name", "nom de l'objet"));
+                            stringBuilder.AppendLine(String.Format("{0} = {1}", "desc", "description de l'objet"));
+
+                            if (obj.Pointers.Count > 0)
                             {
-                                case "DrawCode":
-                                    obj.SetDrawCode(wnd.Value);
-                                    obj.CompilDraw();
-                                    break;
-                                case "BuildMethod":
-                                    obj.SetBuildMethod(wnd.Value);
-                                    obj.CompilBuild();
-                                    break;
-                                case "LoopMethod":
-                                    obj.SetLoopMethod(wnd.Value);
-                                    obj.CompilLoop();
-                                    break;
-                                case "InitMethod":
-                                    obj.SetInitMethod(wnd.Value);
-                                    obj.CompilInit();
-                                    break;
-                                case "UserAction":
-                                    obj.SetUserAction(wnd.Value);
-                                    obj.CompilUserAction();
-                                    break;
+                                stringBuilder.AppendLine();
+                                stringBuilder.AppendLine(String.Format("Pointeurs:"));
+                                foreach (var pointer in obj.Pointers)
+                                {
+                                    stringBuilder.AppendLine(String.Format("{0} => [{1}]", pointer.Key, pointer.Value.target));
+                                }
+                            }
+
+                            if (obj.Properties.Count > 0)
+                            {
+                                stringBuilder.AppendLine();
+                                stringBuilder.AppendLine(String.Format("Propriétés:"));
+                                foreach (var property in obj.Properties)
+                                {
+                                    stringBuilder.AppendLine(String.Format("{0} => [{1}]", property.Key, property.Value.Item1));
+                                }
+                            }
+                            wnd.Infos = stringBuilder.ToString();
+
+
+                            wnd.Owner = Window.GetWindow(this);
+                            wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                            if (wnd.ShowDialog() == true)
+                            {
+                                try
+                                {
+                                    switch (item.Name)
+                                    {
+                                        case "DrawCode":
+                                            obj.SetDrawCode(wnd.Value);
+                                            obj.CompilDraw();
+                                            break;
+                                        case "BuildMethod":
+                                            obj.SetBuildMethod(wnd.Value);
+                                            obj.CompilBuild();
+                                            break;
+                                        case "LoopMethod":
+                                            obj.SetLoopMethod(wnd.Value);
+                                            obj.CompilLoop();
+                                            break;
+                                        case "InitMethod":
+                                            obj.SetInitMethod(wnd.Value);
+                                            obj.CompilInit();
+                                            break;
+                                        case "UserAction":
+                                            obj.SetUserAction(wnd.Value);
+                                            obj.CompilUserAction();
+                                            break;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("Erreur de compilation. " + ex.Message, "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                                }
                             }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("Erreur de compilation. " + ex.Message, "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                            Program.Logger.WriteLine(ex.Message);
                         }
                     }
                 }
-                catch (Exception ex)
+                finally
                 {
-                    Program.Logger.WriteLine(ex.Message);
+                    DevObject._checkLock.Release();
                 }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
             }
         }
 
@@ -374,18 +387,23 @@ namespace DevApps.GUI
                 {
                     DevObject? reference = null;
 
-                    var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (handle)
+                    try
                     {
+                        DevObject._checkLock.Wait();
+
                         Program.DevObject.References.TryGetValue(selection, out reference);
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
                     }
 
                     if (reference != null)
                     {
-                        var handle2 = reference.mutexReadOutput.WaitOne();
-                        if (handle2)
+                        try
                         {
+                            reference._readOutput.Wait();
+
                             if(GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, true))
                             {
                                 DevObject.IncrementBuilt(selection);
@@ -397,8 +415,10 @@ namespace DevApps.GUI
                                     i.OnPropertyChanged(nameof(i.MustBeBuild));
                                 }
                             }
-
-                            reference.mutexReadOutput.ReleaseMutex();
+                        }
+                        finally
+                        {
+                            reference._readOutput.Release();
                         }
                     }
                 }
@@ -418,23 +438,31 @@ namespace DevApps.GUI
                 if (selection != null)
                 {
                     DevObject? reference = null;
-
-                    var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (handle)
+                    try
                     {
+                        DevObject._checkLock.Wait();
+
                         Program.DevObject.References.TryGetValue(selection, out reference);
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                     }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
+                    }
+
 
                     if (reference != null)
                     {
-                        var handle2 = reference.mutexReadOutput.WaitOne();
-                        if (handle2)
+                        try
                         {
-                            GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, false);
+                            reference._readOutput.Wait();
 
-                            reference.mutexReadOutput.ReleaseMutex();
+                            GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, false);
                         }
+                        finally
+                        {
+                            reference._readOutput.Release();
+                        }
+
                     }
                 }
             }
@@ -462,24 +490,36 @@ namespace DevApps.GUI
 
                 if (selection != null)
                 {
-                    var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (handle)
+                    try
                     {
-                        var items = Program.DevObject.References.Where(p => p.Key == selection);
+                        DevObject._executeLock.Wait();
 
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-
-                        if (items != null)
+                        try
                         {
-                            foreach(var item in items)
-                            {
-                                Program.DevObject.BuildTree(item);
-                            }
+                            DevObject._checkLock.Wait();
 
-                            // Actualise les compteurs
-                            InvalidateObjectsStatus();
+                            var items = Program.DevObject.References.Where(p => p.Key == selection);
+
+                            if (items != null)
+                            {
+                                foreach (var item in items)
+                                {
+                                    Program.DevObject.BuildTree(item);
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
                         }
                     }
+                    finally
+                    {
+                        DevObject._executeLock.Release();
+                    }
+
+                    // Actualise les compteurs
+                    InvalidateObjectsStatus();
                 }
             }
             catch (Exception ex)
@@ -514,7 +554,7 @@ namespace DevApps.GUI
                 if(objects.Count > 0)
                 {
                     Program.DevObject.CompilObjects(objects);
-                    Program.DevObject.Init();
+                    DevApps.Features.Objects.MakeSureAllInitialized().Wait();
 
                     InvalidateObjects();
                 }
@@ -548,9 +588,10 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                if (handle)
+                try
                 {
+                    DevObject._checkLock.Wait();
+
                     var selection = dataGrid.SelectedItems.OfType<TabItem>().ToArray();
                     var selObjects = Program.DevObject.References.Where(p => selection.FirstOrDefault(pp => pp.Name == p.Key) != null).Select(p => p.Value).ToArray();
 
@@ -558,9 +599,12 @@ namespace DevApps.GUI
                     {
                         o.AddPointer(wnd.Value, targetName, []);
                     }
-
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
                 }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+
             }
         }
 
@@ -589,9 +633,10 @@ namespace DevApps.GUI
             if (menuItem != null && selection.Length > 0)
             {
                 menuItem.Items.Clear();
-                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                if (handle)
+                try
                 {
+                    DevObject._checkLock.Wait();
+
                     foreach (var obj in Program.DevObject.References)
                     {
                         var item = new MenuItem();
@@ -619,7 +664,10 @@ namespace DevApps.GUI
 
                         menuItem.Items.Add(item);
                     }
-                    Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
                 }
             }
         }
@@ -690,89 +738,86 @@ namespace DevApps.GUI
                     var text = (e.EditingElement as TextBox)?.Text;
                     if (text != null && item != null)
                     {
-                        var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                        if (handle)
+                        try
                         {
-                            try
+                            DevObject._checkLock.Wait();
+
+                            if (Program.DevObject.TryGet(item.Name, out var reference))
                             {
-                                Program.DevObject.References.TryGetValue(item.Name, out var reference);
-
-                                if (reference != null)
+                                if (e.Column.Header.ToString() == "Nom")
                                 {
-                                    if (e.Column.Header.ToString() == "Nom")
+                                    if (text != item.Name)
                                     {
-                                        if (text != item.Name)
+                                        Program.DevObject.MakeUniqueName(ref text);
+                                        var value = Program.DevObject.References[item.Name];
+                                        Program.DevObject.References.Remove(item.Name);
+                                        Program.DevObject.References[text] = value;
+
+                                        // renomme l'objet dans les objets de references
+                                        foreach (var obj in Program.DevObject.References)
                                         {
-                                            Program.DevObject.MakeUniqueName(ref text);
-                                            var value = Program.DevObject.References[item.Name];
-                                            Program.DevObject.References.Remove(item.Name);
-                                            Program.DevObject.References[text] = value;
-
-                                            // renomme l'objet dans les objets de references
-                                            foreach (var obj in Program.DevObject.References)
+                                            if (obj.Value is Program.DevObjectReference objRef)
                                             {
-                                                if (obj.Value is Program.DevObjectReference objRef)
+                                                if (objRef.baseObjectName == item.Name)
                                                 {
-                                                    if (objRef.baseObjectName == item.Name)
-                                                    {
-                                                        objRef.baseObjectName = text;
-                                                        Program.Logger.WriteLine($"Renomme Reference {obj.Key} : {item.Name} => {text}");
-                                                    }
+                                                    objRef.baseObjectName = text;
+                                                    Program.Logger.WriteLine($"Renomme Reference {obj.Key} : {item.Name} => {text}");
                                                 }
                                             }
-
-                                            // renomme l'objet dans les references des autres objets
-                                            foreach (var obj in Program.DevObject.References)
-                                            {
-                                                foreach (var pointer in obj.Value.Pointers.Where(p => p.Value.target == item.Name).ToArray())
-                                                {
-                                                    obj.Value.Pointers[pointer.Key].target = text;
-                                                    Program.Logger.WriteLine($"Renomme {pointer.Key} : {item.Name} => {text}");
-                                                }
-                                            }
-
-                                            // renomme l'objet dans les references des facettes
-                                            foreach (var obj in Program.DevFacet.References)
-                                            {
-                                                foreach (var pointer in obj.Value.Objects.Where(p => p.Key == item.Name).ToArray())
-                                                {
-                                                    var tmp = pointer.Value;
-                                                    obj.Value.Objects.Remove(pointer.Key);
-                                                    obj.Value.Objects.Add(text, tmp);
-                                                    Program.Logger.WriteLine($"Renomme {obj.Key} : {pointer.Key} => {text}");
-                                                }
-                                            }
-
-                                            // renomme l'objet
-                                            item.Name = text;//sans effet
-
-                                            InvalidateObjects();
                                         }
-                                    }
-                                    else if (e.Column.Header.ToString() == "Description")
-                                    {
-                                        item.Description = text;
-                                        reference.Description = text;
-                                    }
-                                    else if (e.Column.Header.ToString() == "Tags")
-                                    {
-                                        text = text.Replace("#", " #"); /// s'assure qu'il y a un espace devant chaque #
-                                        var tags = text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Where(p => TagService.TagFormat.IsMatch(p)).ToArray();
-                                        var instance = reference.IsReference ? ((Program.DevObjectReference)reference).baseObject : (Program.DevObjectInstance)reference;
-                                        instance!.tags = new HashSet<string>(tags);
-                                        item.Tags = String.Join(' ', instance.tags);
+
+                                        // renomme l'objet dans les references des autres objets
+                                        foreach (var obj in Program.DevObject.References)
+                                        {
+                                            foreach (var pointer in obj.Value.Pointers.Where(p => p.Value.target == item.Name).ToArray())
+                                            {
+                                                obj.Value.Pointers[pointer.Key].target = text;
+                                                Program.Logger.WriteLine($"Renomme {pointer.Key} : {item.Name} => {text}");
+                                            }
+                                        }
+
+                                        // renomme l'objet dans les references des facettes
+                                        foreach (var obj in Program.DevFacet.References)
+                                        {
+                                            foreach (var pointer in obj.Value.Objects.Where(p => p.Key == item.Name).ToArray())
+                                            {
+                                                var tmp = pointer.Value;
+                                                obj.Value.Objects.Remove(pointer.Key);
+                                                obj.Value.Objects.Add(text, tmp);
+                                                Program.Logger.WriteLine($"Renomme {obj.Key} : {pointer.Key} => {text}");
+                                            }
+                                        }
+
+                                        // renomme l'objet
+                                        item.Name = text;//sans effet
+
+                                        InvalidateObjects();
                                     }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                Program.Logger.WriteLine(ex.Message);
-                            }
-                            finally
-                            {
-                                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                                else if (e.Column.Header.ToString() == "Description")
+                                {
+                                    item.Description = text;
+                                    reference.Description = text;
+                                }
+                                else if (e.Column.Header.ToString() == "Tags")
+                                {
+                                    text = text.Replace("#", " #"); /// s'assure qu'il y a un espace devant chaque #
+                                    var tags = text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Where(p => TagService.TagFormat.IsMatch(p)).ToArray();
+                                    var instance = reference.IsReference ? ((Program.DevObjectReference)reference).baseObject : (Program.DevObjectInstance)reference;
+                                    instance!.tags = new HashSet<string>(tags);
+                                    item.Tags = String.Join(' ', instance.tags);
+                                }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
+                        }
+
                     }
 
                     IsEditing = false;
@@ -809,33 +854,31 @@ namespace DevApps.GUI
         {
             if (dataGrid.SelectedItem is TabItem selectedItem)
             {
-                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                if (handle)
+                try
                 {
-                    try
+                    DevObject._checkLock.Wait();
+
+                    if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
                     {
-                        if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
+                        selectedItem.IsPointed = false;
+                        selectedItem.IsPointer = false;
+                        foreach (var item in Items)
                         {
-                            selectedItem.IsPointed = false;
-                            selectedItem.IsPointer = false;
-                            foreach (var item in Items)
+                            if (item != selectedItem && DevObject.TryGet(item.Name, out var obj))
                             {
-                                if (item != selectedItem && DevObject.References.TryGetValue(item.Name, out var obj))
-                                {
-                                    item.IsPointed = selectedObject.Pointers.Count(p => p.Value.target == item.Name) > 0;//cet objet est pointé par la selection ?
-                                    item.IsPointer = obj.Pointers.Count(p => p.Value.target == selectedItem.Name) > 0;//cet objet pointe vers la selection ?
-                                }
+                                item.IsPointed = selectedObject.Pointers.Count(p => p.Value.target == item.Name) > 0;//cet objet est pointé par la selection ?
+                                item.IsPointer = obj.Pointers.Count(p => p.Value.target == selectedItem.Name) > 0;//cet objet pointe vers la selection ?
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Program.Logger.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
                 }
             }
             else
@@ -854,32 +897,30 @@ namespace DevApps.GUI
             {
                 if (dataGrid.SelectedItem is TabItem selectedItem)
                 {
-                    var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (handle)
+                    try
                     {
-                        try
-                        {
-                            if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
-                            {
-                                if (selectedObject.Content.Length == 0 && MessageBox.Show("L'objet ne contient pas de données, voulez vous tout de même continuer ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
-                                    throw new Exception("Pas de données à initialiser dans l'objet " + selectedItem.Name);
+                        DevObject._checkLock.Wait();
 
-                                byte[] bytes = new byte[selectedObject.Content.Length];
-                                selectedObject.Content.Seek(0, SeekOrigin.Begin);
-                                selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
-                                selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                        if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
+                        {
+                            if (selectedObject.Content.Length == 0 && MessageBox.Show("L'objet ne contient pas de données, voulez vous tout de même continuer ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                                throw new Exception("Pas de données à initialiser dans l'objet " + selectedItem.Name);
 
-                                selectedObject.InitialDataBase64 = Convert.ToBase64String(bytes);
-                            }
+                            byte[] bytes = new byte[selectedObject.Content.Length];
+                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                            selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
+                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+
+                            selectedObject.InitialDataBase64 = Convert.ToBase64String(bytes);
                         }
-                        catch (Exception ex)
-                        {
-                            Program.Logger.WriteLine(ex.Message);
-                        }
-                        finally
-                        {
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
                     }
                 }
             }
@@ -891,31 +932,29 @@ namespace DevApps.GUI
             {
                 if (dataGrid.SelectedItem is TabItem selectedItem)
                 {
-                    var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                    if (handle)
+                    try
                     {
-                        try
-                        {
-                            if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
-                            {
-                                if (selectedObject.InitialDataBase64.Length == 0 && MessageBox.Show("Les données initiales sont vide, voulez vous tout de même continuer ?", "Restaurer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
-                                    throw new Exception("Pas de données à restorer dans l'objet " + selectedItem.Name);
+                        DevObject._checkLock.Wait();
 
-                                var bytes = Convert.FromBase64String(selectedObject.InitialDataBase64);
-                                selectedObject.Content.Seek(0, SeekOrigin.Begin);
-                                selectedObject.Content.Write(bytes);
-                                selectedObject.Content.SetLength(bytes.Length);
-                                selectedObject.Content.Seek(0, SeekOrigin.Begin);
-                            }
-                        }
-                        catch (Exception ex)
+                        if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
                         {
-                            Program.Logger.WriteLine(ex.Message);
+                            if (selectedObject.InitialDataBase64.Length == 0 && MessageBox.Show("Les données initiales sont vide, voulez vous tout de même continuer ?", "Restaurer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                                throw new Exception("Pas de données à restorer dans l'objet " + selectedItem.Name);
+
+                            var bytes = Convert.FromBase64String(selectedObject.InitialDataBase64);
+                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                            selectedObject.Content.Write(bytes);
+                            selectedObject.Content.SetLength(bytes.Length);
+                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
                         }
-                        finally
-                        {
-                            Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
                     }
                 }
             }
@@ -925,29 +964,27 @@ namespace DevApps.GUI
         {
             if (dataGrid.SelectedItem is TabItem selectedItem)
             {
-                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                if (handle)
+                try
                 {
-                    try
-                    {
-                        if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
-                        {
-                            byte[] bytes = new byte[selectedObject.Content.Length];
-                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
-                            selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
-                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                    DevObject._checkLock.Wait();
 
-                            Clipboard.SetText(Encoding.UTF8.GetString(bytes));
-                        }
-                    }
-                    catch (Exception ex)
+                    if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
                     {
-                        Program.Logger.WriteLine(ex.Message);
+                        byte[] bytes = new byte[selectedObject.Content.Length];
+                        selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                        selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
+                        selectedObject.Content.Seek(0, SeekOrigin.Begin);
+
+                        Clipboard.SetText(Encoding.UTF8.GetString(bytes));
                     }
-                    finally
-                    {
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
                 }
             }
         }
@@ -956,29 +993,27 @@ namespace DevApps.GUI
         {
             if (dataGrid.SelectedItem is TabItem selectedItem)
             {
-                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                if (handle)
+                try
                 {
-                    try
-                    {
-                        if (DevObject.References.TryGetValue(selectedItem.Name, out var selectedObject))
-                        {
-                            byte[] bytes = new byte[selectedObject.Content.Length];
-                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
-                            selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
-                            selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                    DevObject._checkLock.Wait();
 
-                            Clipboard.SetText(Convert.ToBase64String(bytes));
-                        }
-                    }
-                    catch (Exception ex)
+                    if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
                     {
-                        Program.Logger.WriteLine(ex.Message);
+                        byte[] bytes = new byte[selectedObject.Content.Length];
+                        selectedObject.Content.Seek(0, SeekOrigin.Begin);
+                        selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
+                        selectedObject.Content.Seek(0, SeekOrigin.Begin);
+
+                        Clipboard.SetText(Convert.ToBase64String(bytes));
                     }
-                    finally
-                    {
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
                 }
             }
         }
@@ -986,98 +1021,100 @@ namespace DevApps.GUI
         {
             if (dataGrid.SelectedItem is TabItem selectedItem)
             {
-                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                if (handle)
+                try
                 {
-                    try
+                    DevObject._checkLock.Wait();
+
+                    if (DevObject.TryGet(selectedItem.Name, out var reference))
                     {
-                        if (DevObject.References.TryGetValue(selectedItem.Name, out var reference))
+                        // Execute le script de dessin
+                        if (reference.DrawCode.Item2 != null)
                         {
-                            // Execute le script de dessin
-                            if (reference.DrawCode.Item2 != null)
+                            try
                             {
-                                var handle2 = reference.mutexReadOutput.WaitOne();
-                                if (handle2)
+                                reference._readOutput.Wait();
+
+                                DrawingVisual visual = new DrawingVisual();
+
+                                // Ouvre le DrawingContext
+                                using (DrawingContext drawingContext = visual.RenderOpen())
                                 {
-                                    DrawingVisual visual = new DrawingVisual();
-
-                                    // Ouvre le DrawingContext
-                                    using (DrawingContext drawingContext = visual.RenderOpen())
+                                    var engine = reference.DrawCode.Item2?.Engine;
+                                    if (engine != null)
                                     {
-                                        var engine = reference.DrawCode.Item2?.Engine;
-                                        if (engine != null)
+                                        try
                                         {
-                                            try
-                                            {
-                                                var pyScope = engine.CreateScope();//lock Program.pyEngine !
-                                                pyScope.SetVariable("out", new DevApps.Scripts.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
-                                                pyScope.SetVariable("gui", reference.gui);
-                                                pyScope.SetVariable("name", this.Name);
-                                                pyScope.SetVariable("dc", drawingContext);
-                                                pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
-                                                pyScope.SetVariable("desc", reference.Description);
+                                            var pyScope = engine.CreateScope();//lock Program.pyEngine !
+                                            pyScope.SetVariable("out", new DevApps.Scripts.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
+                                            pyScope.SetVariable("gui", reference.gui);
+                                            pyScope.SetVariable("name", this.Name);
+                                            pyScope.SetVariable("dc", drawingContext);
+                                            pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
+                                            pyScope.SetVariable("desc", reference.Description);
 
-                                                foreach (var pointer in reference.Pointers)
-                                                {
-                                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                                                    pyScope.SetVariable(pointer.Key, new DevApps.Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                                                }
-
-                                                reference.gui.Begin(drawingContext);
-                                                reference.DrawCode.Item2?.Execute(pyScope);
-                                                reference.gui.End();
-                                            }
-                                            catch (Exception ex)
+                                            foreach (var pointer in reference.Pointers)
                                             {
-                                                Program.Logger.WriteLine("******************************************");
-                                                Program.Logger.WriteLine("OnRender: " + this.Name);
-                                                Program.Logger.WriteLine(engine.FormatError(ex));
-                                                Program.Logger.WriteLine("******************************************");
+                                                Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                                pyScope.SetVariable(pointer.Key, new DevApps.Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
                                             }
+
+                                            reference.gui.Begin(drawingContext);
+                                            reference.DrawCode.Item2?.Execute(pyScope);
+                                            reference.gui.End();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Program.Logger.WriteLine("******************************************");
+                                            Program.Logger.WriteLine("OnRender: " + this.Name);
+                                            Program.Logger.WriteLine(engine.FormatError(ex));
+                                            Program.Logger.WriteLine("******************************************");
                                         }
                                     }
+                                }
 
-                                    try
-                                    {
-                                        var mx = new Matrix();
-                                        mx.Translate(-visual.ContentBounds.X, -visual.ContentBounds.Y);
-                                        visual.Transform = new MatrixTransform(mx);
+                                try
+                                {
+                                    var mx = new Matrix();
+                                    mx.Translate(-visual.ContentBounds.X, -visual.ContentBounds.Y);
+                                    visual.Transform = new MatrixTransform(mx);
 
-                                        // Rendu du bitmap en mémoire
-                                        RenderTargetBitmap bmp = new RenderTargetBitmap((int)visual.ContentBounds.Width, (int)visual.ContentBounds.Height, 96, 96, PixelFormats.Pbgra32);
-                                        bmp.Render(visual);
+                                    // Rendu du bitmap en mémoire
+                                    RenderTargetBitmap bmp = new RenderTargetBitmap((int)visual.ContentBounds.Width, (int)visual.ContentBounds.Height, 96, 96, PixelFormats.Pbgra32);
+                                    bmp.Render(visual);
 
-                                        // Encode en PNG
-                                        var encoder = new PngBitmapEncoder();
-                                        encoder.Frames.Add(BitmapFrame.Create(bmp));
+                                    // Encode en PNG
+                                    var encoder = new PngBitmapEncoder();
+                                    encoder.Frames.Add(BitmapFrame.Create(bmp));
 
-                                        using var stream = new MemoryStream();
-                                        encoder.Save(stream);
-                                        stream.Position = 0;
+                                    using var stream = new MemoryStream();
+                                    encoder.Save(stream);
+                                    stream.Position = 0;
 
-                                        var data = new DataObject();
-                                        data.SetData("PNG", stream, autoConvert: false); // format personnalisé PNG
-                                        data.SetImage(bmp); // optionnel : pour compatibilité
-                                        Clipboard.SetDataObject(data, true);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Program.Logger.WriteLine(ex.Message);
-                                    }
-
-                                    reference.mutexReadOutput.ReleaseMutex();
+                                    var data = new DataObject();
+                                    data.SetData("PNG", stream, autoConvert: false); // format personnalisé PNG
+                                    data.SetImage(bmp); // optionnel : pour compatibilité
+                                    Clipboard.SetDataObject(data, true);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Program.Logger.WriteLine(ex.Message);
                                 }
                             }
+                            finally
+                            {
+                                reference._readOutput.Release();
+                            }
+
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Program.Logger.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
                 }
             }
         }
@@ -1086,98 +1123,100 @@ namespace DevApps.GUI
         {
             if (dataGrid.SelectedItem is TabItem selectedItem)
             {
-                var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-                if (handle)
+                try
                 {
-                    try
+                    DevObject._checkLock.Wait();
+
+                    if (DevObject.TryGet(selectedItem.Name, out var reference))
                     {
-                        if (DevObject.References.TryGetValue(selectedItem.Name, out var reference))
+                        // Execute le script de dessin
+                        if (reference.DrawCode.Item2 != null)
                         {
-                            // Execute le script de dessin
-                            if (reference.DrawCode.Item2 != null)
+                            try
                             {
-                                var handle2 = reference.mutexReadOutput.WaitOne();
-                                if (handle2)
+                                reference._readOutput.Wait();
+
+                                DrawingVisual visual = new DrawingVisual();
+
+                                // Ouvre le DrawingContext
+                                using (DrawingContext drawingContext = visual.RenderOpen())
                                 {
-                                    DrawingVisual visual = new DrawingVisual();
-
-                                    // Ouvre le DrawingContext
-                                    using (DrawingContext drawingContext = visual.RenderOpen())
+                                    var engine = reference.DrawCode.Item2?.Engine;
+                                    if (engine != null)
                                     {
-                                        var engine = reference.DrawCode.Item2?.Engine;
-                                        if (engine != null)
+                                        try
                                         {
-                                            try
-                                            {
-                                                var pyScope = engine.CreateScope();//lock Program.pyEngine !
-                                                pyScope.SetVariable("out", new DevApps.Scripts.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
-                                                pyScope.SetVariable("gui", reference.gui);
-                                                pyScope.SetVariable("name", this.Name);
-                                                pyScope.SetVariable("dc", drawingContext);
-                                                pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
-                                                pyScope.SetVariable("desc", reference.Description);
+                                            var pyScope = engine.CreateScope();//lock Program.pyEngine !
+                                            pyScope.SetVariable("out", new DevApps.Scripts.Output(reference.Content, Path.Combine(Program.DataDir, this.Name)));
+                                            pyScope.SetVariable("gui", reference.gui);
+                                            pyScope.SetVariable("name", this.Name);
+                                            pyScope.SetVariable("dc", drawingContext);
+                                            pyScope.SetVariable("rect", new Rect(0, 0, 500, 500));
+                                            pyScope.SetVariable("desc", reference.Description);
 
-                                                foreach (var pointer in reference.Pointers)
-                                                {
-                                                    Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
-                                                    pyScope.SetVariable(pointer.Key, new DevApps.Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
-                                                }
-
-                                                reference.gui.Begin(drawingContext);
-                                                reference.DrawCode.Item2?.Execute(pyScope);
-                                                reference.gui.End();
-                                            }
-                                            catch (Exception ex)
+                                            foreach (var pointer in reference.Pointers)
                                             {
-                                                Program.Logger.WriteLine("******************************************");
-                                                Program.Logger.WriteLine("OnRender: " + this.Name);
-                                                Program.Logger.WriteLine(engine.FormatError(ex));
-                                                Program.Logger.WriteLine("******************************************");
+                                                Program.DevObject.References.TryGetValue(pointer.Value.target, out var pointerRef);
+                                                pyScope.SetVariable(pointer.Key, new DevApps.Scripts.Output(pointerRef != null ? pointerRef.Content : new MemoryStream(), Path.Combine(Program.DataDir, this.Name)));// mise en cache dans l'objet ?
                                             }
+
+                                            reference.gui.Begin(drawingContext);
+                                            reference.DrawCode.Item2?.Execute(pyScope);
+                                            reference.gui.End();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Program.Logger.WriteLine("******************************************");
+                                            Program.Logger.WriteLine("OnRender: " + this.Name);
+                                            Program.Logger.WriteLine(engine.FormatError(ex));
+                                            Program.Logger.WriteLine("******************************************");
                                         }
                                     }
+                                }
 
-                                    try
+                                try
+                                {
+                                    var mx = new Matrix();
+                                    mx.Translate(-visual.ContentBounds.X, -visual.ContentBounds.Y);
+                                    visual.Transform = new MatrixTransform(mx);
+
+                                    // Rendu du bitmap en mémoire
+                                    RenderTargetBitmap bmp = new RenderTargetBitmap((int)visual.ContentBounds.Width, (int)visual.ContentBounds.Height, 96, 96, PixelFormats.Pbgra32);
+                                    bmp.Render(visual);
+
+                                    // Encodage PNG
+                                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                                    encoder.Frames.Add(BitmapFrame.Create(bmp));
+
+                                    // Conversion en base64
+                                    using (MemoryStream stream = new MemoryStream())
                                     {
-                                        var mx = new Matrix();
-                                        mx.Translate(-visual.ContentBounds.X, -visual.ContentBounds.Y);
-                                        visual.Transform = new MatrixTransform(mx);
+                                        encoder.Save(stream);
+                                        string base64 = Convert.ToBase64String(stream.ToArray());
 
-                                        // Rendu du bitmap en mémoire
-                                        RenderTargetBitmap bmp = new RenderTargetBitmap((int)visual.ContentBounds.Width, (int)visual.ContentBounds.Height, 96, 96, PixelFormats.Pbgra32);
-                                        bmp.Render(visual);
-
-                                        // Encodage PNG
-                                        PngBitmapEncoder encoder = new PngBitmapEncoder();
-                                        encoder.Frames.Add(BitmapFrame.Create(bmp));
-
-                                        // Conversion en base64
-                                        using (MemoryStream stream = new MemoryStream())
-                                        {
-                                            encoder.Save(stream);
-                                            string base64 = Convert.ToBase64String(stream.ToArray());
-
-                                            Clipboard.SetText(base64);
-                                        }
+                                        Clipboard.SetText(base64);
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        Program.Logger.WriteLine(ex.Message);
-                                    }
-
-                                    reference.mutexReadOutput.ReleaseMutex();
+                                }
+                                catch (Exception ex)
+                                {
+                                    Program.Logger.WriteLine(ex.Message);
                                 }
                             }
+                            finally
+                            {
+                                reference._readOutput.Release();
+                            }
+
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Program.Logger.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        Program.DevObject.mutexCheckObjectList.ReleaseMutex();
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
                 }
             }
         }

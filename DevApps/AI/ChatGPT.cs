@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using static Program;
 
 namespace DevApps.AI
 {
@@ -37,13 +38,17 @@ namespace DevApps.AI
             Program.DevVariable? model = null;
             Program.DevVariable? endpoint = null;
 
-            var handle = Program.DevVariable.mutexCheckVariableList.WaitOne();
-            if (handle)
+            try
             {
+                DevVariable._checkLock.Wait();
+
                 Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_API_KEY", out apiKey);
                 Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_MODEL", out model);//"gpt-4" ou "gpt-3.5-turbo"
                 Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_URL", out endpoint);//https://api.openai.com/v1/chat/completions
-                Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+            }
+            finally
+            {
+                DevVariable._checkLock.Release();
             }
 
             if (apiKey == null)
