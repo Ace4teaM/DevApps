@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using DevApps.GUI;
+using System.IO;
 using System.Security.Cryptography;
 using System.Windows;
 using static Program;
@@ -10,6 +11,23 @@ namespace DevApps.Features
     /// </summary>
     internal static class Objects
     {
+        /// <summary>
+        /// Liste les noms des objets
+        /// </summary>
+        public static async Task<string[]> GetNames()
+        {
+            try
+            {
+                await DevObject._checkLock.WaitAsync();
+
+                return DevObject.References.Keys.ToArray();
+            }
+            finally
+            {
+                DevObject._checkLock.Release();
+            }
+        }
+
         /// <summary>
         ///Supprime un objet du projet
         /// </summary>
@@ -48,6 +66,25 @@ namespace DevApps.Features
             {
                 DevObject._executeLock.Release();
             }
+
+            // actualise la vue de l'éditeur
+
+            DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
+            {
+                var dataView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
+
+                if (dataView != null)
+                {
+                    dataView.InvalidateObjects();
+                }
+
+                var facetView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerView;
+
+                if (facetView != null)
+                {
+                    facetView.InvalidateObjects();
+                }
+            });
         }
 
         /// <summary>
@@ -78,6 +115,20 @@ namespace DevApps.Features
             {
                 DevObject._executeLock.Release();
             }
+
+
+            // actualise la vue de l'éditeur
+
+            DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
+            {
+                var dataView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
+
+                if (dataView != null)
+                {
+                    dataView.InvalidateObjects();
+                }
+            });
+
             return name;
         }
 
