@@ -60,11 +60,11 @@ namespace DevApps.Interpreters
                 var collector = new CGlobalElementCollector(tokens);
                 walker.Walk(collector, tree);
 
-                System.Console.WriteLine($"Éléments globaux trouvés : {collector.GlobalElements.Count}");
+                Program.Logger.WriteLine($"Éléments globaux trouvés : {collector.GlobalElements.Count}");
                 for (int i = 0; i < collector.GlobalElements.Count; i++)
                 {
                     outputString.AppendLine($"\n--- Élément {i + 1} ---\n{collector.GlobalElements[i]}\n");
-                    System.Console.WriteLine($"\n--- Élément {i + 1} ---\n{collector.GlobalElements[i]}\n");
+                    Program.Logger.WriteLine($"\n--- Élément {i + 1} ---\n{collector.GlobalElements[i]}\n");
                 }
             }
 
@@ -79,11 +79,11 @@ namespace DevApps.Interpreters
                 var collector = new CGlobalElementCollector(tokens);
                 walker.Walk(collector, tree);
 
-                System.Console.WriteLine($"Éléments globaux trouvés : {collector.GlobalElements.Count}");
+                Program.Logger.WriteLine($"Éléments globaux trouvés : {collector.GlobalElements.Count}");
                 for (int i = 0; i < collector.GlobalElements.Count; i++)
                 {
                     outputString.AppendLine($"\n--- Élément {i + 1} ---\n{collector.GlobalElements[i]}\n");
-                    System.Console.WriteLine($"\n--- Élément {i + 1} ---\n{collector.GlobalElements[i]}\n");
+                    Program.Logger.WriteLine($"\n--- Élément {i + 1} ---\n{collector.GlobalElements[i]}\n");
                 }
             }
 

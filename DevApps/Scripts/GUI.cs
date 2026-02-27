@@ -213,8 +213,8 @@ namespace DevApps.Scripts
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("edit: Echec de l'ouverture de l'éditeur");
-                System.Console.WriteLine(ex.ToString());
+                Program.Logger.WriteLine("edit: Echec de l'ouverture de l'éditeur");
+                Program.Logger.WriteLine(ex.ToString());
             }
         }
 
@@ -493,7 +493,7 @@ namespace DevApps.Scripts
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return this;
@@ -513,7 +513,7 @@ namespace DevApps.Scripts
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return this;
@@ -764,7 +764,7 @@ namespace DevApps.Scripts
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return this;

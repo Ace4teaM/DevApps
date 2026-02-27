@@ -94,7 +94,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
 
             return false;
@@ -123,7 +123,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
 
             return false;
@@ -154,7 +154,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
 
             return false;
@@ -182,7 +182,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
 
             return EmptyValue;
@@ -210,7 +210,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -244,7 +244,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
 
             return list;

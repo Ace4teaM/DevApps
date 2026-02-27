@@ -107,7 +107,7 @@ namespace Markdig.Renderers.Wpf.Extensions
                         }
                         catch (Exception ex)
                         {
-                            System.Console.WriteLine(ex.Message);
+                            Program.Logger.WriteLine(ex.Message);
                         }
 
                         return BlockState.None;

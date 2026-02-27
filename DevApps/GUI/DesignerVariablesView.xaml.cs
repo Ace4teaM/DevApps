@@ -145,7 +145,7 @@ namespace DevApps.GUI
                                                 foreach (var property in obj.Value.Properties.Where(p => p.Value.Item1.Contains(item.Name)).ToArray())
                                                 {
                                                     property.Value.Item1.Replace(item.Name, text); // todo rechercher dans la syntaxe et non seulement le texte !
-                                                    Console.WriteLine($"Renomme dans la propriété {obj.Key}.{property.Key} => {property.Value.Item1}");
+                                                    Program.Logger.WriteLine($"Renomme dans la propriété {obj.Key}.{property.Key} => {property.Value.Item1}");
                                                     //todo recompiler l'expression...
                                                 }
                                             }
@@ -167,7 +167,7 @@ namespace DevApps.GUI
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message);
+                            Program.Logger.WriteLine(ex.Message);
                         }
                         finally
                         {
@@ -212,7 +212,7 @@ namespace DevApps.GUI
                                                 foreach (var property in obj.Value.Properties.Where(p => p.Value.Item1.Contains(item.Name)).ToArray())
                                                 {
                                                     property.Value.Item1.Replace(item.Name, text); // todo rechercher dans la syntaxe et non seulement le texte !
-                                                    Console.WriteLine($"Renomme dans la propriété {obj.Key}.{property.Key} => {property.Value.Item1}");
+                                                    Program.Logger.WriteLine($"Renomme dans la propriété {obj.Key}.{property.Key} => {property.Value.Item1}");
                                                     //todo recompiler l'expression...
                                                 }
                                             }
@@ -235,7 +235,7 @@ namespace DevApps.GUI
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message);
+                            Program.Logger.WriteLine(ex.Message);
                         }
                         finally
                         {

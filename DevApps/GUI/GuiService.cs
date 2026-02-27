@@ -264,7 +264,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -299,7 +299,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -327,7 +327,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -368,7 +368,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -398,7 +398,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -420,7 +420,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}");
+                Program.Logger.WriteLine($"{ex.Message}");
                 throw;
             }
         }
@@ -780,7 +780,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex.ToString());
+                Program.Logger.WriteLine(ex.ToString());
             }
 
             return false;

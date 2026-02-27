@@ -1,7 +1,4 @@
-﻿using DevApps.GUI;
-using Newtonsoft.Json;
-using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using static Program;
 
 namespace DevApps.Features
@@ -11,6 +8,16 @@ namespace DevApps.Features
     /// </summary>
     internal static class Objects
     {
+        /// <summary>
+        /// Ajoute un objet au projet
+        /// </summary>
+        /// <returns></returns>
+        public static DevObjectInstance Create(out string name)
+        {
+            name = "NewObject";
+            DevObject.MakeUniqueName(ref name);
+            return DevObjectInstance.Create(name, "", []);
+        }
         /// <summary>
         /// Ajoute l'objet à la bibliothèque
         /// </summary>
@@ -128,12 +135,12 @@ namespace DevApps.Features
                                         return false;
                                     }) == 0)
                                     {
-                                        Console.WriteLine("Modèle introuvable pour l'objet " + name);
+                                        Program.Logger.WriteLine("Modèle introuvable pour l'objet " + name);
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    Console.WriteLine(ex.Message);
+                                    Program.Logger.WriteLine(ex.Message);
                                 }
                                 finally
                                 {
@@ -145,7 +152,7 @@ namespace DevApps.Features
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
                 finally
                 {
@@ -193,16 +200,16 @@ namespace DevApps.Features
                         {
                             MessageBox.Show("Il existe plusieurs objets partagés possédant cet identifiant, veuillez corriger la bibliothèque.", "Avertissement", MessageBoxButton.OK);
 
-                            Console.WriteLine("Multiples objets partagés avec le GUID: " + inst.baseGuid);
+                            Program.Logger.WriteLine("Multiples objets partagés avec le GUID: " + inst.baseGuid);
                             foreach (var item in list)
-                                Console.WriteLine("* " + item.Description);
-                            Console.WriteLine();
+                                Program.Logger.WriteLine("* " + item.Description);
+                            Program.Logger.WriteLine();
                         }
                         else if (list.Count == 0)
                         {
                             MessageBox.Show("L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
 
-                            Console.WriteLine("Objet partagé introuvable avec le GUID: " + inst.baseGuid);
+                            Program.Logger.WriteLine("Objet partagé introuvable avec le GUID: " + inst.baseGuid);
                         }
                     }
                 }

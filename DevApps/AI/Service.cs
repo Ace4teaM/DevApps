@@ -121,7 +121,7 @@ namespace DevApps.AI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                     MessageBox.Show(ex.Message);
                 }
             }

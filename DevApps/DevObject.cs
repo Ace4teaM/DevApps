@@ -49,7 +49,7 @@ internal partial class Program
             var tree = CreateDependancesTree(new KeyValuePair<string, DevObject>( key, obj ));
             foreach (var o in tree)
             {
-                System.Console.WriteLine($"Increment {o.Item2}");
+                Program.Logger.WriteLine($"Increment {o.Item2}");
                 if (TryGet(o.Item2, out var i))
                 {
                     for (int j = 0; j < o.Item1; j++)
@@ -361,7 +361,7 @@ internal partial class Program
                     var handle = mutexExecuteObjects.WaitOne();
                     if (handle)
                     {
-                        System.Console.WriteLine(i++);
+                        Program.Logger.WriteLine(i++);
                         if (run == true)
                             DevObject.Timer();
                         if (run == true)
@@ -381,7 +381,7 @@ internal partial class Program
             }
             catch (Exception e )
             {
-                System.Console.WriteLine(e.Message);
+                Program.Logger.WriteLine(e.Message);
             }
         }
 
@@ -417,10 +417,10 @@ internal partial class Program
                             }
                             catch (Exception ex)
                             {
-                                System.Console.WriteLine("******************************************");
-                                System.Console.WriteLine("Timer: " + o.Key);
-                                System.Console.WriteLine(engine.FormatError(ex));
-                                System.Console.WriteLine("******************************************");
+                                Program.Logger.WriteLine("******************************************");
+                                Program.Logger.WriteLine("Timer: " + o.Key);
+                                Program.Logger.WriteLine(engine.FormatError(ex));
+                                Program.Logger.WriteLine("******************************************");
                             }
                         }
 
@@ -470,7 +470,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
             return null;
         }
@@ -534,10 +534,10 @@ internal partial class Program
                     }
                     catch (Exception ex)
                     {
-                        System.Console.WriteLine("******************************************");
-                        System.Console.WriteLine("Init: " + o.Key);
-                        Console.WriteLine(ex.Message);
-                        System.Console.WriteLine("******************************************");
+                        Program.Logger.WriteLine("******************************************");
+                        Program.Logger.WriteLine("Init: " + o.Key);
+                        Program.Logger.WriteLine(ex.Message);
+                        Program.Logger.WriteLine("******************************************");
                     }
 
                     // Execute le script d'initialisation
@@ -577,10 +577,10 @@ internal partial class Program
                         }
                         catch (Exception ex)
                         {
-                            System.Console.WriteLine("******************************************");
-                            System.Console.WriteLine("Init: " + o.Key);
-                            System.Console.WriteLine(engine.FormatError(ex));
-                            System.Console.WriteLine("******************************************");
+                            Program.Logger.WriteLine("******************************************");
+                            Program.Logger.WriteLine("Init: " + o.Key);
+                            Program.Logger.WriteLine(engine.FormatError(ex));
+                            Program.Logger.WriteLine("******************************************");
                         }
                     }
                 }
@@ -687,10 +687,10 @@ internal partial class Program
                         }
                         catch (Exception ex)
                         {
-                            System.Console.WriteLine("******************************************");
-                            System.Console.WriteLine("Build: " + o.Key);
-                            System.Console.WriteLine(engine.FormatError(ex));
-                            System.Console.WriteLine("******************************************");
+                            Program.Logger.WriteLine("******************************************");
+                            Program.Logger.WriteLine("Build: " + o.Key);
+                            Program.Logger.WriteLine(engine.FormatError(ex));
+                            Program.Logger.WriteLine("******************************************");
                         }
                     }
                 }
@@ -811,10 +811,10 @@ internal partial class Program
                             }
                             catch (Exception ex)
                             {
-                                System.Console.WriteLine("******************************************");
-                                System.Console.WriteLine("Function: " + func + " to " + obj);
-                                System.Console.WriteLine(engine.FormatError(ex));
-                                System.Console.WriteLine("******************************************");
+                                Program.Logger.WriteLine("******************************************");
+                                Program.Logger.WriteLine("Function: " + func + " to " + obj);
+                                Program.Logger.WriteLine(engine.FormatError(ex));
+                                Program.Logger.WriteLine("******************************************");
                             }
                         }
                     }
@@ -850,10 +850,10 @@ internal partial class Program
                             }
                             catch (Exception ex)
                             {
-                                System.Console.WriteLine("******************************************");
-                                System.Console.WriteLine("Property: " + prop + " to " + obj);
-                                System.Console.WriteLine(engine.FormatError(ex));
-                                System.Console.WriteLine("******************************************");
+                                Program.Logger.WriteLine("******************************************");
+                                Program.Logger.WriteLine("Property: " + prop + " to " + obj);
+                                Program.Logger.WriteLine(engine.FormatError(ex));
+                                Program.Logger.WriteLine("******************************************");
                             }
                         }
                     }
@@ -892,8 +892,8 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Erreur de compilation sur l'objet {o.Description}");
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine($"Erreur de compilation sur l'objet {o.Description}");
+                    Program.Logger.WriteLine(ex.Message);
                 }
             }
         }

@@ -39,7 +39,7 @@ Pour ce faire:
 * Un **pointeur est un lien symbolique** vers un autre objet pas une dépendance forte (un nom relatif permet de l'identifier)
 * Un **moteur de script** unique permet à l'utilisateur de construire des données complexes et de dessiner la représentation visuel.
 
-## Codage
+## Architecture
 
 Technologies:
 
@@ -62,7 +62,7 @@ DevApps centralise donc les efforts de l'utilisateur sur la conception et non la
 
 **Oui mais je peux demander à une IA de me lister les différentes options techniques, choisir l'une d'entre elles puis lui demander de l'implémenter ?**
 
-C'est vrai est l'IA est en pleine évolution. DevApps à cependant la qualité de maintenir une bibliothèque de connaissances indépendante et de pousser au processus créatif.
+C'est vrai est l'IA est en pleine évolution. DevApps à cependant la qualité de maintenir une bibliothèque de connaissances géré/hors-ligne/communautaire et de pousser au processus créatif. Que ferons nous si toute la connaissances sont aux mains de quelques sociétés de services exigeant un abonnement mensuel ?
 
 **Comment la clause de non-dépendance entre les projets est-elle assurée ?**
 
@@ -76,6 +76,18 @@ Car cela enfreint la clause de portabilité de la bibliothèque partagé et des 
 
 DevApps est disponible au téléchargement sous forme de **Release** au format **Windows Portable**
 
+# Conventions de codage
+
+Voici les règles à respecter pour maintenir le bon développement de l'application:
+
+1. Les **Features** sont les commandes de l'application. elles gères les erreurs et ne retourne pas d'exceptions. Les Features servent de point d'entrée aux différents services pour manipuler de façon sûr et cohérente aux objets métiers.
+2. Les **Services** apportes des mécanismes internes pour manipuler les composants de l'application (*GUI*, *ServeurHTTP*, *logs*...) les classes sont toujours **statics** et **thread-safe** et peuvent être appelés de n'importe où. `AI`, `MPC`, `GUI` sont des services
+3. les **Objets** métiers sont implémenté à la racine de l'application. *DevObject*, *DevVariable*, *Dev...* sont des objets métiers. Ils gèrent leurs propres références et expose des méthodes internes à accés direct (**non thread-safe, les lock sont gérés en amont**)
+4. **DevAppsExtension** est un module d'interface tiers (**third-party**)
+5. **ANTLR** implémente dans un module à part les **définitions des syntaxes de langages** interprétables nativement (optimise les phases de build)
+6. **DevAppsSetup** est un programme tiers permettant la configuration du système pour **installer et upgrader Devapps**
+7. **xxxxExtends** sont les modules d'extensions optionnels chargé par DevApps (**un projet ne dépend jamais d'un module d'extension**)
+
 # Workflow
 
 DevApps est un projet open-source sans financement. Il initialement basé sur un projet de **Fast-Coding**, on part d'un concept simple et on l'implémente le plus rapidement possible pour avoir un premier retour d'expérience positif/négatif et décider de l'avenir du projet.
@@ -85,6 +97,39 @@ Aujourd'hui la base de code commence à grandir est DevApps a besoin d'un Workfl
 ## Hébergement
 
 DevApps est hébergé sur GitHub et cette plateforme propose un système d'intégration continue personnalisable : les GitHub Actions.
+
+## Configuration MPC (Claude Desktop)
+
+Permettre à claude de cibler le projet de développement en *debug* ou *release* (adaptez les chemins).
+
+`%AppData%\Claude\claude_desktop_config.json`
+
+ou
+
+`%AppData%\Local\Packages\Claude_[xxxxxxxx]\LocalCache\Roaming\Claude` (si installé via le Microsoft Store)
+
+```json
+{
+  "mcpServers": {
+    "devapps": {
+      "command": "C:\\Users\\aceteam\\source\\repos\\DevApps\\DevApps\\bin\\Debug\\net9.0-windows\\DevApps.exe",
+      "args": [
+        "-b",
+        "-i",
+        "-d E:\\tests\\devapps-mcp-project",
+        "-w"
+      ]
+    },
+    "devapps-debug": {
+      "command": "dotnet",
+      "args": ["run", "--project", "C:\\Users\\aceteam\\source\\repos\\DevApps\\DevApps\\DevApps.csproj"],
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
+```
 
 ## Actions manuelles
 

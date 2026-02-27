@@ -233,12 +233,12 @@ internal partial class Program
                         continue;
                 }
 
-                ProgramLogger.Instance.Print(cmd.action);
+                Program.Logger.Print(cmd.action);
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Program.Logger.WriteLine(ex.Message);
         }
     }
 }

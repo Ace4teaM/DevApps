@@ -48,9 +48,8 @@ namespace DevApps
                     var text = Encoding.UTF8.GetString(buffer, offset, count);
                     logger.Write(text);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine(ex.ToString());
                 }
             }
 
@@ -66,12 +65,8 @@ namespace DevApps
             public byte[] ToArray() => Array.Empty<byte>();
         }
 
-        internal static ProgramLogger Instance { get; } = new ProgramLogger();
-
-        public static string LogFile => ".devapps.log";
-
-        internal FileStream writer = new FileStream(LogFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-        internal FileStream reader = new FileStream(LogFile, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
+        internal FileStream writer;
+        internal FileStream reader;
         internal RedirectStream redirect;
 
         public override Encoding Encoding => Encoding.UTF8;
@@ -79,8 +74,10 @@ namespace DevApps
         // Événement optionnel pour suivre l'écriture
         public event EventHandler<string>? TextWritten;
 
-        public ProgramLogger()
+        public ProgramLogger(string filename)
         {
+            writer = new FileStream(filename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+            reader = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
             redirect = new RedirectStream() { logger = this };
         }
 
@@ -195,7 +192,7 @@ namespace DevApps
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
     }

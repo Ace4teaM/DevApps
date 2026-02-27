@@ -52,8 +52,8 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("load object data " + this.filename + " failed");
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine("load object data " + this.filename + " failed");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -74,8 +74,8 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("save object data " + this.fileStream?.Name + " failed");
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine("save object data " + this.fileStream?.Name + " failed");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -283,7 +283,7 @@ internal partial class Program
             {
                 if (p.Value == null)
                 {
-                    Console.WriteLine($"Fonction {p.Key} sans code ignoré");
+                    Program.Logger.WriteLine($"Fonction {p.Key} sans code ignoré");
                     continue;
                 }
                 AddFunction(p.Key, p.Value);

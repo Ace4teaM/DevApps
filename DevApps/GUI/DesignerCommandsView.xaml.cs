@@ -175,7 +175,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
             }
         }
@@ -229,7 +229,7 @@ namespace DevApps.GUI
                 }
                 else
                 {
-                    Console.WriteLine($"Command group '{name}' not found.");
+                    Program.Logger.WriteLine($"Command group '{name}' not found.");
                 }
             }
         }

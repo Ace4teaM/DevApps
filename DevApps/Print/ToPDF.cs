@@ -99,10 +99,10 @@ namespace DevApps.Print
                             }
                             catch (Exception ex)
                             {
-                                System.Console.WriteLine("******************************************");
-                                System.Console.WriteLine("OnRender: " + key);
-                                Console.WriteLine(engine.FormatError(ex));
-                                System.Console.WriteLine("******************************************");
+                                Program.Logger.WriteLine("******************************************");
+                                Program.Logger.WriteLine("OnRender: " + key);
+                                Program.Logger.WriteLine(engine.FormatError(ex));
+                                Program.Logger.WriteLine("******************************************");
                             }
                         }
                         o.mutexReadOutput.ReleaseMutex();
@@ -356,7 +356,7 @@ namespace DevApps.Print
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Program.Logger.WriteLine(ex.Message);
                     }
                 }
             }

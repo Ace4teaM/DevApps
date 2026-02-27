@@ -223,7 +223,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
             }
 
@@ -293,7 +293,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Program.Logger.WriteLine(ex);
                 }
             }
         }

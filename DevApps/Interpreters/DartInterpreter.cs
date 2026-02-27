@@ -57,25 +57,25 @@ namespace DevApps.Interpreters
                     {
                         type = "getter";
                         text = context.methodSignature().getterSignature().identifier()?.GetText();
-                        //Console.WriteLine($"Setter : {name}");
+                        //Program.Logger.WriteLine($"Setter : {name}");
                     }
                     else if (context.methodSignature().setterSignature() != null)
                     {
                         type = "setter";
                         text = context.methodSignature().setterSignature().identifier()?.GetText();
-                        //Console.WriteLine($"Setter : {name}");
+                        //Program.Logger.WriteLine($"Setter : {name}");
                     }
                     else if (context.methodSignature().factoryConstructorSignature() != null)
                     {
                         type = "ctor factory";
                         text = context.methodSignature().factoryConstructorSignature().constructorName()?.GetText();
-                        //Console.WriteLine($"Factory constructeur : {name}");
+                        //Program.Logger.WriteLine($"Factory constructeur : {name}");
                     }
                     else if (context.methodSignature().constructorSignature() != null)
                     {
                         type = "ctor";
                         text = context.methodSignature().constructorSignature().constructorName()?.GetText();
-                        //Console.WriteLine("Constructeur sans nom trouvé");
+                        //Program.Logger.WriteLine("Constructeur sans nom trouvé");
                     }
                     else if (context.methodSignature().STATIC_() != null)
                     {
@@ -87,7 +87,7 @@ namespace DevApps.Interpreters
                     {
                         type = "method";
                         text = context.methodSignature().functionSignature().identifier()?.GetText();
-                        //Console.WriteLine($"Méthode : {name}");
+                        //Program.Logger.WriteLine($"Méthode : {name}");
                     }
                 }
                 else if (context.declaration() != null)
@@ -96,37 +96,37 @@ namespace DevApps.Interpreters
                     {
                         type = "getter";
                         text = context.declaration().getterSignature().identifier()?.GetText();
-                        //Console.WriteLine($"Setter : {name}");
+                        //Program.Logger.WriteLine($"Setter : {name}");
                     }
                     else if (context.declaration().setterSignature() != null)
                     {
                         type = "setter";
                         text = context.declaration().setterSignature().identifier()?.GetText();
-                        //Console.WriteLine($"Setter : {name}");
+                        //Program.Logger.WriteLine($"Setter : {name}");
                     }
                     else if (context.declaration().factoryConstructorSignature() != null)
                     {
                         type = "ctor factory";
                         text = context.declaration().factoryConstructorSignature().constructorName()?.GetText();
-                        //Console.WriteLine($"Factory constructeur : {name}");
+                        //Program.Logger.WriteLine($"Factory constructeur : {name}");
                     }
                     else if (context.declaration().constructorSignature() != null)
                     {
                         type = "ctor";
                         text = context.declaration().constructorSignature().constructorName()?.GetText();
-                        //Console.WriteLine("Constructeur sans nom trouvé");
+                        //Program.Logger.WriteLine("Constructeur sans nom trouvé");
                     }
                     else if (context.declaration().constantConstructorSignature() != null)
                     {
                         type = "ctor const";
                         text = context.declaration().constantConstructorSignature().constructorName()?.GetText();
-                        //Console.WriteLine("Constructeur sans nom trouvé");
+                        //Program.Logger.WriteLine("Constructeur sans nom trouvé");
                     }
                     else if (context.declaration().redirectingFactoryConstructorSignature() != null)
                     {
                         type = "ctor redirect";
                         text = context.declaration().redirectingFactoryConstructorSignature().constructorName()?.GetText();
-                        //Console.WriteLine("Constructeur sans nom trouvé");
+                        //Program.Logger.WriteLine("Constructeur sans nom trouvé");
                     }
                     else if (context.declaration().initializedIdentifierList() != null)
                     {
@@ -137,7 +137,7 @@ namespace DevApps.Interpreters
                             Members.Add(new(type, curClass + "." + text), new(start, stop));
                         }
                         return;
-                        //Console.WriteLine("Constructeur sans nom trouvé");
+                        //Program.Logger.WriteLine("Constructeur sans nom trouvé");
                     }
                     else if (context.declaration().staticFinalDeclarationList() != null)
                     {
@@ -212,7 +212,7 @@ namespace DevApps.Interpreters
                 .ToList();
 
             //foreach (var c in comments)
-           //     System.Console.WriteLine($"Commentaire ligne {c.Line}:{c.Column} -> {c.Text}");
+           //     Program.Logger.WriteLine($"Commentaire ligne {c.Line}:{c.Column} -> {c.Text}");
 
             var start = comments.First(p => p.Text.Replace("//","").Trim().StartsWith("#region") && p.Text.Trim().EndsWith(regionName));
             var end = comments.FirstOrDefault(p => p.Text.Replace("//", "").Trim().StartsWith("#endregion") && p.Line > start.Line && p.Text.Trim().EndsWith(regionName));

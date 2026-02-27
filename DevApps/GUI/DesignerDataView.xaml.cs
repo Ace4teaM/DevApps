@@ -283,7 +283,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
             }
         }
@@ -405,7 +405,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -440,7 +440,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -484,7 +484,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -508,7 +508,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
 
                 if(objects.Count > 0)
@@ -716,7 +716,7 @@ namespace DevApps.GUI
                                                     if (objRef.baseObjectName == item.Name)
                                                     {
                                                         objRef.baseObjectName = text;
-                                                        Console.WriteLine($"Renomme Reference {obj.Key} : {item.Name} => {text}");
+                                                        Program.Logger.WriteLine($"Renomme Reference {obj.Key} : {item.Name} => {text}");
                                                     }
                                                 }
                                             }
@@ -727,7 +727,7 @@ namespace DevApps.GUI
                                                 foreach (var pointer in obj.Value.Pointers.Where(p => p.Value.target == item.Name).ToArray())
                                                 {
                                                     obj.Value.Pointers[pointer.Key].target = text;
-                                                    Console.WriteLine($"Renomme {pointer.Key} : {item.Name} => {text}");
+                                                    Program.Logger.WriteLine($"Renomme {pointer.Key} : {item.Name} => {text}");
                                                 }
                                             }
 
@@ -739,7 +739,7 @@ namespace DevApps.GUI
                                                     var tmp = pointer.Value;
                                                     obj.Value.Objects.Remove(pointer.Key);
                                                     obj.Value.Objects.Add(text, tmp);
-                                                    Console.WriteLine($"Renomme {obj.Key} : {pointer.Key} => {text}");
+                                                    Program.Logger.WriteLine($"Renomme {obj.Key} : {pointer.Key} => {text}");
                                                 }
                                             }
 
@@ -766,7 +766,7 @@ namespace DevApps.GUI
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine(ex.Message);
+                                Program.Logger.WriteLine(ex.Message);
                             }
                             finally
                             {
@@ -780,7 +780,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -830,7 +830,7 @@ namespace DevApps.GUI
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Program.Logger.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -874,7 +874,7 @@ namespace DevApps.GUI
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message);
+                            Program.Logger.WriteLine(ex.Message);
                         }
                         finally
                         {
@@ -910,7 +910,7 @@ namespace DevApps.GUI
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.Message);
+                            Program.Logger.WriteLine(ex.Message);
                         }
                         finally
                         {
@@ -942,7 +942,7 @@ namespace DevApps.GUI
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Program.Logger.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -973,7 +973,7 @@ namespace DevApps.GUI
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Program.Logger.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -1029,10 +1029,10 @@ namespace DevApps.GUI
                                             }
                                             catch (Exception ex)
                                             {
-                                                System.Console.WriteLine("******************************************");
-                                                System.Console.WriteLine("OnRender: " + this.Name);
-                                                System.Console.WriteLine(engine.FormatError(ex));
-                                                System.Console.WriteLine("******************************************");
+                                                Program.Logger.WriteLine("******************************************");
+                                                Program.Logger.WriteLine("OnRender: " + this.Name);
+                                                Program.Logger.WriteLine(engine.FormatError(ex));
+                                                Program.Logger.WriteLine("******************************************");
                                             }
                                         }
                                     }
@@ -1062,7 +1062,7 @@ namespace DevApps.GUI
                                     }
                                     catch (Exception ex)
                                     {
-                                        System.Console.WriteLine(ex.Message);
+                                        Program.Logger.WriteLine(ex.Message);
                                     }
 
                                     reference.mutexReadOutput.ReleaseMutex();
@@ -1072,7 +1072,7 @@ namespace DevApps.GUI
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Program.Logger.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -1129,10 +1129,10 @@ namespace DevApps.GUI
                                             }
                                             catch (Exception ex)
                                             {
-                                                System.Console.WriteLine("******************************************");
-                                                System.Console.WriteLine("OnRender: " + this.Name);
-                                                System.Console.WriteLine(engine.FormatError(ex));
-                                                System.Console.WriteLine("******************************************");
+                                                Program.Logger.WriteLine("******************************************");
+                                                Program.Logger.WriteLine("OnRender: " + this.Name);
+                                                Program.Logger.WriteLine(engine.FormatError(ex));
+                                                Program.Logger.WriteLine("******************************************");
                                             }
                                         }
                                     }
@@ -1162,7 +1162,7 @@ namespace DevApps.GUI
                                     }
                                     catch (Exception ex)
                                     {
-                                        System.Console.WriteLine(ex.Message);
+                                        Program.Logger.WriteLine(ex.Message);
                                     }
 
                                     reference.mutexReadOutput.ReleaseMutex();
@@ -1172,7 +1172,7 @@ namespace DevApps.GUI
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Program.Logger.WriteLine(ex.Message);
                     }
                     finally
                     {

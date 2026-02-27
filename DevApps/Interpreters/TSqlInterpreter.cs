@@ -154,10 +154,10 @@ namespace DevApps.Interpreters
                 var collector = new TSqlGlobalCollector(tokens);
                 walker.Walk(collector, tree);
 
-                System.Console.WriteLine($"Éléments trouvés : {collector.Members.Count}");
+                Program.Logger.WriteLine($"Éléments trouvés : {collector.Members.Count}");
                 foreach (var member in collector.Members)
                 {
-                    System.Console.WriteLine($"\n--- Élément {member.Value.GetType()} ---\n{member.Key}");
+                    Program.Logger.WriteLine($"\n--- Élément {member.Value.GetType()} ---\n{member.Key}");
                 }
 
                 sqlGlobalCollector1 = collector;
@@ -174,10 +174,10 @@ namespace DevApps.Interpreters
                 var collector = new TSqlGlobalCollector(tokens);
                 walker.Walk(collector, tree);
 
-                System.Console.WriteLine($"Éléments trouvés : {collector.Members.Count}");
+                Program.Logger.WriteLine($"Éléments trouvés : {collector.Members.Count}");
                 foreach (var member in collector.Members)
                 {
-                    System.Console.WriteLine($"\n--- Élément {member.Value.GetType()} ---\n{member.Key}");
+                    Program.Logger.WriteLine($"\n--- Élément {member.Value.GetType()} ---\n{member.Key}");
                 }
 
                 sqlGlobalCollector2 = collector;
@@ -194,7 +194,7 @@ namespace DevApps.Interpreters
 
                         if (c1.GetType() == c2.GetType())
                         {
-                            System.Console.WriteLine($"{member.Key} est du même type dans les 2 scripts");
+                            Program.Logger.WriteLine($"{member.Key} est du même type dans les 2 scripts");
 
                             if (c1 is Create_tableContext)
                             {
@@ -258,12 +258,12 @@ namespace DevApps.Interpreters
                         }
                         else
                         {
-                            System.Console.WriteLine($"{member.Key} est d'un type différent dans le 2eme script");
+                            Program.Logger.WriteLine($"{member.Key} est d'un type différent dans le 2eme script");
                         }
                     }
                     else
                     {
-                        System.Console.WriteLine($"{member.Key} n'existe pas dans le 2eme script");
+                        Program.Logger.WriteLine($"{member.Key} n'existe pas dans le 2eme script");
                         script.AppendLine(member.Value);
                     }
                 }
@@ -307,10 +307,10 @@ namespace DevApps.Interpreters
             var collector = new TSqlGlobalCollector(tokens);
             walker.Walk(collector, tree);
 
-            System.Console.WriteLine($"Éléments trouvés : {collector.Members.Count}");
+            Program.Logger.WriteLine($"Éléments trouvés : {collector.Members.Count}");
             foreach (var member in collector.Members)
             {
-                System.Console.WriteLine($"{member.Key}");
+                Program.Logger.WriteLine($"{member.Key}");
                 if (member.Key == name)
                 {
                     script.AppendLine(member.Value);
@@ -378,10 +378,10 @@ namespace DevApps.Interpreters
                 var collector = new TSqlGlobalCollector(tokens);
                 walker.Walk(collector, tree);
 
-                System.Console.WriteLine($"Éléments trouvés : {collector.Members.Count}");
+                Program.Logger.WriteLine($"Éléments trouvés : {collector.Members.Count}");
                 foreach (var member in collector.Members)
                 {
-                    System.Console.WriteLine($"\n--- Élément {member.Value.GetType()} ---\n{member.Key}");
+                    Program.Logger.WriteLine($"\n--- Élément {member.Value.GetType()} ---\n{member.Key}");
                 }
 
                 sqlGlobalCollector1 = collector;
@@ -398,10 +398,10 @@ namespace DevApps.Interpreters
                 var collector = new TSqlGlobalCollector(tokens);
                 walker.Walk(collector, tree);
 
-                System.Console.WriteLine($"Éléments trouvés : {collector.Members.Count}");
+                Program.Logger.WriteLine($"Éléments trouvés : {collector.Members.Count}");
                 foreach (var member in collector.Members)
                 {
-                    System.Console.WriteLine($"\n--- Élément {member.Value.GetType()} ---\n{member.Key}");
+                    Program.Logger.WriteLine($"\n--- Élément {member.Value.GetType()} ---\n{member.Key}");
                 }
 
                 sqlGlobalCollector2 = collector;
@@ -418,7 +418,7 @@ namespace DevApps.Interpreters
 
                         if (c1.GetType() == c2.GetType())
                         {
-                            System.Console.WriteLine($"{member.Key} est du même type dans les 2 scripts");
+                            Program.Logger.WriteLine($"{member.Key} est du même type dans les 2 scripts");
 
                             if (c1 is Create_tableContext)
                             {
@@ -482,12 +482,12 @@ namespace DevApps.Interpreters
                         }
                         else
                         {
-                            System.Console.WriteLine($"{member.Key} est d'un type différent dans le 2eme script");
+                            Program.Logger.WriteLine($"{member.Key} est d'un type différent dans le 2eme script");
                         }
                     }
                     else
                     {
-                        System.Console.WriteLine($"{member.Key} n'existe pas dans le 2eme script");
+                        Program.Logger.WriteLine($"{member.Key} n'existe pas dans le 2eme script");
                         script.AppendLine(member.Value);
                     }
                 }

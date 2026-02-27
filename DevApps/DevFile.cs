@@ -56,11 +56,11 @@ internal partial class Program
 
             if (handle == IntPtr.Zero || handle == new IntPtr(-1))
             {
-                Console.WriteLine("Erreur : " + Marshal.GetLastWin32Error());
+                Program.Logger.WriteLine("Erreur : " + Marshal.GetLastWin32Error());
                 return;
             }
 
-            Console.WriteLine($"Surveillance de : {path}");
+            Program.Logger.WriteLine($"Surveillance de : {path}");
 
             while (cancel.IsCancellationRequested == false)
             {
@@ -80,7 +80,7 @@ internal partial class Program
                     // Reset pour continuer à écouter
                     if (!FindNextChangeNotification(handle))
                     {
-                        Console.WriteLine("Erreur lors de FindNextChangeNotification");
+                        Program.Logger.WriteLine("Erreur lors de FindNextChangeNotification");
                         break;
                     }
                 }
@@ -88,7 +88,7 @@ internal partial class Program
 
             FindCloseChangeNotification(handle);
 
-            Console.WriteLine($"Fin de la surveillance de {path}");
+            Program.Logger.WriteLine($"Fin de la surveillance de {path}");
         }
     }
 
@@ -138,17 +138,17 @@ internal partial class Program
             {
                 this.notifyChange.Wait(() => {
                     // lit les modifications
-                    Console.WriteLine($"Read file modification... {this.filename}");
+                    Program.Logger.WriteLine($"Read file modification... {this.filename}");
                     if (Read())
                     {
                         // reconstruit l'objet
                         if(DevObject.TryGet(this.objectname, out var obj) == false)
                         {
-                            Console.WriteLine($"Object {this.objectname} not found !");
+                            Program.Logger.WriteLine($"Object {this.objectname} not found !");
                             return 0;
                         }
 
-                        Console.WriteLine($"Rebuild {this.objectname}");
+                        Program.Logger.WriteLine($"Rebuild {this.objectname}");
                         DevObject.BuildTree(new KeyValuePair<string, DevObject>(this.objectname, obj));
 
                         if (GuiService.IsInitialized && GuiService.IsObjectsView)
@@ -193,14 +193,14 @@ internal partial class Program
                     else
                     {
                         if(DevObject.References.ContainsKey(objectname) == false)
-                            Console.Error.WriteLine($"L'objet \"{objectname}\" n'existe pas");
+                            Program.Logger.WriteLine($"L'objet \"{objectname}\" n'existe pas");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Read file error to {filename}");
-                Console.Error.WriteLine(ex.Message);
+                Program.Logger.WriteLine($"Read file error to {filename}");
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return false;
@@ -239,12 +239,12 @@ internal partial class Program
                     else
                     {
                         if (DevObject.References.ContainsKey(objectname) == false)
-                            Console.Error.WriteLine($"L'objet \"{objectname}\" n'existe pas ou n'a pas de contenu");
+                            Program.Logger.WriteLine($"L'objet \"{objectname}\" n'existe pas ou n'a pas de contenu");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
                 finally
                 {
@@ -277,8 +277,8 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Write file error to {filename}");
-                Console.Error.WriteLine(ex.Message);
+                Program.Logger.WriteLine($"Write file error to {filename}");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 

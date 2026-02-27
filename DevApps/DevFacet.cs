@@ -335,8 +335,8 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine("Facette: Erreur d'execution de la commande");
-                    System.Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine("Facette: Erreur d'execution de la commande");
+                    Program.Logger.WriteLine(ex.Message);
                 }
 
                 DevObject.mutexExecuteObjects.ReleaseMutex();

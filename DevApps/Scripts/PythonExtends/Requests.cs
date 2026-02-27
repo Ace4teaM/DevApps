@@ -42,19 +42,19 @@ namespace DevApps.Scripts
                     {
                         // Lire le contenu de la réponse
                         string responseContent = response.Content.ReadAsStringAsync().Result;
-                        System.Console.WriteLine("Réponse reçue : ");
-                        System.Console.WriteLine(responseContent);
+                        Program.Logger.WriteLine("Réponse reçue : ");
+                        Program.Logger.WriteLine(responseContent);
                     }
                     else
                     {
-                        System.Console.WriteLine($"Erreur : {response.StatusCode}");
+                        Program.Logger.WriteLine($"Erreur : {response.StatusCode}");
                     }
 
                     return response;
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine($"Une erreur s'est produite : {ex.Message}");
+                    Program.Logger.WriteLine($"Une erreur s'est produite : {ex.Message}");
                 }
             }
 

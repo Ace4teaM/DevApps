@@ -28,7 +28,7 @@ namespace DevApps.Appli
             catch (Exception ex)
             {
                 ProfileUser = String.Empty;
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -40,7 +40,7 @@ namespace DevApps.Appli
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 

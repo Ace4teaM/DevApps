@@ -232,7 +232,7 @@ namespace DevApps
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Composant introuvable `{name}`. {ex.Message}");
+                            Program.Logger.WriteLine($"Composant introuvable `{name}`. {ex.Message}");
                         }
                     }
                     else

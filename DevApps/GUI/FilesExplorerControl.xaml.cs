@@ -82,7 +82,7 @@ namespace DevApps.GUI
         private void FileTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is FileSystemItem item)
-                Console.WriteLine($"Sélectionné : {item.FullPath}");
+                Program.Logger.WriteLine($"Sélectionné : {item.FullPath}");
         }
         private void TreeViewItem_Expanded(object sender, RoutedEventArgs e)
         {

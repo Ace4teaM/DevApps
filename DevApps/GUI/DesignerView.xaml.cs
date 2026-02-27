@@ -1239,7 +1239,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
 
                 if (objects.Count > 0)
@@ -1283,7 +1283,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex2)
                 {
-                    Console.WriteLine(ex2.Message);
+                    Program.Logger.WriteLine(ex2.Message);
                 }
 
                 // Ajoute à la facette en cours
@@ -1739,7 +1739,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex2)
                 {
-                    Console.WriteLine(ex2.Message);
+                    Program.Logger.WriteLine(ex2.Message);
                 }
 
                 // ajoute à la facette
@@ -1766,7 +1766,7 @@ namespace DevApps.GUI
                             }
                             catch (Exception ex)
                             {
-                                System.Console.WriteLine(ex.Message);
+                                Program.Logger.WriteLine(ex.Message);
                             }
                         }
                         Program.DevObject.mutexCheckObjectList.ReleaseMutex();

@@ -132,8 +132,8 @@ namespace DevApps.Scripts
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("write(): Failed to write in output");
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine("write(): Failed to write in output");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -153,8 +153,8 @@ namespace DevApps.Scripts
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("write(): Failed to write in output");
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine("write(): Failed to write in output");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -176,8 +176,8 @@ namespace DevApps.Scripts
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("append(): Failed to write in output");
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine("append(): Failed to write in output");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -210,7 +210,7 @@ namespace DevApps.Scripts
             if (cachedText == null)
                 cachedText = Encoding.UTF8.GetString(Bytes());
             if(double.TryParse(cachedText, out val) == false)
-                System.Console.WriteLine("number(): Failed to parse output to number");
+                Program.Logger.WriteLine("number(): Failed to parse output to number");
             return val;
         }
 
@@ -244,7 +244,7 @@ namespace DevApps.Scripts
             }
             catch (Exception)
             {
-                System.Console.WriteLine("text(): Failed to parse output to string");
+                Program.Logger.WriteLine("text(): Failed to parse output to string");
                 return string.Empty;
             }
         }
@@ -267,7 +267,7 @@ namespace DevApps.Scripts
             }
             catch (Exception)
             {
-                System.Console.WriteLine("lines(): Failed to parse output to string array");
+                Program.Logger.WriteLine("lines(): Failed to parse output to string array");
                 return [];
             }
         }

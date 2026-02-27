@@ -79,10 +79,10 @@ namespace DevApps.GUI
                                 }
                                 catch (Exception ex)
                                 {
-                                    System.Console.WriteLine("******************************************");
-                                    System.Console.WriteLine("RunAction: " + this.Name);
-                                    System.Console.WriteLine(engine.FormatError(ex));
-                                    System.Console.WriteLine("******************************************");
+                                    Program.Logger.WriteLine("******************************************");
+                                    Program.Logger.WriteLine("RunAction: " + this.Name);
+                                    Program.Logger.WriteLine(engine.FormatError(ex));
+                                    Program.Logger.WriteLine("******************************************");
                                 }
                             }
                             reference.mutexReadOutput.ReleaseMutex();
@@ -198,10 +198,10 @@ namespace DevApps.GUI
                                 }
                                 catch (Exception ex)
                                 {
-                                    System.Console.WriteLine("******************************************");
-                                    System.Console.WriteLine("OnRender: " + this.Name);
-                                    System.Console.WriteLine(engine.FormatError(ex));
-                                    System.Console.WriteLine("******************************************");
+                                    Program.Logger.WriteLine("******************************************");
+                                    Program.Logger.WriteLine("OnRender: " + this.Name);
+                                    Program.Logger.WriteLine(engine.FormatError(ex));
+                                    Program.Logger.WriteLine("******************************************");
                                 }
                             }
 

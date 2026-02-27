@@ -188,7 +188,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors du chargement des ressources : " + ex.Message);
+                Program.Logger.WriteLine("Erreur lors du chargement des ressources : " + ex.Message);
             }
 
             InitializeComponent();
@@ -250,8 +250,8 @@ namespace DevApps.GUI
                             var path = key.GetValue(null, null)?.ToString();
                             if(path == null)
                             {
-                                Console.WriteLine("DevAppsSetup n'est pas installé ou n'est pas enregistré au registre");
-                                Console.WriteLine("Veuillez d'abord executer DevAppsSetup.exe");
+                                Program.Logger.WriteLine("DevAppsSetup n'est pas installé ou n'est pas enregistré au registre");
+                                Program.Logger.WriteLine("Veuillez d'abord executer DevAppsSetup.exe");
                                 return;
                             }
                             else
@@ -264,7 +264,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Erreur : " + ex.Message);
+                    Program.Logger.WriteLine("Erreur : " + ex.Message);
                 }
             };
             menu.Items.Add(m);
@@ -288,7 +288,7 @@ namespace DevApps.GUI
                         JsonSerializer serializer = JsonSerializer.CreateDefault();
                         serializer.Error += (sender, e) =>
                         {
-                            System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                            Program.Logger.WriteLine(e.ErrorContext.Error.ToString());
                         };
 
                         var proj = new Serializer.DevExternalProject();
@@ -311,7 +311,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -333,7 +333,7 @@ namespace DevApps.GUI
                             JsonSerializer serializer = JsonSerializer.CreateDefault();
                             serializer.Error += (sender, e) =>
                             {
-                                System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                                Program.Logger.WriteLine(e.ErrorContext.Error.ToString());
                             };
 
                             var proj = new Serializer.DevExternalProject();
@@ -392,7 +392,7 @@ namespace DevApps.GUI
                                 }
                                 catch (Exception ex2)
                                 {
-                                    Console.WriteLine(ex2.Message);
+                                    Program.Logger.WriteLine(ex2.Message);
                                 }
                             }
 
@@ -420,7 +420,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -439,7 +439,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -453,18 +453,18 @@ namespace DevApps.GUI
 
             if (GuiService.IsObjectsView)
             {
-                Console.WriteLine("Construit tous les objets...");
+                Program.Logger.WriteLine("Construit tous les objets...");
                 Program.DevObject.Build();
-                Console.WriteLine("Terminé");
+                Program.Logger.WriteLine("Terminé");
             }
             else if (GuiService.IsFacetsView)
             {
-                Console.WriteLine("Construit la facette active...");
+                Program.Logger.WriteLine("Construit la facette active...");
                 var facet = GuiService.GetSelectedFacet();
                 if(facet != null)
                 {
                     facet.Build();
-                    Console.WriteLine("Terminé");
+                    Program.Logger.WriteLine("Terminé");
                 }
             }
         }
@@ -804,7 +804,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
             }
         }
@@ -817,7 +817,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Program.Logger.WriteLine($"Error: {ex.Message}");
             }
         }
 

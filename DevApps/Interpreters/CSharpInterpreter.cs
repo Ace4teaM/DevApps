@@ -60,11 +60,11 @@ namespace DevApps.Interpreters
                 var collector = new CSharpGlobalCollector(tokens);
                 walker.Walk(collector, tree);
 
-                System.Console.WriteLine($"Éléments trouvés : {collector.Members.Count}");
+                Program.Logger.WriteLine($"Éléments trouvés : {collector.Members.Count}");
                 for (int i = 0; i < collector.Members.Count; i++)
                 {
                     outputString.AppendLine($"\n--- Élément {i + 1} ---\n{collector.Members[i]}\n");
-                    System.Console.WriteLine($"\n--- Élément {i + 1} ---\n{collector.Members[i]}\n");
+                    Program.Logger.WriteLine($"\n--- Élément {i + 1} ---\n{collector.Members[i]}\n");
                 }
             }
 
@@ -79,11 +79,11 @@ namespace DevApps.Interpreters
                 var collector = new CSharpGlobalCollector(tokens);
                 walker.Walk(collector, tree);
 
-                System.Console.WriteLine($"Éléments trouvés : {collector.Members.Count}");
+                Program.Logger.WriteLine($"Éléments trouvés : {collector.Members.Count}");
                 for (int i = 0; i < collector.Members.Count; i++)
                 {
                     outputString.AppendLine($"\n--- Élément {i + 1} ---\n{collector.Members[i]}\n");
-                    System.Console.WriteLine($"\n--- Élément {i + 1} ---\n{collector.Members[i]}\n");
+                    Program.Logger.WriteLine($"\n--- Élément {i + 1} ---\n{collector.Members[i]}\n");
                 }
             }
 

@@ -1,4 +1,5 @@
-﻿using DevApps.GUI;
+﻿using DevApps;
+using DevApps.GUI;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
@@ -43,7 +44,7 @@ internal partial class Program
                 var message = String.Join("", cmd.Arguments); // todo : validation format
                 ParseString(ref message);
 
-                Console.WriteLine(message);
+                Program.Logger.WriteLine(message);
                 return 0;
             }
         }
@@ -108,7 +109,7 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
                 finally
                 {
@@ -190,8 +191,8 @@ internal partial class Program
                                     }
                                     catch (Exception ex)
                                     {
-                                        Console.Error.WriteLine(subKeyName+" Invalid Command Definition :");
-                                        Console.Error.WriteLine("Erreur : " + ex.Message);
+                                        Program.Logger.WriteLine(subKeyName+" Invalid Command Definition :");
+                                        Program.Logger.WriteLine("Erreur : " + ex.Message);
                                     }
                                 }
                             }
@@ -200,8 +201,8 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine("Enum Commands Definitions error:");
-                    Console.Error.WriteLine("Erreur : " + ex.Message);
+                    Program.Logger.WriteLine("Enum Commands Definitions error:");
+                    Program.Logger.WriteLine("Erreur : " + ex.Message);
                 }
             }
 
@@ -267,8 +268,8 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine("Run Shell Command error:");
-                    Console.Error.WriteLine("Erreur : " + ex.Message);
+                    Program.Logger.WriteLine("Run Shell Command error:");
+                    Program.Logger.WriteLine("Erreur : " + ex.Message);
                     return -1;
                 }
             }
@@ -311,7 +312,7 @@ internal partial class Program
 
         public void Execute()
         {
-            Console.WriteLine($"Execute Command group '{Label}'...");
+            Program.Logger.WriteLine($"Execute Command group '{Label}'...");
             if (this.IO.Length != 0)
             {
                 this.IO.Close();
@@ -321,7 +322,7 @@ internal partial class Program
             {
                 try
                 {
-                    Console.Write($"   Run {cmd.Name} => ");
+                    Program.Logger.Write($"   Run {cmd.Name} => ");
                     var def = DevCommandDefinition.BuiltIn[cmd.Name];
 
                     // si une entrée est présente, la copie dans la commande
@@ -339,10 +340,10 @@ internal partial class Program
                     // exécute la commande
                     var result = def.Execute(cmd);
                     if (result == 0)
-                        Console.WriteLine("... OK");
+                        Program.Logger.WriteLine("... OK");
                     else
                     {
-                        Console.WriteLine($"... Failed with code ({result})");
+                        Program.Logger.WriteLine($"... Failed with code ({result})");
                         return;
                     }
 
@@ -357,7 +358,7 @@ internal partial class Program
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"... Failed with error ({ex.Message})");
+                    Program.Logger.WriteLine($"... Failed with error ({ex.Message})");
                 }
             }
 
@@ -383,7 +384,7 @@ internal partial class Program
                 }
             }
 
-            Console.WriteLine();
+            Program.Logger.WriteLine();
         }
 
         public static void Delete(string name)
@@ -476,12 +477,12 @@ internal partial class Program
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"La commande '{cmd.Name}' a échouée." + ex.Message);
+                        Program.Logger.WriteLine($"La commande '{cmd.Name}' a échouée." + ex.Message);
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"La commande '{cmd.Name}' n'existe pas.");
+                    Program.Logger.WriteLine($"La commande '{cmd.Name}' n'existe pas.");
                 }
             }
         }
@@ -505,7 +506,7 @@ internal partial class Program
                     DevCommandDefinition.BuiltIn.TryGetValue(command.Name, out var commandDef);
                     if (commandDef == null)
                     {
-                        Console.WriteLine($"La commande '{command.Name}' n'existe pas.");
+                        Program.Logger.WriteLine($"La commande '{command.Name}' n'existe pas.");
                         continue;
                     }
 

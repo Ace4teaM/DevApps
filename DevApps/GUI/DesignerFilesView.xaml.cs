@@ -250,7 +250,7 @@ namespace DevApps.GUI
                     }
                     else
                     {
-                        Console.WriteLine("Pas de difference entre les fichiers.");
+                        Program.Logger.WriteLine("Pas de difference entre les fichiers.");
                     }
                 }
             }
@@ -294,7 +294,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return false;
@@ -351,7 +351,7 @@ namespace DevApps.GUI
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine(ex.Message);
+                                Program.Logger.WriteLine(ex.Message);
                             }
                             finally
                             {
@@ -363,7 +363,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
             IsEditing = false;
         }

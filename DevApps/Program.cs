@@ -1,15 +1,14 @@
 ﻿using DevApps;
 using DevApps.Extends;
 using DevApps.GUI;
+using DevApps.MCP;
 using DevApps.Scripts;
-using DevApps.Scripts.PythonExtends;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using static Program.DevCommandDefinition;
 
@@ -22,12 +21,18 @@ internal partial class Program
     internal static readonly string DevBranch = "devapps";
     internal static readonly string Filename = "devapps.json";
     internal static readonly string DataDir = ".devapps";
+    internal static readonly string LogFile = ".devapps.log";
     internal static readonly string JournalFilename = "devapps.md";
     internal static string ExecutablePath = System.AppDomain.CurrentDomain.BaseDirectory;
     internal static string CommonSharedPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Shared");
     internal static readonly string CommonObjPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Objects");
     internal static Thread MainThread = Thread.CurrentThread;
     internal static Dispatcher Dispatcher = Dispatcher.CurrentDispatcher;
+
+    /// <summary>
+    /// Log par défaut pour le projet en cours
+    /// </summary>
+    internal static ProgramLogger Logger { get; private set; }
 
     /// <summary>
     /// Moteur de script natif pour les objets du programme
@@ -180,8 +185,8 @@ internal partial class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erreur lors de la sauvegarde du projet.");
-            Console.WriteLine(ex.Message);
+            Program.Logger.WriteLine("Erreur lors de la sauvegarde du projet.");
+            Program.Logger.WriteLine(ex.Message);
         }
     }
 
@@ -197,7 +202,7 @@ internal partial class Program
         JsonSerializer serializer = JsonSerializer.CreateDefault();
         serializer.Error += (sender, e) =>
         {
-            System.Console.WriteLine(e.ErrorContext.Error.ToString());
+            Program.Logger.WriteLine(e.ErrorContext.Error.ToString());
         };
 
         var proj = new Serializer.DevProject();
@@ -207,11 +212,24 @@ internal partial class Program
 
     private static void Main(string[] args)
     {
-        // affiche un résumé
+        // définit le répertoire de travail
         if (args.Length > 0 && Path.Exists(args[0]))
         {
             Environment.CurrentDirectory = args[0];
         }
+
+        // définit le répertoire de travail
+        if (args.Contains("-d"))
+        {
+            var index = Array.FindIndex(args, p => p == "-d");
+            if (index != -1 && args.Length > index+1 && args[index + 1].StartsWith("-") == false && Path.Exists(args[index + 1]))
+            {
+                Environment.CurrentDirectory = Path.GetFullPath(args[index + 1]);
+            }
+        }
+
+        // initialise le logs
+        Logger = new ProgramLogger(Program.LogFile);
 
         // affiche un résumé du projet
         if (args.Contains("-s"))
@@ -236,7 +254,7 @@ internal partial class Program
         }
         catch (Exception ex)
         {
-            System.Console.WriteLine(ex.Message);
+            Program.Logger.WriteLine(ex.Message);
         }
 
         // énumère les commandes disponibles
@@ -255,7 +273,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
         else
@@ -274,6 +292,12 @@ internal partial class Program
         {
             GuiService.OpenEditor();
             GuiService.WaitWindowLoaded();
+        }
+
+        // execute le connecteur d'IA (serveur MCP)
+        if (args.Contains("-i"))
+        {
+            MCPService.Start();
         }
 
         LoadProject();
@@ -295,6 +319,9 @@ internal partial class Program
 
         // Attend la fermeture de la fenêtre
         GuiService.WaitWindowClosed();
+
+        // Attend la fin du serveur MCP
+        MCPService.Stop();
 
         DevObject.Stop();
 
