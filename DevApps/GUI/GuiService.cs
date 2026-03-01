@@ -497,13 +497,10 @@ namespace DevApps.GUI
                 DispatcherPriority.Render,
                 new Action(() =>
                 {
-                    if (EditorWindow?.Content is DesignerDataView)
+                    if (EditorWindow?.Content is DesignerDataView editor)
                     {
-                        var editor = (EditorWindow?.Content as DesignerDataView);
-                        if (editor != null)
-                        {
-                            editor.InvalidateObjectsStatus();
-                        }
+                        editor.InvalidateObjectsStatus();
+                        editor.InvalidatePointerVisual();
                     }
                 })));
         }
@@ -525,15 +522,49 @@ namespace DevApps.GUI
             return EditorWindow?.StatusText;
         }
 
+        internal static bool invalidateObjectsFlag = false;
+        internal static void InvalidateObjects()
+        {
+            if (EditorWindow == null)
+                return;
+
+            // évite la répétition des invalidations lors de la mise à jour de plusieurs objets liés à une même facette
+            if (invalidateObjectsFlag == true)
+                return;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+
+                    if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerDataView currentView)
+                    {
+                        currentView.InvalidateObjects();
+                    }
+
+                    if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView facetView)
+                    {
+                        facetView.InvalidateObjects();
+                    }
+
+                    invalidateObjectsFlag = false;
+                })));
+        }
+
+        internal static bool invalidateFacetsFlag = false;
         internal static void InvalidateFacets()
         {
             if (EditorWindow == null)
+                return;
+
+            // évite la répétition des invalidations lors de la mise à jour de plusieurs objets liés à une même facette
+            if (invalidateFacetsFlag == true)
                 return;
 
             dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
                     EditorWindow?.InvalidateFacets();
+                    invalidateFacetsFlag = false;
                 })));
         }
 

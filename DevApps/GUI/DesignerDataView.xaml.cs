@@ -1,4 +1,5 @@
-﻿using IronPython.Runtime;
+﻿using ICSharpCode.AvalonEdit.Editing;
+using IronPython.Runtime;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 using PdfSharp.Snippets;
@@ -6,12 +7,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using static IronPython.Modules._ast;
 using static Program;
 
 namespace DevApps.GUI
@@ -23,12 +26,35 @@ namespace DevApps.GUI
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         public class TabItem : INotifyPropertyChanged
         {
             public event PropertyChangedEventHandler? PropertyChanged;
             public void OnPropertyChanged(string name)
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            }
+            public void OnAllPropertiesChanged()
+            {
+                OnPropertyChanged(nameof(IsPointed));
+                OnPropertyChanged(nameof(IsReference));
+                OnPropertyChanged(nameof(MustBeBuild));
+                OnPropertyChanged(nameof(BuildIndex));
+                OnPropertyChanged(nameof(Name));
+                OnPropertyChanged(nameof(Description));
+                OnPropertyChanged(nameof(Tags));
+                OnPropertyChanged(nameof(UserAction));
+                OnPropertyChanged(nameof(LoopMethod));
+                OnPropertyChanged(nameof(InitMethod));
+                OnPropertyChanged(nameof(BuildMethod));
+                OnPropertyChanged(nameof(DrawCode));
+                OnPropertyChanged(nameof(Facettes));
+                OnPropertyChanged(nameof(Selections));
+                OnPropertyChanged(nameof(CanBuild));
             }
             private bool isPointed = false;
             public bool IsPointed { get { return isPointed; } set { isPointed = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPointed))); } }
@@ -109,7 +135,7 @@ namespace DevApps.GUI
                     if(Name == null)
                         return string.Empty;
                     var facettes = Program.DevFacet.References.Where(p => p.Value.Objects.Keys.Contains(Name)).Select(p => p.Key).ToList();
-                    return String.Join(',', facettes);
+                    return String.Join(", ", facettes);
                 }
             }
             public string? Selections
@@ -164,6 +190,56 @@ namespace DevApps.GUI
                 DevObject._checkLock.Release();
             }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Items)));
+        }
+
+        public void InvalidateObjectsStatus()
+        {
+            // Actualise les compteurs
+            foreach (var i in Items)
+            {
+                i.OnAllPropertiesChanged();
+            }
+        }
+
+        public void InvalidatePointerVisual()
+        {
+            if (dataGrid.SelectedItem is TabItem selectedItem)
+            {
+                try
+                {
+                    DevObject._checkLock.Wait();
+
+                    if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
+                    {
+                        selectedItem.IsPointed = false;
+                        selectedItem.IsPointer = false;
+                        foreach (var item in Items)
+                        {
+                            if (item != selectedItem && DevObject.TryGet(item.Name, out var obj))
+                            {
+                                item.IsPointed = selectedObject.Pointers.Count(p => p.Value.target == item.Name) > 0;//cet objet est pointé par la selection ?
+                                item.IsPointer = obj.Pointers.Count(p => p.Value.target == selectedItem.Name) > 0;//cet objet pointe vers la selection ?
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.WriteLine(ex.Message);
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            else
+            {
+                foreach (var item in Items)
+                {
+                    item.IsPointed = false;
+                    item.IsPointer = false;
+                }
+            }
         }
 
         public DesignerDataView()
@@ -301,7 +377,7 @@ namespace DevApps.GUI
             }
         }
 
-        private void MenuItem_Click_CreateFacet(object sender, RoutedEventArgs e)
+        private void CreateFacet()
         {
             var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
 
@@ -310,9 +386,13 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                Program.DevFacet.Create(wnd.Value, selection ?? Array.Empty<string>());
-                GuiService.InvalidateFacets();
+                var newName = Features.Facets.Create(wnd.Value, selection ?? Array.Empty<string>());
             }
+        }
+
+        private void MenuItem_Click_CreateFacet(object sender, RoutedEventArgs e)
+        {
+            CreateFacet();
         }
 
         private void CreateObject()
@@ -322,8 +402,7 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                Program.DevObject.Create(wnd.Value, String.Empty, wnd.Tags);
-                InvalidateObjects();
+                var newName = Features.Objects.Create(wnd.Value, String.Empty, wnd.Tags);
             }
         }
 
@@ -336,48 +415,28 @@ namespace DevApps.GUI
         {
             var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
 
-            foreach(var name in selection)
+            foreach (var name in selection)
             {
-                if (Program.DevObject.References.ContainsKey(name))
-                {
-                    var obj = Program.DevObject.References[name];
-                    var newName = name + "Ref";
-                    Program.DevObject.MakeUniqueName(ref newName);
-
-                    if (obj is Program.DevObjectReference reference)
-                    {
-                        Assert.NotNull(reference.BaseObjectName);
-                        #pragma warning disable CS8604
-                        Program.DevObject.CreateReference(newName, reference.BaseObjectName);
-                    }
-                    else
-                        Program.DevObject.CreateReference(newName, name);
-                }
+                var newName = Features.Objects.CreateReference(name);
             }
-
-            InvalidateObjects();
         }
-        private void DeleteObject()
+
+        private void DeleteSelectedObject()
         {
             var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
 
             foreach (var name in selection)
             {
-                if (Program.DevObject.References.ContainsKey(name))
-                {
-                    Program.DevObject.DeleteObject(name);
-                }
+                Features.Objects.Delete(name).Wait();
             }
-
-            InvalidateObjects();
         }
 
         private void MenuItem_Click_DeleteObject(object sender, RoutedEventArgs e)
         {
-            DeleteObject();
+            DeleteSelectedObject();
         }
 
-        private void MenuItem_Click_EditOutput(object sender, RoutedEventArgs e)
+        private void MenuItem_Click_EditOutput(object sender, RoutedEventArgs e) //todo async ?
         {
             try
             {
@@ -385,42 +444,7 @@ namespace DevApps.GUI
 
                 if (selection != null)
                 {
-                    DevObject? reference = null;
-
-                    try
-                    {
-                        DevObject._checkLock.Wait();
-
-                        Program.DevObject.References.TryGetValue(selection, out reference);
-                    }
-                    finally
-                    {
-                        DevObject._checkLock.Release();
-                    }
-
-                    if (reference != null)
-                    {
-                        try
-                        {
-                            reference._readOutput.Wait();
-
-                            if(GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, true))
-                            {
-                                DevObject.IncrementBuilt(selection);
-
-                                // Actualise les compteurs
-                                foreach (var i in Items)
-                                {
-                                    i.OnPropertyChanged(nameof(i.BuildIndex));
-                                    i.OnPropertyChanged(nameof(i.MustBeBuild));
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            reference._readOutput.Release();
-                        }
-                    }
+                    Features.Objects.EditContent(selection).Wait(); //todo non-bloquant ?
                 }
             }
             catch (Exception ex)
@@ -437,48 +461,12 @@ namespace DevApps.GUI
 
                 if (selection != null)
                 {
-                    DevObject? reference = null;
-                    try
-                    {
-                        DevObject._checkLock.Wait();
-
-                        Program.DevObject.References.TryGetValue(selection, out reference);
-                    }
-                    finally
-                    {
-                        DevObject._checkLock.Release();
-                    }
-
-
-                    if (reference != null)
-                    {
-                        try
-                        {
-                            reference._readOutput.Wait();
-
-                            GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, false);
-                        }
-                        finally
-                        {
-                            reference._readOutput.Release();
-                        }
-
-                    }
+                    Features.Objects.ShowContent(selection).Wait();
                 }
             }
             catch (Exception ex)
             {
                 Program.Logger.WriteLine(ex.Message);
-            }
-        }
-
-        public void InvalidateObjectsStatus()
-        {
-            // Actualise les compteurs
-            foreach (var i in Items)
-            {
-                i.OnPropertyChanged(nameof(i.BuildIndex));
-                i.OnPropertyChanged(nameof(i.MustBeBuild));
             }
         }
 
@@ -490,36 +478,7 @@ namespace DevApps.GUI
 
                 if (selection != null)
                 {
-                    try
-                    {
-                        DevObject._executeLock.Wait();
-
-                        try
-                        {
-                            DevObject._checkLock.Wait();
-
-                            var items = Program.DevObject.References.Where(p => p.Key == selection);
-
-                            if (items != null)
-                            {
-                                foreach (var item in items)
-                                {
-                                    Program.DevObject.BuildTree(item);
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            DevObject._checkLock.Release();
-                        }
-                    }
-                    finally
-                    {
-                        DevObject._executeLock.Release();
-                    }
-
-                    // Actualise les compteurs
-                    InvalidateObjectsStatus();
+                    Features.Objects.BuildTree(selection).Wait();
                 }
             }
             catch (Exception ex)
@@ -535,33 +494,42 @@ namespace DevApps.GUI
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                var objects = new List<Program.DevObject>();
-
                 try
                 {
-                    foreach (string file in files)
-                    {
-                        var o = Program.DevObject.CreateFromFile(file, out string name);
-                        if (o != null)
-                            objects.Add(o);
-                    }
+                    Features.Objects.CreateFromFiles(files).Wait();
                 }
                 catch (Exception ex)
                 {
                     Program.Logger.WriteLine(ex.Message);
                 }
-
-                if(objects.Count > 0)
-                {
-                    Program.DevObject.CompilObjects(objects);
-                    DevApps.Features.Objects.MakeSureAllInitialized().Wait();
-
-                    InvalidateObjects();
-                }
             }
         }
 
-        private void MenuItem_AddFacet_Click(object sender, RoutedEventArgs e)
+        private void AddObjectsToFacet(Program.DevFacet facet, string[] objects)
+        {
+            try
+            {
+                DevObject._checkLock.Wait();
+
+                foreach (var o in objects)
+                {
+                    if (!facet.Objects.ContainsKey(o) && Program.DevObject.References.ContainsKey(o))
+                        facet.Objects.Add(o, new Program.DevFacet.ObjectProperties());
+                }
+
+                GuiService.InvalidateObjectsStatus(); // actualise la grille des objets
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.WriteLine(ex.Message);
+            }
+            finally
+            {
+                DevObject._checkLock.Release();
+            }
+        }
+
+        private void MenuItem_AddToFacet_Click(object sender, RoutedEventArgs e)
         {
             var menuItem = sender as MenuItem;
             var facet = menuItem?.Tag as Program.DevFacet;
@@ -569,20 +537,12 @@ namespace DevApps.GUI
 
             if (facet != null)
             {
-                foreach(var o in objects)
-                {
-                    if(!facet.Objects.ContainsKey(o) && Program.DevObject.References.ContainsKey(o))
-                        facet.Objects.Add(o, new Program.DevFacet.ObjectProperties());
-                }
+                AddObjectsToFacet(facet, objects);
             }
         }
 
-        private void MenuItem_AddPointer_Click(object sender, RoutedEventArgs e)
+        private void AddPointerToObject(string targetName)
         {
-            var menuItem = sender as MenuItem;
-            var targetObject = menuItem?.Tag as Program.DevObject;
-            var targetName = menuItem?.Header.ToString();
-
             var wnd = new NewPointer();
             wnd.Owner = Window.GetWindow(this);
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -599,6 +559,12 @@ namespace DevApps.GUI
                     {
                         o.AddPointer(wnd.Value, targetName, []);
                     }
+
+                    GuiService.InvalidateObjectsStatus(); // actualise la grille des objets
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.WriteLine(ex.Message);
                 }
                 finally
                 {
@@ -606,6 +572,17 @@ namespace DevApps.GUI
                 }
 
             }
+        }
+
+        private void MenuItem_AddPointer_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var targetName = menuItem?.Header.ToString();
+
+            if(targetName == null)
+                return;
+
+            AddPointerToObject(targetName);
         }
 
         private void MenuItem_ContextMenuOpening(object sender, RoutedEventArgs e)
@@ -619,7 +596,7 @@ namespace DevApps.GUI
                     var item = new MenuItem();
                     item.Header = facet.Key;
                     item.Tag = facet.Value;
-                    item.Click += MenuItem_AddFacet_Click;
+                    item.Click += MenuItem_AddToFacet_Click;
                     menuItem.Items.Add(item);
                 }
             }
@@ -841,7 +818,7 @@ namespace DevApps.GUI
             }
             if (command == KeyCommand.Delete)
             {
-                DeleteObject();
+                DeleteSelectedObject();
                 return;
             }
         }
@@ -852,43 +829,7 @@ namespace DevApps.GUI
 
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (dataGrid.SelectedItem is TabItem selectedItem)
-            {
-                try
-                {
-                    DevObject._checkLock.Wait();
-
-                    if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
-                    {
-                        selectedItem.IsPointed = false;
-                        selectedItem.IsPointer = false;
-                        foreach (var item in Items)
-                        {
-                            if (item != selectedItem && DevObject.TryGet(item.Name, out var obj))
-                            {
-                                item.IsPointed = selectedObject.Pointers.Count(p => p.Value.target == item.Name) > 0;//cet objet est pointé par la selection ?
-                                item.IsPointer = obj.Pointers.Count(p => p.Value.target == selectedItem.Name) > 0;//cet objet pointe vers la selection ?
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Program.Logger.WriteLine(ex.Message);
-                }
-                finally
-                {
-                    DevObject._checkLock.Release();
-                }
-            }
-            else
-            {
-                foreach (var item in Items)
-                {
-                    item.IsPointed = false;
-                    item.IsPointer = false;
-                }
-            }
+            InvalidatePointerVisual();
         }
 
         private void MenuItem_Click_InitialOutputObject(object sender, RoutedEventArgs e)

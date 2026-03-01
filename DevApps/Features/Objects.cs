@@ -5,6 +5,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using static Program;
 
 namespace DevApps.Features
@@ -14,6 +15,117 @@ namespace DevApps.Features
     /// </summary>
     internal static class Objects
     {
+        /// <summary>
+        /// Construit l'objet et son arbre de dépendances
+        /// </summary>
+        public static async Task BuildTree(string name)
+        {
+
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (Program.DevObject.TryGet(name, out var reference))
+                    {
+                        Program.DevObject.BuildTree(new KeyValuePair<string, DevObject>(name, reference));
+                    }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+
+                // Actualise les compteurs
+                GuiService.InvalidateObjectsStatus();
+            }
+        }
+
+        /// <summary>
+        /// Affiche le contenu d'un objet
+        /// </summary>
+        public static async Task ShowContent(string name)
+        {
+            DevObject? reference = null;
+
+            try
+            {
+                await DevObject._checkLock.WaitAsync();
+
+                if (Program.DevObject.TryGet(name, out reference))
+                {
+                    if (reference != null)
+                    {
+                        try
+                        {
+                            reference._readOutput.Wait();
+
+                            GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, false);
+                        }
+                        finally
+                        {
+                            reference._readOutput.Release();
+                        }
+
+                    }
+                }
+                else 
+                    throw new Exception($"L'objet {name} n'existe pas");
+            }
+            finally
+            {
+                DevObject._checkLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Edite le contenu d'un objet
+        /// </summary>
+        public static async Task EditContent(string name)
+        {
+            DevObject? reference = null;
+
+            try
+            {
+                await DevObject._checkLock.WaitAsync();
+
+                if (Program.DevObject.TryGet(name, out reference))
+                {
+                    try
+                    {
+                        reference._readOutput.Wait();
+
+                        if (GuiService.OpenEditorOrDefault(reference.Content, reference.Editor, true)) // todo lock object execution
+                        {
+                            DevObject.IncrementBuilt(name);
+
+                            // Actualise les compteurs
+                            GuiService.InvalidateObjectsStatus();
+                        }
+                    }
+                    finally
+                    {
+                        reference._readOutput.Release();
+                    }
+                }
+                else
+                    throw new Exception($"L'objet {name} n'existe pas");
+            }
+            finally
+            {
+                DevObject._checkLock.Release();
+            }
+        }
+
         /// <summary>
         /// Crée une définition structuré de l'objet
         /// </summary>
@@ -268,29 +380,14 @@ namespace DevApps.Features
 
             // actualise la vue de l'éditeur
 
-            DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
-            {
-                var dataView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
-
-                if (dataView != null)
-                {
-                    dataView.InvalidateObjects();
-                }
-
-                var facetView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerView;
-
-                if (facetView != null)
-                {
-                    facetView.InvalidateObjects();
-                }
-            });
+            DevApps.GUI.GuiService.InvalidateObjects();
         }
 
         /// <summary>
         /// Ajoute un objet au projet
         /// </summary>
         /// <returns></returns>
-        public static async Task<string> Create(string baseName)
+        public static async Task<string> Create(string baseName, string description, string[] tags)
         {
             string name = baseName;
 
@@ -303,7 +400,7 @@ namespace DevApps.Features
                     await DevObject._checkLock.WaitAsync();
 
                     DevObject.MakeUniqueName(ref name);
-                    DevObjectInstance.Create(name, "", []);
+                    DevObjectInstance.Create(name, description, tags);
                 }
                 finally
                 {
@@ -320,9 +417,7 @@ namespace DevApps.Features
 
             DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
             {
-                var dataView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
-
-                if (dataView != null)
+                if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerDataView dataView)
                 {
                     dataView.InvalidateObjects();
                 }
@@ -330,6 +425,103 @@ namespace DevApps.Features
 
             return name;
         }
+
+        /// <summary>
+        /// Crée un objet de référence
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<string> CreateReference(string name)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (Program.DevObject.TryGet(name, out var obj) == false)
+                        throw new Exception($"L'objet {name} n'existe pas pour créer une référence");
+
+                    var newName = name + "Ref";
+                    Program.DevObject.MakeUniqueName(ref newName);
+
+                    // si l'objet est déjà une référence on pointe vers le même objet de base pour éviter les références en cascade
+                    if (obj is Program.DevObjectReference reference)
+                    {
+                        if(reference.BaseObjectName == null)
+                            throw new Exception($"L'objet {name} est une référence mais ne possède pas de base pour créer une nouvelle référence");
+
+                        Program.DevObject.CreateReference(newName, reference.BaseObjectName);
+                    }
+                    else
+                        Program.DevObject.CreateReference(newName, name);
+
+                    // actualise la vue de l'éditeur
+
+                    DevApps.GUI.GuiService.InvalidateObjects();
+
+                    return newName;
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+
+        /// <summary>
+        /// Crée un ou plusieurs objets à partir de fichiers
+        /// </summary>
+        public static async Task<string[]> CreateFromFiles(string[] files)
+        {
+            var objects = new List<Program.DevObject>();
+            var names = new List<string>();
+
+            try
+            {
+                await DevObject._checkLock.WaitAsync();
+
+                foreach (string file in files)
+                {
+                    var o = DevObject.CreateFromFile(file, out string name);
+                    if (o != null)
+                    {
+                        objects.Add(o);
+                        names.Add(name);
+                    }
+                }
+
+                if (objects.Count > 0)
+                {
+                    try
+                    {
+                        await DevObject._executeLock.WaitAsync();
+
+                        DevObject.CompilObjects(objects);
+                        DevObject.Init();
+                    }
+                    finally
+                    {
+                        DevObject._executeLock.Release();
+                    }
+                }
+            }
+            finally
+            {
+                DevObject._checkLock.Release();
+
+                GuiService.InvalidateObjects();
+            }
+
+            return names.ToArray();
+        }
+
 
         /// <summary>
         /// Copie le contenu du stream dans le contenu de l'objet

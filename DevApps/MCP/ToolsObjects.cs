@@ -53,11 +53,13 @@ namespace DevApps.MCP
 
         [McpServerTool, Description("Create a new object.")]
         public static async Task<string> CreateObject(
-            [Description("Base name for object to create")] string name
+            [Description("Base name for object to create")] string name,
+            [Description("object description")] string description,
+            [Description("object tags")] string[] tags
             )
         {
             return await McpResult.MakeJson(
-                DevApps.Features.Objects.Create(name),
+                DevApps.Features.Objects.Create(name, description, tags),
                 (ret) => new { CreatedObjectName = ret }
             );
         }

@@ -340,10 +340,7 @@ namespace DevApps.Features
 
             // actualise la fenêtre
 
-            DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
-            {
-                DevApps.GUI.GuiService.EditorWindow?.InvalidateFacets();
-            });
+            DevApps.GUI.GuiService.InvalidateFacets();
         }
 
         /// <summary>
@@ -359,10 +356,7 @@ namespace DevApps.Features
 
             // actualise la fenêtre
 
-            DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
-            {
-                DevApps.GUI.GuiService.EditorWindow?.InvalidateFacets();
-            });
+            DevApps.GUI.GuiService.InvalidateFacets();
 
             return name;
         }
