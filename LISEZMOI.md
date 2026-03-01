@@ -92,6 +92,36 @@ Voici quelques tags fréquemment utilisés:
 
 En plus de catégoriser les objets, les tags sont utilisés sur les pointeurs pour déterminer qu'elle objet est compatible avec le lien attendue.
 
+## Scripts
+
+Tous les scripts de DevApps sont écrits en Python, c'est un langage de script puissant et facile à apprendre. Vous pouvez utiliser les scripts initialiser le contenu d'un objet, dessiner le visuel.
+DevApps utilise Python dans un environnement sandboxé, c'est à dire que les scripts n'ont pas accès à l'ensemble des fonctionnalités de votre machine.
+Par exemple, les scripts n'ont pas accès au système de fichiers ou au réseau, ils ne peuvent interagir qu'avec les objets et les outils de DevApps.
+Python ne peut utiliser que les bibliothèques autorisées par DevApps, ce qui garantit la sécurité
+
+Chaque script s'exécute dans un contexte définit
+
+Objet.Draw peut utiliser les variables suivantes:
+* dc : DrawingContext en .Net, il permet de dessiner des formes, du texte, des images, etc...
+* out : le contenu de sortie, il est utilisé pour lire les données initialisé par Draw.Build
+* [pointer] : pour chaque pointeur représente le contenu de l'objet pointé, il est utilisé pour lire les données initialisé par le Build de l'objet pointé
+
+Objet.Build peut utiliser les variables suivantes:
+* out : le contenu de sortie, il est utilisé pour lire les données initialisé par Draw.Build
+* [pointer] : pour chaque pointeur représente le contenu de l'objet pointé, il est utilisé pour lire les données initialisé par le Build de l'objet pointé
+
+# Géométries
+
+Les géométries sont des objets graphiques dessinables dans les facettes, elles sont utilisées pour représenter visuellement des formes quelconques.
+Elles utilisent le format SVG (comme M0,0 H480 V330 H0 Z) pour dessiner des formes.
+Les géométries sont identifier par un GUID
+
+# Textes
+
+Les textes sont des objets graphiques dessinables dans les facettes, ils sont utilisées pour représenter visuellement un texte.
+Ils utilisent le format UTF8.
+Les textes sont identifier par un GUID
+
 
 ## Commandes
 
