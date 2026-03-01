@@ -201,7 +201,7 @@
                     </Border>
                 </Popup>
                 <ToggleButton DockPanel.Dock="Right" Margin="10,0,0,0" VerticalAlignment="Center" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked" IsChecked="{Binding TogglePrintZone}" Cursor="Hand" ToolTip="Afficher la zone d'impression">👁</ToggleButton>
-                <Button DockPanel.Dock="Right" Padding="10,0,10,0">Appliquer les modifications</Button>
+                <Button DockPanel.Dock="Right" Padding="10,0,10,0" Click="Apply_Click">Appliquer les modifications</Button>
                 <Label></Label>
             </DockPanel>
         </Grid>

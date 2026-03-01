@@ -1,6 +1,9 @@
 ﻿using DevApps.GUI;
+using DevApps.Print;
+using System.Dynamic;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using static Program;
 
@@ -11,6 +14,156 @@ namespace DevApps.Features
     /// </summary>
     internal static class Objects
     {
+        /// <summary>
+        /// Crée une définition structuré de l'objet
+        /// </summary>
+        public static async Task<dynamic> GetData(string name)
+        {
+            dynamic data = new ExpandoObject();
+
+            try
+            {
+                await DevObject._checkLock.WaitAsync();
+
+                if (DevObject.TryGet(name, out var obj))
+                {
+                    data.Name = name;
+                    data.Description = obj.Description;
+                    data.DrawScript = obj.DrawCode.Item1;
+                    data.BuildScript = obj.BuildMethod.Item1;
+                    data.Properties = obj.Properties.Select(p=>new { p.Key, p.Value.Item1 });
+                }
+            }
+            finally
+            {
+                DevObject._checkLock.Release();
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// Crée une description textuelle de l'objet
+        /// </summary>
+        public static async Task<string> Summary(string name)
+        {
+            try
+            {
+                await DevObject._checkLock.WaitAsync();
+
+                StringBuilder sb = new StringBuilder();
+
+                if (DevObject.TryGet(name, out var obj))
+                {
+                    sb.AppendLine($"The object {name} is described as follows: '{obj.Description}'.");
+
+                    if (obj is DevObjectFile file)
+                    {
+                        sb.AppendLine($"It is an file object.");
+                        sb.AppendLine($"This is an object whose content is directly written to and read from a file due to a large volume of data or a need for persistence.");
+                    }
+
+                    if (obj is DevObjectReference reference)
+                    {
+                        sb.AppendLine($"It is an reference to another object instance {reference.baseObjectName}.");
+                        sb.AppendLine($"It shares the same properties except for its content.");
+                    }
+
+                    if (obj is DevObjectInstance instance)
+                    {
+                        if(instance.baseGuid != null)
+                            sb.AppendLine($"It is an instance based to another object model with GUID: {instance.baseGuid}.");
+                        else
+                            sb.AppendLine($"It is an simple instance object");
+
+                        if (instance.guid != null)
+                            sb.AppendLine($"It can serve as a model for other objects possessing the GUID: {instance.guid}.");
+
+                        if (obj.Pointers != null && obj.Pointers.Count > 0)
+                        {
+                            sb.AppendLine($"It has {obj.Pointers.Count} pointers:");
+                            foreach (var p in obj.Pointers)
+                            {
+                                sb.AppendLine($"- {p.Key}: '{p.Value}'");
+                            }
+                        }
+                        if(obj.Content != null)
+                        {
+                            sb.AppendLine($"It has content of length {obj.Content.Length} bytes.");
+                            if (ToPDF.IsBMP(obj.Content))
+                                sb.AppendLine($"It has image content formatted as binary BMP.");
+                            else if (ToPDF.IsPNG(obj.Content))
+                                sb.AppendLine($"It has image content formatted as binary PNG.");
+                            else if (ToPDF.IsSVG(obj.Content))
+                                sb.AppendLine($"It has graphical vectorial content formatted as text SVG.");
+                            else if (ToPDF.IsJPEG(obj.Content))
+                                sb.AppendLine($"It has image content formatted as binary JPEG.");
+                            else if (ToPDF.IsUTF8(obj.Content))
+                                sb.AppendLine($"It has text content encoded in UTF8.");
+                        }
+                        if(obj.Properties != null && obj.Properties.Count > 0)
+                        {
+                            sb.AppendLine($"It has {obj.Properties.Count} properties:");
+                            foreach (var p in obj.Properties)
+                            {
+                                sb.AppendLine($"- {p.Key}");
+                            }
+                        }
+                        if(String.IsNullOrEmpty(obj.DrawCode.Item1) == false)
+                        {
+                            sb.AppendLine($"It can be render with scripted code in Python langage.");
+                            if(obj.DrawCode.Item2 == null)
+                            {
+                                sb.AppendLine($"But the script failed to compil");
+                            }
+                        }
+                        if (String.IsNullOrEmpty(obj.BuildMethod.Item1) == false)
+                        {
+                            sb.AppendLine($"object content can be build with scripted code in Python langage.");
+                            if (obj.BuildMethod.Item2 == null)
+                            {
+                                sb.AppendLine($"But the script failed to compil");
+                            }
+                        }
+                        if (String.IsNullOrEmpty(obj.InitMethod.Item1) == false)
+                        {
+                            sb.AppendLine($"object content can be initialized with scripted code in Python langage.");
+                            if (obj.InitMethod.Item2 == null)
+                            {
+                                sb.AppendLine($"But the script failed to compil");
+                            }
+                        }
+                        if (String.IsNullOrEmpty(obj.LoopMethod.Item1) == false)
+                        {
+                            sb.AppendLine($"It can be executed cyclically using scripted code in the Python language.");
+                            if (obj.LoopMethod.Item2 == null)
+                            {
+                                sb.AppendLine($"But the script failed to compil");
+                            }
+                        }
+                        if (obj.MustBeBuild)
+                        {
+                            sb.AppendLine($"It needs to be rebuilt because some of the objects pointed to have been modified.");
+                        }
+                        if (obj.Tags != null && obj.Tags.Length > 0)
+                        {
+                            sb.AppendLine($"He possesses the following identification badges: {String.Join(",", obj.Tags)}");
+                        }
+                    }
+                }
+                else
+                {
+                    sb.AppendLine($"The object '{name}' can't be found.");
+                }
+
+                return sb.ToString();
+            }
+            finally
+            {
+                DevObject._checkLock.Release();
+            }
+        }
+
         /// <summary>
         /// Liste les noms des objets
         /// </summary>
@@ -29,6 +182,51 @@ namespace DevApps.Features
         }
 
         /// <summary>
+        /// Renomme un objet 
+        /// </summary>
+        public static async Task Rename(string name, string newName)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (DevObject.TryGet(name, out var obj) == false)
+                        throw new Exception($"L'objet {name} n'existe pas");
+
+                    if (DevObject.References.ContainsKey(newName) == true)
+                        throw new Exception($"Le nom d'objet {newName} est déjà utilisé");
+
+                    DevObject.References[name] = obj;
+                    DevObject.References.Remove(newName);
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+
+            // actualise la vue de l'éditeur
+
+            DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
+            {
+                var dataView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
+
+                if (dataView != null)
+                {
+                    dataView.InvalidateObjects();
+                }
+            });
+        }
+
+        /// <summary>
         ///Supprime un objet du projet
         /// </summary>
         public static async Task Delete(string name)
@@ -41,8 +239,7 @@ namespace DevApps.Features
                 {
                     await DevObject._checkLock.WaitAsync();
 
-                    var obj = DevObject.References.GetValueOrDefault(name);
-                    if (obj != null)
+                    if (DevObject.TryGet(name, out var obj))
                     {
                         DevObject.References.Remove(name);
 
@@ -56,6 +253,8 @@ namespace DevApps.Features
 
                         obj.OnDelete();
                     }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
                 }
                 finally
                 {
@@ -160,6 +359,8 @@ namespace DevApps.Features
                                 content.Position = 0;
                             }
                         }
+                        else
+                            throw new Exception($"L'objet {name} n'existe pas");
                     }
                     finally
                     {
@@ -178,41 +379,38 @@ namespace DevApps.Features
         /// </summary>
         public static async Task<bool> CopyFromFile(string name, string filename)
         {
-            // copie la sortie dans l'objet de destination
-            if (String.IsNullOrEmpty(name) == false)
+            try
             {
+                await DevObject._executeLock.WaitAsync();
+
                 try
                 {
-                    await DevObject._executeLock.WaitAsync();
+                    await DevObject._checkLock.WaitAsync();
 
-                    try
+                    if (DevObject.TryGet(name, out var obj))
                     {
-                        await DevObject._checkLock.WaitAsync();
-
-                        if (DevObject.TryGet(name, out var obj))
+                        using (FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            using (FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                            {
-                                // copie le contenu
-                                obj.Content.Position = 0;
-                                fileStream.CopyTo(obj.Content);
-                                obj.Content.SetLength(fileStream.Length);
-                                obj.Content.Position = 0;
-                                return true;
-                            }
+                            // copie le contenu
+                            obj.Content.Position = 0;
+                            fileStream.CopyTo(obj.Content);
+                            obj.Content.SetLength(fileStream.Length);
+                            obj.Content.Position = 0;
+                            return true;
                         }
                     }
-                    finally
-                    {
-                        DevObject._checkLock.Release();
-                    }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
                 }
                 finally
                 {
-                    DevObject._executeLock.Release();
+                    DevObject._checkLock.Release();
                 }
             }
-            return false;
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
         }
 
         /// <summary>
@@ -221,52 +419,48 @@ namespace DevApps.Features
         /// <returns>true si les contenus sont différent, null si ils ne peuvent être comparé</returns>
         public static async Task<bool?> IsDifferentFromFile(string name, string filename)
         {
-            // copie la sortie dans l'objet de destination
-            if (String.IsNullOrEmpty(name) == false)
+            try
             {
+                await DevObject._executeLock.WaitAsync();
+
                 try
                 {
-                    await DevObject._executeLock.WaitAsync();
+                    await DevObject._checkLock.WaitAsync();
 
-                    try
+                    if (DevObject.References.TryGetValue(name, out var obj))
                     {
-                        await DevObject._checkLock.WaitAsync();
+                        if (obj.Content == null)
+                            throw new Exception($"L'objet {name} ne possède pas de contenu");
 
-                        if (DevObject.References.TryGetValue(name, out var obj) && obj.Content != null)
-                        {
-                            var fi1 = new FileInfo(filename);
+                        var fi1 = new FileInfo(filename);
 
-                            if (fi1.Length != obj.Content.Length)
-                                return true;
+                        if (fi1.Length != obj.Content.Length)
+                            return true;
 
-                            obj.Content.Position = 0;
+                        obj.Content.Position = 0;
 
-                            using var sha256 = SHA256.Create();
-                            using var fs1 = File.OpenRead(filename);
+                        using var sha256 = SHA256.Create();
+                        using var fs1 = File.OpenRead(filename);
 
-                            var hash1 = sha256.ComputeHash(fs1);
-                            var hash2 = sha256.ComputeHash(obj.Content);
+                        var hash1 = sha256.ComputeHash(fs1);
+                        var hash2 = sha256.ComputeHash(obj.Content);
 
-                            obj.Content.Position = 0;
+                        obj.Content.Position = 0;
 
-                            return hash1.SequenceEqual(hash2) == false;
-                        }
-                        else
-                        {
-                            Program.Logger.WriteLine($"L'objet \"{name}\" n'existe pas ou n'a pas de contenu");
-                        }
+                        return hash1.SequenceEqual(hash2) == false;
                     }
-                    finally
-                    {
-                        DevObject._checkLock.Release();
-                    }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
                 }
                 finally
                 {
-                    DevObject._executeLock.Release();
+                    DevObject._checkLock.Release();
                 }
             }
-            return null;
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
         }
 
         /// <summary>
@@ -414,6 +608,8 @@ namespace DevApps.Features
                         DevObject.References.Add(name, newReference);
                         return name;
                     }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
                 }
                 finally
                 {
@@ -424,9 +620,8 @@ namespace DevApps.Features
             {
                 DevObject._executeLock.Release();
             }
-
-            return null;
         }
+
         /// <summary>
         /// Définit l'objet comme modèle en lui attribuant un GUID unique.
         /// </summary>
@@ -449,6 +644,8 @@ namespace DevApps.Features
                                 instance.guid = Guid.NewGuid();
                         }
                     }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
                 }
                 finally
                 {
@@ -478,26 +675,35 @@ namespace DevApps.Features
                     if (DevObject.TryGet(name, out var reference))
                     {
                         // Si l'objet possède un modèle
-                        if (reference.AsModel() && reference is DevObjectInstance instance)
+                        if (reference is DevObjectInstance instance)
                         {
-                            // todo !! Attention pas de lock dans les appels des services SharedServices et LogServices !! 
+                            if (instance.AsModel())
+                            {
+                                // todo !! Attention pas de lock dans les appels des services SharedServices et LogServices !! 
 
-                            if (SharedServices.ApplyAllObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, (dir, model) =>
-                            {
-                                // log les modifications
-                                if (LogServices.LogDifference(model.content, instance, dir) == true)
+                                if (SharedServices.ApplyAllObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, (dir, model) =>
                                 {
-                                    // actualise l'objet du modèle
-                                    model.content.UpdateFrom(instance);
-                                    return true;
+                                    // log les modifications
+                                    if (LogServices.LogDifference(model.content, instance, dir) == true)
+                                    {
+                                        // actualise l'objet du modèle
+                                        model.content.UpdateFrom(instance);
+                                        return true;
+                                    }
+                                    return false;
+                                }) == 0)
+                                {
+                                    Program.Logger.WriteLine("Modèle introuvable pour l'objet " + name);
                                 }
-                                return false;
-                            }) == 0)
-                            {
-                                Program.Logger.WriteLine("Modèle introuvable pour l'objet " + name);
                             }
+                            else
+                                throw new Exception($"L'objet {name} n'a pas de modèle assigné");
                         }
+                        else
+                            throw new Exception($"L'objet {name} n'est pas une instance");
                     }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
                 }
                 catch (Exception ex)
                 {
@@ -532,7 +738,7 @@ namespace DevApps.Features
                     {
                         if (reference is Program.DevObjectInstance instance)
                         {
-                            if (instance.baseGuid != null)
+                            if (instance.AsModel())
                             {
                                 var list = new List<Serializer.DevObjectInstance>();
                                 SharedServices.EnumerateObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, ref list);
@@ -564,8 +770,14 @@ namespace DevApps.Features
                                     Program.Logger.WriteLine("Objet partagé introuvable avec le GUID: " + instance.baseGuid);
                                 }
                             }
+                            else
+                                throw new Exception($"L'objet {name} n'a pas de modèle assigné");
                         }
+                        else
+                            throw new Exception($"L'objet {name} n'est pas une instance");
                     }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
                 }
                 finally
                 {

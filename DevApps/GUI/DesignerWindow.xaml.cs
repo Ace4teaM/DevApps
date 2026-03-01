@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using DevApps.MCP;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -957,6 +958,10 @@ namespace DevApps.GUI
                 TogglePrintZone = true;
             }
             DropdownPopup.IsOpen = false;
+        }
+
+        private void Apply_Click(object sender, RoutedEventArgs e)
+        {
         }
     }
 }

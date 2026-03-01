@@ -1101,22 +1101,50 @@ namespace DevApps.GUI
             {
                 foreach (var obj in this.facette.Objects)
                 {
-                    AddElement(obj.Key, obj.Value);
+                    try
+                    {
+                        AddElement(obj.Key, obj.Value);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.WriteLine($"Failed to add element {obj.Key}: {ex.Message}");
+                    }
                 }
 
                 foreach (var obj in this.facette.Geometries)
                 {
-                    AddGeometry(obj);
+                    try
+                    {
+                        AddGeometry(obj);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.WriteLine($"Failed to add geometry {obj.guid}: {ex.Message}");
+                    }
                 }
 
                 foreach (var obj in this.facette.Texts)
                 {
-                    AddText(obj);
+                    try
+                    {
+                        AddText(obj);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.WriteLine($"Failed to add text {obj.guid}: {ex.Message}");
+                    }
                 }
 
                 foreach (var obj in this.facette.Commands)
                 {
-                    AddCommand(obj.Key, obj.Value);
+                    try
+                    {
+                        AddCommand(obj.Key, obj.Value);
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.Logger.WriteLine($"Failed to add command {obj.Key}: {ex.Message}");
+                    }
                 }
 
                 //
