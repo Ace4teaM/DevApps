@@ -5,6 +5,7 @@ using DevApps.MCP;
 using DevApps.Scripts;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -28,6 +29,13 @@ internal partial class Program
     internal static readonly string CommonObjPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "Objects");
     internal static Thread MainThread = Thread.CurrentThread;
     internal static Dispatcher Dispatcher = Dispatcher.CurrentDispatcher;
+    internal static string NamedPipePrefix
+    {
+        get
+        {
+            return $"devapps-{Process.GetCurrentProcess().Id}.";
+        }
+    }
 
     /// <summary>
     /// Log par défaut pour le projet en cours

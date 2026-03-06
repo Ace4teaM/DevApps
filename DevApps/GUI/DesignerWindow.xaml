@@ -9,7 +9,7 @@
         PreviewKeyDown="Window_PreviewKeyDown"
         PreviewKeyUp="Window_PreviewKeyUp"
         WindowStyle="None"
-        Title="DesignerWindow" Height="471" Width="552" MinWidth="1000">
+        Title="DesignerWindow" Height="497" Width="1128" MinWidth="1000">
     <Window.Resources>
         <local:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -92,6 +92,8 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
+            <Button DockPanel.Dock="Right" Click="UndoButton_Click">Undo</Button>
+            <Button DockPanel.Dock="Right" Click="RedoButton_Click">Redo</Button>
             <Border BorderBrush="White" BorderThickness="1" Background="WhiteSmoke" CornerRadius="5" Margin="2,5,2,5" ToolTip="{Binding AppPath, Mode=OneWay}">
                 <Border.ContextMenu>
                     <ContextMenu>

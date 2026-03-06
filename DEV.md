@@ -80,14 +80,21 @@ DevApps est disponible au téléchargement sous forme de **Release** au format *
 
 Voici les règles à respecter pour maintenir le bon développement de l'application:
 
-1. Les **Features** sont les **fonctionnalités de l'application**. Ce sont des méthodes asynchrone qui interagissent de façon sûr avec le moteur d'exécution. Elles peuvent retourner des exception gérées et formaté pour être transmissent à l'utilisateur. Les Features servent de point d'entrée aux différents services pour manipuler de façon sûr et cohérente les objets métiers. **Les appels ne doivent pas êtres imbriqués** car ils utilisent les verrous internes de l'application.
-2. Les **Commandes** utilise un Wrapper des fonctionnalités et **interagissent avec l'utilisateur**. Elles peuvent mettre à jour l'interface et archiver les commandes passées.
-3. Les **Services** apportes des mécanismes internes pour manipuler les composants de l'application (*GUI*, *ServeurHTTP*, *logs*...) les classes sont toujours **statics** et **thread-safe** et peuvent être appelés de n'importe où. `AI`, `MPC`, `GUI` sont des services
-4. les **Objets** métiers sont implémenté à la racine de l'application. *DevObject*, *DevVariable*, *Dev...* sont des objets métiers. Ils gèrent leurs propres références et exposent des méthodes internes à accès direct (**non thread-safe, les lock doivent être gérés en amont par l'appelant**). Les méthodes des objets métiers ne se bloquent pas entre eux, les locks sont gérés en amont.
-5. **DevAppsExtension** est un module d'interface tiers (**third-party**)
-6. **ANTLR** implémente dans un module à part les **définitions des syntaxes de langages** interprétables nativement (optimise les phases de build)
-7. **DevAppsSetup** est un programme tiers permettant la configuration du système pour **installer et upgrader Devapps**
-8. **xxxxExtends** sont des modules d'extensions optionnels chargé par DevApps (**un projet ne dépend jamais d'un module d'extension**)
+1. Les **Features** sont les **fonctionnalités de l'application**. Ce sont des méthodes asynchrone qui interagissent de façon sûr avec les objets métiers. Elles peuvent levée des exceptions. Les Features servent de point d'entrée aux différents services pour manipuler de façon cohérente les objets métiers, mettre à jour l'interface et sauvegarder l'historique. **Les appels ne doivent pas êtres imbriqués** car ils utilisent les verrous internes de l'application. Les Features implémente les appels aux Records (Undo/Redo) et Invalidations (GUI)
+2. Les **Services** apportes des mécanismes internes pour manipuler les composants de l'application (*GUI*, *ServeurHTTP*, *logs*...) les classes sont toujours **statics** et **thread-safe** et peuvent être appelés de n'importe où. `AI`, `Recorder`, `MPC`, `GUI` sont des services:
+   1. Le service **Commands** encadre dans une transaction d'enregistrements un ou plusieurs appels aux Features ou modifications du modèle métier
+   2. Le service **MCP** déclenche des commandes depuis le serveur Model Context Protocol (IA)
+   3. Le service **GUI** gère l'interface utilisateur
+   4. Le service **Log** gère les journaux de débogage
+   5. Le service **AI** gère le chat de discussion générative avec l'IA 
+   6. Le service **Record** gère l'enregistrement des modifications des objets métiers
+   7. Le service **Print** gère la génération du rendu PDF
+
+3. les **Objets** métiers sont implémenté à la racine de l'application. *DevObject*, *DevVariable*, *Dev...* sont des objets métiers. Ils gèrent leurs propres références et exposent des méthodes internes à accès direct (**non thread-safe, les lock doivent être gérés en amont par l'appelant**). Les méthodes des objets métiers ne se bloquent pas entre eux, les locks sont gérés en amont.
+4. **DevAppsExtension** est un module d'interface tiers (**third-party**)
+5. **ANTLR** implémente dans un module à part les **définitions des syntaxes de langages** interprétables nativement (optimise les phases de build)
+6. **DevAppsSetup** est un programme tiers permettant la configuration du système pour **installer et upgrader Devapps**
+7. **xxxxExtends** sont des modules d'extensions optionnels chargé par DevApps (**un projet ne dépend jamais d'un module d'extension**)
 
 # Workflow
 

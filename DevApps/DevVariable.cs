@@ -40,6 +40,11 @@ internal partial class Program
         /// </summary>
         internal static readonly SemaphoreSlim _checkLock = new(1, 1);
 
+        /// <summary>
+        /// Enregistreur d'états des objets (pour l'historisation, l'annulation, la duplication, ...)
+        /// </summary>
+        public static DevApps.Record.Recorder<string, Serializer.DevVariable, Program.DevVariable> Recorder = new();
+
         public static Dictionary<string, DevVariable> References = new Dictionary<string, DevVariable>();
 
 

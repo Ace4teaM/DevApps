@@ -1,15 +1,18 @@
 ﻿using DevApps.MCP;
+using DevApps.Record;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Security.AccessControl;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using static IronPython.Modules._ast;
 using static Program;
 
 namespace DevApps.GUI
@@ -499,7 +502,7 @@ namespace DevApps.GUI
             var item = ((ListBox)sender).SelectedItem as FacetItem;
             if(item != null)
             {
-                this.Content = new DesignerView(Program.DevFacet.References.First(p => p.Key == item.Header.ToString()).Value);
+                this.Content = new DesignerView(item.Header.ToString());
             }
         }
         private void MenuItem_Click_DeleteFacet(object sender, RoutedEventArgs e)
@@ -719,7 +722,7 @@ namespace DevApps.GUI
             {
                 if (IsDesignerView)
                 {
-                    DevApps.Print.Services.Print(((DesignerView)this.Content).facette);
+                    DevApps.Print.Services.Print(((DesignerView)this.Content).Facet);
                 }
             }
 
@@ -925,7 +928,7 @@ namespace DevApps.GUI
                     var ratio = (1.0 / size.L) * size.H;
                     var newHeight = ratio * rect.Width;
                     // si on ajuste la hauteur pour ce ratio de largeur
-                    // a t'on suffisament pour contenir le tout ? (si positif = plus grand)
+                    // a t'on suffisamment pour contenir le tout ? (si positif = plus grand)
                     if (newHeight >= rect.Height)
                     {
                         var diff = newHeight - rect.Height;
@@ -962,6 +965,16 @@ namespace DevApps.GUI
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
+            DevApps.Features.Objects.Delete("test").Wait();
+        }
+
+        private void UndoButton_Click(object sender, RoutedEventArgs e)
+        {
+            HistoryServices.Undo();
+        }
+        private void RedoButton_Click(object sender, RoutedEventArgs e)
+        {
+            HistoryServices.Redo();
         }
     }
 }

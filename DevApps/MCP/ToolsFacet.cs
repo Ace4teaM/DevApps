@@ -57,7 +57,7 @@ namespace DevApps.MCP
             )
         {
             return await McpResult.MakeJson(
-                DevApps.Features.Facets.RemoveGeomerty(name, guid),
+                DevApps.Features.Facets.RemoveGeometry(name, guid),
                 () => new { }
             );
         }
@@ -71,7 +71,7 @@ namespace DevApps.MCP
             )
         {
             return await McpResult.MakeJson(
-                DevApps.Features.Facets.AddGeomerty(name, path, x, y),
+                DevApps.Features.Facets.AddGeometry(name, path, x, y),
                 () => new { }
             );
         }

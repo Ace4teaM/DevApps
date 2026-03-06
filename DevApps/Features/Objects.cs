@@ -5,7 +5,6 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using static Program;
 
 namespace DevApps.Features
@@ -314,6 +313,41 @@ namespace DevApps.Features
 
                     DevObject.References[name] = obj;
                     DevObject.References.Remove(newName);
+
+                    // renomme l'objet dans les objets de references
+                    foreach (var o in DevObject.References)
+                    {
+                        if (o.Value is DevObjectReference objRef)
+                        {
+                            if (objRef.baseObjectName == name)
+                            {
+                                objRef.baseObjectName = newName;
+                                Logger.WriteLine($"Renomme Reference {o.Key} : {name} => {newName}");
+                            }
+                        }
+                    }
+
+                    // renomme l'objet dans les pointeurs des autres objets
+                    foreach (var o in DevObject.References)
+                    {
+                        foreach (var pointer in o.Value.Pointers.Where(p => p.Value.target == name).ToArray())
+                        {
+                            o.Value.Pointers[pointer.Key].target = newName;
+                            Logger.WriteLine($"Renomme {pointer.Key} : {name} => {newName}");
+                        }
+                    }
+
+                    // renomme l'objet dans les references des facettes
+                    foreach (var o in DevFacet.References)
+                    {
+                        foreach (var pointer in o.Value.Objects.Where(p => p.Key == name).ToArray())
+                        {
+                            var tmp = pointer.Value;
+                            o.Value.Objects.Remove(pointer.Key);
+                            o.Value.Objects.Add(newName, tmp);
+                            Logger.WriteLine($"Renomme {o.Key} : {pointer.Key} => {newName}");
+                        }
+                    }
                 }
                 finally
                 {
@@ -353,16 +387,54 @@ namespace DevApps.Features
 
                     if (DevObject.TryGet(name, out var obj))
                     {
-                        DevObject.References.Remove(name);
+                        // supprime l'objet de références
+                        using (DevObject.Recorder.Rem(name, obj))
+                            DevObject.References.Remove(name);
 
+                        // supprime l'objet dans les objets de references
+                        foreach (var o in DevObject.References)
+                        {
+                            if (o.Value is DevObjectReference objRef && objRef.baseObjectName == name)
+                            {
+                                using (DevObject.Recorder.Rec(o.Key, o.Value))
+                                {
+                                    // l'objet devient une instance
+                                    DevObject.References.Remove(o.Key);
+                                    var newObject = DevObject.Create(o.Key, objRef.Description, objRef.Tags); // todo manque les autres propriétés ...
+                                    Logger.WriteLine($"Convert reference object to instance {o.Key}");
+                                }
+                            }
+                        }
+
+                        // déréférence l'objet dans les pointeurs des autres objets
+                        foreach (var o in DevObject.References)
+                        {
+                            foreach (var pointer in o.Value.Pointers.Where(p => p.Value.target == name).ToArray())
+                            {
+                                using (DevObject.Recorder.Rec(o.Key, o.Value))
+                                {
+                                    o.Value.Pointers[pointer.Key].target = string.Empty;
+                                    Logger.WriteLine($"Clear pointer {pointer.Key} => {name}");
+                                }
+                            }
+                        }
+
+
+                        // supprime l'objet dans les references des facettes
                         foreach (var o in DevFacet.References)
                         {
                             if (!o.Value.Objects.ContainsKey(name))
                                 continue;
 
-                            o.Value.Objects.Remove(name);
+                            using (DevFacet.Recorder.Rec(o.Key, o.Value))
+                            {
+                                o.Value.Objects.Remove(name);
+                            }
+
+                            Logger.WriteLine($"Remove {name} from facet {o.Key}");
                         }
 
+                        // événement de suppression de l'objet (dispose)
                         obj.OnDelete();
                     }
                     else
@@ -799,6 +871,76 @@ namespace DevApps.Features
                         DevObject.MakeUniqueName(ref name);
                         DevObject.References.Add(name, newReference);
                         return name;
+                    }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Définit la description d'un objet
+        /// </summary>
+        /// <param name="name">Nom de l'objet</param>
+        public static async Task<string> SetDescription(string name, string description)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (DevObject.TryGet(name, out var reference))
+                    {
+                        var oldDescription = reference.Description;
+                        reference.Description = description;
+                        return oldDescription;
+                    }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Définit les tags d'un objet
+        /// </summary>
+        /// <param name="name">Nom de l'objet</param>
+        /// <param name="tags">Tags sous la forme "#un #deux #trois ..."</param>
+        public static async Task<string> SetTags(string name, string tags)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    if (DevObject.TryGet(name, out var reference))
+                    {
+                        var instance = reference.IsReference ? ((Program.DevObjectReference)reference).baseObject : (Program.DevObjectInstance)reference;
+                        var old = String.Join(' ', reference.Tags);
+                        instance!.tags = new HashSet<string>(tags.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+                        return old;
                     }
                     else
                         throw new Exception($"L'objet {name} n'existe pas");

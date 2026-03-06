@@ -169,6 +169,11 @@ internal partial class Program
             public System.Windows.Point pos;
         }
 
+        /// <summary>
+        /// Enregistreur d'états des objets (pour l'historisation, l'annulation, la duplication, ...)
+        /// </summary>
+        public static DevApps.Record.Recorder<string, Serializer.DevFacet, Program.DevFacet> Recorder = new();
+
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
         internal Dictionary<string, ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
         internal Dictionary<string, CommandProperties> Commands = new Dictionary<string, CommandProperties>();

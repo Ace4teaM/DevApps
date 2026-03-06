@@ -21,7 +21,8 @@ namespace DevApps.Features
 
                 if (DevFacet.TryGet(name, out var facet))
                 {
-                    facet.Objects[objectName].zone = new Rect(new Point(x, y), new Point(w, h));
+                    using (DevFacet.Recorder.Rec(name, facet))
+                        facet.Objects[objectName].zone = new Rect(x, y, w, h);
                 }
                 else
                     throw new Exception($"La facette {name} n'existe pas");
@@ -30,19 +31,83 @@ namespace DevApps.Features
                 {
                     if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
                     {
-                        if (currentView.facette == facet)
+                        if (currentView.Name == name)
                         {
-                            var element = currentView.GetElement(objectName);
-                            if (element != null)
-                            {
-                                Canvas.SetLeft(element, x);
-                                Canvas.SetTop(element, y);
-                                element.Width = w;
-                                element.Height = h;
-                            }
+                            currentView.InvalidateElement(objectName);
                         }
                     }
                 });
+            }
+            finally
+            {
+                //DevFacet._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Retire un commande de la vue
+        /// </summary>
+        public static async Task RemoveCommand(string name, string CommandName)
+        {
+            try
+            {
+                //await DevFacet._executeLock.WaitAsync();
+
+                if (DevFacet.TryGet(name, out var facet))
+                {
+                    using (DevFacet.Recorder.Rec(name, facet))
+                        facet.Commands.Remove(CommandName);
+                }
+                else
+                    throw new Exception($"La facette {name} n'existe pas");
+
+
+                DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke((Action)(() =>
+                {
+                    if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
+                    {
+                        if (currentView.Facet == facet)
+                        {
+                            currentView.RemoveElement(CommandName);
+                        }
+                    }
+                }));
+            }
+            finally
+            {
+                //DevFacet._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Ajoute un commande dans la vue
+        /// </summary>
+        public static async Task AddCommand(string name, string CommandName, double x, double y)
+        {
+            try
+            {
+                //await DevFacet._executeLock.WaitAsync();
+
+                if (DevFacet.TryGet(name, out var facet))
+                {
+                    var props = new DevFacet.CommandProperties { pos = new System.Windows.Point(x,y) };
+
+                    using (DevFacet.Recorder.Rec(name, facet))
+                        facet.Commands.Add(CommandName, props);
+
+                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke((Action)(() =>
+                    {
+                        if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
+                        {
+                            if (currentView.Facet == facet)
+                            {
+                                currentView.AddCommand(CommandName, props);
+                            }
+                        }
+                    }));
+                }
+                else
+                    throw new Exception($"La facette {name} n'existe pas");
             }
             finally
             {
@@ -61,22 +126,23 @@ namespace DevApps.Features
 
                 if (DevFacet.TryGet(name, out var facet))
                 {
-                    facet.Objects.Remove(objectName);
+                    using (DevFacet.Recorder.Rec(name, facet))
+                        facet.Objects.Remove(objectName);
                 }
                 else
                     throw new Exception($"La facette {name} n'existe pas");
 
 
-                DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
+                DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke((Action)(() =>
                 {
                     if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
                     {
-                        if (currentView.facette == facet)
+                        if (currentView.Facet == facet)
                         {
                             currentView.RemoveElement(objectName);
                         }
                     }
-                });
+                }));
             }
             finally
             {
@@ -101,18 +167,104 @@ namespace DevApps.Features
 
                     var props = new DevFacet.ObjectProperties { title = TitlePlacement.TopLeft, background = "#FFFFFFFF", zone = new Rect(position, size) };
 
-                    facet.Objects.Add(objectName, props);
+                    using (DevFacet.Recorder.Rec(name, facet))
+                        facet.Objects.Add(objectName, props);
 
-                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
+                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke((Action)(() =>
                     {
                         if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
                         {
-                            if (currentView.facette == facet)
+                            if (currentView.Facet == facet)
                             {
                                 currentView.AddElement(objectName, props);
                             }
                         }
-                    });
+                    }));
+                }
+                else
+                    throw new Exception($"La facette {name} n'existe pas");
+            }
+            finally
+            {
+                //DevFacet._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Supprime une texte de la facette
+        /// </summary>
+        public static async Task RemoveText(string name, string guid)
+        {
+            try
+            {
+                //await DevFacet._executeLock.WaitAsync();
+
+                if (DevFacet.TryGet(name, out var facet))
+                {
+                    var index = facet.Texts.FindIndex(p => p.guid.ToString() == guid);
+
+                    if (index == -1)
+                        throw new Exception($"La facette {facet} ne contient pas de texte à cet index");
+
+                    using (DevFacet.Recorder.Rec(name, facet))
+                    {
+                        facet.Texts.RemoveAt(index);
+                    }
+
+
+                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke((Action)(() =>
+                    {
+                        if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
+                        {
+                            if (currentView.Facet == facet)
+                            {
+                                currentView.RemoveText(new Guid(guid));
+                            }
+                        }
+                    }));
+                }
+                else
+                    throw new Exception($"La facette {name} n'existe pas");
+            }
+            finally
+            {
+                //DevFacet._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Ajoute une texte à une facette
+        /// </summary>
+        public static async Task AddText(string name, string text, double x, double y, string? guid = null)
+        {
+            try
+            {
+                //await DevFacet._executeLock.WaitAsync();
+
+                if (DevFacet.TryGet(name, out var facet))
+                {
+                    using (DevFacet.Recorder.Rec(name, facet))
+                    {
+                        var Text = new DevFacet.Text(x, y, text);
+
+                        // restaure le guid si il est fournit
+                        if (guid != null)
+                            Text.guid = new Guid(guid);
+
+                        facet.Texts.Add(Text);
+                    }
+
+                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke((Action)(() =>
+                    {
+                        if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
+                        {
+                            if (currentView.Facet == facet)
+                            {
+                                var geo = new DevFacet.Text(x, y, text);
+                                currentView.AddText(geo);
+                            }
+                        }
+                    }));
                 }
                 else
                     throw new Exception($"La facette {name} n'existe pas");
@@ -126,7 +278,7 @@ namespace DevApps.Features
         /// <summary>
         /// Supprime une géométrie de la facette
         /// </summary>
-        public static async Task RemoveGeomerty(string name, string guid)
+        public static async Task RemoveGeometry(string name, string guid)
         {
             try
             {
@@ -135,24 +287,26 @@ namespace DevApps.Features
                 if (DevFacet.TryGet(name, out var facet))
                 {
                     var index = facet.Geometries.FindIndex(p => p.guid.ToString() == guid);
-
+                    
                     if (index == -1)
                         throw new Exception($"La facette {facet} ne contient pas de géométrie à cet index");
 
-                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
+                    using (DevFacet.Recorder.Rec(name, facet))
+                    {
+                        facet.Geometries.RemoveAt(index);
+                    }
+
+
+                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke((Action)(() =>
                     {
                         if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
                         {
-                            if (currentView.facette == facet)
+                            if (currentView.Facet == facet)
                             {
-                                currentView.RemoveGeometry(index);
+                                currentView.RemoveGeometry(new Guid(guid));
                             }
                         }
-                    });
-
-                    facet.Geometries.RemoveAt(index);
-
-                    //History.Push(() => AddGeomerty(name, geometry.path, geometry.x, geometry.y, geometry.guid));
+                    }));
                 }
                 else
                     throw new Exception($"La facette {name} n'existe pas");
@@ -166,7 +320,7 @@ namespace DevApps.Features
         /// <summary>
         /// Ajoute une géométrie à une facette
         /// </summary>
-        public static async Task AddGeomerty(string name, string path, double x, double y, string? guid = null)
+        public static async Task AddGeometry(string name, string path, double x, double y, string? guid = null)
         {
             try
             {
@@ -174,27 +328,28 @@ namespace DevApps.Features
 
                 if (DevFacet.TryGet(name, out var facet))
                 {
-                    var geometry = new DevFacet.Geometry(x, y, path);
+                    using (DevFacet.Recorder.Rec(name, facet))
+                    {
+                        var geometry = new DevFacet.Geometry(x, y, path);
 
-                    // restaure le guid si il est fournit
-                    if (guid != null)
-                        geometry.guid = new Guid(guid);
+                        // restaure le guid si il est fournit
+                        if (guid != null)
+                            geometry.guid = new Guid(guid);
 
-                    facet.Geometries.Add(geometry);
+                        facet.Geometries.Add(geometry);
+                    }
 
-                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
+                    DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke((Action)(() =>
                     {
                         if(DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView currentView)
                         {
-                            if (currentView.facette == facet)
+                            if (currentView.Facet == facet)
                             {
                                 var geo = new DevFacet.Geometry(x, y, path);
                                 currentView.AddGeometry(geo);
                             }
                         }
-                    });
-
-                    //History.Push(() => RemoveGeomerty(name, geometry.guid));
+                    }));
                 }
                 else
                     throw new Exception($"La facette {name} n'existe pas");

@@ -1,11 +1,7 @@
-﻿using Serializer;
-using System.ComponentModel;
-using System.Globalization;
+﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
-using static IronPython.Modules._ast;
 using static Program;
 
 namespace DevApps.GUI
@@ -13,7 +9,7 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerVariablesView.xaml
     /// </summary>
-    public partial class DesignerVariablesView : UserControl, INotifyPropertyChanged, IKeyCommand
+    public partial class DesignerVariablesView : UserControl, INotifyPropertyChanged, IKeyCommand, IInvalidableView
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -90,6 +86,12 @@ namespace DevApps.GUI
                     Program.DevVariable._checkLock.Release();
                 }
             }
+        }
+
+        public void InvalidateContent()
+        {
+            InvalidateVariables();
+            InvalidatePrivateVariables();
         }
 
         internal void InvalidateVariables()

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DevApps.Commands;
+using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -10,7 +11,6 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using static Community.CsharpSqlite.Sqlite3;
 using static Program;
 using static Program.DevFacet;
 
@@ -19,7 +19,7 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerView.xaml
     /// </summary>
-    public partial class DesignerView : UserControl, INotifyPropertyChanged, IKeyCommand
+    public partial class DesignerView : UserControl, INotifyPropertyChanged, IKeyCommand, IInvalidableView
     {
         public class CommandItem
         {
@@ -27,8 +27,23 @@ namespace DevApps.GUI
             public string? Description { get; set; }
             public string? CommandLine { get; set; }
         }
-        
-        internal DevFacet facette;
+
+        internal string FacetName
+        {
+            get
+            {
+                return this.Name;
+            }
+        }
+
+        internal DevFacet? Facet
+        {
+            get
+            {
+                return DevFacet.References.GetValueOrDefault(FacetName);
+            }
+        }
+
         /// La vue est en cours de translation
         internal bool isPanning = false;
         /// L'objet est en cours de déplacement
@@ -85,22 +100,22 @@ namespace DevApps.GUI
 
         public double PrintX
         {
-            get {  return facette.PrintLayout.X; }
+            get {  return Facet!.PrintLayout.X; }
         }
 
         public double PrintY
         {
-            get { return facette.PrintLayout.Y; }
+            get { return Facet!.PrintLayout.Y; }
         }
 
         public double PrintW
         {
-            get { return facette.PrintLayout.Width; }
+            get { return Facet!.PrintLayout.Width; }
         }
 
         public double PrintH
         {
-            get { return facette.PrintLayout.Height; }
+            get { return Facet!.PrintLayout.Height; }
         }
 
         /// <summary>
@@ -133,15 +148,14 @@ namespace DevApps.GUI
             return boundingBox;
         }
 
-        internal DesignerView(DevFacet facette)
+        internal DesignerView(string facetName)
         {
             InitializeComponent();
             this.DataContext = this;
+            this.Name = facetName;
 
             lastClickTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(400));
             lastClickTimer.AutoReset = false;
-
-            this.facette = facette;
 
             _transformGroup.Children.Add(_translateTransform);
             MyCanvas.LayoutTransform = _scaleTransform;
@@ -321,7 +335,7 @@ namespace DevApps.GUI
 
             if (isDoubleClick && selectedElement is DrawGeometry sel)
             {
-                var geo = ((DevFacet.Geometry)sel.Tag);
+                var geo = Facet!.Geometries.First(p=>p.guid == (Guid)sel.Tag);
                 var wnd = new GetText();
                 wnd.Value = geo.path;
                 wnd.Owner = Window.GetWindow(this);
@@ -340,7 +354,7 @@ namespace DevApps.GUI
 
             if (isDoubleClick && selectedElement is DrawText sel2)
             {
-                var text = ((DevFacet.Text)sel2.Tag);
+                var text = Facet!.Texts.First(p => p.guid == (Guid)sel2.Tag);
                 var wnd = new GetText();
                 wnd.Value = text.text;
                 wnd.IsMultiline = true;
@@ -441,12 +455,12 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Retirer" };
                         m.Click += (s, e) =>
                         {
-                            var facetGeo = (DevFacet.Geometry)curElement.Tag;
+                            CommandsService.Record(
+                                "remove object",
+                                Features.Facets.RemoveGeometry(this.Name, curElement.Tag.ToString())
+                            ).Wait();
 
-                            MyCanvas.Children.Remove(curElement);
                             selectedElement = null;
-
-                            facette.Geometries.Remove(facetGeo);
                         };
                         menu.Items.Add(m);
                     }
@@ -464,12 +478,12 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Retirer" };
                         m.Click += (s, e) =>
                         {
-                            var facetText = (DevFacet.Text)curElement.Tag;
+                            CommandsService.Record(
+                                "remove object",
+                                Features.Facets.RemoveText(this.Name, curElement.Tag.ToString())
+                            ).Wait();
 
-                            MyCanvas.Children.Remove(curElement);
                             selectedElement = null;
-
-                            facette.Texts.Remove(facetText);
                         };
                         menu.Items.Add(m);
                     }
@@ -507,10 +521,12 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Retirer" };
                         m.Click += (s, e) =>
                         {
-                            MyCanvas.Children.Remove(curElement);
-                            selectedElement = null;
+                            CommandsService.Record(
+                                "remove object",
+                                Features.Facets.RemoveCommand(this.Name, name)
+                            ).Wait();
 
-                            facette.Commands.Remove(name);
+                            selectedElement = null;
                         };
                         menu.Items.Add(m);
                     }
@@ -586,8 +602,8 @@ namespace DevApps.GUI
                             var newName = Features.Objects.Duplicate(name).Result;
                             if (String.IsNullOrEmpty(newName) == false && selectedElement != null)
                             {
-                                facette.Objects.Add(newName, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
-                                AddElement(newName, facette.Objects[name]);
+                                Facet.Objects.Add(newName, new DevFacet.ObjectProperties { zone = new Rect(selectedElement.X + 50, selectedElement.Y + 50, selectedElement.Width, selectedElement.Height) });
+                                AddElement(newName, Facet.Objects[name]);
                             }
                         };
                         menu.Items.Add(m);
@@ -650,10 +666,12 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Retirer" };
                         m.Click += (s, e) =>
                         {
-                            MyCanvas.Children.Remove(selectedElement);
-                            selectedElement = null;
+                            CommandsService.Record(
+                                "remove object",
+                                Features.Facets.RemoveObject(this.Name, name)
+                            ).Wait();
 
-                            facette.Objects.Remove(name);
+                            selectedElement = null;
                         };
                         menu.Items.Add(m);
                     }
@@ -1018,7 +1036,8 @@ namespace DevApps.GUI
 
             var position = properties.GetZone();
 
-            var element = new DrawElement(o.Key, this.facette, position, o.Key, String.Join(' ', o.Value.Tags));
+            var element = new DrawElement(o.Key, this.Facet!, position, o.Key, String.Join(' ', o.Value.Tags));
+            element.Name = name;
             element.RenderTransform = _transformGroup;
             MyCanvas.Children.Add(element);
 
@@ -1040,7 +1059,7 @@ namespace DevApps.GUI
         internal DrawGeometry AddGeometry(DevFacet.Geometry geometry)
         {
             var element = new DrawGeometry(System.Windows.Media.Geometry.Parse(geometry.path));
-            element.Tag = geometry;
+            element.Tag = geometry.guid;// pas de référence directe à text
             element.DataContext = geometry.path;
             element.RenderTransform = _transformGroup;
             Canvas.SetLeft(element, geometry.X);
@@ -1049,12 +1068,9 @@ namespace DevApps.GUI
             return element;
         }
 
-        internal void RemoveGeometry(int index)
+        internal void RemoveGeometry(Guid guid)
         {
-            if (index >= this.facette.Geometries.Count)
-                return;
-            var geometry = this.facette.Geometries[index];
-            var element = MyCanvas.Children.OfType<DrawGeometry>().FirstOrDefault(p=> p.Tag == geometry);
+            var element = MyCanvas.Children.OfType<DrawGeometry>().FirstOrDefault(p=> (Guid)p.Tag == guid);
             if (element != null)
                 MyCanvas.Children.Remove(element);
         }
@@ -1062,7 +1078,7 @@ namespace DevApps.GUI
         internal DrawText AddText(DevFacet.Text text)
         {
             var element = new DrawText(text.text);
-            element.Tag = text;
+            element.Tag = text.guid;// pas de référence directe à text
             element.DataContext = text.text;
             element.RenderTransform = _transformGroup;
             Canvas.SetLeft(element, text.X);
@@ -1077,19 +1093,17 @@ namespace DevApps.GUI
 
             var position = properties.GetPosition();
 
-            var element = new DrawCommand(o.Key, this.facette, position, o.Value);
+            var element = new DrawCommand(o.Key, this.Facet!, position, o.Value);
+            element.Name = name;
             element.RenderTransform = _transformGroup;
             MyCanvas.Children.Add(element);
 
             return element;
         }
 
-        internal void RemoveText(int index)
+        internal void RemoveText(Guid guid)
         {
-            if (index >= this.facette.Texts.Count)
-                return;
-            var text = this.facette.Texts[index];
-            var element = MyCanvas.Children.OfType<DrawText>().FirstOrDefault(p => p.Tag == text);
+            var element = MyCanvas.Children.OfType<DrawText>().FirstOrDefault(p => (Guid)p.Tag == guid);
             if (element != null)
                 MyCanvas.Children.Remove(element);
         }
@@ -1099,7 +1113,7 @@ namespace DevApps.GUI
         {
             if (GuiService.IsInitialized)
             {
-                foreach (var obj in this.facette.Objects)
+                foreach (var obj in this.Facet!.Objects)
                 {
                     try
                     {
@@ -1111,7 +1125,7 @@ namespace DevApps.GUI
                     }
                 }
 
-                foreach (var obj in this.facette.Geometries)
+                foreach (var obj in this.Facet!.Geometries)
                 {
                     try
                     {
@@ -1123,7 +1137,7 @@ namespace DevApps.GUI
                     }
                 }
 
-                foreach (var obj in this.facette.Texts)
+                foreach (var obj in this.Facet!.Texts)
                 {
                     try
                     {
@@ -1135,7 +1149,7 @@ namespace DevApps.GUI
                     }
                 }
 
-                foreach (var obj in this.facette.Commands)
+                foreach (var obj in this.Facet!.Commands)
                 {
                     try
                     {
@@ -1169,57 +1183,77 @@ namespace DevApps.GUI
                 //AddPrintZone(rect);
             }
         }
-        private void SaveDisposition()
+
+        /// <summary>
+        /// invalide le visuel d'un élément
+        /// </summary>
+        /// <param name="objectName"></param>
+        internal void InvalidateElement(string objectName)
         {
             if (GuiService.IsInitialized)
             {
-                foreach (var element in MyCanvas.Children.OfType<DrawElement>())
+                var element = GetElement(objectName);
+                if (element != null && this.Facet!.Objects.TryGetValue(objectName, out var props))
                 {
-                    if(this.facette.Objects.TryGetValue(element.Name, out var props))
-                        props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
-                }
-                foreach (var element in MyCanvas.Children.OfType<DrawCommand>())
-                {
-                    if (this.facette.Commands.TryGetValue(element.Name, out var props2))
-                        props2.SetPosition(new Point(Canvas.GetLeft(element), Canvas.GetTop(element)));
-                }
-                foreach (var element in MyCanvas.Children.OfType<DrawGeometry>())
-                {
-                    var src = (DevFacet.Geometry)element.Tag;
-                    src.X = Canvas.GetLeft(element);
-                    src.Y = Canvas.GetTop(element);
-                }
-                foreach (var element in MyCanvas.Children.OfType<DrawText>())
-                {
-                    var src = (DevFacet.Text)element.Tag;
-                    src.X = Canvas.GetLeft(element);
-                    src.Y = Canvas.GetTop(element);
+                    Canvas.SetLeft(element, props.zone.Left);
+                    Canvas.SetTop(element, props.zone.Top);
+                    element.Width = props.zone.Width;
+                    element.Height = props.zone.Height;
                 }
             }
         }
+
         private void SaveDisposition(DrawBase element)
         {
             if (GuiService.IsInitialized)
             {
-                if (element is DrawElement && this.facette.Objects.TryGetValue(element.Name, out var props))
+                if (element is DrawElement && this.Facet!.Objects.TryGetValue(element.Name, out var props))
                 {
-                    props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
+                    CommandsService.Record(
+                        "move object",
+                        () => {
+                            using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
+                                props.SetZone(new Rect(Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height));
+                        }
+                    ).Wait();
                 }
-                if (element is DrawCommand && this.facette.Commands.TryGetValue(element.Name, out var props2))
+                if (element is DrawCommand && this.Facet!.Commands.TryGetValue(element.Name, out var props2))
                 {
-                    props2.SetPosition(new Point(Canvas.GetLeft(element), Canvas.GetTop(element)));
+                    CommandsService.Record(
+                        "move command",
+                        () => {
+                            using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
+                                props2.SetPosition(new Point(Canvas.GetLeft(element), Canvas.GetTop(element)));
+                        }
+                     ).Wait();
                 }
                 if (element is DrawGeometry)
                 {
-                    var src = (DevFacet.Geometry)element.Tag;
-                    src.X = Canvas.GetLeft(element);
-                    src.Y = Canvas.GetTop(element);
+                    var src = Facet!.Geometries.First(p=>p.guid == (Guid)element.Tag);
+                    CommandsService.Record(
+                        "move geometry",
+                        (Action)(() => {
+                            using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
+                            {
+                                src.X = Canvas.GetLeft(element);
+                                src.Y = Canvas.GetTop(element);
+                            }
+                        })
+                     ).Wait();
                 }
                 if (element is DrawText)
                 {
-                    var src = (DevFacet.Text)element.Tag;
-                    src.X = Canvas.GetLeft(element);
-                    src.Y = Canvas.GetTop(element);
+                    var src = Facet!.Texts.First(p => p.guid == (Guid)element.Tag);
+                    CommandsService.Record(
+                        "move text",
+                        (Action)(() => {
+                            using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
+                            {
+                                src.X = Canvas.GetLeft(element);
+                                src.Y = Canvas.GetTop(element);
+                            }
+                        })
+                     ).Wait();
                 }
             }
         }
@@ -1235,6 +1269,14 @@ namespace DevApps.GUI
             MyCanvas.LayoutTransform = _scaleTransform;
         }
 
+        public void InvalidateContent()
+        {
+            InvalidateObjects();
+            InvalidateCommands();
+            InvalidateGeometries();
+            InvalidateTexts();
+        }
+
         internal void InvalidateObjects()
         {
             if (GuiService.IsInitialized)
@@ -1243,7 +1285,7 @@ namespace DevApps.GUI
                 foreach (var element in elements)
                     MyCanvas.Children.Remove(element);
 
-                foreach (var obj in this.facette.Objects)
+                foreach (var obj in this.Facet!.Objects)
                 {
                     AddElement(obj.Key, obj.Value);
                 }
@@ -1258,9 +1300,39 @@ namespace DevApps.GUI
                 foreach (var element in elements)
                     MyCanvas.Children.Remove(element);
 
-                foreach (var obj in this.facette.Commands)
+                foreach (var obj in this.Facet!.Commands)
                 {
                     AddCommand(obj.Key, obj.Value);
+                }
+            }
+        }
+
+        internal void InvalidateGeometries()
+        {
+            if (GuiService.IsInitialized)
+            {
+                var elements = MyCanvas.Children.OfType<DrawGeometry>().ToArray();
+                foreach (var element in elements)
+                    MyCanvas.Children.Remove(element);
+
+                foreach (var obj in this.Facet!.Geometries)
+                {
+                    AddGeometry(obj);
+                }
+            }
+        }
+
+        internal void InvalidateTexts()
+        {
+            if (GuiService.IsInitialized)
+            {
+                var elements = MyCanvas.Children.OfType<DrawText>().ToArray();
+                foreach (var element in elements)
+                    MyCanvas.Children.Remove(element);
+
+                foreach (var obj in this.Facet!.Texts)
+                {
+                    AddText(obj);
                 }
             }
         }
@@ -1285,7 +1357,7 @@ namespace DevApps.GUI
                             pos.X -= _translateTransform.X;
                             pos.Y -= _translateTransform.Y;
                             var prop = new DevFacet.ObjectProperties { zone = new Rect(pos, new Size(100, 100)) };
-                            facette.Objects.Add(name, prop);
+                            Facet!.Objects.Add(name, prop);
                             AddElement(name, prop);
                         }
                     }
@@ -1364,7 +1436,7 @@ namespace DevApps.GUI
                 pos.X -= _translateTransform.X;
                 pos.Y -= _translateTransform.Y;
                 var props = new ObjectProperties() { zone = new Rect(pos, new Point(pos.X + 200, pos.Y + 200)) };
-                this.facette.Objects.Add(name, props);
+                this.Facet!.Objects.Add(name, props);
                 AddElement(name, props);
 
                 try
@@ -1421,7 +1493,7 @@ namespace DevApps.GUI
                 pos.X -= _translateTransform.X;
                 pos.Y -= _translateTransform.Y;
                 var props = new ObjectProperties() { zone = new Rect(pos, new Point(pos.X + 200, pos.Y + 200)) };
-                this.facette.Objects.Add(name, props);
+                this.Facet!.Objects.Add(name, props);
                 AddElement(name, props);
 
                 // Copie le contenu du fichier
@@ -1534,6 +1606,7 @@ namespace DevApps.GUI
         internal CapturePointMode capturePointMode = CapturePointMode.None;
         internal bool captureCloseable = false;
         internal StringBuilder? capturePath = null;
+        internal object? captureObject = null;
         internal DrawBase? captureDraw = null;
         private bool printVisibility;
 
@@ -1553,11 +1626,13 @@ namespace DevApps.GUI
             {
                 case CapturePointMode.Text:
                     capturePath = new StringBuilder();
-                    captureDraw = AddText(new DevFacet.Text(position.X, position.Y, "Texte"));
+                    captureObject = new DevFacet.Text(position.X, position.Y, "Texte");
+                    captureDraw = AddText((DevFacet.Text)captureObject);
                     captureCloseable = true;
                     break;
                 default:
                     capturePath = null;
+                    captureObject = null;
                     captureDraw = null;
                     captureCloseable = false;
                     break;
@@ -1574,7 +1649,8 @@ namespace DevApps.GUI
             {
                 case CapturePointMode.PrintZone:
                     capturePath = new StringBuilder("M 0,0");
-                    captureDraw = AddGeometry(new DevFacet.Geometry(position.X, position.Y, capturePath.ToString()));
+                    captureObject = new DevFacet.Geometry(position.X, position.Y, capturePath.ToString());
+                    captureDraw = AddGeometry((DevFacet.Geometry)captureObject);
                     captureCloseable = false;
                     break;
                 case CapturePointMode.Rectangle:
@@ -1583,7 +1659,8 @@ namespace DevApps.GUI
                 case CapturePointMode.Polyline:
                 case CapturePointMode.Polygon:
                     capturePath = new StringBuilder("M 0,0");
-                    captureDraw = AddGeometry(new DevFacet.Geometry(position.X, position.Y, capturePath.ToString()));
+                    captureObject = new DevFacet.Geometry(position.X, position.Y, capturePath.ToString());
+                    captureDraw = AddGeometry((DevFacet.Geometry)captureObject);
                     captureCloseable = false;
                     break;
             }
@@ -1722,15 +1799,23 @@ namespace DevApps.GUI
         {
             if (cancel == false && captureCloseable == true)
             {
-                if (captureDraw is DrawGeometry)
+                if (captureDraw is DrawGeometry && captureObject is DevFacet.Geometry)
                 {
-                    var obj = (DevFacet.Geometry)captureDraw.Tag;
-                    obj.X = Canvas.GetLeft(captureDraw);
-                    obj.Y = Canvas.GetTop(captureDraw);
-                    obj.path = capturePath!.ToString();
-                    facette.Geometries.Add(obj);
+                    CommandsService.Record(
+                        "create geometry",
+                        () => {
+                            using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
+                            {
+                                var obj = (DevFacet.Geometry)captureObject;
+                                obj.X = Canvas.GetLeft(captureDraw);
+                                obj.Y = Canvas.GetTop(captureDraw);
+                                obj.path = capturePath!.ToString();
+                                Facet!.Geometries.Add(obj);
+                            }
+                        }
+                    ).Wait();
                 }
-                if (captureDraw is DrawText)
+                if (captureDraw is DrawText && captureObject is DevFacet.Text)
                 {
                     var wnd = new GetText();
                     wnd.Value = "Texte";
@@ -1738,12 +1823,20 @@ namespace DevApps.GUI
 
                     if (wnd.ShowDialog() == true && String.IsNullOrWhiteSpace(wnd.Value) == false)
                     {
-                        var obj = (DevFacet.Text)captureDraw.Tag;
-                        obj.X = Canvas.GetLeft(captureDraw);
-                        obj.Y = Canvas.GetTop(captureDraw);
-                        obj.text = wnd.Value;
-                        ((DrawText)captureDraw).SetText(wnd.Value);
-                        facette.Texts.Add(obj);
+                        CommandsService.Record(
+                            "create text",
+                            () => {
+                                using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
+                                {
+                                    var obj = (DevFacet.Text)captureObject;
+                                    obj.X = Canvas.GetLeft(captureDraw);
+                                    obj.Y = Canvas.GetTop(captureDraw);
+                                    obj.text = wnd.Value;
+                                    ((DrawText)captureDraw).SetText(wnd.Value);
+                                    Facet!.Texts.Add(obj);
+                                }
+                            }
+                        ).Wait();
                     }
                     else
                     {
@@ -1757,9 +1850,10 @@ namespace DevApps.GUI
             }
 
             captureDraw = null;
+            captureObject = null;
+            capturePath = null;
             isPointing = false;
             captureCloseable = false;
-            capturePath = null;
 
             MyCanvas.ReleaseMouseCapture();
             MyCanvas.Cursor = Cursors.Arrow;
@@ -1825,99 +1919,110 @@ namespace DevApps.GUI
 
             if (obj != null)
             {
-                // importe l'objet
-                var name = "new";
-                if (Program.DevObject.References.ContainsKey(name) == true)
-                    Program.DevObject.MakeUniqueName(ref name);
-
-                try
-                {
-                    DevObject._checkLock.Wait();
-
-                    Program.DevObject.References.Add(name, obj.content);
-                }
-                finally
-                {
-                    DevObject._checkLock.Release();
-                }
-
-
-                // importe les données
-                try
-                {
-                    if (String.IsNullOrEmpty(obj.content.InitialDataBase64) == false)
-                    {
-                        var data = Convert.FromBase64String(obj.content.InitialDataBase64);
-                        obj.content.buildStream.Seek(0, SeekOrigin.Begin);
-                        obj.content.buildStream.Write(data);
-                        obj.content.buildStream.SetLength(data.Length);
-                    }
-                }
-                catch (Exception ex2)
-                {
-                    Program.Logger.WriteLine(ex2.Message);
-                }
-
-                // ajoute à la facette
-                var pos = Mouse.GetPosition(MyCanvas);
-                pos.X -= _translateTransform.X;
-                pos.Y -= _translateTransform.Y;
-                var props = new DevFacet.ObjectProperties { title = TitlePlacement.TopLeft, background = "#FFFFFFFF", zone = new Rect(pos, new Size(100, 100)) };
-                facette.Objects.Add(name, props);
-                AddElement(name, props);
-
-                // associe le nouvel objet à la selection
-                // sélectionne le pointeur qui correspond aux tags de l'objet
-                if(selectedElement is DrawElement)
-                {
-
-                    try
-                    {
-                        DevObject._checkLock.Wait();
-
-                        if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
+                CommandsService.Record(
+                    "move object",
+                    () => {
+                        using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
                         {
+                            // importe l'objet
+                            var name = "new";
+                            if (Program.DevObject.References.ContainsKey(name) == true)
+                                Program.DevObject.MakeUniqueName(ref name);
+
                             try
                             {
-                                var ptr = obj.content.Pointers.First(pp => src.Tags.ContainsAll(pp.Value.tags));
-                                ptr.Value.target = selectedElement.Name;
+                                DevObject._checkLock.Wait();
+
+                                using (DevObject.Recorder.New(name, obj))
+                                    Program.DevObject.References.Add(name, obj.content);
                             }
-                            catch (Exception ex)
+                            finally
                             {
-                                Program.Logger.WriteLine(ex.Message);
+                                DevObject._checkLock.Release();
                             }
+
+
+                            // importe les données
+                            try
+                            {
+                                if (String.IsNullOrEmpty(obj.content.InitialDataBase64) == false)
+                                {
+                                    var data = Convert.FromBase64String(obj.content.InitialDataBase64);
+                                    obj.content.buildStream.Seek(0, SeekOrigin.Begin);
+                                    obj.content.buildStream.Write(data);
+                                    obj.content.buildStream.SetLength(data.Length);
+                                }
+                            }
+                            catch (Exception ex2)
+                            {
+                                Program.Logger.WriteLine(ex2.Message);
+                            }
+
+                            // ajoute à la facette
+                            var pos = Mouse.GetPosition(MyCanvas);
+                            pos.X -= _translateTransform.X;
+                            pos.Y -= _translateTransform.Y;
+                            var props = new DevFacet.ObjectProperties { title = TitlePlacement.TopLeft, background = "#FFFFFFFF", zone = new Rect(pos, new Size(100, 100)) };
+                            Facet!.Objects.Add(name, props);
+                            AddElement(name, props);
+
+                            // associe le nouvel objet à la selection
+                            // sélectionne le pointeur qui correspond aux tags de l'objet
+                            if (selectedElement is DrawElement)
+                            {
+                                try
+                                {
+                                    DevObject._checkLock.Wait();
+
+                                    if (DevObject.References.TryGetValue(selectedElement.Name, out var src))
+                                    {
+                                        try
+                                        {
+                                            using (DevObject.Recorder.Rec(name, obj))
+                                            {
+                                                var ptr = obj.content.Pointers.First(pp => src.Tags.ContainsAll(pp.Value.tags));
+                                                ptr.Value.target = selectedElement.Name;
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Program.Logger.WriteLine(ex.Message);
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    DevObject._checkLock.Release();
+                                }
+
+                            }
+
+                            try
+                            {
+                                DevObject._executeLock.Wait();
+
+                                try
+                                {
+                                    DevObject._checkLock.Wait();
+
+                                    Program.DevObject.CompilObjects([obj.content]);
+                                    Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                                    Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));// construit le nouvel objet
+                                }
+                                finally
+                                {
+                                    DevObject._checkLock.Release();
+                                }
+                            }
+                            finally
+                            {
+                                DevObject._executeLock.Release();
+                            }
+
+                            GuiService.InvalidateFacets();
                         }
                     }
-                    finally
-                    {
-                        DevObject._checkLock.Release();
-                    }
-
-                }
-
-                try
-                {
-                    DevObject._executeLock.Wait();
-
-                    try
-                    {
-                        DevObject._checkLock.Wait();
-
-                        Program.DevObject.CompilObjects([obj.content]);
-                        Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
-                        Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));// construit le nouvel objet
-                    }
-                    finally
-                    {
-                        DevObject._checkLock.Release();
-                    }
-                }
-                finally
-                {
-                    DevObject._executeLock.Release();
-                }
-
-                GuiService.InvalidateFacets();
+                ).Wait();
             }
         }
 
@@ -1928,24 +2033,11 @@ namespace DevApps.GUI
 
         internal void SetPrintZone(Rect rect)
         {
-            facette.PrintLayout = rect;
+            Facet!.PrintLayout = rect;
             OnPropertyChange(nameof(PrintW));
             OnPropertyChange(nameof(PrintH));
             OnPropertyChange(nameof(PrintX));
             OnPropertyChange(nameof(PrintY));
         }
-
-
-        /* private void TooltipText_MouseEnter(object sender, MouseEventArgs e)
-         {
-             var obj = InfoPopup.Tag as DrawBase;
-             PopupContent.Content = new WelcomeView();
-         }
-
-         private void TooltipText_MouseLeave(object sender, MouseEventArgs e)
-         {
-             var obj = InfoPopup.Tag as DrawBase;
-             PopupContent.Content = null;
-         }*/
     }
 }

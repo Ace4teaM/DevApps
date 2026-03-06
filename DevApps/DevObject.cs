@@ -70,6 +70,11 @@ internal partial class Program
         public static IEnumerable<KeyValuePair<string, DevObject>> Models { get{ return References.Where(p => p.Value.IsModel()); } }
 
         /// <summary>
+        /// Enregistreur d'états des objets (pour l'historisation, l'annulation, la duplication, ...)
+        /// </summary>
+        public static DevApps.Record.Recorder<string, Serializer.DevObject, Program.DevObject> Recorder = new();
+
+        /// <summary>
         /// Liste des objets en cours
         /// </summary>
         public static Dictionary<string, DevObject> References = new Dictionary<string, DevObject>();

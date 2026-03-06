@@ -13,7 +13,7 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerFilesView.xaml
     /// </summary>
-    public partial class DesignerFilesView : UserControl, INotifyPropertyChanged, IKeyCommand
+    public partial class DesignerFilesView : UserControl, INotifyPropertyChanged, IKeyCommand, IInvalidableView
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -67,6 +67,11 @@ namespace DevApps.GUI
             {
                 return items;
             }
+        }
+
+        public void InvalidateContent()
+        {
+            InvalidateItems();
         }
 
         internal void InvalidateItems()
