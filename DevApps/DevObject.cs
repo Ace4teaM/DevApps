@@ -11,6 +11,15 @@ internal partial class Program
     /// </summary>
     public abstract class DevObject
     {
+        public enum ScriptType
+        {
+            Draw,
+            Build,
+            Loop,
+            Init,
+            UserAction
+        }
+
         /// <summary>
         /// Appelé lorsque l'objet est créé
         /// </summary>
@@ -256,7 +265,7 @@ internal partial class Program
             }
         }
 
-        public static DevObject? CreateFromFile(string file, out string name)
+        public static DevObject CreateFromFile(string file, out string name)
         {
             var cp = StringComparison.InvariantCultureIgnoreCase;
 

@@ -85,7 +85,7 @@ namespace Serializer
 
         public Guid? BaseGuid { get { return content.baseGuid; } set { content.baseGuid = value; } }
         public Guid? Guid { get { return content.guid; } set { content.guid = value; } }
-        public HashSet<string> Tags { get { return content.tags; } set { content.tags = value; } }
+        public string[] Tags { get { return content.tags.ToArray(); } set { content.tags = new HashSet<string>(value); } }
         public String Description { get { return content.Description; } set { content.Description = value; } }
         public String InitialDataBase64 { get { return content.InitialDataBase64; } set { content.InitialDataBase64 = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
@@ -161,7 +161,7 @@ namespace Serializer
             return new DevObjectFile(content);
         }
 
-        public HashSet<string> Tags { get { return content.tags; } set { content.tags = value; } }
+        public string[] Tags { get { return content.tags.ToArray(); } set { content.tags = new HashSet<string>(value); } }
         public String? Filename { get { return content.filename; } set { content.filename = value; } }
         public String Description { get { return content.Description; } set { content.Description = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }

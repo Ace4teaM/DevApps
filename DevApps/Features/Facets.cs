@@ -2,7 +2,6 @@
 using System.Dynamic;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using static Program;
 using static Program.DevFacet;
 
@@ -363,6 +362,9 @@ namespace DevApps.Features
         /// <summary>
         /// Execute le script de construction de la sortie standard des objets
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task Build(string name)
         {
             try
@@ -385,6 +387,9 @@ namespace DevApps.Features
         /// <summary>
         /// Crée une définition structuré de l'objet
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task<dynamic> GetData(string name)
         {
             dynamic data = new ExpandoObject();
@@ -414,6 +419,9 @@ namespace DevApps.Features
         /// <summary>
         /// Crée une description textuelle de l'objet
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task<string> Summary(string name)
         {
             try
@@ -467,6 +475,9 @@ namespace DevApps.Features
         /// <summary>
         /// Liste les noms des facettes
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task<string[]> GetNames()
         {
             try
@@ -488,7 +499,8 @@ namespace DevApps.Features
         {
             if (DevFacet.TryGet(name, out var obj))
             {
-                DevFacet.References.Remove(name);
+                using (DevFacet.Recorder.Rem(name, obj))
+                    DevFacet.References.Remove(name);
             }
             else
                 throw new Exception($"La facette {name} n'existe pas");
@@ -507,7 +519,8 @@ namespace DevApps.Features
             string name = baseName;
 
             DevFacet.MakeUniqueName(ref name);
-            DevFacet.Create(name, objectNames);
+            var obj = DevFacet.Create(name, objectNames);
+            using var rec = DevFacet.Recorder.New(name, obj);
 
             // actualise la fenêtre
 

@@ -93,11 +93,9 @@ namespace DevApps.Record
                 {
                     Program.Logger.WriteLine($"Undo to {previousDate} -> {label}");
 
-                    int count = 0;
-
-                    count += Program.DevObject.Recorder.Restore(Program.DevObject.References, previousDate, current);
-                    count += Program.DevFacet.Recorder.Restore(Program.DevFacet.References, previousDate, current);
-                    count += Program.DevVariable.Recorder.Restore(Program.DevVariable.References, previousDate, current);
+                    var objCount = Program.DevObject.Recorder.Restore(Program.DevObject.References, previousDate, current);
+                    var facCount = Program.DevFacet.Recorder.Restore(Program.DevFacet.References, previousDate, current);
+                    var varCount = Program.DevVariable.Recorder.Restore(Program.DevVariable.References, previousDate, current);
                     //Program.DevObjectFile.Recorder.Restore(Program.DevObjectFile.References, previousDate);
 
                     // invalide la vue en cours
@@ -108,6 +106,10 @@ namespace DevApps.Record
                             view.InvalidateContent();
                         }
                     });
+
+                    // invalide la liste des facettes
+                    if (facCount > 0)
+                        GUI.GuiService.InvalidateFacets();
 
                     currentIndex--;
                 }
@@ -130,11 +132,9 @@ namespace DevApps.Record
                 {
                     Program.Logger.WriteLine($"Redo to {nextDate} -> {label}");
 
-                    int count = 0;
-
-                    count += Program.DevObject.Recorder.Apply(Program.DevObject.References, current, nextDate);
-                    count += Program.DevFacet.Recorder.Apply(Program.DevFacet.References, current, nextDate);
-                    count += Program.DevVariable.Recorder.Apply(Program.DevVariable.References, current, nextDate);
+                    var objCount = Program.DevObject.Recorder.Apply(Program.DevObject.References, current, nextDate);
+                    var facCount = Program.DevFacet.Recorder.Apply(Program.DevFacet.References, current, nextDate);
+                    var varCount = Program.DevVariable.Recorder.Apply(Program.DevVariable.References, current, nextDate);
                     //Program.DevObjectFile.Recorder.Apply(Program.DevObjectFile.References, previousDate);
 
                     // invalide la vue en cours
@@ -145,6 +145,10 @@ namespace DevApps.Record
                             view.InvalidateContent();
                         }
                     });
+
+                    // invalide la liste des facettes
+                    if (facCount > 0)
+                        GUI.GuiService.InvalidateFacets();
 
                     currentIndex++;
                 }

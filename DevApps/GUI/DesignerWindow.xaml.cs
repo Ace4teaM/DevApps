@@ -1,4 +1,5 @@
-﻿using DevApps.MCP;
+﻿using DevApps.Commands;
+using DevApps.MCP;
 using DevApps.Record;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -494,7 +495,19 @@ namespace DevApps.GUI
 
         internal void InvalidateFacets()
         {
+            // si la vue n'existe plus, bascule sur une vue vide
+            if (this.Content is DesignerView view && DevFacet.References.ContainsKey(view.Name) == false)
+            {
+                this.Content = new UserControl();
+            }
+
             OnPropertyChange(nameof(FacetItems));
+        }
+
+        internal void SelectLastFacet()
+        {
+            // sélectionne la nouvelle facette créée
+            FacetListBox.SelectedIndex = FacetListBox.Items.Count - 1;
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -509,12 +522,13 @@ namespace DevApps.GUI
         {
             if (SelectedFacet != null)
             {
-                Program.DevFacet.References.Remove(SelectedFacet.Header.ToString());
+                CommandsService.Run(
+                    "delete facet",
+                    Features.Facets.Delete(SelectedFacet.Header.ToString())
+                  ).Wait();
             }
 
             this.Content = new UserControl();
-
-            OnPropertyChange(nameof(FacetItems));
         }
 
         private void MenuItem_Click_RenameFacet(object sender, RoutedEventArgs e)
@@ -661,9 +675,11 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                Program.DevFacet.Create(wnd.Value, []);
-                InvalidateFacets();
-                FacetListBox.SelectedIndex = FacetListBox.Items.Count-1;
+                CommandsService.Run(
+                    "create facet",
+                    Features.Facets.Create(wnd.Value, [])
+                  ).Wait();
+                SelectLastFacet();
             }
         }
 
@@ -712,7 +728,7 @@ namespace DevApps.GUI
             if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S)
             {
                 // Sauvegarde les données permanentes
-                DevApps.Features.Objects.SaveAllOutputs();
+                DevApps.Features.Objects.SaveAllOutputs().Wait();
 
                 Program.SaveProject();
             }

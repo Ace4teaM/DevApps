@@ -14,7 +14,7 @@ namespace DevApps
         /// <param name="predicate"></param>
         /// <param name="path"></param>
         /// <param name="action"></param>
-        internal static int ApplyAllObjects(Func<DevObjectInstance, bool> predicate, string path, Func<string,DevObjectInstance,bool> action)// = Program.CommonDataPath
+        internal static int ApplyAllObjects(Func<DevObjectInstance, bool> predicate, string path, Func<string,string,DevObjectInstance,bool> action)// = Program.CommonDataPath
         {
             int count = 0;
             try
@@ -49,7 +49,7 @@ namespace DevApps
                         {
                             if (predicate.Invoke(o.Value))
                             {
-                                if (action.Invoke(dir, o.Value))
+                                if (action.Invoke(dir, o.Key, o.Value))
                                 {
                                     count++;
                                     save = true;

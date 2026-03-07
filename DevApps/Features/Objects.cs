@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 using static Program;
+using static Program.DevObject;
 
 namespace DevApps.Features
 {
@@ -17,6 +18,9 @@ namespace DevApps.Features
         /// <summary>
         /// Construit l'objet et son arbre de dépendances
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet mais uniquement sa sortie (Content), les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task BuildTree(string name)
         {
 
@@ -52,6 +56,9 @@ namespace DevApps.Features
         /// <summary>
         /// Affiche le contenu d'un objet
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task ShowContent(string name)
         {
             DevObject? reference = null;
@@ -89,6 +96,9 @@ namespace DevApps.Features
         /// <summary>
         /// Edite le contenu d'un objet
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet mais uniquement sa sortie (Content), les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task EditContent(string name)
         {
             DevObject? reference = null;
@@ -128,6 +138,9 @@ namespace DevApps.Features
         /// <summary>
         /// Crée une définition structuré de l'objet
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task<dynamic> GetData(string name)
         {
             dynamic data = new ExpandoObject();
@@ -156,6 +169,9 @@ namespace DevApps.Features
         /// <summary>
         /// Crée une description textuelle de l'objet
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task<string> Summary(string name)
         {
             try
@@ -278,6 +294,9 @@ namespace DevApps.Features
         /// <summary>
         /// Liste les noms des objets
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task<string[]> GetNames()
         {
             try
@@ -311,8 +330,12 @@ namespace DevApps.Features
                     if (DevObject.References.ContainsKey(newName) == true)
                         throw new Exception($"Le nom d'objet {newName} est déjà utilisé");
 
-                    DevObject.References[name] = obj;
-                    DevObject.References.Remove(newName);
+                    // remplace l'entrée dans les références
+                    using (DevObject.Recorder.Mov(name, newName))
+                    {
+                        DevObject.References[newName] = obj;
+                        DevObject.References.Remove(name);
+                    }
 
                     // renomme l'objet dans les objets de references
                     foreach (var o in DevObject.References)
@@ -330,22 +353,36 @@ namespace DevApps.Features
                     // renomme l'objet dans les pointeurs des autres objets
                     foreach (var o in DevObject.References)
                     {
-                        foreach (var pointer in o.Value.Pointers.Where(p => p.Value.target == name).ToArray())
+                        var list = o.Value.Pointers.Where(p => p.Value.target == name).ToArray();
+                        if (list.Length > 0)
                         {
-                            o.Value.Pointers[pointer.Key].target = newName;
-                            Logger.WriteLine($"Renomme {pointer.Key} : {name} => {newName}");
+                            using (DevObject.Recorder.Rec(o.Key, o.Value))
+                            {
+                                foreach (var pointer in list)
+                                {
+                                    o.Value.Pointers[pointer.Key].target = newName;
+                                    Logger.WriteLine($"Renomme {pointer.Key} : {name} => {newName}");
+                                }
+                            }
                         }
                     }
 
                     // renomme l'objet dans les references des facettes
                     foreach (var o in DevFacet.References)
                     {
-                        foreach (var pointer in o.Value.Objects.Where(p => p.Key == name).ToArray())
+                        var list = o.Value.Objects.Where(p => p.Key == name).ToArray();
+                        if (list.Length > 0)
                         {
-                            var tmp = pointer.Value;
-                            o.Value.Objects.Remove(pointer.Key);
-                            o.Value.Objects.Add(newName, tmp);
-                            Logger.WriteLine($"Renomme {o.Key} : {pointer.Key} => {newName}");
+                            using (DevFacet.Recorder.Rec(o.Key, o.Value))
+                            {
+                                foreach (var pointer in list)
+                                {
+                                    var tmp = pointer.Value;
+                                    o.Value.Objects.Remove(pointer.Key);
+                                    o.Value.Objects.Add(newName, tmp);
+                                    Logger.WriteLine($"Renomme {o.Key} : {pointer.Key} => {newName}");
+                                }
+                            }
                         }
                     }
                 }
@@ -361,15 +398,7 @@ namespace DevApps.Features
 
             // actualise la vue de l'éditeur
 
-            DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
-            {
-                var dataView = DevApps.GUI.GuiService.EditorWindow?.Content as DesignerDataView;
-
-                if (dataView != null)
-                {
-                    dataView.InvalidateObjects();
-                }
-            });
+            DevApps.GUI.GuiService.InvalidateObjects();
         }
 
         /// <summary>
@@ -472,7 +501,8 @@ namespace DevApps.Features
                     await DevObject._checkLock.WaitAsync();
 
                     DevObject.MakeUniqueName(ref name);
-                    DevObjectInstance.Create(name, description, tags);
+                    var o = DevObjectInstance.Create(name, description, tags);
+                    using var rec = DevObject.Recorder.New(name, o);
                 }
                 finally
                 {
@@ -487,13 +517,7 @@ namespace DevApps.Features
 
             // actualise la vue de l'éditeur
 
-            DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
-            {
-                if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerDataView dataView)
-                {
-                    dataView.InvalidateObjects();
-                }
-            });
+            DevApps.GUI.GuiService.InvalidateObjects();
 
             return name;
         }
@@ -521,13 +545,17 @@ namespace DevApps.Features
                     // si l'objet est déjà une référence on pointe vers le même objet de base pour éviter les références en cascade
                     if (obj is Program.DevObjectReference reference)
                     {
-                        if(reference.BaseObjectName == null)
+                        if (reference.BaseObjectName == null)
                             throw new Exception($"L'objet {name} est une référence mais ne possède pas de base pour créer une nouvelle référence");
 
-                        Program.DevObject.CreateReference(newName, reference.BaseObjectName);
+                        var o = Program.DevObject.CreateReference(newName, reference.BaseObjectName);
+                        using var rec = DevObject.Recorder.New(newName, o);
                     }
                     else
-                        Program.DevObject.CreateReference(newName, name);
+                    {
+                        var o = Program.DevObject.CreateReference(newName, name);
+                        using var rec = DevObject.Recorder.New(newName, o);
+                    }
 
                     // actualise la vue de l'éditeur
 
@@ -562,11 +590,10 @@ namespace DevApps.Features
                 foreach (string file in files)
                 {
                     var o = DevObject.CreateFromFile(file, out string name);
-                    if (o != null)
-                    {
-                        objects.Add(o);
-                        names.Add(name);
-                    }
+                    using var rec = DevObject.Recorder.New(name, o);
+
+                    objects.Add(o);
+                    names.Add(name);
                 }
 
                 if (objects.Count > 0)
@@ -587,9 +614,11 @@ namespace DevApps.Features
             finally
             {
                 DevObject._checkLock.Release();
-
-                GuiService.InvalidateObjects();
             }
+
+            // actualise la vue de l'éditeur
+
+            GuiService.InvalidateObjects();
 
             return names.ToArray();
         }
@@ -598,6 +627,9 @@ namespace DevApps.Features
         /// <summary>
         /// Copie le contenu du stream dans le contenu de l'objet
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task CopyFromStream(string name, MemoryStream content)
         {
             // copie la sortie dans l'objet de destination
@@ -641,6 +673,9 @@ namespace DevApps.Features
         /// <summary>
         /// Copie le contenu du stream dans le contenu de l'objet
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task<bool> CopyFromFile(string name, string filename)
         {
             try
@@ -680,6 +715,9 @@ namespace DevApps.Features
         /// <summary>
         /// Compare le contenu avec un fichier
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         /// <returns>true si les contenus sont différent, null si ils ne peuvent être comparé</returns>
         public static async Task<bool?> IsDifferentFromFile(string name, string filename)
         {
@@ -730,6 +768,9 @@ namespace DevApps.Features
         /// <summary>
         /// Charge le contenu en cache de tous les objets
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task LoadAllOutputs()
         {
             try
@@ -759,6 +800,9 @@ namespace DevApps.Features
         /// <summary>
         /// Sauvegarde le contenu tous les objets dans le cache
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task SaveAllOutputs()
         {
             try
@@ -788,6 +832,9 @@ namespace DevApps.Features
         /// <summary>
         /// S'assure que tous les objets soit initialisé
         /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         public static async Task MakeSureAllInitialized()
         {
             try
@@ -861,24 +908,211 @@ namespace DevApps.Features
             {
                 await DevObject._executeLock.WaitAsync();
 
-                try
+                if (DevObject.TryGet(name, out var reference))
                 {
-                    await DevObject._checkLock.WaitAsync();
+                    var newReference = reference.Clone();
+                    DevObject.MakeUniqueName(ref name);
+                    DevObject.References.Add(name, newReference);
+                    using var rec = DevObject.Recorder.New(name, newReference);
 
-                    if (DevObject.TryGet(name, out var reference))
-                    {
-                        var newReference = reference.Clone();
-                        DevObject.MakeUniqueName(ref name);
-                        DevObject.References.Add(name, newReference);
-                        return name;
-                    }
-                    else
-                        throw new Exception($"L'objet {name} n'existe pas");
+                    // actualise la vue de l'éditeur
+                    DevApps.GUI.GuiService.InvalidateObjects();
+
+                    return name;
                 }
-                finally
+                else
+                    throw new Exception($"L'objet {name} n'existe pas");
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Définit le script d'un objet
+        /// </summary>
+        /// <param name="name">Nom de l'objet</param>
+        /// <param name="scriptName">Nom du script</param>
+        /// <param name="scriptCode">Code du script</param>
+        public static async Task SetScript(string name, ScriptType scriptType, string scriptCode)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                if (DevObject.TryGet(name, out var obj))
                 {
-                    DevObject._checkLock.Release();
+                    using (DevObject.Recorder.Rec(name, obj))
+                    {
+                        try
+                        {
+                            switch (scriptType)
+                            {
+                                case ScriptType.Draw:
+                                    obj.SetDrawCode(scriptCode);
+                                    obj.CompilDraw();
+                                    break;
+                                case ScriptType.Build:
+                                    obj.SetBuildMethod(scriptCode);
+                                    obj.CompilBuild();
+                                    break;
+                                case ScriptType.Loop:
+                                    obj.SetLoopMethod(scriptCode);
+                                    obj.CompilLoop();
+                                    break;
+                                case ScriptType.Init:
+                                    obj.SetInitMethod(scriptCode);
+                                    obj.CompilInit();
+                                    break;
+                                case ScriptType.UserAction:
+                                    obj.SetUserAction(scriptCode);
+                                    obj.CompilUserAction();
+                                    break;
+                                default:
+                                    throw new Exception($"Le type de script {scriptType} n'est pas reconnu");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception($"Erreur de compilation {scriptType}. " + ex.Message);
+                        }
+                    }
                 }
+                else
+                    throw new Exception($"L'objet {name} n'existe pas");
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Ajoute un pointeur à un objet
+        /// </summary>
+        /// <param name="name">Nom de l'objet</param>
+        /// <param name="pointerName">Nom du pointeur</param>
+        /// <param name="pointerTarget">Nom de l'objet ciblé</param>
+        /// <param name="tags">Tags associés au pointeur</param>
+        public static async Task AddPointer(string name, string pointerName, string pointerTarget, string[] tags)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                if (DevObject.TryGet(name, out var reference))
+                {
+                    using (DevObject.Recorder.Rec(name, reference))
+                    {
+                        reference.AddPointer(pointerName, pointerTarget, tags);
+
+                        // actualise la vue de l'éditeur
+                        DevApps.GUI.GuiService.InvalidateObjectsStatus();
+                    }
+                }
+                else
+                    throw new Exception($"L'objet {name} n'existe pas");
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Copie les données du cache comme contenu initial de l'objet
+        /// </summary>
+        /// <param name="name">Nom de l'objet</param>
+        public static async Task MemorizeCachedContent(string name)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                if (DevObject.TryGet(name, out var reference))
+                {
+                    using (DevObject.Recorder.Rec(name, reference))
+                    {
+                        byte[] bytes = new byte[reference.Content.Length];
+                        reference.Content.Seek(0, SeekOrigin.Begin);
+                        reference.Content.Read(bytes, 0, (int)reference.Content.Length);
+                        reference.Content.Seek(0, SeekOrigin.Begin);
+
+                        using (DevObject.Recorder.Rec(name, reference))
+                            reference.InitialDataBase64 = Convert.ToBase64String(bytes);
+
+                        // actualise la vue de l'éditeur
+                        DevApps.GUI.GuiService.InvalidateObjectsStatus();
+                    }
+                }
+                else
+                    throw new Exception($"L'objet {name} n'existe pas");
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Copie les données du contenu initial dans le cache de l'objet
+        /// </summary>
+        /// <param name="name">Nom de l'objet</param>
+        public static async Task RestoreCachedContent(string name)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                if (DevObject.TryGet(name, out var reference))
+                {
+                    using (DevObject.Recorder.Rec(name, reference))
+                    {
+                        var bytes = Convert.FromBase64String(reference.InitialDataBase64);
+                        reference.Content.Seek(0, SeekOrigin.Begin);
+                        reference.Content.Write(bytes);
+                        reference.Content.SetLength(bytes.Length);
+                        reference.Content.Seek(0, SeekOrigin.Begin);
+
+                        // actualise la vue de l'éditeur
+                        DevApps.GUI.GuiService.InvalidateObjectsStatus();
+                    }
+                }
+                else
+                    throw new Exception($"L'objet {name} n'existe pas");
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// Définit l'editeur d'un objet
+        /// </summary>
+        /// <param name="name">Nom de l'objet</param>
+        public static async Task<string?> SetEditor(string name, string editor)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                if (DevObject.TryGet(name, out var reference))
+                {
+                    using (DevObject.Recorder.Rec(name, reference))
+                    {
+                        var old = reference.Editor;
+                        reference.Editor = editor;
+
+                        // actualise la vue de l'éditeur
+                        DevApps.GUI.GuiService.InvalidateObjectsStatus();
+
+                        return old;
+                    }
+                }
+                else
+                    throw new Exception($"L'objet {name} n'existe pas");
             }
             finally
             {
@@ -896,23 +1130,21 @@ namespace DevApps.Features
             {
                 await DevObject._executeLock.WaitAsync();
 
-                try
+                if (DevObject.TryGet(name, out var reference))
                 {
-                    await DevObject._checkLock.WaitAsync();
-
-                    if (DevObject.TryGet(name, out var reference))
+                    using (DevObject.Recorder.Rec(name, reference))
                     {
                         var oldDescription = reference.Description;
                         reference.Description = description;
+
+                        // actualise la vue de l'éditeur
+                        DevApps.GUI.GuiService.InvalidateObjectsStatus();
+
                         return oldDescription;
                     }
-                    else
-                        throw new Exception($"L'objet {name} n'existe pas");
                 }
-                finally
-                {
-                    DevObject._checkLock.Release();
-                }
+                else
+                    throw new Exception($"L'objet {name} n'existe pas");
             }
             finally
             {
@@ -938,9 +1170,21 @@ namespace DevApps.Features
                     if (DevObject.TryGet(name, out var reference))
                     {
                         var instance = reference.IsReference ? ((Program.DevObjectReference)reference).baseObject : (Program.DevObjectInstance)reference;
-                        var old = String.Join(' ', reference.Tags);
-                        instance!.tags = new HashSet<string>(tags.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-                        return old;
+                        if (instance != null)
+                        {
+                            using (DevObject.Recorder.Rec(name, instance))
+                            {
+                                var old = String.Join(' ', reference.Tags);
+                                instance!.tags = new HashSet<string>(tags.Split(" ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+
+                                // actualise la vue de l'éditeur
+                                DevApps.GUI.GuiService.InvalidateObjectsStatus();
+
+                                return old;
+                            }
+                        }
+                        else
+                            throw new Exception($"L'objet de base de la référence {name} ne peut pas être identifié");
                     }
                     else
                         throw new Exception($"L'objet {name} n'existe pas");
@@ -972,10 +1216,16 @@ namespace DevApps.Features
 
                     if (DevObject.TryGet(name, out var reference))
                     {
-                        if (reference != null && reference is Program.DevObjectInstance instance)
+                        if (reference is Program.DevObjectInstance instance)
                         {
-                            if (instance.guid == null)
-                                instance.guid = Guid.NewGuid();
+                            using (DevObject.Recorder.Rec(name, reference))
+                            {
+                                if (instance.guid == null)
+                                    instance.guid = Guid.NewGuid();
+
+                                // actualise la vue de l'éditeur
+                                DevApps.GUI.GuiService.InvalidateObjects();
+                            }
                         }
                     }
                     else
@@ -1015,19 +1265,27 @@ namespace DevApps.Features
                             {
                                 // todo !! Attention pas de lock dans les appels des services SharedServices et LogServices !! 
 
-                                if (SharedServices.ApplyAllObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, (dir, model) =>
+                                if (SharedServices.ApplyAllObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, (dir, key, model) =>
                                 {
                                     // log les modifications
                                     if (LogServices.LogDifference(model.content, instance, dir) == true)
                                     {
-                                        // actualise l'objet du modèle
-                                        model.content.UpdateFrom(instance);
+                                        using (DevObject.Recorder.Rec(key, model))
+                                        {
+                                            // actualise l'objet du modèle
+                                            model.content.UpdateFrom(instance);
+                                        }
                                         return true;
                                     }
                                     return false;
                                 }) == 0)
                                 {
                                     Program.Logger.WriteLine("Modèle introuvable pour l'objet " + name);
+                                }
+                                else
+                                {
+                                    // actualise la vue de l'éditeur
+                                    DevApps.GUI.GuiService.InvalidateObjects();
                                 }
                             }
                             else
@@ -1081,11 +1339,17 @@ namespace DevApps.Features
                                     if (MessageBox.Show($"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                                     {
                                         // Actualise l'objet
-                                        instance.UpdateFrom(list[0].content);
+                                        using (DevObject.Recorder.Rec(name, instance))
+                                        {
+                                            instance.UpdateFrom(list[0].content);
+                                        }
 
                                         Program.DevObject.CompilObjects([instance]);
                                         Program.DevObject.Init();
                                         Program.DevObject.Build(Program.DevObject.References.Where(p => p.Key == name));
+
+                                        // actualise la vue de l'éditeur
+                                        DevApps.GUI.GuiService.InvalidateObjects();
                                     }
                                 }
                                 else if (list.Count > 1)

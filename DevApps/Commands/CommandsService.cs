@@ -109,7 +109,7 @@ namespace DevApps.Commands
         ///         }
         ///    );
         /// </example>
-        internal static async Task Record(string title, Task task)
+        internal static async Task<bool> Run(string title, Task task)
         {
             await HistoryServices.BeginTransaction();
 
@@ -130,6 +130,8 @@ namespace DevApps.Commands
             {
                 HistoryServices.Rollback();
             }
+
+            return task.IsCompletedSuccessfully;
         }
 
         /// <summary>
@@ -142,7 +144,7 @@ namespace DevApps.Commands
         ///         DevApps.Features.Facets.MoveObject(this.Name, element.Name, Canvas.GetLeft(element), Canvas.GetTop(element), element.Width, element.Height)
         ///    ).Wait();
         /// </example>
-        internal static async Task Record(string title, Action action)
+        internal static async Task<bool> Run(string title, Action action)
         {
             await HistoryServices.BeginTransaction();
 
@@ -165,6 +167,8 @@ namespace DevApps.Commands
             {
                 HistoryServices.Rollback();
             }
+
+            return success;
         }
 
         //

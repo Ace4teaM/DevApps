@@ -102,6 +102,28 @@ namespace DevApps.Record
 
         }
 
+        public class Move : IDisposable, IRecord
+        {
+            internal required Recorder<K, T, I> _recorder;
+            internal K _key_before;
+            internal K _key_after;
+
+            public Move(K key_before, K key_after)
+            {
+                _key_before = key_before;
+                _key_after = key_after;
+            }
+
+            public void Dispose()
+            {
+                //if (!Equals(_before, after))//empêche la detection d'élément supprimé de la collection
+                {
+                    Program.Logger.WriteLine($"\nRename <{_key_before}> to {_key_after}");
+                    _recorder.records.Add(DateTime.Now, this);
+                }
+            }
+        }
+
         public class Record : IDisposable, IRecord
         {
             internal static JsonSerializerSettings settings = new JsonSerializerSettings { 
@@ -114,7 +136,7 @@ namespace DevApps.Record
             /// <summary>
             /// Clone est conserve le type original Serializer.DevObjectInstance ou Serializer.DevObjectReference et non T (Serializer.DevObject)
             /// </summary>
-            object Clone(object obj)
+            internal static object Clone(object obj)
             {
                 var json = JsonConvert.SerializeObject(obj, settings);
                 return JsonConvert.DeserializeObject(json, obj.GetType(), settings);
@@ -149,7 +171,7 @@ namespace DevApps.Record
         internal static JsonSerializerSettings settings = new JsonSerializerSettings
         {
             Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore
+            NullValueHandling = NullValueHandling.Include
         };
 
         public Recorder()
@@ -157,7 +179,7 @@ namespace DevApps.Record
         }
 
         /// <summary>
-        /// Restore les objets modifiés dans la collection
+        /// Restore les objets modifiés dans la collection (Undo)
         /// </summary>
         /// <param name="collection">Collection à modifier</param>
         public int Restore(IDictionary<K, I> collection, DateTime from, DateTime to)
@@ -174,10 +196,9 @@ namespace DevApps.Record
                     if (collection.TryGetValue(record._key, out var o))
                     {
                         var json = JsonConvert.SerializeObject(record._before);
-                        //var serializer = (T)o; // conversion implicite object->Serializer ?
-                        var serializer = new T(); // créer un serializer et assigne l'objet en cours
+                        var serializer = (T)Record.Clone(record._before);
                         serializer.Content = o;
-                        JsonConvert.PopulateObject(json, serializer);
+                        JsonConvert.PopulateObject(json, serializer, settings);
                     }
                     else
                     {
@@ -186,23 +207,33 @@ namespace DevApps.Record
                     }
                 }
                 // l'objet n'existait pas avant la modification (nouvel objet)
-                if (item.Value is Insert insert)
+                else if (item.Value is Insert insert)
                 {
                     // supprime l'objet existant
                     collection.Remove(insert._key);
                 }
                 // l'objet existait avant la modification mais il a été supprimé (objet supprimé)
-                if (item.Value is Remove remove)
+                else if (item.Value is Remove remove)
                 {
                     // sinon replace l'objet existant
                     collection.Add(remove._key, (I)remove._before.Content);
+                }
+                // l'objet à été renommé
+                else if (item.Value is Move move)
+                {
+                    // sinon replace l'objet existant
+                    if (collection.TryGetValue(move._key_after, out var o))
+                    {
+                        collection.Remove(move._key_after);
+                        collection.Add(move._key_before, o);
+                    }
                 }
             }
             return i;
         }
 
         /// <summary>
-        /// Restore les objets modifiés dans la collection
+        /// Restore les objets modifiés dans la collection (Redo)
         /// </summary>
         /// <param name="collection">Collection à modifier</param>
         public int Apply(IDictionary<K, I> collection, DateTime from, DateTime to)
@@ -219,10 +250,9 @@ namespace DevApps.Record
                     if (collection.TryGetValue(record._key, out var o))
                     {
                         var json = JsonConvert.SerializeObject(record._after);
-                        //var serializer = (T)o; // conversion implicite object->Serializer ?
-                        var serializer = new T(); // créer un serializer et assigne l'objet en cours
+                        var serializer = (T)Record.Clone(record._after);
                         serializer.Content = o;
-                        JsonConvert.PopulateObject(json, serializer);
+                        JsonConvert.PopulateObject(json, serializer, settings);
                     }
                     else
                     {
@@ -231,16 +261,26 @@ namespace DevApps.Record
                     }
                 }
                 // l'objet n'existait pas avant la modification (nouvel objet)
-                if (item.Value is Insert insert)
+                else if (item.Value is Insert insert)
                 {
                     // sinon replace l'objet existant
                     collection.Add(insert._key, (I)insert._after.Content);
                 }
                 // l'objet existait avant la modification mais il a été supprimé (objet supprimé)
-                if (item.Value is Remove remove)
+                else if (item.Value is Remove remove)
                 {
                     // supprime l'objet existant
                     collection.Remove(remove._key);
+                }
+                // l'objet à été renommé
+                else if (item.Value is Move move)
+                {
+                    // sinon replace l'objet existant
+                    if (collection.TryGetValue(move._key_before, out var o))
+                    {
+                        collection.Remove(move._key_before);
+                        collection.Add(move._key_after, o);
+                    }
                 }
             }
             return i;
@@ -254,17 +294,37 @@ namespace DevApps.Record
             records.Clear();
         }
 
+
+        /// <summary>
+        /// Un objet est modifié
+        /// </summary>
         public Record Rec(K key, T value)
         {
             return new Record(key, value) { _recorder = this };
         }
+
+        /// <summary>
+        /// Un objet est créé
+        /// </summary>
         public Insert New(K key, T value)
         {
             return new Insert(key, value) { _recorder = this };
         }
+
+        /// <summary>
+        /// Un objet est supprimé
+        /// </summary>
         public Remove Rem(K key, T value)
         {
             return new Remove(key, value) { _recorder = this };
+        }
+
+        /// <summary>
+        /// Un objet est renommé
+        /// </summary>
+        public Move Mov(K key_before, K key_after)
+        {
+            return new Move(key_before, key_after) { _recorder = this };
         }
     }
 }

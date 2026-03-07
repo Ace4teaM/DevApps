@@ -345,7 +345,14 @@ namespace DevApps.GUI
                 {
                     if (sel.SetPath(wnd.Value))
                     {
-                        geo.path = wnd.Value;
+                        CommandsService.Run(
+                            "Edit geometry",
+                            () =>
+                            {
+                                using (DevFacet.Recorder.Rec(FacetName, Facet))
+                                    geo.path = wnd.Value;
+                            }
+                        ).Wait();
                     }
                     else
                         MessageBox.Show("Syntaxe invalide");
@@ -365,7 +372,14 @@ namespace DevApps.GUI
                 {
                     if (sel2.SetText(wnd.Value))
                     {
-                        text.text = wnd.Value;
+                        CommandsService.Run(
+                            "Edit text",
+                            () =>
+                            {
+                                using (DevFacet.Recorder.Rec(FacetName, Facet))
+                                    text.text = wnd.Value;
+                            }
+                        ).Wait();
                     }
                     else
                         MessageBox.Show("Le texte ne peut pas être vide");
@@ -455,8 +469,8 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Retirer" };
                         m.Click += (s, e) =>
                         {
-                            CommandsService.Record(
-                                "remove object",
+                            CommandsService.Run(
+                                "remove geometry",
                                 Features.Facets.RemoveGeometry(this.Name, curElement.Tag.ToString())
                             ).Wait();
 
@@ -478,8 +492,8 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Retirer" };
                         m.Click += (s, e) =>
                         {
-                            CommandsService.Record(
-                                "remove object",
+                            CommandsService.Run(
+                                "remove text",
                                 Features.Facets.RemoveText(this.Name, curElement.Tag.ToString())
                             ).Wait();
 
@@ -521,8 +535,8 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Retirer" };
                         m.Click += (s, e) =>
                         {
-                            CommandsService.Record(
-                                "remove object",
+                            CommandsService.Run(
+                                "remove command",
                                 Features.Facets.RemoveCommand(this.Name, name)
                             ).Wait();
 
@@ -666,7 +680,7 @@ namespace DevApps.GUI
                         var m = new MenuItem { Header = "Retirer" };
                         m.Click += (s, e) =>
                         {
-                            CommandsService.Record(
+                            CommandsService.Run(
                                 "remove object",
                                 Features.Facets.RemoveObject(this.Name, name)
                             ).Wait();
@@ -1209,7 +1223,7 @@ namespace DevApps.GUI
             {
                 if (element is DrawElement && this.Facet!.Objects.TryGetValue(element.Name, out var props))
                 {
-                    CommandsService.Record(
+                    CommandsService.Run(
                         "move object",
                         () => {
                             using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
@@ -1219,7 +1233,7 @@ namespace DevApps.GUI
                 }
                 if (element is DrawCommand && this.Facet!.Commands.TryGetValue(element.Name, out var props2))
                 {
-                    CommandsService.Record(
+                    CommandsService.Run(
                         "move command",
                         () => {
                             using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
@@ -1230,7 +1244,7 @@ namespace DevApps.GUI
                 if (element is DrawGeometry)
                 {
                     var src = Facet!.Geometries.First(p=>p.guid == (Guid)element.Tag);
-                    CommandsService.Record(
+                    CommandsService.Run(
                         "move geometry",
                         (Action)(() => {
                             using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
@@ -1244,7 +1258,7 @@ namespace DevApps.GUI
                 if (element is DrawText)
                 {
                     var src = Facet!.Texts.First(p => p.guid == (Guid)element.Tag);
-                    CommandsService.Record(
+                    CommandsService.Run(
                         "move text",
                         (Action)(() => {
                             using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
@@ -1279,7 +1293,7 @@ namespace DevApps.GUI
 
         internal void InvalidateObjects()
         {
-            if (GuiService.IsInitialized)
+            if (GuiService.IsInitialized && this.Facet != null)
             {
                 var elements = MyCanvas.Children.OfType<DrawElement>().ToArray();
                 foreach (var element in elements)
@@ -1294,7 +1308,7 @@ namespace DevApps.GUI
 
         internal void InvalidateCommands()
         {
-            if (GuiService.IsInitialized)
+            if (GuiService.IsInitialized && this.Facet != null)
             {
                 var elements = MyCanvas.Children.OfType<DrawCommand>().ToArray();
                 foreach (var element in elements)
@@ -1309,7 +1323,7 @@ namespace DevApps.GUI
 
         internal void InvalidateGeometries()
         {
-            if (GuiService.IsInitialized)
+            if (GuiService.IsInitialized && this.Facet != null)
             {
                 var elements = MyCanvas.Children.OfType<DrawGeometry>().ToArray();
                 foreach (var element in elements)
@@ -1324,7 +1338,7 @@ namespace DevApps.GUI
 
         internal void InvalidateTexts()
         {
-            if (GuiService.IsInitialized)
+            if (GuiService.IsInitialized && this.Facet != null)
             {
                 var elements = MyCanvas.Children.OfType<DrawText>().ToArray();
                 foreach (var element in elements)
@@ -1801,7 +1815,7 @@ namespace DevApps.GUI
             {
                 if (captureDraw is DrawGeometry && captureObject is DevFacet.Geometry)
                 {
-                    CommandsService.Record(
+                    CommandsService.Run(
                         "create geometry",
                         () => {
                             using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
@@ -1823,7 +1837,7 @@ namespace DevApps.GUI
 
                     if (wnd.ShowDialog() == true && String.IsNullOrWhiteSpace(wnd.Value) == false)
                     {
-                        CommandsService.Record(
+                        CommandsService.Run(
                             "create text",
                             () => {
                                 using (DevFacet.Recorder.Rec(this.Name, this.Facet!))
@@ -1919,7 +1933,7 @@ namespace DevApps.GUI
 
             if (obj != null)
             {
-                CommandsService.Record(
+                CommandsService.Run(
                     "move object",
                     () => {
                         using (DevFacet.Recorder.Rec(this.Name, this.Facet!))

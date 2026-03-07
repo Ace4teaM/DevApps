@@ -1,5 +1,4 @@
 ﻿using DevApps.Commands;
-using ICSharpCode.AvalonEdit.Editing;
 using IronPython.Runtime;
 using Microsoft.Scripting.Utils;
 using System.Collections.ObjectModel;
@@ -13,7 +12,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using static IronPython.Modules._ast;
 using static Program;
+using static Program.DevObject;
 
 namespace DevApps.GUI
 {
@@ -263,6 +264,9 @@ namespace DevApps.GUI
             var content = String.Empty;
             var context = ((sender as ContentControl)?.DataContext as TabItem);
 
+            ScriptType scriptType;
+            string? scriptCode = null;
+
             if (item == null || context == null)
                 return;
 
@@ -270,41 +274,46 @@ namespace DevApps.GUI
             {
                 case "DrawCode":
                     content = context.DrawCode;
+                    scriptType = ScriptType.Draw;
                     break;
                 case "BuildMethod":
                     content = context.BuildMethod;
+                    scriptType = ScriptType.Build;
                     break;
                 case "LoopMethod":
                     content = context.LoopMethod;
+                    scriptType = ScriptType.Loop;
                     break;
                 case "InitMethod":
                     content = context.InitMethod;
+                    scriptType = ScriptType.Init;
                     break;
                 case "UserAction":
                     content = context.UserAction;
+                    scriptType = ScriptType.UserAction;
                     break;
+                default:
+                    return;
             }
 
-            try
+            if (context.Name != null)
             {
-                DevObject._executeLock.Wait();
+                // Infos
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine(String.Format("{0} = {1}", "out", "output"));
+                stringBuilder.AppendLine(String.Format("{0} = {1}", "name", "nom de l'objet"));
+                stringBuilder.AppendLine(String.Format("{0} = {1}", "desc", "description de l'objet"));
 
                 try
                 {
-                    DevObject._checkLock.Wait();
+                    DevObject._executeLock.Wait();
 
-                    if (context.Name != null && Program.DevObject.TryGet(context.Name, out var obj))
+                    try
                     {
-                        try
+                        DevObject._checkLock.Wait();
+
+                        if (Program.DevObject.TryGet(context.Name, out var obj))
                         {
-                            var wnd = new ScriptEdit(String.Format("{0} ({1})", context.Name, item.Name), content ?? string.Empty, obj.Properties);
-
-                            // Infos
-                            StringBuilder stringBuilder = new StringBuilder();
-                            stringBuilder.AppendLine(String.Format("{0} = {1}", "out", "output"));
-                            stringBuilder.AppendLine(String.Format("{0} = {1}", "name", "nom de l'objet"));
-                            stringBuilder.AppendLine(String.Format("{0} = {1}", "desc", "description de l'objet"));
-
                             if (obj.Pointers.Count > 0)
                             {
                                 stringBuilder.AppendLine();
@@ -324,68 +333,36 @@ namespace DevApps.GUI
                                     stringBuilder.AppendLine(String.Format("{0} => [{1}]", property.Key, property.Value.Item1));
                                 }
                             }
+
+                            var wnd = new ScriptEdit(String.Format("{0} ({1})", context.Name, item.Name), content ?? string.Empty, obj.Properties);
+
                             wnd.Infos = stringBuilder.ToString();
-
-
                             wnd.Owner = Window.GetWindow(this);
                             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                             if (wnd.ShowDialog() == true)
                             {
-                                CommandsService.Record(
-                                    "update script",
-                                    () =>
-                                    {
-                                        using (DevObject.Recorder.Rec(context.Name, obj))
-                                        {
-                                            try
-                                            {
-                                                switch (item.Name)
-                                                {
-                                                    case "DrawCode":
-                                                        obj.SetDrawCode(wnd.Value);
-                                                        obj.CompilDraw();
-                                                        break;
-                                                    case "BuildMethod":
-                                                        obj.SetBuildMethod(wnd.Value);
-                                                        obj.CompilBuild();
-                                                        break;
-                                                    case "LoopMethod":
-                                                        obj.SetLoopMethod(wnd.Value);
-                                                        obj.CompilLoop();
-                                                        break;
-                                                    case "InitMethod":
-                                                        obj.SetInitMethod(wnd.Value);
-                                                        obj.CompilInit();
-                                                        break;
-                                                    case "UserAction":
-                                                        obj.SetUserAction(wnd.Value);
-                                                        obj.CompilUserAction();
-                                                        break;
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                MessageBox.Show("Erreur de compilation. " + ex.Message, "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                                            }
-                                        }
-                                    }
-                                ).Wait();
+                                scriptCode = wnd.Value;
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            Program.Logger.WriteLine(ex.Message);
-                        }
+                    }
+                    finally
+                    {
+                        DevObject._checkLock.Release();
                     }
                 }
                 finally
                 {
-                    DevObject._checkLock.Release();
+                    DevObject._executeLock.Release();
                 }
-            }
-            finally
-            {
-                DevObject._executeLock.Release();
+
+                if (scriptCode != null)
+                {
+                    if (CommandsService.Run(
+                        "update script",
+                        Features.Objects.SetScript(context.Name, scriptType, scriptCode)
+                    ).Result == false)
+                        MessageBox.Show("Erreur de compilation.", "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation); //todo get last error message
+                }
             }
         }
 
@@ -398,7 +375,7 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                CommandsService.Record(
+                CommandsService.Run(
                     "create facet",
                     () =>
                     {
@@ -420,12 +397,9 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                CommandsService.Record(
+                CommandsService.Run(
                     "create object",
-                    () =>
-                    {
-                        var newName = Features.Objects.Create(wnd.Value, String.Empty, wnd.Tags);
-                    }
+                    Features.Objects.Create(wnd.Value, String.Empty, wnd.Tags)
                   ).Wait();
             }
         }
@@ -439,7 +413,7 @@ namespace DevApps.GUI
         {
             var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
 
-            CommandsService.Record(
+            CommandsService.Run(
                 "create references from selection",
                 () =>
                 {
@@ -455,7 +429,7 @@ namespace DevApps.GUI
         {
             var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
 
-            CommandsService.Record(
+            CommandsService.Run(
                 "delete objects from selection",
                 () => {
                     foreach (var name in selection)
@@ -529,26 +503,16 @@ namespace DevApps.GUI
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                CommandsService.Record(
+                CommandsService.Run(
                     "create object from file",
-                    () =>
-                    {
-                        try
-                        {
-                            Features.Objects.CreateFromFiles(files).Wait();
-                        }
-                        catch (Exception ex)
-                        {
-                            Program.Logger.WriteLine(ex.Message);
-                        }
-                    }
+                    Features.Objects.CreateFromFiles(files)
                 ).Wait();
             }
         }
 
         private void AddObjectsToFacet(string facetName, Program.DevFacet facet, string[] objects)
         {
-            CommandsService.Record(
+            CommandsService.Run(
                 "add objects to facet",
                 () =>
                 {
@@ -556,11 +520,13 @@ namespace DevApps.GUI
                     {
                         DevObject._checkLock.Wait();
 
-                        foreach (var o in objects)
+                        using (DevFacet.Recorder.Rec(facetName, facet))
                         {
-                            if (!facet.Objects.ContainsKey(o) && Program.DevObject.References.ContainsKey(o))
-                                using (DevFacet.Recorder.Rec(facetName, facet))
+                            foreach (var o in objects)
+                            {
+                                if (!facet.Objects.ContainsKey(o) && Program.DevObject.References.ContainsKey(o))
                                     facet.Objects.Add(o, new Program.DevFacet.ObjectProperties());
+                            }
                         }
 
                         GuiService.InvalidateObjectsStatus(); // actualise la grille des objets
@@ -597,7 +563,7 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                CommandsService.Record(
+                CommandsService.Run(
                     "add pointer to object",
                     () =>
                     {
@@ -713,11 +679,33 @@ namespace DevApps.GUI
 
             if (editor != null)
             {
-                foreach(var o in objects)
-                {
-                    if(Program.DevObject.References.ContainsKey(o))
-                        Program.DevObject.References[o].Editor = editor;
-                }
+                CommandsService.Run(
+                    "Change object editor",
+                    () =>
+                    {
+                        try
+                        {
+                            DevObject._checkLock.Wait();
+
+                            foreach (var name in objects)
+                            {
+                                if (Program.DevObject.TryGet(name, out var obj))
+                                {
+                                    using (DevObject.Recorder.Rec(name, obj))
+                                    {
+                                        obj.Editor = editor;
+                                    }
+                                }
+                            }
+
+                            GuiService.InvalidateObjectsStatus();
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
+                        }
+                    }
+                ).Wait();
             }
         }
 
@@ -734,11 +722,33 @@ namespace DevApps.GUI
                     item.Click += (s, e) =>
                     {
                         var objects = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
-                        foreach (var o in objects)
-                        {
-                            if (Program.DevObject.References.ContainsKey(o))
-                                Program.DevObject.References[o].Editor = null;
-                        }
+                        CommandsService.Run(
+                            "Change object editor",
+                            () =>
+                            {
+                                try
+                                {
+                                    DevObject._checkLock.Wait();
+
+                                    foreach (var name in objects)
+                                    {
+                                        if (Program.DevObject.TryGet(name, out var obj))
+                                        {
+                                            using (DevObject.Recorder.Rec(name, obj))
+                                            {
+                                                obj.Editor = null;
+                                            }
+                                        }
+                                    }
+
+                                    GuiService.InvalidateObjectsStatus();
+                                }
+                                finally
+                                {
+                                    DevObject._checkLock.Release();
+                                }
+                            }
+                        ).Wait();
                     };
                     menuItem.Items.Add(item);
                     menuItem.Items.Add(new Separator());
@@ -773,19 +783,28 @@ namespace DevApps.GUI
                     {
                         if (e.Column.Header.ToString() == "Nom")
                         {
-                            CommandsService.RenameObject(item.Name, text).Wait();
-                            item.Name = text;// todo move to InvalidateObject(name)
+                            CommandsService.Run(
+                                "Rename object",
+                                Features.Objects.Rename(item.Name, text)
+                            ).Wait();
+                            GuiService.InvalidateObjectsStatus();
                         }
                         else if (e.Column.Header.ToString() == "Description")
                         {
-                            CommandsService.ChangeObjectDescription(item.Name, text).Wait();
-                            item.Description = text;// todo move to InvalidateObject(name)
+                            CommandsService.Run(
+                                "Change object description",
+                                Features.Objects.SetDescription(item.Name, text)
+                            ).Wait();
+                            GuiService.InvalidateObjectsStatus();
                         }
                         else if (e.Column.Header.ToString() == "Tags")
                         {
                             text = text.Replace("#", " #"); /// s'assure qu'il y a un espace devant chaque #
-                            CommandsService.ChangeObjectTags(item.Name, text).Wait();
-                            item.Tags = text;// todo move to InvalidateObject(name)
+                            CommandsService.Run(
+                                "Change object tags",
+                                Features.Objects.SetTags(item.Name, text)
+                            ).Wait();
+                            GuiService.InvalidateObjectsStatus();
                         }
                     }
 
@@ -828,7 +847,7 @@ namespace DevApps.GUI
         {
             if (MessageBox.Show("Appliquer la valeur actuelle en tant que valeur initiale de l'objet ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                if (dataGrid.SelectedItem is TabItem selectedItem)
+                if (dataGrid.SelectedItem is TabItem selectedItem && selectedItem.Name != null)
                 {
                     try
                     {
@@ -844,7 +863,8 @@ namespace DevApps.GUI
                             selectedObject.Content.Read(bytes, 0, (int)selectedObject.Content.Length);
                             selectedObject.Content.Seek(0, SeekOrigin.Begin);
 
-                            selectedObject.InitialDataBase64 = Convert.ToBase64String(bytes);
+                            using (DevObject.Recorder.Rec(selectedItem.Name, selectedObject))
+                                selectedObject.InitialDataBase64 = Convert.ToBase64String(bytes);
                         }
                     }
                     catch (Exception ex)
@@ -1156,17 +1176,25 @@ namespace DevApps.GUI
 
         private void MenuItem_Click_UpdateObjectModel(object sender, RoutedEventArgs e)
         {
-            if (dataGrid.SelectedItem is TabItem selectedItem && MessageBox.Show("Voulez vous mettre à jour la bibliothèque avec le contenu de cet objet ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (dataGrid.SelectedItem is TabItem selectedItem && selectedItem.Name != null && MessageBox.Show("Voulez vous mettre à jour la bibliothèque avec le contenu de cet objet ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
-                Features.Objects.UpdateModel(selectedItem.Name);
+                CommandsService.Run(
+                    "Update model",
+                    Features.Objects.UpdateModel(selectedItem.Name)
+                ).Wait();
+                GuiService.InvalidateObjectsStatus();
             }
         }
 
         private void MenuItem_Click_UpdateFromObjectModel(object sender, RoutedEventArgs e)
         {
-            if (dataGrid.SelectedItem is TabItem selectedItem && MessageBox.Show("Voulez écraser cet objet avec le contenu de la bibliothèque ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (dataGrid.SelectedItem is TabItem selectedItem && selectedItem.Name != null && MessageBox.Show("Voulez écraser cet objet avec le contenu de la bibliothèque ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
-                Features.Objects.UpdateFromModel(selectedItem.Name);
+                CommandsService.Run(
+                    "Update object",
+                    Features.Objects.UpdateFromModel(selectedItem.Name)
+                ).Wait();
+                GuiService.InvalidateObjectsStatus();
             }
         }
     }
