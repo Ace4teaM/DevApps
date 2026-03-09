@@ -525,7 +525,12 @@ namespace DevApps.GUI
                             foreach (var o in objects)
                             {
                                 if (!facet.Objects.ContainsKey(o) && Program.DevObject.References.ContainsKey(o))
-                                    facet.Objects.Add(o, new Program.DevFacet.ObjectProperties());
+                                {
+                                    if(facet.TryGetBoundingBox(out var box))
+                                        facet.Objects.Add(o, new Program.DevFacet.ObjectProperties() { zone = new Rect(box.Left, box.Bottom + 5, 100, 100) });
+                                    else
+                                        facet.Objects.Add(o, new Program.DevFacet.ObjectProperties());
+                                }
                             }
                         }
 
@@ -1196,6 +1201,15 @@ namespace DevApps.GUI
                 ).Wait();
                 GuiService.InvalidateObjectsStatus();
             }
+        }
+
+        private void MenuItem_Click_Duplicate(object sender, RoutedEventArgs e)
+        {
+            var objects = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
+            CommandsService.Run(
+                "Duplicate objects",
+                Features.Objects.Duplicates(objects)
+            ).Wait();
         }
     }
 }

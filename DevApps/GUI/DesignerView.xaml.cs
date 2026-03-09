@@ -11,6 +11,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using static IronPython.Modules._ast;
 using static Program;
 using static Program.DevFacet;
 
@@ -179,6 +180,18 @@ namespace DevApps.GUI
             }
         }
 
+        /// <summary>
+        /// Convertie la coordonnées relative sur le Canvas en coordonnées locale (avec transformation Zoom/Pan)
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        internal Point PointToCanvasCoord(Point pos)
+        {
+            Matrix m = ObjectsTransform.Value;
+            m.Invert();
+            return m.Transform(pos);
+        }
+
         internal void DisplayInfos()
         {
             bool selectionChanged = selectedElement != lastSelectedElement;
@@ -192,7 +205,8 @@ namespace DevApps.GUI
                 RemoveAdorner();
 
                 // Masque le nom dans la barre de status
-                GuiService.SetStatusText(String.Empty);
+                var pos = PointToCanvasCoord(Mouse.GetPosition(MyCanvas));
+                GuiService.SetStatusText(String.Format("X:{0} Y:{1}", (int)pos.X, (int)pos.Y));
 
                 // Masque le cadre de l'objet
                 borderOver.Visibility = Visibility.Hidden;

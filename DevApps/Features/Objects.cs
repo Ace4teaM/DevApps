@@ -930,6 +930,46 @@ namespace DevApps.Features
         }
 
         /// <summary>
+        /// Duplique les objets
+        /// </summary>
+        /// <param name="name">Noms des objets à dupliquer</param>
+        /// <returns>Nom des objets dupliqués</returns>
+        public static async Task<string[]?> Duplicates(string[] names)
+        {
+            try
+            {
+                List<string> newNames = new List<string>();
+
+                await DevObject._executeLock.WaitAsync();
+
+                foreach (var name in names)
+                {
+                    if (DevObject.TryGet(name, out var reference))
+                    {
+                        string newName = name;
+                        var newReference = reference.Clone();
+                        DevObject.MakeUniqueName(ref newName);
+                        DevObject.References.Add(newName, newReference);
+                        using var rec = DevObject.Recorder.New(newName, newReference);
+
+                        newNames.Add(name);
+                    }
+                    else
+                        throw new Exception($"L'objet {name} n'existe pas");
+                }
+
+                // actualise la vue de l'éditeur
+                DevApps.GUI.GuiService.InvalidateObjects();
+
+                return newNames.ToArray();
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+        }
+
+        /// <summary>
         /// Définit le script d'un objet
         /// </summary>
         /// <param name="name">Nom de l'objet</param>

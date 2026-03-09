@@ -42,6 +42,7 @@
                 <ContextMenu>
                     <MenuItem Header="Afficher le contenu..." Click="MenuItem_Click_ShowOutput"></MenuItem>
                     <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>
+                    <MenuItem Header="Dupliquer" Click="MenuItem_Click_Duplicate"></MenuItem>
                     <MenuItem Header="Créer une référence" Click="MenuItem_Click_CreateReference"></MenuItem>
                     <MenuItem Header="Construire (Build)" Click="MenuItem_Click_Build" DataContext="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}" IsEnabled="{Binding CanBuild}"></MenuItem>
                     <Separator></Separator>

@@ -1,9 +1,6 @@
 ﻿using DevApps.GUI;
-using PdfSharp.Charting;
 using System.IO;
-using System.Text;
 using System.Windows;
-using System.Windows.Media;
 
 internal partial class Program
 {
@@ -253,6 +250,34 @@ internal partial class Program
             {
                 Texts.Add(p);
             }
+        }
+
+        /// <summary>
+        /// Obtient la zone d'occupation des objets
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <returns></returns>
+        public bool TryGetBoundingBox(out Rect rect)
+        {
+            List<Rect> rects = new List<Rect>();
+            rects.AddRange(Objects.Select(p => p.Value.zone));
+            rects.AddRange(Commands.Select(p => new Rect(p.Value.pos, new Point(10, 10)))); // obtenir la taille
+            rects.AddRange(Geometries.Select(p => new Rect(p.X, p.Y, 10, 10))); // obtenir la taille
+            rects.AddRange(Texts.Select(p => new Rect(p.X, p.Y, 10, 10))); // obtenir la taille
+
+            if (rects.Count == 0)
+            {
+                rect = Rect.Empty;
+                return false;
+            }
+
+            rect = rects[0];
+            foreach (var r in rects.Skip(1))
+            {
+                rect = Rect.Union(rect, r);
+            }
+
+            return true;
         }
 
         /// <summary>
