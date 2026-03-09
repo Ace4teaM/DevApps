@@ -485,7 +485,7 @@ namespace DevApps.GUI
                         {
                             CommandsService.Run(
                                 "remove geometry",
-                                Features.Facets.RemoveGeometry(this.Name, curElement.Tag.ToString())
+                                () => Features.Facets.RemoveGeometry(this.Name, curElement.Tag.ToString())
                             ).Wait();
 
                             selectedElement = null;
@@ -508,7 +508,7 @@ namespace DevApps.GUI
                         {
                             CommandsService.Run(
                                 "remove text",
-                                Features.Facets.RemoveText(this.Name, curElement.Tag.ToString())
+                                () => Features.Facets.RemoveText(this.Name, curElement.Tag.ToString())
                             ).Wait();
 
                             selectedElement = null;
@@ -551,7 +551,7 @@ namespace DevApps.GUI
                         {
                             CommandsService.Run(
                                 "remove command",
-                                Features.Facets.RemoveCommand(this.Name, name)
+                                () => Features.Facets.RemoveCommand(this.Name, name)
                             ).Wait();
 
                             selectedElement = null;
@@ -696,7 +696,7 @@ namespace DevApps.GUI
                         {
                             CommandsService.Run(
                                 "remove object",
-                                Features.Facets.RemoveObject(this.Name, name)
+                                () => Features.Facets.RemoveObject(this.Name, name)
                             ).Wait();
 
                             selectedElement = null;

@@ -359,7 +359,7 @@ namespace DevApps.GUI
                 {
                     if (CommandsService.Run(
                         "update script",
-                        Features.Objects.SetScript(context.Name, scriptType, scriptCode)
+                        () => Features.Objects.SetScript(context.Name, scriptType, scriptCode)
                     ).Result == false)
                         MessageBox.Show(GuiService.EditorWindow, "Erreur de compilation.", "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation); //todo get last error message
                 }
@@ -399,7 +399,7 @@ namespace DevApps.GUI
             {
                 CommandsService.Run(
                     "create object",
-                    Features.Objects.Create(wnd.Value, String.Empty, wnd.Tags)
+                    () => Features.Objects.Create(wnd.Value, String.Empty, wnd.Tags)
                   ).Wait();
             }
         }
@@ -505,7 +505,7 @@ namespace DevApps.GUI
 
                 CommandsService.Run(
                     "create object from file",
-                    Features.Objects.CreateFromFiles(files)
+                    () => Features.Objects.CreateFromFiles(files)
                 ).Wait();
             }
         }
@@ -790,7 +790,7 @@ namespace DevApps.GUI
                         {
                             CommandsService.Run(
                                 "Rename object",
-                                Features.Objects.Rename(item.Name, text)
+                                () => Features.Objects.Rename(item.Name, text)
                             ).Wait();
                             GuiService.InvalidateObjectsStatus();
                         }
@@ -798,7 +798,7 @@ namespace DevApps.GUI
                         {
                             CommandsService.Run(
                                 "Change object description",
-                                Features.Objects.SetDescription(item.Name, text)
+                                () => Features.Objects.SetDescription(item.Name, text)
                             ).Wait();
                             GuiService.InvalidateObjectsStatus();
                         }
@@ -807,7 +807,7 @@ namespace DevApps.GUI
                             text = text.Replace("#", " #"); /// s'assure qu'il y a un espace devant chaque #
                             CommandsService.Run(
                                 "Change object tags",
-                                Features.Objects.SetTags(item.Name, text)
+                                () => Features.Objects.SetTags(item.Name, text)
                             ).Wait();
                             GuiService.InvalidateObjectsStatus();
                         }
@@ -1185,7 +1185,7 @@ namespace DevApps.GUI
             {
                 CommandsService.Run(
                     "Update model",
-                    Features.Objects.UpdateModel(selectedItem.Name)
+                    () => Features.Objects.UpdateModel(selectedItem.Name)
                 ).Wait();
                 GuiService.InvalidateObjectsStatus();
             }
@@ -1197,7 +1197,7 @@ namespace DevApps.GUI
             {
                 CommandsService.Run(
                     "Update object",
-                    Features.Objects.UpdateFromModel(selectedItem.Name)
+                    () => Features.Objects.UpdateFromModel(selectedItem.Name)
                 ).Wait();
                 GuiService.InvalidateObjectsStatus();
             }
@@ -1208,7 +1208,7 @@ namespace DevApps.GUI
             var objects = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Name ?? String.Empty).ToArray();
             CommandsService.Run(
                 "Duplicate objects",
-                Features.Objects.Duplicates(objects)
+                () => Features.Objects.Duplicates(objects)
             ).Wait();
         }
     }

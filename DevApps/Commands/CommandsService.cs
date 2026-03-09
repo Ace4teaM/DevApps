@@ -111,30 +111,23 @@ namespace DevApps.Commands
         ///         }
         ///    );
         /// </example>
-        internal static async Task<bool> Run(string title, Task task)
+        internal static async Task<bool> Run(string title, Func<Task> task)
         {
             await HistoryServices.BeginTransaction();
 
             try
             {
-                await task;
+                await task();
+                HistoryServices.Commit(title);
+                return true;
             }
             catch (Exception ex)
             {
+                HistoryServices.Rollback();
                 Program.Logger.WriteLine(ex.Message);
                 MessageBox.Show(GuiService.EditorWindow, ex.Message, "La commande a échouée", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return false;
             }
-
-            if (task.IsCompletedSuccessfully)
-            {
-                HistoryServices.Commit(title);
-            }
-            else
-            {
-                HistoryServices.Rollback();
-            }
-
-            return task.IsCompletedSuccessfully;
         }
 
         /// <summary>

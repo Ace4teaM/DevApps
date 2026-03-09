@@ -185,7 +185,7 @@ namespace DevApps.Record
         /// <returns>Liste des éléments restaurés</returns>
         public IEnumerable<KeyValuePair<DateTime, IRecord>> Restore(IDictionary<K, I> collection, DateTime from, DateTime to)
         {
-            var list = records.Where(p => p.Key > from && p.Key < to).Reverse().ToArray(); // déroule les éléments dans l'ordre inverse pour restaurer les états précédents
+            var list = records.Where(p => p.Key >= from && p.Key <= to).Reverse().ToArray(); // déroule les éléments dans l'ordre inverse pour restaurer les états précédents
             foreach (var item in list)
             {
                 // l'objet existait avant la modification

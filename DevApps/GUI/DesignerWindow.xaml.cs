@@ -524,7 +524,7 @@ namespace DevApps.GUI
             {
                 CommandsService.Run(
                     "delete facet",
-                    Features.Facets.Delete(SelectedFacet.Header.ToString())
+                    () => Features.Facets.Delete(SelectedFacet.Header.ToString())
                   ).Wait();
             }
 
@@ -677,7 +677,7 @@ namespace DevApps.GUI
             {
                 CommandsService.Run(
                     "create facet",
-                    Features.Facets.Create(wnd.Value, [])
+                    () => Features.Facets.Create(wnd.Value, [])
                   ).Wait();
                 SelectLastFacet();
             }

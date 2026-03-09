@@ -136,7 +136,7 @@ namespace DevApps.GUI
                         {
                             CommandsService.Run(
                                 "Rename variable",
-                                Features.Variables.Rename(item.Name, text)
+                                () => Features.Variables.Rename(item.Name, text)
                                 ).Wait();
                         }
                     }
@@ -144,14 +144,14 @@ namespace DevApps.GUI
                     {
                         CommandsService.Run(
                             "Change variable description",
-                            Features.Variables.SetDescription(item.Name, text)
+                            () => Features.Variables.SetDescription(item.Name, text)
                             ).Wait();
                     }
                     else if (e.Column.Header.ToString() == "Valeur")
                     {
                         CommandsService.Run(
                             "Change variable value",
-                            Features.Variables.SetValue(item.Name, text)
+                            () => Features.Variables.SetValue(item.Name, text)
                             ).Wait();
                     }
                 }
@@ -241,7 +241,7 @@ namespace DevApps.GUI
             {
                 CommandsService.Run(
                     "Create variable",
-                    Features.Variables.Create(wnd.Value, String.Empty)
+                    () => Features.Variables.Create(wnd.Value, String.Empty)
                     ).Wait();
             }
         }

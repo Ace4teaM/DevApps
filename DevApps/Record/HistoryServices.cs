@@ -1,6 +1,8 @@
 ﻿
+using DevApps.Features;
 using DevApps.GUI;
 using System.Diagnostics;
+using System.Linq;
 
 namespace DevApps.Record
 {
@@ -14,6 +16,8 @@ namespace DevApps.Record
         /// </summary>
         /// <remarks>
         /// les actions se trouvent toujours entre les points de restauration (Recorder)
+        /// après une transaction réussie, un nouveau point de restauration est ajouté avec la date de fin de transaction
+        /// il n'y a donc jamais d'action historisé après le dernier point de restauration dans la liste (sauf pendant une transaction en cours (actions en cours d'historisation))
         /// </remarks>
         internal static SortedList<DateTime, string> history = new();
         /// <summary>
@@ -48,6 +52,17 @@ namespace DevApps.Record
             // supprime les points de restauration suivants
             if (history.Count > currentIndex + 1)
             {
+                var fromDate = history.ElementAt(currentIndex).Key;
+
+                foreach (var obj in Program.DevObject.Recorder.records.Where(p => p.Key > fromDate).ToArray())
+                    Program.DevObject.Recorder.records.Remove(obj.Key);
+
+                foreach (var obj in Program.DevFacet.Recorder.records.Where(p => p.Key > fromDate).ToArray())
+                    Program.DevFacet.Recorder.records.Remove(obj.Key);
+
+                foreach (var obj in Program.DevVariable.Recorder.records.Where(p => p.Key > fromDate).ToArray())
+                    Program.DevVariable.Recorder.records.Remove(obj.Key);
+
                 for (int i = currentIndex + 1; i < history.Count; i++)
                 {
                     history.RemoveAt(history.Count-1);
