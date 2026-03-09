@@ -75,7 +75,32 @@ namespace DevApps.Record
         {
             if (transaction != null)
             {
-                //todo : restaurer l'état du modèle métier à la date de début de transaction
+                // annule toutes les modifications après la date de la dernière transaction réussite
+                var last = history.Last().Key;
+
+                try
+                {
+                    Program.Logger.WriteLine($"Rollback from >= {last}");
+
+                    var objs = Program.DevObject.Recorder.Restore(Program.DevObject.References, last, transaction.Value);
+                    var facets = Program.DevFacet.Recorder.Restore(Program.DevFacet.References, last, transaction.Value);
+                    var vars = Program.DevVariable.Recorder.Restore(Program.DevVariable.References, last, transaction.Value);
+                    //var files = Program.DevObjectFile.Recorder.Restore(Program.DevObjectFile.References, last, transaction.Value);
+
+                    foreach (var obj in objs)
+                        Program.DevObject.Recorder.records.Remove(obj.Key);
+
+                    foreach (var facet in facets)
+                        Program.DevFacet.Recorder.records.Remove(facet.Key);
+
+                    foreach (var @var in vars)
+                        Program.DevVariable.Recorder.records.Remove(@var.Key);
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.WriteLine(ex.Message);
+                }
+                //fin de transaction
                 transaction = null;
                 transactionLock.Release();
             }
@@ -93,10 +118,10 @@ namespace DevApps.Record
                 {
                     Program.Logger.WriteLine($"Undo to {previousDate} -> {label}");
 
-                    var objCount = Program.DevObject.Recorder.Restore(Program.DevObject.References, previousDate, current);
-                    var facCount = Program.DevFacet.Recorder.Restore(Program.DevFacet.References, previousDate, current);
-                    var varCount = Program.DevVariable.Recorder.Restore(Program.DevVariable.References, previousDate, current);
-                    //Program.DevObjectFile.Recorder.Restore(Program.DevObjectFile.References, previousDate);
+                    var objCount = Program.DevObject.Recorder.Restore(Program.DevObject.References, previousDate, current).Count();
+                    var facCount = Program.DevFacet.Recorder.Restore(Program.DevFacet.References, previousDate, current).Count();
+                    var varCount = Program.DevVariable.Recorder.Restore(Program.DevVariable.References, previousDate, current).Count();
+                    //Program.DevObjectFile.Recorder.Restore(Program.DevObjectFile.References, previousDate, current).Count();
 
                     // invalide la vue en cours
                     DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>
@@ -132,10 +157,10 @@ namespace DevApps.Record
                 {
                     Program.Logger.WriteLine($"Redo to {nextDate} -> {label}");
 
-                    var objCount = Program.DevObject.Recorder.Apply(Program.DevObject.References, current, nextDate);
-                    var facCount = Program.DevFacet.Recorder.Apply(Program.DevFacet.References, current, nextDate);
-                    var varCount = Program.DevVariable.Recorder.Apply(Program.DevVariable.References, current, nextDate);
-                    //Program.DevObjectFile.Recorder.Apply(Program.DevObjectFile.References, previousDate);
+                    var objCount = Program.DevObject.Recorder.Apply(Program.DevObject.References, current, nextDate).Count();
+                    var facCount = Program.DevFacet.Recorder.Apply(Program.DevFacet.References, current, nextDate).Count();
+                    var varCount = Program.DevVariable.Recorder.Apply(Program.DevVariable.References, current, nextDate).Count();
+                    //Program.DevObjectFile.Recorder.Apply(Program.DevObjectFile.References, current, nextDate).Count();
 
                     // invalide la vue en cours
                     DevApps.GUI.GuiService.EditorWindow?.Dispatcher.Invoke(() =>

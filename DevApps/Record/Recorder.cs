@@ -182,13 +182,12 @@ namespace DevApps.Record
         /// Restore les objets modifiés dans la collection (Undo)
         /// </summary>
         /// <param name="collection">Collection à modifier</param>
-        public int Restore(IDictionary<K, I> collection, DateTime from, DateTime to)
+        /// <returns>Liste des éléments restaurés</returns>
+        public IEnumerable<KeyValuePair<DateTime, IRecord>> Restore(IDictionary<K, I> collection, DateTime from, DateTime to)
         {
-            int i = 0;
-            var list = records.Where(p => p.Key.Ticks >= from.Ticks && p.Key.Ticks <= to.Ticks).Reverse().ToArray(); // déroule les éléments dans l'ordre inverse pour restaurer les états précédents
+            var list = records.Where(p => p.Key > from && p.Key < to).Reverse().ToArray(); // déroule les éléments dans l'ordre inverse pour restaurer les états précédents
             foreach (var item in list)
             {
-                i++;
                 // l'objet existait avant la modification
                 if (item.Value is Record record)
                 {
@@ -229,20 +228,18 @@ namespace DevApps.Record
                     }
                 }
             }
-            return i;
+            return list;
         }
 
         /// <summary>
         /// Restore les objets modifiés dans la collection (Redo)
         /// </summary>
         /// <param name="collection">Collection à modifier</param>
-        public int Apply(IDictionary<K, I> collection, DateTime from, DateTime to)
+        public IEnumerable<KeyValuePair<DateTime, IRecord>> Apply(IDictionary<K, I> collection, DateTime from, DateTime to)
         {
-            int i = 0;
-            var list = records.Where(p => p.Key.Ticks >= from.Ticks && p.Key.Ticks <= to.Ticks).ToArray();
+            var list = records.Where(p => p.Key >= from && p.Key <= to).ToArray();
             foreach (var item in list)
             {
-                i++;
                 // l'objet existait avant la modification
                 if (item.Value is Record record)
                 {
@@ -283,7 +280,7 @@ namespace DevApps.Record
                     }
                 }
             }
-            return i;
+            return list;
         }
 
         /// <summary>

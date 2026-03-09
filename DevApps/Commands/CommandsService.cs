@@ -1,8 +1,10 @@
-﻿using DevApps.Record;
+﻿using DevApps.GUI;
+using DevApps.Record;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Pipes;
+using System.Windows;
 
 
 namespace DevApps.Commands
@@ -120,6 +122,7 @@ namespace DevApps.Commands
             catch (Exception ex)
             {
                 Program.Logger.WriteLine(ex.Message);
+                MessageBox.Show(GuiService.EditorWindow, ex.Message, "La commande a échouée", MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
 
             if (task.IsCompletedSuccessfully)

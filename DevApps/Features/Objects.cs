@@ -23,7 +23,6 @@ namespace DevApps.Features
         /// </remarks>
         public static async Task BuildTree(string name)
         {
-
             try
             {
                 await DevObject._executeLock.WaitAsync();
@@ -942,8 +941,12 @@ namespace DevApps.Features
 
                 await DevObject._executeLock.WaitAsync();
 
+                int i = 0;
                 foreach (var name in names)
                 {
+                    if(i++ > 3)
+                        throw new Exception($"pour test");
+
                     if (DevObject.TryGet(name, out var reference))
                     {
                         string newName = name;
