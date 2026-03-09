@@ -38,7 +38,7 @@ Pour ce faire de façon sécurisé, DevApps utilise un manageur dédié (hors ob
 
 Une fois le lien ajouter au projet :
 
-*  A chaque modification extérieur du fichier, le contenu est rechargé et le build exécuté si des modifications sont trouvée le fichier est réécrit pour être ajusté automatiquement.
+*  A chaque modification extérieur du fichier, le contenu est rechargé et le build exécuté (si des modifications sont trouvées) le fichier est réécrit pour être ajusté automatiquement. Puis l'utilisateur choisit ou non d'appliquer les modifications au fichier final (réécrit).
 
 ## Objets : Instances, Modèles, Références et Fichiers
 

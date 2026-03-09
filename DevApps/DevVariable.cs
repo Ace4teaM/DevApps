@@ -1,18 +1,122 @@
 ﻿using Microsoft.Win32;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 internal partial class Program
 {
     public class DevVariable
     {
-        public class NoValue{
+        public readonly struct Variant
+        {
+            private readonly VariantType type;
+
+            private readonly long longValue;
+            private readonly double doubleValue;
+            private readonly string? stringValue;
+
+            public static readonly Variant Empty = default;
+
+            public static implicit operator Variant(int v) => new Variant(v);
+            public static implicit operator Variant(double v) => new Variant(v);
+            public static implicit operator Variant(string v) => new Variant(v);
+
+            public Variant(int value)
+            {
+                type = VariantType.Int;
+                longValue = value;
+                doubleValue = 0;
+                stringValue = null;
+            }
+
+            public Variant(long value)
+            {
+                type = VariantType.Long;
+                longValue = value;
+                doubleValue = 0;
+                stringValue = null;
+            }
+
+            public Variant(double value)
+            {
+                type = VariantType.Double;
+                doubleValue = value;
+                longValue = 0;
+                stringValue = null;
+            }
+
+            public Variant(string value)
+            {
+                type = VariantType.String;
+                stringValue = value;
+                longValue = 0;
+                doubleValue = 0;
+            }
+
+            public static Variant Parse(string? text)
+            {
+                if (text == null)
+                {
+                    return Variant.Empty;
+                }
+
+                if (int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var i))
+                {
+                    return new Variant(i);
+                }
+
+                if (long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l))
+                {
+                    return new Variant(l);
+                }
+
+                if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var d))
+                {
+                    return new Variant(d);
+                }
+
+                return new Variant(text);
+            }
+
+            public bool IsEmpty => type == VariantType.Empty;
+
+            public int AsInt() => (int)longValue;
+
+            public long AsLong() => longValue;
+
+            public double AsDouble()
+            {
+                return type switch
+                {
+                    VariantType.Int => longValue,
+                    VariantType.Long => longValue,
+                    VariantType.Double => doubleValue,
+                    _ => throw new InvalidOperationException()
+                };
+            }
+
+            public string? AsString() => stringValue;
+
             public override string ToString()
             {
-                return String.Empty;
+                return type switch
+                {
+                    VariantType.Int => longValue.ToString(),
+                    VariantType.Long => longValue.ToString(),
+                    VariantType.Double => doubleValue.ToString(),
+                    VariantType.String => stringValue ?? "",
+                    _ => ""
+                };
             }
         }
 
-        public static NoValue EmptyValue = new NoValue();
+        public enum VariantType
+        {
+            Empty,
+            Int,
+            Long,
+            Double,
+            String
+        }
 
         public static readonly DevVariable NullVariable = new DevVariable();
 
@@ -24,7 +128,7 @@ internal partial class Program
 
         public static DevVariable Create(string name, string desc)
         {
-            var o = new DevVariable(desc, EmptyValue);
+            var o = new DevVariable(desc, Empty);
             References.Add(name, o);
 
             return o;
@@ -47,15 +151,16 @@ internal partial class Program
 
         public static Dictionary<string, DevVariable> References = new Dictionary<string, DevVariable>();
 
+        public static readonly Variant Empty = default;
 
         public DevVariable()
         {
         }
 
-        public DevVariable(string description, object value)
+        public DevVariable(string description, object? value)
         {
             this.Description = description;
-            this.Value = value;
+            this.Value = Variant.Parse(value?.ToString());
         }
 
         /// <summary>
@@ -85,7 +190,7 @@ internal partial class Program
         }
 
         public string Description{ get; set; } = String.Empty;
-        public object Value { get; set; } = EmptyValue;
+        public Variant Value { get; set; } = Empty;
         public bool IsUsed { get; set; } = false;
 
         internal static bool DeletePrivate(string name)
@@ -155,7 +260,7 @@ internal partial class Program
                             if (subKey != null)
                             {
                                 var.Description = subKey?.GetValue("description")?.ToString() ?? String.Empty;
-                                var.Value = subKey?.GetValue(null) ?? EmptyValue;
+                                var.Value = Variant.Parse(subKey?.GetValue(null)?.ToString());
                                 return true;
                             }
                         }
@@ -170,7 +275,7 @@ internal partial class Program
             return false;
         }
 
-        internal static object GetPrivate(string name)
+        internal static Variant GetPrivate(string name)
         {
             try
             {
@@ -184,7 +289,7 @@ internal partial class Program
                         {
                             if (subKey != null)
                             {
-                                return subKey?.GetValue(null) ?? EmptyValue;
+                                return Variant.Parse(subKey?.GetValue(null)?.ToString());
                             }
                         }
                     }
@@ -195,7 +300,7 @@ internal partial class Program
                 Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
 
-            return EmptyValue;
+            return Empty;
         }
 
         internal static void SetPrivate(string name, object value)
@@ -245,7 +350,7 @@ internal partial class Program
                                 list.Add(subKeyName, new DevVariable
                                 {
                                     Description = subKey?.GetValue("description")?.ToString() ?? String.Empty,
-                                    Value = subKey?.GetValue(null) ?? EmptyValue
+                                    Value = Variant.Parse(subKey?.GetValue(null)?.ToString())
                                 });
                             }
                         }

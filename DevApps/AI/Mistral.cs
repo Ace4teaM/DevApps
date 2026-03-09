@@ -114,12 +114,12 @@ namespace DevApps.AI
 
             if (endpoint == null)
             {
-                endpoint = new Program.DevVariable { Value = "https://api.mistral.ai/v1/files" };
+                endpoint = new Program.DevVariable("endpoint", "https://api.mistral.ai/v1/files");
             }
 
             if (model == null)
             {
-                model = new Program.DevVariable { Value = "mistral-small" };
+                model = new Program.DevVariable("model", "mistral-small");
             }
 
             var client = new HttpClient();
@@ -163,12 +163,12 @@ namespace DevApps.AI
 
             if (endpoint == null)
             {
-                endpoint = new Program.DevVariable { Value = "https://api.mistral.ai/v1/chat/completions" };
+                endpoint = new Program.DevVariable("endpoint", "https://api.mistral.ai/v1/chat/completions" );
             }
 
             if (model == null)
             {
-                model = new Program.DevVariable { Value = "mistral-small" };
+                model = new Program.DevVariable("model", "mistral-small" );
             }
 
             var client = new HttpClient();

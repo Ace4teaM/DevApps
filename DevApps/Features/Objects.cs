@@ -1336,7 +1336,7 @@ namespace DevApps.Features
                                 SharedServices.EnumerateObjects(p => p.Guid == instance.baseGuid, Program.CommonSharedPath, ref list);
                                 if (list.Count == 1)
                                 {
-                                    if (MessageBox.Show($"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                                    if (MessageBox.Show(GuiService.EditorWindow, $"Objet modèle trouvé: '{list[0].Description}'.\nVoulez-vous mettre à jour depuis la bibliothèque ?", "Avertissement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                                     {
                                         // Actualise l'objet
                                         using (DevObject.Recorder.Rec(name, instance))
@@ -1354,7 +1354,7 @@ namespace DevApps.Features
                                 }
                                 else if (list.Count > 1)
                                 {
-                                    MessageBox.Show("Il existe plusieurs objets partagés possédant cet identifiant, veuillez corriger la bibliothèque.", "Avertissement", MessageBoxButton.OK);
+                                    MessageBox.Show(GuiService.EditorWindow, "Il existe plusieurs objets partagés possédant cet identifiant, veuillez corriger la bibliothèque.", "Avertissement", MessageBoxButton.OK);
 
                                     Program.Logger.WriteLine("Multiples objets partagés avec le GUID: " + instance.baseGuid);
                                     foreach (var item in list)
@@ -1363,7 +1363,7 @@ namespace DevApps.Features
                                 }
                                 else if (list.Count == 0)
                                 {
-                                    MessageBox.Show("L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
+                                    MessageBox.Show(GuiService.EditorWindow, "L'objet modèle est introuvable dans la bibliothèque.", "Avertissement", MessageBoxButton.OK);
 
                                     Program.Logger.WriteLine("Objet partagé introuvable avec le GUID: " + instance.baseGuid);
                                 }

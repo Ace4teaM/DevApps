@@ -355,7 +355,7 @@ namespace DevApps.GUI
                         ).Wait();
                     }
                     else
-                        MessageBox.Show("Syntaxe invalide");
+                        MessageBox.Show(GuiService.EditorWindow, "Syntaxe invalide");
                 }
             }
 
@@ -382,7 +382,7 @@ namespace DevApps.GUI
                         ).Wait();
                     }
                     else
-                        MessageBox.Show("Le texte ne peut pas être vide");
+                        MessageBox.Show(GuiService.EditorWindow, "Le texte ne peut pas être vide");
                 }
             }
 

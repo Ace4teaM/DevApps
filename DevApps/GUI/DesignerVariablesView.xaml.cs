@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+﻿using DevApps.Commands;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using static IronPython.Modules._ast;
 using static Program;
 
 namespace DevApps.GUI
@@ -22,7 +24,7 @@ namespace DevApps.GUI
         {
             public string Name { get; set; } = String.Empty;
             public string? Description { get; set; }
-            public object Value
+            public object? Value
             {
                 get
                 {
@@ -32,7 +34,7 @@ namespace DevApps.GUI
                 set
                 {
                     var obj = Program.DevVariable.References.FirstOrDefault(p => p.Key == Name);
-                    obj.Value.Value = value;
+                    obj.Value.Value = DevVariable.Variant.Parse(value?.ToString());
                 }
             }
         }
@@ -104,6 +106,11 @@ namespace DevApps.GUI
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PrivateItems)));
         }
 
+        public void InvalidateVariablesStatus()// todo a optimiser
+        {
+            InvalidateVariables();
+        }
+
         public DesignerVariablesView()
         {
             InitializeComponent();
@@ -123,61 +130,29 @@ namespace DevApps.GUI
                 var text = (e.EditingElement as TextBox)?.Text;
                 if (text != null && item != null)
                 {
-                    try
+                    if (e.Column.Header.ToString() == "Nom")
                     {
-                        Program.DevVariable._checkLock.Wait();
-
-                        if (Program.DevVariable.TryGet(item.Name, out var reference))
+                        if (text != item.Name)
                         {
-                            if (e.Column.Header.ToString() == "Nom")
-                            {
-                                if (text != item.Name)
-                                {
-                                    Program.DevVariable.MakeUniqueName(ref text);
-                                    var value = Program.DevVariable.References[item.Name];
-                                    Program.DevVariable.References.Remove(item.Name);
-                                    Program.DevVariable.References[text] = value;
-
-                                    // renomme l'objet dans les references des autres objets
-                                    try
-                                    {
-                                        DevObject._checkLock.Wait();
-
-                                        foreach (var obj in Program.DevObject.References)
-                                        {
-                                            foreach (var property in obj.Value.Properties.Where(p => p.Value.Item1.Contains(item.Name)).ToArray())
-                                            {
-                                                property.Value.Item1.Replace(item.Name, text); // todo rechercher dans la syntaxe et non seulement le texte !
-                                                Program.Logger.WriteLine($"Renomme dans la propriété {obj.Key}.{property.Key} => {property.Value.Item1}");
-                                                //todo recompiler l'expression...
-                                            }
-                                        }
-                                    }
-                                    finally
-                                    {
-                                        DevObject._checkLock.Release();
-                                    }
-
-                                    // renomme l'objet
-                                    item.Name = text;//sans effet
-
-                                    InvalidateVariables();
-                                }
-                            }
-                            else if (e.Column.Header.ToString() == "Description")
-                            {
-                                item.Description = text;
-                                reference.Description = text;
-                            }
+                            CommandsService.Run(
+                                "Rename variable",
+                                Features.Variables.Rename(item.Name, text)
+                                ).Wait();
                         }
                     }
-                    catch (Exception ex)
+                    else if (e.Column.Header.ToString() == "Description")
                     {
-                        Program.Logger.WriteLine(ex.Message);
+                        CommandsService.Run(
+                            "Change variable description",
+                            Features.Variables.SetDescription(item.Name, text)
+                            ).Wait();
                     }
-                    finally
+                    else if (e.Column.Header.ToString() == "Valeur")
                     {
-                        Program.DevVariable._checkLock.Release();
+                        CommandsService.Run(
+                            "Change variable value",
+                            Features.Variables.SetValue(item.Name, text)
+                            ).Wait();
                     }
                 }
 
@@ -205,6 +180,7 @@ namespace DevApps.GUI
                             {
                                 if (text != item.Name)
                                 {
+                                    // NOTE inutile d'historiser cette action car elle n'a pas vocation a être appelé à distance
                                     Program.DevVariable.SavePrivate(text, reference, item.Name);
 
                                     // renomme l'objet dans les references des autres objets
@@ -263,8 +239,10 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                Program.DevVariable.Create(wnd.Value, String.Empty);
-                InvalidateVariables();
+                CommandsService.Run(
+                    "Create variable",
+                    Features.Variables.Create(wnd.Value, String.Empty)
+                    ).Wait();
             }
         }
 
@@ -275,6 +253,7 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
+                // NOTE inutile d'historiser cette action car elle n'a pas vocation a être appelé à distance
                 Program.DevVariable.SavePrivate(wnd.Value, new Program.DevVariable(), null);
                 InvalidatePrivateVariables();
             }
@@ -302,23 +281,36 @@ namespace DevApps.GUI
             var count = dataGrid.SelectedItems.Count;
             if (count == 0)
                 return;
-            if (MessageBox.Show(count > 1 ? $"Voulez-vous supprimer ces {count} variables ?" : $"Voulez-vous supprimer cette variable ?", "Supprimer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show(GuiService.EditorWindow, count > 1 ? $"Voulez-vous supprimer ces {count} variables ?" : $"Voulez-vous supprimer cette variable ?", "Supprimer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                try
-                {
-                    Program.DevVariable._checkLock.Wait();
-
-                    foreach (var item in dataGrid.SelectedItems.OfType<TabItem>())
+                CommandsService.Run(
+                    "Delete variable",
+                    () =>
                     {
-                        Program.DevVariable.Delete(item.Name);
-                    }
-                }
-                finally
-                {
-                    Program.DevVariable._checkLock.Release();
-                }
+                        try
+                        {
+                            Program.DevVariable._checkLock.Wait();
 
-                InvalidateVariables();
+                            foreach (var item in dataGrid.SelectedItems.OfType<TabItem>())
+                            {
+                                if(DevVariable.TryGet(item.Name, out var obj))
+                                {
+                                    using (DevVariable.Recorder.Rem(item.Name, obj))
+                                        Program.DevVariable.References.Remove(item.Name);
+                                }
+                                else
+                                    throw new Exception($"La variable {item.Name} n'existe pas");
+                            }
+                        }
+                        finally
+                        {
+                            Program.DevVariable._checkLock.Release();
+                        }
+
+                        DevApps.GUI.GuiService.InvalidateVariables();
+                    }
+                    ).Wait();
+
             }
         }
 
@@ -327,10 +319,11 @@ namespace DevApps.GUI
             var count = dataGrid2.SelectedItems.Count;
             if (count == 0)
                 return;
-            if (MessageBox.Show(count > 1 ? $"Voulez-vous supprimer ces {count} variables ?" : $"Voulez-vous supprimer cette variable ?", "Supprimer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show(GuiService.EditorWindow, count > 1 ? $"Voulez-vous supprimer ces {count} variables ?" : $"Voulez-vous supprimer cette variable ?", "Supprimer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 foreach (var item in dataGrid2.SelectedItems.OfType<TabPrivateItem>())
                 {
+                    // NOTE inutile d'historiser cette action car elle n'a pas vocation a être appelé à distance
                     Program.DevVariable.DeletePrivate(item.Name);
                 }
                 InvalidatePrivateVariables();

@@ -112,12 +112,12 @@ namespace DevApps.Appli
 
             if (count == 0)
             {
-                MessageBox.Show("Aucune nouvelle application trouvée");
+                MessageBox.Show(GuiService.EditorWindow, "Aucune nouvelle application trouvée");
             }
             else
             {
                 editorGrid.SelectedIndex = AppsList.Count-1;
-                MessageBox.Show(count + " nouvelle(s) application(s) trouvée(s)");
+                MessageBox.Show(GuiService.EditorWindow, count + " nouvelle(s) application(s) trouvée(s)");
             }
         }
     }

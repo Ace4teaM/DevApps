@@ -361,7 +361,7 @@ namespace DevApps.GUI
                         "update script",
                         Features.Objects.SetScript(context.Name, scriptType, scriptCode)
                     ).Result == false)
-                        MessageBox.Show("Erreur de compilation.", "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation); //todo get last error message
+                        MessageBox.Show(GuiService.EditorWindow, "Erreur de compilation.", "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation); //todo get last error message
                 }
             }
         }
@@ -845,7 +845,7 @@ namespace DevApps.GUI
 
         private void MenuItem_Click_InitialOutputObject(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Appliquer la valeur actuelle en tant que valeur initiale de l'objet ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show(GuiService.EditorWindow, "Appliquer la valeur actuelle en tant que valeur initiale de l'objet ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 if (dataGrid.SelectedItem is TabItem selectedItem && selectedItem.Name != null)
                 {
@@ -855,7 +855,7 @@ namespace DevApps.GUI
 
                         if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
                         {
-                            if (selectedObject.Content.Length == 0 && MessageBox.Show("L'objet ne contient pas de données, voulez vous tout de même continuer ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                            if (selectedObject.Content.Length == 0 && MessageBox.Show(GuiService.EditorWindow, "L'objet ne contient pas de données, voulez vous tout de même continuer ?", "Appliquer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
                                 throw new Exception("Pas de données à initialiser dans l'objet " + selectedItem.Name);
 
                             byte[] bytes = new byte[selectedObject.Content.Length];
@@ -881,7 +881,7 @@ namespace DevApps.GUI
 
         private void MenuItem_Click_RestoreInitialOutputObject(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Restaurer l'état initial de l'objet ?", "Restaurer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show(GuiService.EditorWindow, "Restaurer l'état initial de l'objet ?", "Restaurer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
                 if (dataGrid.SelectedItem is TabItem selectedItem)
                 {
@@ -891,7 +891,7 @@ namespace DevApps.GUI
 
                         if (DevObject.TryGet(selectedItem.Name, out var selectedObject))
                         {
-                            if (selectedObject.InitialDataBase64.Length == 0 && MessageBox.Show("Les données initiales sont vide, voulez vous tout de même continuer ?", "Restaurer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
+                            if (selectedObject.InitialDataBase64.Length == 0 && MessageBox.Show(GuiService.EditorWindow, "Les données initiales sont vide, voulez vous tout de même continuer ?", "Restaurer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.No)
                                 throw new Exception("Pas de données à restorer dans l'objet " + selectedItem.Name);
 
                             var bytes = Convert.FromBase64String(selectedObject.InitialDataBase64);
@@ -1176,7 +1176,7 @@ namespace DevApps.GUI
 
         private void MenuItem_Click_UpdateObjectModel(object sender, RoutedEventArgs e)
         {
-            if (dataGrid.SelectedItem is TabItem selectedItem && selectedItem.Name != null && MessageBox.Show("Voulez vous mettre à jour la bibliothèque avec le contenu de cet objet ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (dataGrid.SelectedItem is TabItem selectedItem && selectedItem.Name != null && MessageBox.Show(GuiService.EditorWindow, "Voulez vous mettre à jour la bibliothèque avec le contenu de cet objet ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 CommandsService.Run(
                     "Update model",
@@ -1188,7 +1188,7 @@ namespace DevApps.GUI
 
         private void MenuItem_Click_UpdateFromObjectModel(object sender, RoutedEventArgs e)
         {
-            if (dataGrid.SelectedItem is TabItem selectedItem && selectedItem.Name != null && MessageBox.Show("Voulez écraser cet objet avec le contenu de la bibliothèque ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            if (dataGrid.SelectedItem is TabItem selectedItem && selectedItem.Name != null && MessageBox.Show(GuiService.EditorWindow, "Voulez écraser cet objet avec le contenu de la bibliothèque ?", "Attention", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
             {
                 CommandsService.Run(
                     "Update object",

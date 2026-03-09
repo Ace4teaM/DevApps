@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -58,12 +57,12 @@ namespace DevApps.AI
 
             if (endpoint == null)
             {
-                endpoint = new Program.DevVariable { Value = "https://api.openai.com/v1/chat/completions" };
+                endpoint = new Program.DevVariable("endpoint", "https://api.openai.com/v1/chat/completions");
             }
 
             if (model == null)
             {
-                model = new Program.DevVariable { Value = "gpt-3.5-turbo" };
+                model = new Program.DevVariable("model", "gpt-3.5-turbo");
             }
 
             using HttpClient client = new HttpClient();

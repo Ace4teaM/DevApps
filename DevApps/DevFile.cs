@@ -178,7 +178,7 @@ internal partial class Program
                                 }
                                 if (GuiService.IsInitialized && GuiService.IsFacetsView)
                                 {
-                                    GuiService.Invalidate(this.objectname);
+                                    GuiService.InvalidateObject(this.objectname);
                                 }
                             }
                         }

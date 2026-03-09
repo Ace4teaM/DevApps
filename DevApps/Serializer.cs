@@ -45,7 +45,7 @@ namespace Serializer
         /// <summary>
         /// Valeur de l'objet
         /// </summary>
-        public object Value { get { return content.Value; } set { content.Value = value; } }
+        public string Value { get { return content.Value.ToString(); } set { content.Value = Program.DevVariable.Variant.Parse(value); } }
     }
 
     internal class DevObject : ISerialisable
@@ -54,6 +54,8 @@ namespace Serializer
         {
             if (content.IsReference)
                 return new DevObjectReference((Program.DevObjectReference)content);
+            if (content.IsFile)
+                return new DevObjectFile((Program.DevObjectFile)content);
             return new DevObjectInstance((Program.DevObjectInstance)content);
         }
         public virtual object Content { get; set; }
@@ -131,12 +133,12 @@ namespace Serializer
         public KeyValuePair<string, string>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, string>(value); } }
     }
 
-    internal class DevObjectFile : ISerialisable
+    internal class DevObjectFile : DevObject, ISerialisable
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevObjectFile content;
 
-        public object Content
+        public override object Content
         {
             get => content;
             set => content = (Program.DevObjectFile)value;

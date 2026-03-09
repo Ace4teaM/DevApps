@@ -45,7 +45,7 @@ namespace DevApps.GUI
             if (DialogResult != null)
                 return;
 
-            switch (MessageBox.Show("Sauvegarder les modifications ?", "Attention", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning))
+            switch (MessageBox.Show(GuiService.EditorWindow, "Sauvegarder les modifications ?", "Attention", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning))
             {
                 case MessageBoxResult.Yes:
                     {

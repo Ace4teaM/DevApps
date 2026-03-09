@@ -471,7 +471,7 @@ namespace DevApps.GUI
         {
             if(Program.DevObject.References.Count == 0)
             {
-                MessageBox.Show("Aucun objet à construire !", "Build", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(GuiService.EditorWindow, "Aucun objet à construire !", "Build", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 

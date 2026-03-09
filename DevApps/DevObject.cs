@@ -143,6 +143,11 @@ internal partial class Program
         public String? Editor = null;
 
         /// <summary>
+        /// true si l'objet est de type DevObjectFile
+        /// </summary>
+        public bool IsFile { get { return this is DevObjectFile; } }
+
+        /// <summary>
         /// true si l'objet est de type DevObjectReference
         /// </summary>
         public bool IsReference { get { return this is DevObjectReference; } }
@@ -470,7 +475,7 @@ internal partial class Program
             {
                 foreach (var o in list)
                 {
-                    GuiService.Invalidate(o.Key); // appeler uniquement si le contenu de out a changé
+                    GuiService.InvalidateObject(o.Key); // appeler uniquement si le contenu de out a changé
                 }
             }
         }
@@ -678,7 +683,7 @@ internal partial class Program
                         // Evènement de build
                         o.Value.OnBuilt();
 
-                        GuiService.Invalidate(o.Key);
+                        GuiService.InvalidateObject(o.Key);
                     }
                     catch (Exception ex)
                     {
