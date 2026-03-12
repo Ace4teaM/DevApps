@@ -305,9 +305,8 @@ internal partial class Program
             GuiService.WaitWindowLoaded();
         }
 
-        // serveur inter-precessus
-        InfosServer.Start();
-        CommandsServer.Start();
+        // commands server
+        CommandsService.Start();
 
         LoadProject();
 
@@ -330,9 +329,8 @@ internal partial class Program
         // Attend la fermeture de la fenêtre
         GuiService.WaitWindowClosed();
 
-        // Attend la fin du pipe serveur
-        CommandsServer.Stop();
-        InfosServer.Stop();
+        // Attend la fin du serveur de commandes
+        CommandsService.Stop();
 
         DevObject.Stop();
 

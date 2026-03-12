@@ -1,9 +1,6 @@
 ﻿using DevApps.GUI;
 using DevApps.Record;
-using Newtonsoft.Json;
 using System.ComponentModel;
-using System.IO;
-using System.IO.Pipes;
 using System.Windows;
 
 
@@ -32,62 +29,10 @@ namespace DevApps.Commands
         /// Débute le service distant
         /// </summary>
         /// <returns></returns>
-        internal static async Task Start()
+        internal static void Start()
         {
-            while (Cancel.IsCancellationRequested == false)
-            {
-                using var server = new NamedPipeServerStream($"{Program.NamedPipePrefix}.commands");
-
-                await server.WaitForConnectionAsync(Cancel.Token);
-
-                using var reader = new StreamReader(server);
-                using var writer = new StreamWriter(server);
-
-                while (Cancel.IsCancellationRequested == false)
-                {
-                    var json = await reader.ReadLineAsync();
-
-                    try
-                    {
-                        dynamic? obj = JsonConvert.DeserializeObject(json);
-
-                        var methods = typeof(CommandsService).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
-                                .Where(m => m.GetCustomAttributes(typeof(UserCommandAttribute), false).Length > 0)
-                                .ToArray();
-
-                        if (obj != null)
-                        {
-                            obj.action = "test";
-
-                            var m = methods.FirstOrDefault(m => m.Name.Equals((string)obj.action, StringComparison.OrdinalIgnoreCase));
-
-                            var parameters = m.GetParameters();
-                            var args = new List<object?>();
-                            foreach (var param in parameters)
-                            {
-                                if (((IDictionary<string, object>)obj).TryGetValue(param.Name!, out var value))
-                                {
-                                    args.Add(Convert.ChangeType(value, param.ParameterType));
-                                }
-                                else
-                                {
-                                    args.Add(param.HasDefaultValue ? param.DefaultValue : null);
-                                }
-                            }
-
-                            var result = m.Invoke(null, args.ToArray());
-                            if (result is Task<string> taskResult)
-                            {
-                                writer.WriteLineAsync(taskResult.Result);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        writer.WriteLineAsync("Exception");
-                    }
-                }
-            }
+            InfosServer.Start(Cancel.Token);
+            CommandsServer.Start(Cancel.Token);
         }
 
         /// <summary>
@@ -96,6 +41,8 @@ namespace DevApps.Commands
         internal static void Stop()
         {
             Cancel.Cancel();
+            CommandsServer.Wait();
+            InfosServer.Wait();
         }
 
         /// <summary>

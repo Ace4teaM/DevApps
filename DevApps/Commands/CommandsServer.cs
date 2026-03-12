@@ -14,6 +14,11 @@ namespace DevApps.Commands
     /// </summary>
     internal static class CommandsServer
     {
+        /// <summary>
+        /// Temps avant abandon d'une commande (en ms)
+        /// </summary>
+        public static readonly int CommandTimeoutMs = 60000;
+
         static CommandsServer()
         {
             // Méthodes statiques avec l'attribut RemoteCallAttribute
@@ -26,19 +31,19 @@ namespace DevApps.Commands
 
         internal static MethodInfo[] RemoteMethods { get; private set; }
 
-        internal static CancellationTokenSource Cancel { get; private set; } = new CancellationTokenSource();
+        public static Task? WorkerTask = null;
 
         /// <summary>
         /// Démarre le pipe de communication
         /// </summary>
         /// <remarks>Après la déconnexion, la boucle recommence et recrée un pipe</remarks>
-        public static async Task Worker()
+        public static async Task Worker(CancellationToken token)
         {
             Program.Logger.WriteLine("Démarrage serveur de commandes en attente de connexion... " + Program.NamedPipePrefix + "commands");
 
             var assembly = Assembly.GetExecutingAssembly();
 
-            while (Cancel.IsCancellationRequested == false)
+            while (token.IsCancellationRequested == false)
             {
                 var server = new NamedPipeServerStream(
                     Program.NamedPipePrefix + "commands",
@@ -48,7 +53,7 @@ namespace DevApps.Commands
                     PipeOptions.Asynchronous
                 );
 
-                await server.WaitForConnectionAsync();
+                await server.WaitForConnectionAsync(token);
 
                 Program.Logger.WriteLine("connexion... " + Program.NamedPipePrefix + "commands");
 
@@ -71,7 +76,8 @@ namespace DevApps.Commands
 
             try
             {
-                var input = await reader.ReadLineAsync();
+                using var cts = new CancellationTokenSource(CommandTimeoutMs);
+                var input = await reader.ReadLineAsync(cts.Token);
 
                 if (input == null)
                     throw new Exception($"Aucune données fournit.");
@@ -176,14 +182,17 @@ namespace DevApps.Commands
             }
         }
 
-        internal static async Task Start()
+        internal static void Start(CancellationToken token)
         {
-            await Worker();
+            WorkerTask = Worker(token);
         }
 
-        internal static void Stop()
+        internal static void Wait()
         {
-            Cancel.Cancel();
+            if (WorkerTask != null && WorkerTask.Status == TaskStatus.Running)
+            {
+                WorkerTask.Wait();
+            }
         }
     }
 }

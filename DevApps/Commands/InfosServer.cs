@@ -14,16 +14,16 @@ namespace DevApps.Commands
         internal static readonly string ProjectTag = "PROJECT:";
         internal static readonly string CommandsTag = "COMMANDS:";
 
-        internal static CancellationTokenSource Cancel { get; private set; } = new CancellationTokenSource();
+        public static Task? WorkerTask = null;
 
         /// <summary>
         /// Démarre le pipe de communication pour les informations
         /// </summary>
         /// <remarks>Après la déconnexion, la boucle recommence et recrée un pipe</remarks>
-        public static async Task Worker()
+        public static async Task Worker(CancellationToken token)
         {
             Program.Logger.WriteLine("Démarrage serveur d'informations en attente de connexion... " + Program.NamedPipePrefix + "infos");
-            while (Cancel.IsCancellationRequested == false)
+            while (token.IsCancellationRequested == false)
             {
                 using var server = new NamedPipeServerStream(
                     Program.NamedPipePrefix + "infos",
@@ -33,7 +33,7 @@ namespace DevApps.Commands
                     PipeOptions.Asynchronous
                 );
 
-                await server.WaitForConnectionAsync(Cancel.Token);
+                await server.WaitForConnectionAsync(token);
 
                 Program.Logger.WriteLine("connexion... " + Program.NamedPipePrefix + "infos");
 
@@ -67,14 +67,17 @@ namespace DevApps.Commands
             }
         }
 
-        internal static async Task Start()
+        internal static void Start(CancellationToken token)
         {
-            await Worker();
+            WorkerTask = Worker(token);
         }
 
-        internal static void Stop()
+        internal static void Wait()
         {
-            Cancel.Cancel();
+            if (WorkerTask != null && WorkerTask.Status == TaskStatus.Running)
+            {
+                WorkerTask.Wait();
+            }
         }
     }
 }

@@ -15,6 +15,11 @@ namespace DevAppsMcp
         public class UserContext
         {
             /// <summary>
+            /// Temps avant abandon d'une commande (en ms)
+            /// </summary>
+            public static readonly int CommandTimeoutMs = 60000;
+
+            /// <summary>
             /// Processus en cours recevant les commandes
             /// </summary>
             public int ProcessId { get; set; } = -1;
@@ -22,7 +27,9 @@ namespace DevAppsMcp
             public static async Task<Dictionary<string, string>> GetProcessInfos(int ProcessId)
             {
                 using var client = new NamedPipeClientStream(".", String.Format("devapps-{0}.infos", ProcessId), PipeDirection.In, PipeOptions.Asynchronous);
-                await client.ConnectAsync();
+
+                using var cts = new CancellationTokenSource(CommandTimeoutMs);
+                await client.ConnectAsync(cts.Token);
 
                 using var reader = new StreamReader(client, Encoding.UTF8);
 
@@ -42,7 +49,9 @@ namespace DevAppsMcp
                 try
                 {
                     using var client = new NamedPipeClientStream(".", String.Format("devapps-{0}.commands", ProcessId), PipeDirection.InOut, PipeOptions.Asynchronous);
-                    await client.ConnectAsync();
+
+                    using var cts = new CancellationTokenSource(CommandTimeoutMs);
+                    await client.ConnectAsync(cts.Token);
 
                     string json = JsonConvert.SerializeObject(obj);
 
