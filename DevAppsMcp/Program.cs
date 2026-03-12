@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO.Pipes;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 
 namespace DevAppsMcp
 {
@@ -36,7 +37,6 @@ namespace DevAppsMcp
 
                 return infos;
             }
-
             public static async Task<string> RunCommand(int ProcessId, dynamic obj)
             {
                 try

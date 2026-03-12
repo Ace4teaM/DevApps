@@ -12,59 +12,8 @@ namespace DevApps
     /// </remarks>
     internal class ProgramLogger : System.IO.TextWriter
     {
-        public class RedirectStream : Stream
-        {
-            internal required ProgramLogger logger;
-
-            public override bool CanRead => false;
-            public override bool CanSeek => false;
-            public override bool CanWrite => true;
-
-            public override long Length => 0;
-
-            public override long Position
-            {
-                get => 0;
-                set{}
-            }
-
-            public override void Flush()
-            {
-                // Rien à faire ici (pas de buffer externe)
-            }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                return 0;
-            }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                try
-                {
-                    var text = Encoding.UTF8.GetString(buffer, offset, count);
-                    logger.Write(text);
-                }
-                catch
-                {
-                }
-            }
-
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                return 0;
-            }
-
-            public override void SetLength(long value)
-            {
-            }
-
-            public byte[] ToArray() => Array.Empty<byte>();
-        }
-
         internal FileStream writer;
         internal FileStream reader;
-        internal RedirectStream redirect;
 
         public override Encoding Encoding => Encoding.UTF8;
 
@@ -75,7 +24,6 @@ namespace DevApps
         {
             writer = new FileStream(filename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
             reader = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
-            redirect = new RedirectStream() { logger = this };
         }
 
         public bool ReadNext(out string line)

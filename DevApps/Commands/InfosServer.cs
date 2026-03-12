@@ -1,5 +1,4 @@
-﻿using Markdig.Wpf;
-using System.IO;
+﻿using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
 using System.Text;
@@ -23,6 +22,7 @@ namespace DevApps.Commands
         /// <remarks>Après la déconnexion, la boucle recommence et recrée un pipe</remarks>
         public static async Task Worker()
         {
+            Program.Logger.WriteLine("Démarrage serveur d'informations en attente de connexion... " + Program.NamedPipePrefix + "infos");
             while (Cancel.IsCancellationRequested == false)
             {
                 using var server = new NamedPipeServerStream(
@@ -33,26 +33,37 @@ namespace DevApps.Commands
                     PipeOptions.Asynchronous
                 );
 
-                Console.WriteLine("Serveur d'informations en attente de connexion... "+ Program.NamedPipePrefix + "infos");
-                try
-                {
-                    await server.WaitForConnectionAsync(Cancel.Token);
-                    Console.WriteLine("Client connecté !");
+                await server.WaitForConnectionAsync(Cancel.Token);
 
-                    using var writer = new StreamWriter(server, Encoding.UTF8) { AutoFlush = true };
+                Program.Logger.WriteLine("connexion... " + Program.NamedPipePrefix + "infos");
 
-                    var assembly = Assembly.GetExecutingAssembly();
+                // execute dans une tache parallèle pour pouvoir recréer un nouveau pipe immédiatement après la connexion d'un client (sinon le serveur ne peut accepter qu'une connexion à la fois et doit attendre la déconnexion du client pour recréer un nouveau pipe)
+                _ = Task.Run(() => HandleClient(server));
+            }
+        }
 
-                    var project = Path.GetFileName(Environment.CurrentDirectory);
+        /// <summary>
+        /// Execute le pipe de communication
+        /// </summary>
+        public static async Task HandleClient(NamedPipeServerStream server)
+        {
+            try
+            {
+                Program.Logger.WriteLine("connexion... " + Program.NamedPipePrefix + "infos");
 
-                    await writer.WriteLineAsync(VersionTag + assembly.GetName().Version?.ToString());
-                    await writer.WriteLineAsync(ProjectTag + project);
-                    await writer.WriteLineAsync(CommandsTag + string.Join(",", CommandsServer.RemoteMethods.Select(p=>p.Name)));
-                }
-                catch (IOException ex)
-                {
-                    Program.Logger.WriteLine("Erreur pipe : " + ex.Message);
-                }
+                using var writer = new StreamWriter(server, Encoding.UTF8) { AutoFlush = true };
+
+                var assembly = Assembly.GetExecutingAssembly();
+
+                var project = Path.GetFileName(Environment.CurrentDirectory);
+
+                await writer.WriteLineAsync(VersionTag + assembly.GetName().Version?.ToString());
+                await writer.WriteLineAsync(ProjectTag + project);
+                await writer.WriteLineAsync(CommandsTag + string.Join(",", CommandsServer.RemoteMethods.Select(p => p.Name)));
+            }
+            catch (IOException ex)
+            {
+                Program.Logger.WriteLine("Erreur pipe : " + ex.Message);
             }
         }
 

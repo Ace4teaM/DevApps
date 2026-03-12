@@ -237,6 +237,10 @@ internal partial class Program
 
         // initialise le logs
         Logger = new ProgramLogger(Program.LogFile);
+        Logger.TextWritten += (sender, text) =>
+        {
+            Console.WriteLine(text);
+        };
 
         // affiche un résumé du projet
         if (args.Contains("-s"))
