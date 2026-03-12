@@ -69,6 +69,16 @@ namespace DevAppsMcp
             return await Program.RunCommand(processId, new { method = "Objects.Delete", parameters = new { name } });
         }
 
+        [McpServerTool, Description("Delete multiples objects.")]
+        public async Task<string> DeleteObjects(
+            [Description("identifiant du processus")] int processId,
+            [Description("Names of object to delete")] string[] names
+            )
+        {
+
+            return await Program.RunCommand(processId, new { method = "Objects.Deletes", parameters = new { names } });
+        }
+
         [McpServerTool, Description("Duplicate an existing object.")]
         public async Task<string> DuplicateObject(
             [Description("identifiant du processus")] int processId,
@@ -77,6 +87,16 @@ namespace DevAppsMcp
         {
             
             return await Program.RunCommand(processId, new { method = "Objects.Duplicate", parameters = new { name } });
+        }
+
+        [McpServerTool, Description("Duplicate multiples objects.")]
+        public async Task<string> DuplicateObjects(
+            [Description("identifiant du processus")] int processId,
+            [Description("Names of object to duplicate")] string[] names
+            )
+        {
+
+            return await Program.RunCommand(processId, new { method = "Objects.Duplicates", parameters = new { names } });
         }
     }
 }

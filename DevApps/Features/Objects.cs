@@ -500,6 +500,94 @@ namespace DevApps.Features
         }
 
         /// <summary>
+        /// Supprime plusieurs objets du projet
+        /// </summary>
+        [Description("Supprime plusieurs objets du projet")]
+        [RemoteCall]
+        public static async Task Deletes(string[] names)
+        {
+            try
+            {
+                await DevObject._executeLock.WaitAsync();
+
+                try
+                {
+                    await DevObject._checkLock.WaitAsync();
+
+                    foreach (var name in names)
+                    {
+                        if (DevObject.TryGet(name, out var obj))
+                        {
+                            // supprime l'objet de références
+                            using (DevObject.Recorder.Rem(name, obj))
+                                DevObject.References.Remove(name);
+
+                            // supprime l'objet dans les objets de references
+                            foreach (var o in DevObject.References)
+                            {
+                                if (o.Value is DevObjectReference objRef && objRef.baseObjectName == name)
+                                {
+                                    using (DevObject.Recorder.Rec(o.Key, o.Value))
+                                    {
+                                        // l'objet devient une instance
+                                        DevObject.References.Remove(o.Key);
+                                        var newObject = DevObject.Create(o.Key, objRef.Description, objRef.Tags); // todo manque les autres propriétés ...
+                                        Logger.WriteLine($"Convert reference object to instance {o.Key}");
+                                    }
+                                }
+                            }
+
+                            // déréférence l'objet dans les pointeurs des autres objets
+                            foreach (var o in DevObject.References)
+                            {
+                                foreach (var pointer in o.Value.Pointers.Where(p => p.Value.target == name).ToArray())
+                                {
+                                    using (DevObject.Recorder.Rec(o.Key, o.Value))
+                                    {
+                                        o.Value.Pointers[pointer.Key].target = string.Empty;
+                                        Logger.WriteLine($"Clear pointer {pointer.Key} => {name}");
+                                    }
+                                }
+                            }
+
+
+                            // supprime l'objet dans les references des facettes
+                            foreach (var o in DevFacet.References)
+                            {
+                                if (!o.Value.Objects.ContainsKey(name))
+                                    continue;
+
+                                using (DevFacet.Recorder.Rec(o.Key, o.Value))
+                                {
+                                    o.Value.Objects.Remove(name);
+                                }
+
+                                Logger.WriteLine($"Remove {name} from facet {o.Key}");
+                            }
+
+                            // événement de suppression de l'objet (dispose)
+                            obj.OnDelete();
+                        }
+                        else
+                            throw new Exception($"L'objet {name} n'existe pas");
+                    }
+                }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
+            }
+
+            // actualise la vue de l'éditeur
+
+            DevApps.GUI.GuiService.InvalidateObjects();
+        }
+
+        /// <summary>
         /// Ajoute un objet au projet
         /// </summary>
         [Description("Ajoute un objet au projet")]
