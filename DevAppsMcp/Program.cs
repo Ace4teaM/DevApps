@@ -1,9 +1,12 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO.Pipes;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -88,15 +91,15 @@ namespace DevAppsMcp
             }
         }
 
-        public static void Main(string[] args)
+        public static void RunStdio(string[] args)
         {
-           var assembly = Assembly.GetExecutingAssembly();
+            var assembly = Assembly.GetExecutingAssembly();
 
             var builder = Host.CreateApplicationBuilder(args);
 
-            builder.Logging.ClearProviders();
+            builder.Logging.ClearProviders(); // pas de logs dans la console pour ne pas polluer la communication MCP
 
-            builder.Services.AddMcpServer()
+            var mcp = builder.Services.AddMcpServer()
                 .WithResources(new Dictionary<string, object>
                 {
                     ["ServerInfo"] = new
@@ -120,6 +123,70 @@ namespace DevAppsMcp
 
             var host = builder.Build();
             host.Run();
+        }
+
+        public static void RunTcp(string[] args)
+        {
+            var builder = Host.CreateApplicationBuilder(args);
+
+            var i = Array.IndexOf(args, "--tcp");
+            if (!(args.Length > i + 1 && int.TryParse(args[i] + 1, out var port)))
+            {
+                port = 5555;
+            }
+
+            // TCP listener
+            var listener = new TcpListener(IPAddress.Loopback, port);
+            listener.Start();
+            Console.WriteLine($"MCP TCP server listening on port {port}");
+
+            // Thread ou task qui accepte les clients
+            _ = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    var tcpClient = await listener.AcceptTcpClientAsync();
+                    Console.WriteLine("Client connecté !");
+
+                    // Lance un serveur MCP sur ce flux
+                    var stream = tcpClient.GetStream();
+                    var hostBuilder = Host.CreateApplicationBuilder(args);
+
+                    hostBuilder.Services.AddMcpServer()
+                        .WithResources(new Dictionary<string, object>
+                        {
+                            ["ServerInfo"] = new
+                            {
+                                Name = "DevApps MCP TCP",
+                                Version = "1.0",
+                                Description = "MCP Server over TCP",
+                                Author = "Thomas AUGUEY"
+                            }
+                        })
+                        .WithStreamServerTransport(stream, stream)
+                        .WithTools<ToolsObjects>()
+                        .WithTools<ToolsFacets>();
+
+                    var host = hostBuilder.Build();
+                    _ = host.RunAsync(); // Ne bloque pas, chaque client sur une task
+                }
+            });
+
+            Console.WriteLine("Serveur MCP TCP prêt. Appuyez sur une touche pour quitter...");
+            Console.ReadKey();
+            listener.Stop();
+        }
+
+        public static void Main(string[] args)
+        {
+            if (args.Contains("--tcp")) // + num port
+            {
+                RunTcp(args);
+            }
+            else /*if (args.Contains("--stdio"))*/
+            {
+                RunStdio(args);
+            }
         }
     }
 }
