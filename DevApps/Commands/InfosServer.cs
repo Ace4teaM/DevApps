@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using DevApps.Scripts;
+using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
 using System.Text;
@@ -25,7 +26,7 @@ namespace DevApps.Commands
             Program.Logger.WriteLine("Démarrage serveur d'informations en attente de connexion... " + Program.NamedPipePrefix + "infos");
             while (token.IsCancellationRequested == false)
             {
-                using var server = new NamedPipeServerStream(
+                var server = new NamedPipeServerStream(
                     Program.NamedPipePrefix + "infos",
                     PipeDirection.Out,
                     NamedPipeServerStream.MaxAllowedServerInstances,
@@ -51,7 +52,7 @@ namespace DevApps.Commands
             {
                 Program.Logger.WriteLine("connexion... " + Program.NamedPipePrefix + "infos");
 
-                using var writer = new StreamWriter(server, Encoding.UTF8) { AutoFlush = true };
+                using var writer = new StreamWriter(server, Encoding.UTF8, leaveOpen: true) { AutoFlush = true };
 
                 var assembly = Assembly.GetExecutingAssembly();
 
@@ -64,6 +65,14 @@ namespace DevApps.Commands
             catch (IOException ex)
             {
                 Program.Logger.WriteLine("Erreur pipe : " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.WriteLine("Command error : " + ex.Message);
+            }
+            finally
+            {
+                server.Dispose();
             }
         }
 
