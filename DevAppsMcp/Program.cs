@@ -12,95 +12,59 @@ namespace DevAppsMcp
 {
     public class Program
     {
-        public class UserContext
+        /// <summary>
+        /// Temps avant abandon d'une commande (en ms)
+        /// </summary>
+        public static readonly int CommandTimeoutMs = 60000;
+
+        public static async Task<Dictionary<string, string>> GetProcessInfos(int ProcessId)
         {
-            /// <summary>
-            /// Temps avant abandon d'une commande (en ms)
-            /// </summary>
-            public static readonly int CommandTimeoutMs = 60000;
+            using var client = new NamedPipeClientStream(".", String.Format("devapps-{0}.infos", ProcessId), PipeDirection.In, PipeOptions.Asynchronous);
 
-            /// <summary>
-            /// Processus en cours recevant les commandes
-            /// </summary>
-            public int ProcessId { get; set; } = -1;
+            using var cts = new CancellationTokenSource(CommandTimeoutMs);
+            await client.ConnectAsync(cts.Token);
 
-            public static async Task<Dictionary<string, string>> GetProcessInfos(int ProcessId)
+            using var reader = new StreamReader(client, Encoding.UTF8);
+
+            Dictionary<string, string> infos = new();
+
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-                using var client = new NamedPipeClientStream(".", String.Format("devapps-{0}.infos", ProcessId), PipeDirection.In, PipeOptions.Asynchronous);
+                var split = line.Split(':', 2);
+                infos.Add(split[0].Trim(), split[1].Trim());
+            }
+
+            return infos;
+        }
+
+        public static async Task<string> RunCommand(int ProcessId, dynamic obj)
+        {
+            try
+            {
+                using var client = new NamedPipeClientStream(".", String.Format("devapps-{0}.commands", ProcessId), PipeDirection.InOut, PipeOptions.Asynchronous);
 
                 using var cts = new CancellationTokenSource(CommandTimeoutMs);
                 await client.ConnectAsync(cts.Token);
 
-                using var reader = new StreamReader(client, Encoding.UTF8);
+                string json = JsonConvert.SerializeObject(obj);
 
-                Dictionary<string, string> infos = new();
+                // client disposera writer et reader car il utilisent le même pipe (fermer writer ou reader ferme les 2)
+                using var writer = new StreamWriter(client, Encoding.UTF8, 1024, leaveOpen: true) { AutoFlush = true };
+                using var reader = new StreamReader(client, Encoding.UTF8, false, 1024, leaveOpen: true);
 
-                string? line;
-                while ((line = await reader.ReadLineAsync()) != null)
-                {
-                    var split = line.Split(':', 2);
-                    infos.Add(split[0].Trim(), split[1].Trim());
-                }
+                await writer.WriteLineAsync(json);
 
-                return infos;
+                var input = await reader.ReadLineAsync();
+
+                if (input == null)
+                    throw new Exception($"Aucune données fournit.");
+
+                return input;
             }
-            public static async Task<string> RunCommand(int ProcessId, dynamic obj)
+            catch (Exception ex)
             {
-                try
-                {
-                    using var client = new NamedPipeClientStream(".", String.Format("devapps-{0}.commands", ProcessId), PipeDirection.InOut, PipeOptions.Asynchronous);
-
-                    using var cts = new CancellationTokenSource(CommandTimeoutMs);
-                    await client.ConnectAsync(cts.Token);
-
-                    string json = JsonConvert.SerializeObject(obj);
-
-                    // client disposera writer et reader car il utilisent le même pipe (fermer writer ou reader ferme les 2)
-                    using var writer = new StreamWriter(client, Encoding.UTF8, 1024, leaveOpen: true) { AutoFlush = true };
-                    using var reader = new StreamReader(client, Encoding.UTF8, false, 1024, leaveOpen: true);
-
-                    await writer.WriteLineAsync(json);
-
-                    var input = await reader.ReadLineAsync();
-
-                    if (input == null)
-                        throw new Exception($"Aucune données fournit.");
-
-                    return input;
-                }
-                catch (Exception ex)
-                {
-                    return JsonConvert.SerializeObject(new CommandResult {  Data = null, Message = "Une erreur de communication est survenue." + ex.Message, Success = false});
-                }
-            }
-        }
-
-        public class SessionStateManager
-        {
-            // Dictionnaire pour stocker l'état par ID de session
-            private readonly ConcurrentDictionary<int, UserContext> _sessions = new();
-
-            public UserContext GetOrCreateContext(int sessionId)
-            {
-                return _sessions.GetOrAdd(sessionId, id => new UserContext());
-            }
-
-            public void RemoveContext(int sessionId)
-            {
-                _sessions.TryRemove(sessionId, out _);
-            }
-
-            public int NewSession()
-            {
-                int sessionId = 0;
-                do
-                {
-                    sessionId = Random.Shared.Next(1000, 9000);
-                } while (_sessions.ContainsKey(sessionId) == true);
-
-                _sessions[sessionId] = new UserContext();
-
-                return sessionId;
+                return JsonConvert.SerializeObject(new CommandResult { Data = null, Message = "Une erreur de communication est survenue." + ex.Message, Success = false });
             }
         }
 
@@ -131,8 +95,6 @@ namespace DevAppsMcp
             var builder = Host.CreateApplicationBuilder(args);
 
             builder.Logging.ClearProviders();
-
-            builder.Services.AddSingleton<SessionStateManager>();
 
             builder.Services.AddMcpServer()
                 .WithResources(new Dictionary<string, object>

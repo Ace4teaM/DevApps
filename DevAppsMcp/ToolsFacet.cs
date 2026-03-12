@@ -7,13 +7,6 @@ namespace DevAppsMcp
     [McpServerToolType]
     public class ToolsFacets
     {
-        private readonly SessionStateManager _stateManager;
-
-        public ToolsFacets(SessionStateManager stateManager)
-        {
-            _stateManager = stateManager;
-        }
-
         [McpServerTool, Description("move objet in view.")]
         public async Task<string> MoveObjectInFacet(
             [Description("identifiant du processus")] int processId,
@@ -26,7 +19,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new{ method = "Facets.MoveObject", parameters = new{ name, objectName, x, y, w, h} });
+            return await Program.RunCommand(processId, new{ method = "Facets.MoveObject", parameters = new{ name, objectName, x, y, w, h} });
         }
 
         [McpServerTool, Description("remove object in view.")]
@@ -37,7 +30,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.RemoveObject", parameters = new { name, objectName } });
+            return await Program.RunCommand(processId, new { method = "Facets.RemoveObject", parameters = new { name, objectName } });
         }
 
         [McpServerTool, Description("add object to view.")]
@@ -52,7 +45,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.AddObject", parameters = new { name, objectName, x, y, w, h } });
+            return await Program.RunCommand(processId, new { method = "Facets.AddObject", parameters = new { name, objectName, x, y, w, h } });
         }
 
         [McpServerTool, Description("remove geometry in view.")]
@@ -63,7 +56,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.RemoveGeometry", parameters = new { name, guid } });
+            return await Program.RunCommand(processId, new { method = "Facets.RemoveGeometry", parameters = new { name, guid } });
         }
 
         [McpServerTool, Description("add geometry in view.")]
@@ -76,7 +69,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.AddGeometry", parameters = new { name, path, x, y } });
+            return await Program.RunCommand(processId, new { method = "Facets.AddGeometry", parameters = new { name, path, x, y } });
         }
 
         [McpServerTool, Description("build facet.")]
@@ -86,7 +79,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.Build", parameters = new { name } });
+            return await Program.RunCommand(processId, new { method = "Facets.Build", parameters = new { name } });
         }
 
         [McpServerTool, Description("Get facet names.")]
@@ -95,7 +88,7 @@ namespace DevAppsMcp
          )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.GetNames", parameters = new { } });
+            return await Program.RunCommand(processId, new { method = "Facets.GetNames", parameters = new { } });
         }
 
         [McpServerTool, Description("Get facet summary.")]
@@ -105,7 +98,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.Summary", parameters = new { name } });
+            return await Program.RunCommand(processId, new { method = "Facets.Summary", parameters = new { name } });
         }
 
         [McpServerTool, Description("Get facet data.")]
@@ -115,7 +108,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.GetData", parameters = new { name } });
+            return await Program.RunCommand(processId, new { method = "Facets.GetData", parameters = new { name } });
         }
 
         [McpServerTool, Description("Create a new facet.")]
@@ -126,7 +119,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.Create", parameters = new { baseName, objectNames } });
+            return await Program.RunCommand(processId, new { method = "Facets.Create", parameters = new { baseName, objectNames } });
         }
 
         [McpServerTool, Description("Delete existing facet.")]
@@ -136,7 +129,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Facets.Delete", parameters = new { name } });
+            return await Program.RunCommand(processId, new { method = "Facets.Delete", parameters = new { name } });
         }
     }
 }

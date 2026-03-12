@@ -8,13 +8,6 @@ namespace DevAppsMcp
     [McpServerToolType]
     public class ToolsProject
     {
-        private readonly SessionStateManager _stateManager;
-
-        public ToolsProject(SessionStateManager stateManager)
-        {
-            _stateManager = stateManager;
-        }
-
         [McpServerTool, Description("Enum available processes.")]
         public async Task<string> EnumProcess()
         {
@@ -23,7 +16,7 @@ namespace DevAppsMcp
             {
                 try
                 {
-                    var infos = await UserContext.GetProcessInfos(proc.Id);
+                    var infos = await Program.GetProcessInfos(proc.Id);
                     processList.Add(new
                     {
                         Id = proc.Id,
@@ -52,7 +45,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Project.ReadDevLog", parameters = new {  } });
+            return await Program.RunCommand(processId, new { method = "Project.ReadDevLog", parameters = new {  } });
         }
 
         [McpServerTool, Description("Get project summary.")]
@@ -61,7 +54,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Project.Summary", parameters = new { } });
+            return await Program.RunCommand(processId, new { method = "Project.Summary", parameters = new { } });
         }
 
         [McpServerTool, Description("Get project data.")]
@@ -70,7 +63,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Project.GetData", parameters = new { } });
+            return await Program.RunCommand(processId, new { method = "Project.GetData", parameters = new { } });
         }
 
     }

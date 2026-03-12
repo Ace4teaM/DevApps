@@ -7,13 +7,6 @@ namespace DevAppsMcp
     [McpServerToolType]
     public class ToolsObjects
     {
-        private readonly SessionStateManager _stateManager;
-
-        public ToolsObjects(SessionStateManager stateManager)
-        {
-            _stateManager = stateManager;
-        }
-
         [McpServerTool, Description("Get object summary.")]
         public async Task<string> GetObjectSummary(
             [Description("identifiant du processus")] int processId,
@@ -21,7 +14,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Objects.Summary", parameters = new { name } });
+            return await Program.RunCommand(processId, new { method = "Objects.Summary", parameters = new { name } });
         }
 
         [McpServerTool, Description("Get object data.")]
@@ -31,7 +24,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Objects.GetData", parameters = new { name } });
+            return await Program.RunCommand(processId, new { method = "Objects.GetData", parameters = new { name } });
         }
 
         [McpServerTool, Description("Get object names.")]
@@ -40,7 +33,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Objects.GetNames", parameters = new { } });
+            return await Program.RunCommand(processId, new { method = "Objects.GetNames", parameters = new { } });
         }
 
         [McpServerTool, Description("Rename object.")]
@@ -51,7 +44,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Objects.Rename", parameters = new { name, newName } });
+            return await Program.RunCommand(processId, new { method = "Objects.Rename", parameters = new { name, newName } });
         }
 
         [McpServerTool, Description("Create a new object.")]
@@ -63,7 +56,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Objects.Create", parameters = new { baseName, description, tags } });
+            return await Program.RunCommand(processId, new { method = "Objects.Create", parameters = new { baseName, description, tags } });
         }
 
         [McpServerTool, Description("Delete existing object.")]
@@ -73,7 +66,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Objects.Delete", parameters = new { name } });
+            return await Program.RunCommand(processId, new { method = "Objects.Delete", parameters = new { name } });
         }
 
         [McpServerTool, Description("Duplicate an existing object.")]
@@ -83,7 +76,7 @@ namespace DevAppsMcp
             )
         {
             
-            return await UserContext.RunCommand(processId, new { method = "Objects.Duplicate", parameters = new { name } });
+            return await Program.RunCommand(processId, new { method = "Objects.Duplicate", parameters = new { name } });
         }
     }
 }
