@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using static Program;
 
 namespace DevApps.AI
 {
@@ -37,13 +37,17 @@ namespace DevApps.AI
             Program.DevVariable? model = null;
             Program.DevVariable? endpoint = null;
 
-            var handle = Program.DevVariable.mutexCheckVariableList.WaitOne();
-            if (handle)
+            try
             {
+                DevVariable._checkLock.Wait();
+
                 Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_API_KEY", out apiKey);
                 Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_MODEL", out model);//"gpt-4" ou "gpt-3.5-turbo"
                 Program.DevVariable.EnumPrivate().TryGetValue("CHATGPT_URL", out endpoint);//https://api.openai.com/v1/chat/completions
-                Program.DevVariable.mutexCheckVariableList.ReleaseMutex();
+            }
+            finally
+            {
+                DevVariable._checkLock.Release();
             }
 
             if (apiKey == null)
@@ -53,12 +57,12 @@ namespace DevApps.AI
 
             if (endpoint == null)
             {
-                endpoint = new Program.DevVariable { Value = "https://api.openai.com/v1/chat/completions" };
+                endpoint = new Program.DevVariable("endpoint", "https://api.openai.com/v1/chat/completions");
             }
 
             if (model == null)
             {
-                model = new Program.DevVariable { Value = "gpt-3.5-turbo" };
+                model = new Program.DevVariable("model", "gpt-3.5-turbo");
             }
 
             using HttpClient client = new HttpClient();

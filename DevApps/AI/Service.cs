@@ -114,14 +114,14 @@ namespace DevApps.AI
                     {
                         var response = iaTask.Result;
                         if (ChatGPT.TryParseError(response, out ChatGPT.ErrorResponse? errorResponse))
-                            MessageBox.Show(errorResponse?.error?.message);
+                            MessageBox.Show(GuiService.EditorWindow, errorResponse?.error?.message);
                         else
                             Program.ParseCommands(response);
                     });
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                     MessageBox.Show(ex.Message);
                 }
             }

@@ -264,7 +264,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -299,7 +299,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -327,7 +327,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -368,7 +368,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -398,7 +398,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur : " + ex.Message);
+                Program.Logger.WriteLine("Erreur : " + ex.Message);
             }
         }
 
@@ -420,7 +420,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}");
+                Program.Logger.WriteLine($"{ex.Message}");
                 throw;
             }
         }
@@ -463,10 +463,17 @@ namespace DevApps.GUI
         /// Invalide le visuel d'un objet dans la vue designer
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
-        internal static void Invalidate(string name)
+        internal static bool invalidateObject = false;
+        internal static void InvalidateObject(string name)
         {
             if (EditorWindow == null)
                 return;
+
+            // évite la répétition des invalidations lors d'appels multiples
+            if (invalidateObject == true)
+                return;
+
+            invalidateObject = true;
 
             dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
@@ -482,29 +489,62 @@ namespace DevApps.GUI
                             host.InvalidateVisual();
                         }
                     }
+
+                    invalidateObject = false;
                 })));
         }
 
         /// <summary>
         /// Invalide le visuel des états des objets dans la vue des objets
         /// </summary>
+        internal static bool invalidateObjectsStatus = false;
         internal static void InvalidateObjectsStatus()
         {
             if (EditorWindow == null)
                 return;
 
+            // évite la répétition des invalidations lors d'appels multiples
+            if (invalidateObjectsStatus == true)
+                return;
+
+            invalidateObjectsStatus = true;
+
             dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() =>
                 {
-                    if (EditorWindow?.Content is DesignerDataView)
+                    if (EditorWindow?.Content is DesignerDataView editor)
                     {
-                        var editor = (EditorWindow?.Content as DesignerDataView);
-                        if (editor != null)
-                        {
-                            editor.InvalidateObjectsStatus();
-                        }
+                        editor.InvalidateObjectsStatus();
+                        editor.InvalidatePointerVisual();
                     }
+
+                    invalidateObjectsStatus = false;
+                })));
+        }
+
+        internal static bool invalidateVariablesStatus = false;
+        internal static void InvalidateVariablesStatus()
+        {
+            if (EditorWindow == null)
+                return;
+
+            // évite la répétition des invalidations lors d'appels multiples
+            if (invalidateVariablesStatus == true)
+                return;
+
+            invalidateVariablesStatus = true;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() =>
+                {
+                    if (EditorWindow?.Content is DesignerVariablesView editor)
+                    {
+                        editor.InvalidateVariablesStatus();
+                    }
+
+                    invalidateVariablesStatus = false;
                 })));
         }
 
@@ -525,15 +565,103 @@ namespace DevApps.GUI
             return EditorWindow?.StatusText;
         }
 
+        internal static bool invalidateVariablesFlag = false;
+        internal static void InvalidateVariables()
+        {
+            if (EditorWindow == null)
+                return;
+
+            // évite la répétition des invalidations lors d'appels multiples
+            if (invalidateVariablesFlag == true)
+                return;
+
+            invalidateVariablesFlag = true;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+
+                    if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerVariablesView currentView)
+                    {
+                        currentView.InvalidateVariables();
+                    }
+
+                    invalidateVariablesFlag = false;
+                })));
+        }
+
+        internal static bool invalidateObjectsFlag = false;
+        internal static void InvalidateObjects()
+        {
+            if (EditorWindow == null)
+                return;
+
+            // évite la répétition des invalidations lors d'appels multiples
+            if (invalidateObjectsFlag == true)
+                return;
+
+            invalidateObjectsFlag = true;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+
+                    if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerDataView currentView)
+                    {
+                        currentView.InvalidateObjects();
+                    }
+
+                    if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerView facetView)
+                    {
+                        facetView.InvalidateObjects();
+                    }
+
+                    invalidateObjectsFlag = false;
+                })));
+        }
+
+        internal static bool invalidateFiles = false;
+        internal static void InvalidateFiles()
+        {
+            if (EditorWindow == null)
+                return;
+
+            // évite la répétition des invalidations lors d'appels multiples
+            if (invalidateFiles == true)
+                return;
+
+            invalidateFiles = true;
+
+            dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => {
+
+                    if (DevApps.GUI.GuiService.EditorWindow?.Content is DesignerFilesView filesView)
+                    {
+                        filesView.InvalidateItems();
+                    }
+
+                    invalidateFiles = false;
+                })));
+        }
+
+        internal static bool invalidateFacetsFlag = false;
         internal static void InvalidateFacets()
         {
             if (EditorWindow == null)
                 return;
 
+            // évite la répétition des invalidations lors lors d'appels multiples
+            if (invalidateFacetsFlag == true)
+                return;
+
+            invalidateFacetsFlag = true;
+
             dispatcherOperations.Add(EditorWindow.Dispatcher.BeginInvoke(
                 DispatcherPriority.Render,
                 new Action(() => {
                     EditorWindow?.InvalidateFacets();
+                    invalidateFacetsFlag = false;
                 })));
         }
 
@@ -676,15 +804,6 @@ namespace DevApps.GUI
             }
         }
 
-        internal static Program.DevFacet? GetSelectedFacet()
-        {
-            return EditorWindow?.Dispatcher.Invoke(
-                DispatcherPriority.Render,
-                new Func<Program.DevFacet?>(() => {
-                    return (EditorWindow?.Content as DesignerView)?.facette;
-                })) as Program.DevFacet;
-        }
-
         internal static bool OpenEditorOrDefault(Stream stream, string? editorKey = null, bool waitForUpdate = true)
         {
             string? fileExt = null;
@@ -722,7 +841,7 @@ namespace DevApps.GUI
                     editorPath = GuiService.externalsEditors[editor];
                 else
                 {
-                    MessageBox.Show("L'éditeur \"" + editorKey + "\" est introuvable, veuillez spécifier l'éditeur associé à cet objet ou renseigner l'éditeur dans les préférences", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(GuiService.EditorWindow, "L'éditeur \"" + editorKey + "\" est introuvable, veuillez spécifier l'éditeur associé à cet objet ou renseigner l'éditeur dans les préférences", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return false;
                 }
             }
@@ -730,7 +849,7 @@ namespace DevApps.GUI
             // exécute l'environnement de commandes
             if (editorPath == null)
             {
-                MessageBox.Show("Le type de donnée n'est pas reconnu ou l'éditeur est introuvable, veuillez spécifier l'éditeur associé à cet objet", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(GuiService.EditorWindow, "Le type de donnée n'est pas reconnu ou l'éditeur est introuvable, veuillez spécifier l'éditeur associé à cet objet", "Edition des données", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
@@ -766,7 +885,7 @@ namespace DevApps.GUI
                         return false;
 
                     // 
-                    if (MessageBox.Show("Voulez vous appliquer les modifications ?", "Edition des données", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    if (MessageBox.Show(GuiService.EditorWindow, "Voulez vous appliquer les modifications ?", "Edition des données", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
                     {
                         // récupère les données
                         file = File.OpenRead(tmpFile);
@@ -780,7 +899,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex.ToString());
+                Program.Logger.WriteLine(ex.ToString());
             }
 
             return false;

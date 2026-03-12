@@ -34,7 +34,7 @@ namespace DevApps.AI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return Array.Empty<byte>();
@@ -64,7 +64,7 @@ namespace DevApps.AI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return String.Empty;

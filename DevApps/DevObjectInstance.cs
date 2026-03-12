@@ -42,8 +42,8 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("load object data " + path + " failed");
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine("load object data " + path + " failed");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -68,8 +68,8 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("save object data " + path + " failed");
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine("save object data " + path + " failed");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -338,7 +338,7 @@ internal partial class Program
             {
                 if(p.Value == null)
                 {
-                    Console.WriteLine($"Fonction {p.Key} sans code ignoré");
+                    Program.Logger.WriteLine($"Fonction {p.Key} sans code ignoré");
                     continue;
                 }
                 AddFunction(p.Key, p.Value);
@@ -384,215 +384,95 @@ internal partial class Program
 
         public override void CompilDraw()
         {
-            var handle = mutexExecuteObjects.WaitOne();
-            if (handle)
+            if (String.IsNullOrWhiteSpace(drawCode.Item1) == false)
             {
-                try
-                {
-                    if (String.IsNullOrWhiteSpace(drawCode.Item1) == false)
-                    {
-                        var sourceCode = drawCode.Item1;
-                        ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
-                        CompiledCode compiled = source.Compile();
-                        drawCode = (sourceCode, compiled);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    mutexExecuteObjects.ReleaseMutex();
-                }
+                var sourceCode = drawCode.Item1;
+                ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
+                CompiledCode compiled = source.Compile();
+                drawCode = (sourceCode, compiled);
             }
         }
 
         public override void CompilObject()
         {
-            var handle = mutexExecuteObjects.WaitOne();
-            if (handle)
+            if (String.IsNullOrWhiteSpace(objectCode.Item1) == false)
             {
-                try
-                {
-                    if (String.IsNullOrWhiteSpace(objectCode.Item1) == false)
-                    {
-                        string sourceCode = objectCode.Item1;
-                        ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
-                        CompiledCode compiled = source.Compile();
-                        objectCode = (sourceCode, compiled);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    mutexExecuteObjects.ReleaseMutex();
-                }
+                string sourceCode = objectCode.Item1;
+                ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
+                CompiledCode compiled = source.Compile();
+                objectCode = (sourceCode, compiled);
             }
         }
 
         public override void CompilFunctions()
         {
-            var handle = mutexExecuteObjects.WaitOne();
-            if (handle)
+            foreach (var f in functions.ToArray())
             {
-                try
+                string functionCode = f.Value.Item1;
+                if (String.IsNullOrWhiteSpace(functionCode) == false)
                 {
-                    foreach (var f in functions.ToArray())
-                    {
-                        string functionCode = f.Value.Item1;
-                        if (String.IsNullOrWhiteSpace(functionCode) == false)
-                        {
-                            ScriptSource functionScript = Program.NativeEngine.CreateStatementsFromString(functionCode);
-                            CompiledCode functionCompiled = functionScript.Compile();
-                            functions[f.Key] = (functionCode, functionCompiled);
-                        }
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    mutexExecuteObjects.ReleaseMutex();
+                    ScriptSource functionScript = Program.NativeEngine.CreateStatementsFromString(functionCode);
+                    CompiledCode functionCompiled = functionScript.Compile();
+                    functions[f.Key] = (functionCode, functionCompiled);
                 }
             }
         }
 
         public override void CompilProperties()
         {
-            var handle = mutexExecuteObjects.WaitOne();
-            if (handle)
+            foreach (var f in properties.ToArray())
             {
-                try
+                string propertyCode = f.Value.Item1;
+                if (String.IsNullOrWhiteSpace(propertyCode) == false)
                 {
-                    foreach (var f in properties.ToArray())
-                    {
-                        string propertyCode = f.Value.Item1;
-                        if (String.IsNullOrWhiteSpace(propertyCode) == false)
-                        {
-                            ScriptSource propertyScript = Program.NativeEngine.CreateExpressionFromString(propertyCode);
-                            CompiledCode propertyCompiled = propertyScript.Compile();
-                            properties[f.Key] = (propertyCode, propertyCompiled);
-                        }
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    mutexExecuteObjects.ReleaseMutex();
+                    ScriptSource propertyScript = Program.NativeEngine.CreateExpressionFromString(propertyCode);
+                    CompiledCode propertyCompiled = propertyScript.Compile();
+                    properties[f.Key] = (propertyCode, propertyCompiled);
                 }
             }
         }
 
         public override void CompilUserAction()
         {
-            var handle = mutexExecuteObjects.WaitOne();
-            if (handle)
+            if (String.IsNullOrWhiteSpace(userAction.Item1) == false)
             {
-                try
-                {
-                    if (String.IsNullOrWhiteSpace(userAction.Item1) == false)
-                    {
-                        string sourceCode = userAction.Item1;
-                        ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
-                        CompiledCode compiled = source.Compile();
-                        userAction = (sourceCode, compiled);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    mutexExecuteObjects.ReleaseMutex();
-                }
+                string sourceCode = userAction.Item1;
+                ScriptSource source = Program.NativeEngine.CreateStatementsFromString(sourceCode);
+                CompiledCode compiled = source.Compile();
+                userAction = (sourceCode, compiled);
             }
         }
 
         public override void CompilLoop()
         {
-            var handle = mutexExecuteObjects.WaitOne();
-            if (handle)
+            if (String.IsNullOrWhiteSpace(loopMethod.Item1) == false)
             {
-                try
-                {
-                    if (String.IsNullOrWhiteSpace(loopMethod.Item1) == false)
-                    {
-                        string sampleCode = loopMethod.Item1;
-                        ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
-                        CompiledCode sampleCompiled = sampleScript.Compile();
-                        loopMethod = (sampleCode, sampleCompiled);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    mutexExecuteObjects.ReleaseMutex();
-                }
+                string sampleCode = loopMethod.Item1;
+                ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
+                CompiledCode sampleCompiled = sampleScript.Compile();
+                loopMethod = (sampleCode, sampleCompiled);
             }
         }
 
         public override void CompilInit()
         {
-            var handle = mutexExecuteObjects.WaitOne();
-            if (handle)
+            if (String.IsNullOrWhiteSpace(initMethod.Item1) == false)
             {
-                try
-                {
-                    if (String.IsNullOrWhiteSpace(initMethod.Item1) == false)
-                    {
-                        string sampleCode = initMethod.Item1;
-                        ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
-                        CompiledCode sampleCompiled = sampleScript.Compile();
-                        initMethod = (sampleCode, sampleCompiled);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    mutexExecuteObjects.ReleaseMutex();
-                }
+                string sampleCode = initMethod.Item1;
+                ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
+                CompiledCode sampleCompiled = sampleScript.Compile();
+                initMethod = (sampleCode, sampleCompiled);
             }
         }
 
         public override void CompilBuild()
         {
-            var handle = mutexExecuteObjects.WaitOne();
-            if (handle)
+            if (String.IsNullOrWhiteSpace(buildMethod.Item1) == false)
             {
-                try
-                {
-                    if (String.IsNullOrWhiteSpace(buildMethod.Item1) == false)
-                    {
-                        string sampleCode = buildMethod.Item1;
-                        ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
-                        CompiledCode sampleCompiled = sampleScript.Compile();
-                        buildMethod = (sampleCode, sampleCompiled);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    mutexExecuteObjects.ReleaseMutex();
-                }
+                string sampleCode = buildMethod.Item1;
+                ScriptSource sampleScript = Program.NativeEngine.CreateStatementsFromString(sampleCode);
+                CompiledCode sampleCompiled = sampleScript.Compile();
+                buildMethod = (sampleCode, sampleCompiled);
             }
         }
     }

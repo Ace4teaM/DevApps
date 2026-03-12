@@ -39,7 +39,7 @@ Pour ce faire:
 * Un **pointeur est un lien symbolique** vers un autre objet pas une dépendance forte (un nom relatif permet de l'identifier)
 * Un **moteur de script** unique permet à l'utilisateur de construire des données complexes et de dessiner la représentation visuel.
 
-## Codage
+## Architecture
 
 Technologies:
 
@@ -52,7 +52,7 @@ Technologies:
 
 **Comment la clause de non-intrusivité est elle respectée ?**
 
-Oui, car toutes les actions visant à modifier le projet cible est déclenché par l'utilisateur. A aucun moment le projet ciblé ne possède de dépendances ou de lien avec des fichiers générés.
+Oui, car toutes les actions visant à modifier le projet cible est déclenché par l'utilisateur. A aucun moment le projet ciblé ne possède de dépendances ou de lien fort avec des fichiers générés.
 
 **Pourquoi ne pas utiliser un assisant IA pour réaliser le même objectif ?**
 
@@ -62,7 +62,7 @@ DevApps centralise donc les efforts de l'utilisateur sur la conception et non la
 
 **Oui mais je peux demander à une IA de me lister les différentes options techniques, choisir l'une d'entre elles puis lui demander de l'implémenter ?**
 
-C'est vrai est l'IA est en pleine évolution. DevApps à cependant la qualité de maintenir une bibliothèque de connaissances indépendante et de pousser au processus créatif.
+C'est vrai est l'IA est en pleine évolution. DevApps à cependant la qualité de maintenir une bibliothèque de connaissances géré/hors-ligne/communautaire et de pousser au processus créatif. Que ferons nous si toute la connaissances sont aux mains de quelques sociétés de services exigeant un abonnement mensuel ?
 
 **Comment la clause de non-dépendance entre les projets est-elle assurée ?**
 
@@ -76,15 +76,69 @@ Car cela enfreint la clause de portabilité de la bibliothèque partagé et des 
 
 DevApps est disponible au téléchargement sous forme de **Release** au format **Windows Portable**
 
+# Conventions de codage
+
+Voici les règles à respecter pour maintenir le bon développement de l'application:
+
+1. Les **Features** sont les **fonctionnalités de l'application**. Ce sont des méthodes asynchrone qui interagissent de façon sûr avec les objets métiers. Elles peuvent levée des exceptions. Les Features servent de point d'entrée aux différents services pour manipuler de façon cohérente les objets métiers, mettre à jour l'interface et sauvegarder l'historique. **Les appels ne doivent pas êtres imbriqués** car ils utilisent les verrous internes de l'application. Les Features implémente les appels aux Records (Undo/Redo) et Invalidations (GUI)
+2. Les **Services** apportes des mécanismes internes pour manipuler les composants de l'application (*GUI*, *ServeurHTTP*, *Logs*...) les classes sont toujours **statics** et **thread-safe** et peuvent être appelés de n'importe où. `AI`, `Recorder`, `MPC`, `GUI` sont des services:
+   1. Le service **Commands** encadre dans une transaction d'enregistrements un ou plusieurs appels aux Features ou modifications du modèle métier
+   2. Le service **MCP** déclenche des commandes depuis le serveur Model Context Protocol (IA)
+   3. Le service **GUI** gère l'interface utilisateur
+   4. Le service **Log** gère les journaux de débogage
+   5. Le service **AI** gère le chat de discussion générative avec l'IA 
+   6. Le service **Record** gère l'enregistrement des modifications des objets métiers
+   7. Le service **Print** gère la génération du rendu PDF
+
+3. les **Objets** métiers sont implémenté à la racine de l'application. `DevObject`, `DevVariable`, `DevFacet`, `Dev...` sont des objets métiers. Ils gèrent leurs propres références et exposent des méthodes internes à accès direct (**non thread-safe, les lock doivent être gérés en amont par l'appelant**). Les méthodes des objets métiers ne se bloquent pas entre eux, les locks sont gérés en amont.
+4. les **Fichiers** externe peuvent être suivis avec un objet `DevFile`, ce n'est pas un objet métier mais il est fortement lié à l'objet métier du nom rapproché : `DevObjectFile`. `DevFile` implémente le suivi des modifications externe dans le système de fichier local, il est lié à un objet `DevObjectFile` pour mettre en correspondance les données. A chaque modification du fichier externe, `DevFile` copie le contenu du fichier dans le cache de `DevObjectFile` puis exécute la reconstruction (build) de son contenu (et l'arbre de dépendance) ce qui veut dire qu'à chaque modification le fichier est reconstruit en cache avec les éventuelles insertions de codes définit dans DevApps. Il revient ensuite à l'utilisateur d'appliquer ces modifications au fichier externe.
+5. **DevAppsExtension** est un module d'interface tiers (**third-party**)
+6. **ANTLR** implémente dans un module à part les **définitions des syntaxes des langages de programmation** interprétables nativement (optimise les phases de build)
+7. **DevAppsSetup** est un programme tiers permettant la configuration du système pour **installer et upgrader Devapps**
+8. **xxxxExtends** sont des modules d'extensions optionnels chargé par DevApps (**un projet ne dépend jamais d'un module d'extension**)
+
 # Workflow
 
 DevApps est un projet open-source sans financement. Il initialement basé sur un projet de **Fast-Coding**, on part d'un concept simple et on l'implémente le plus rapidement possible pour avoir un premier retour d'expérience positif/négatif et décider de l'avenir du projet.
 
 Aujourd'hui la base de code commence à grandir est DevApps a besoin d'un Workflow pour améliorer la qualité et la direction du projet.
 
-## Hébergement
+## Hébergement (Dêpot)
 
 DevApps est hébergé sur GitHub et cette plateforme propose un système d'intégration continue personnalisable : les GitHub Actions.
+
+## Configuration MPC (Claude Desktop)
+
+Permettre à claude de cibler le projet de développement en *debug* ou *release* (adaptez les chemins).
+
+`%AppData%\Claude\claude_desktop_config.json`
+
+ou
+
+`%AppData%\Local\Packages\Claude_[xxxxxxxx]\LocalCache\Roaming\Claude` (si installé via le Microsoft Store)
+
+```json
+{
+  "mcpServers": {
+    "devapps": {
+      "command": "C:\\Users\\aceteam\\source\\repos\\DevApps\\DevApps\\bin\\Debug\\net9.0-windows\\DevApps.exe",
+      "args": [
+        "-b",
+        "-i",
+        "-d E:\\tests\\devapps-mcp-project",
+        "-w"
+      ]
+    },
+    "devapps-debug": {
+      "command": "dotnet",
+      "args": ["run", "--project", "C:\\Users\\aceteam\\source\\repos\\DevApps\\DevApps\\DevApps.csproj"],
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
+```
 
 ## Actions manuelles
 

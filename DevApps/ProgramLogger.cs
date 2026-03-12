@@ -1,7 +1,4 @@
-﻿using ComponentAce.Compression.Libs.ZLib;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Serializer;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace DevApps
@@ -15,73 +12,18 @@ namespace DevApps
     /// </remarks>
     internal class ProgramLogger : System.IO.TextWriter
     {
-        public class RedirectStream : Stream
-        {
-            internal required ProgramLogger logger;
-
-            public override bool CanRead => false;
-            public override bool CanSeek => false;
-            public override bool CanWrite => true;
-
-            public override long Length => 0;
-
-            public override long Position
-            {
-                get => 0;
-                set{}
-            }
-
-            public override void Flush()
-            {
-                // Rien à faire ici (pas de buffer externe)
-            }
-
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                return 0;
-            }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            {
-                try
-                {
-                    var text = Encoding.UTF8.GetString(buffer, offset, count);
-                    logger.Write(text);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                return 0;
-            }
-
-            public override void SetLength(long value)
-            {
-            }
-
-            public byte[] ToArray() => Array.Empty<byte>();
-        }
-
-        internal static ProgramLogger Instance { get; } = new ProgramLogger();
-
-        public static string LogFile => ".devapps.log";
-
-        internal FileStream writer = new FileStream(LogFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-        internal FileStream reader = new FileStream(LogFile, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
-        internal RedirectStream redirect;
+        internal FileStream writer;
+        internal FileStream reader;
 
         public override Encoding Encoding => Encoding.UTF8;
 
         // Événement optionnel pour suivre l'écriture
         public event EventHandler<string>? TextWritten;
 
-        public ProgramLogger()
+        public ProgramLogger(string filename)
         {
-            redirect = new RedirectStream() { logger = this };
+            writer = new FileStream(filename, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+            reader = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
         }
 
         public bool ReadNext(out string line)
@@ -195,7 +137,7 @@ namespace DevApps
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
     }

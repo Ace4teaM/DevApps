@@ -11,7 +11,7 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerCommandsView.xaml
     /// </summary>
-    public partial class DesignerCommandsView : UserControl, INotifyPropertyChanged, IKeyCommand
+    public partial class DesignerCommandsView : UserControl, INotifyPropertyChanged, IKeyCommand, IInvalidableView
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -128,6 +128,10 @@ namespace DevApps.GUI
             }
         }
 
+        public void InvalidateContent()
+        {
+            InvalidateItems();
+        }
         internal void InvalidateItems()
         {
             items.Clear();
@@ -175,7 +179,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
             }
         }
@@ -229,7 +233,7 @@ namespace DevApps.GUI
                 }
                 else
                 {
-                    Console.WriteLine($"Command group '{name}' not found.");
+                    Program.Logger.WriteLine($"Command group '{name}' not found.");
                 }
             }
         }

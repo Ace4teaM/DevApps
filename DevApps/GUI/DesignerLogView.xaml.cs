@@ -17,9 +17,14 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerLogView.xaml
     /// </summary>
-    public partial class DesignerLogView : UserControl, INotifyPropertyChanged
+    public partial class DesignerLogView : UserControl, INotifyPropertyChanged, IInvalidableView
     {
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public void InvalidateContent()
+        {
+            // todo Invalide tous le contenu
+        }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -223,7 +228,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
             }
 
@@ -293,7 +298,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Program.Logger.WriteLine(ex);
                 }
             }
         }

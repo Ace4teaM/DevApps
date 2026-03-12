@@ -14,7 +14,7 @@ namespace DevApps
         /// <param name="predicate"></param>
         /// <param name="path"></param>
         /// <param name="action"></param>
-        internal static int ApplyAllObjects(Func<DevObjectInstance, bool> predicate, string path, Func<string,DevObjectInstance,bool> action)// = Program.CommonDataPath
+        internal static int ApplyAllObjects(Func<DevObjectInstance, bool> predicate, string path, Func<string,string,DevObjectInstance,bool> action)// = Program.CommonDataPath
         {
             int count = 0;
             try
@@ -35,7 +35,7 @@ namespace DevApps
                         JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
                         serializer.Error += (sender, e) =>
                         {
-                            System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                            Program.Logger.WriteLine(e.ErrorContext.Error.ToString());
                         };
 
                         var proj = new Serializer.DevExternalProject();
@@ -49,7 +49,7 @@ namespace DevApps
                         {
                             if (predicate.Invoke(o.Value))
                             {
-                                if (action.Invoke(dir, o.Value))
+                                if (action.Invoke(dir, o.Key, o.Value))
                                 {
                                     count++;
                                     save = true;
@@ -75,8 +75,8 @@ namespace DevApps
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"Erreur lors de la sauvegarde du projet {filename}.");
-                                Console.WriteLine(ex.Message);
+                                Program.Logger.WriteLine($"Erreur lors de la sauvegarde du projet {filename}.");
+                                Program.Logger.WriteLine(ex.Message);
                             }
                         }
                     }
@@ -88,7 +88,7 @@ namespace DevApps
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return count;
@@ -114,7 +114,7 @@ namespace DevApps
                         JsonSerializer serializer = JsonSerializer.CreateDefault();
                         serializer.Error += (sender, e) =>
                         {
-                            System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                            Program.Logger.WriteLine(e.ErrorContext.Error.ToString());
                         };
 
                         var proj = new Serializer.DevExternalProject();
@@ -140,7 +140,7 @@ namespace DevApps
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return list.Count;

@@ -1,4 +1,5 @@
-﻿using Microsoft.Scripting.Utils;
+﻿using DevApps.Commands;
+using Microsoft.Scripting.Utils;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -13,7 +14,7 @@ namespace DevApps.GUI
     /// <summary>
     /// Logique d'interaction pour DesignerFilesView.xaml
     /// </summary>
-    public partial class DesignerFilesView : UserControl, INotifyPropertyChanged, IKeyCommand
+    public partial class DesignerFilesView : UserControl, INotifyPropertyChanged, IKeyCommand, IInvalidableView
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -69,6 +70,11 @@ namespace DevApps.GUI
             }
         }
 
+        public void InvalidateContent()
+        {
+            InvalidateItems();
+        }
+
         internal void InvalidateItems()
         {
             items.Clear();
@@ -122,22 +128,22 @@ namespace DevApps.GUI
 
                 if (String.IsNullOrWhiteSpace(path) == true)
                 {
-                    MessageBox.Show("Le nom de fichier n'est pas valide", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show(GuiService.EditorWindow, "Le nom de fichier n'est pas valide", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return false;
                 }
                 if (path.StartsWith(data) == true)
                 {
-                    MessageBox.Show("Le fichier ne peut pas être dans le répertoire du cache", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show(GuiService.EditorWindow, "Le fichier à surveiller ne peut pas être dans le répertoire du cache", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return false;
                 }
                 if (path.StartsWith(wdir) == false)
                 {
-                    MessageBox.Show("Le fichier ne peut pas être en dehors du répertoire de travail", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show(GuiService.EditorWindow, "Le fichier à surveiller ne peut pas être en dehors du répertoire de travail", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return false;
                 }
                 if (Path.GetFileName(path) == Filename)
                 {
-                    MessageBox.Show("Le fichier ne peut pas être le fichier du projet", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show(GuiService.EditorWindow, "Le fichier à surveiller ne peut pas être le fichier du projet", "Emplacement invalide", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return false;
                 }
             }
@@ -145,44 +151,78 @@ namespace DevApps.GUI
             return true;
         }
 
+        /// <summary>
+        /// Crée une référence vers les fichiers spécifiés et copie leur contenu dans le cache du projet, puis crée les objets correspondants et les compile
+        /// </summary>
+        /// <param name="filenames"></param>
         private void AddFromFile(params string[] filenames)
         {
-            foreach (var filename in filenames)
-            {
-                var name = Path.GetFileNameWithoutExtension(filename);
-                Program.DevObject.MakeUniqueName(ref name, null);
-
-                // Crée l'objet
-                var obj = new DevObjectFile(Path.Combine(DataDir, name));
-
-                var ext = Path.GetExtension(filename);
-                if (ext.Length > 1)
-                    obj.tags = new HashSet<string>([ext.Substring(1)]);
-
-                // Détermine le dessin de l'objet en fonction des tags
-                obj.drawCode = DevObject.DrawCodeFromExt(ext);
-
-                // Crée la référence vers le fichier
-                var file = new DevFile(Path.GetRelativePath(Environment.CurrentDirectory, filename), name);
-
-                obj.Description = file.Filename;
-
-                // Ajoute aux références
-                Program.DevFile.References.Add(file.filename, file);
-                Program.DevObject.References.Add(name, obj);
-
-                // Copie le contenu du fichier
-                if (File.Exists(file.Filename) && obj.filename != null)
+            CommandsService.Run(
+                "create references from files",
+                () =>
                 {
-                    File.Copy(file.Filename, obj.filename, true);
-                    obj.LoadContent();
+                    try
+                    {
+                        DevObject._executeLock.Wait();
+
+                        try
+                        {
+                            DevObject._checkLock.Wait();
+
+                            foreach (var filename in filenames)
+                            {
+                                var name = Path.GetFileNameWithoutExtension(filename);
+                                Program.DevObject.MakeUniqueName(ref name, null);
+
+                                // Crée l'objet de flux qui comportera une copie des données du fichier externe
+                                var obj = new DevObjectFile(Path.Combine(DataDir, name));
+
+                                var ext = Path.GetExtension(filename);
+                                if (ext.Length > 1)
+                                    obj.tags = new HashSet<string>([ext.Substring(1)]);
+
+                                // Détermine le dessin de l'objet en fonction des tags
+                                obj.drawCode = DevObject.DrawCodeFromExt(ext);
+
+                                // Crée la référence vers le fichier
+                                var file = new DevFile(Path.GetRelativePath(Environment.CurrentDirectory, filename), name);
+
+                                obj.Description = file.Filename;
+
+                                // Ajoute aux références
+                                Program.DevFile.References.Add(file.filename, file);
+                                Program.DevObject.References.Add(name, obj);
+
+                                // Copie le contenu du fichier
+                                if (File.Exists(file.Filename) && obj.filename != null)
+                                {
+                                    File.Copy(file.Filename, obj.filename, true);
+                                    obj.LoadContent();
+                                }
+
+                                // enregistre les insertions
+                                using var objRec = DevObjectFile.Recorder.New(name, obj);
+                                //using var fileRec = DevFile.Recorder.New(file.filename, file); //todo associer directement à l'objet et déplacer sa gestion dans OnCreate/OnDelete
+                                //obj.OnCreate();
+
+                                Program.DevObject.CompilObjects([obj]);
+                            }
+
+                            Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
+                        }
+                    }
+                    finally
+                    {
+                        DevObject._executeLock.Release();
+                    }
+
+                    GuiService.InvalidateFiles();
                 }
-
-                Program.DevObject.CompilObjects([obj]);
-            }
-
-            Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
-            InvalidateItems();
+            ).Wait();
         }
 
 
@@ -225,9 +265,28 @@ namespace DevApps.GUI
                     Program.DevFile.References.Remove(name);
                     file.Dispose();
 
-                    if (Program.DevObject.References.TryGetValue(file.objectname, out var obj))
+                    try
                     {
-                        Program.DevObject.DeleteObject(file.objectname);
+                        DevObject._executeLock.Wait();
+
+                        try
+                        {
+                            DevObject._checkLock.Wait();
+
+                            if (Program.DevObject.TryGet(file.objectname, out var obj))
+                            {
+                                Program.DevObject.DeleteObject(file.objectname);
+                            }
+
+                        }
+                        finally
+                        {
+                            DevObject._checkLock.Release();
+                        }
+                    }
+                    finally
+                    {
+                        DevObject._executeLock.Release();
                     }
                 }
             }
@@ -235,24 +294,48 @@ namespace DevApps.GUI
             InvalidateItems();
         }
 
+        /// <summary>
+        /// Applique les modifications de l'objet sur le fichier externe
+        /// </summary>
+        /// <remarks>
+        /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
+        /// </remarks>
         private void ExecuteObject()
         {
             var selection = dataGrid.SelectedItems.OfType<TabItem>().Select(p => p.Filename ?? String.Empty).ToArray();
 
-            foreach (var name in selection)
+            try
             {
-                if (Program.DevFile.References.TryGetValue(name, out var file))
+                DevObject._executeLock.Wait();
+
+                try
                 {
-                    // différent ?
-                    if (file.Diff())
+                    DevObject._checkLock.Wait();
+
+                    foreach (var name in selection)
                     {
-                        file.Write();
-                    }
-                    else
-                    {
-                        Console.WriteLine("Pas de difference entre les fichiers.");
+                        if (Program.DevFile.References.TryGetValue(name, out var file))
+                        {
+                            // différent ?
+                            if (file.Diff() == true)
+                            {
+                                file.Write();
+                            }
+                            else
+                            {
+                                Program.Logger.WriteLine("Pas de difference entre les fichiers.");
+                            }
+                        }
                     }
                 }
+                finally
+                {
+                    DevObject._checkLock.Release();
+                }
+            }
+            finally
+            {
+                DevObject._executeLock.Release();
             }
         }
 
@@ -273,6 +356,13 @@ namespace DevApps.GUI
             }
         }
 
+        /// <summary>
+        /// Recrée l'objet de fichier en cas de changement de nom de la source
+        /// </summary>
+        /// <param name="filename">Nom du fichier existant</param>
+        /// <param name="objectname">Nom de l'objet existant</param>
+        /// <param name="newFilename">Nouveau nom de fichier</param>
+        /// <returns></returns>
         private bool RecreateFileEntry(string filename, string objectname, string newFilename)
         {
             var path = Path.GetFullPath(newFilename);
@@ -294,7 +384,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
 
             return false;
@@ -316,54 +406,50 @@ namespace DevApps.GUI
                     var text = textBox?.Text;
                     if (text != null && textBox != null && item != null)
                     {
-                        var handle = Program.DevFile.mutexCheckList.WaitOne();
-                        if (handle)
+                        try
                         {
-                            try
-                            {
-                                Program.DevFile.References.TryGetValue(item.Filename, out var reference);
+                            Program.DevFile._checkLock.Wait();
 
-                                if (reference != null)
+                            if (Program.DevFile.TryGet(item.Filename, out var reference))
+                            {
+                                if (e.Column.Header.ToString() == "Fichier")
                                 {
-                                    if (e.Column.Header.ToString() == "Fichier")
+                                    if (text != item.Filename)
                                     {
-                                        if (text != item.Filename)
+                                        if (RecreateFileEntry(item.Filename, item.ObjectName, text))
                                         {
-                                            if (RecreateFileEntry(item.Filename, item.ObjectName, text))
-                                            {
-                                                // renomme l'objet
-                                                item.Filename = text;
-                                            }
-                                            else
-                                            {
-                                                // annule et rétablit l'ancienne valeur
-                                                textBox.Text = item.Filename;
-                                                e.Cancel = true;
-                                            }
+                                            // renomme l'objet
+                                            item.Filename = text;
+                                        }
+                                        else
+                                        {
+                                            // annule et rétablit l'ancienne valeur
+                                            textBox.Text = item.Filename;
+                                            e.Cancel = true;
                                         }
                                     }
-                                    else if (e.Column.Header.ToString() == "Objet")
-                                    {
-                                        item.ObjectName = text;
-                                        reference.objectname = text;
-                                    }
+                                }
+                                else if (e.Column.Header.ToString() == "Objet")
+                                {
+                                    item.ObjectName = text;
+                                    reference.objectname = text;
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.Message);
-                            }
-                            finally
-                            {
-                                Program.DevFile.mutexCheckList.ReleaseMutex();
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Program.Logger.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            Program.DevFile._checkLock.Release();
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
             IsEditing = false;
         }

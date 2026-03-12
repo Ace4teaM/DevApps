@@ -1,9 +1,15 @@
 ﻿using DevApps.Scripts;
-using static Program;
+using Newtonsoft.Json;
 
 namespace Serializer
 {
-    internal class DevVariable
+    internal interface ISerialisable
+    {
+        [Newtonsoft.Json.JsonIgnore]
+        public object Content { get; set; }
+    }
+
+    internal class DevVariable : ISerialisable
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevVariable content;
@@ -16,6 +22,21 @@ namespace Serializer
         {
             this.content = content;
         }
+        public object Content
+        {
+            get => content;
+            set => content = (Program.DevVariable)value;
+        }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+
+        public static implicit operator DevVariable(Program.DevVariable content)
+        {
+            return new DevVariable(content);
+        }
 
         /// <summary>
         /// Description de l'objet (optionnel)
@@ -24,9 +45,23 @@ namespace Serializer
         /// <summary>
         /// Valeur de l'objet
         /// </summary>
-        public object Value { get { return content.Value; } set { content.Value = value; } }
+        public string Value { get { return content.Value.ToString(); } set { content.Value = Program.DevVariable.Variant.Parse(value); } }
     }
-    internal class DevObjectInstance
+
+    internal class DevObject : ISerialisable
+    {
+        public static implicit operator DevObject(Program.DevObject content)
+        {
+            if (content.IsReference)
+                return new DevObjectReference((Program.DevObjectReference)content);
+            if (content.IsFile)
+                return new DevObjectFile((Program.DevObjectFile)content);
+            return new DevObjectInstance((Program.DevObjectInstance)content);
+        }
+        public virtual object Content { get; set; }
+    }
+
+    internal class DevObjectInstance : DevObject, ISerialisable
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevObjectInstance content;
@@ -39,14 +74,24 @@ namespace Serializer
         {
             this.content = content;
         }
+        public override object Content
+        {
+            get => content;
+            set => content = (Program.DevObjectInstance)value;
+        }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
 
         public Guid? BaseGuid { get { return content.baseGuid; } set { content.baseGuid = value; } }
         public Guid? Guid { get { return content.guid; } set { content.guid = value; } }
-        public HashSet<string> Tags { get { return content.tags; } set { content.tags = value; } }
+        public string[] Tags { get { return content.tags.ToArray(); } set { content.tags = new HashSet<string>(value); } }
         public String Description { get { return content.Description; } set { content.Description = value; } }
         public String InitialDataBase64 { get { return content.InitialDataBase64; } set { content.InitialDataBase64 = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
-        public KeyValuePair<string, Program.DevObjectInstance.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, DevObject.Pointer>(value); } }
+        public KeyValuePair<string, Program.DevObjectInstance.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, Program.DevObject.Pointer>(value); } }
         public KeyValuePair<string, string?>[] Functions { get { return content.functions.Select(p=>new KeyValuePair<string,string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.functions = new Dictionary<string, (string, CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value ?? string.Empty,null)))); } }
         public KeyValuePair<string, string?>[] Properties { get { return content.properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.properties = new Dictionary<string, (string, CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value ?? string.Empty, null)))); } }
         public string UserAction { get { return content.userAction.Item1; } set { content.userAction = (value,null); } }
@@ -57,7 +102,7 @@ namespace Serializer
         public string DrawCode { get { return content.drawCode.Item1; } set { content.drawCode = (value, null); } }
     }
 
-    internal class DevObjectReference
+    internal class DevObjectReference : DevObject, ISerialisable
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevObjectReference content;
@@ -70,6 +115,17 @@ namespace Serializer
         {
             this.content = content;
         }
+        public override object Content
+        {
+            get => content;
+            set => content = (Program.DevObjectReference)value;
+        }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+
         public String Description { get { return content.Description; } set { content.Description = value; } }
         public String InitialDataBase64 { get { return content.InitialDataBase64; } set { content.InitialDataBase64 = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
@@ -77,10 +133,21 @@ namespace Serializer
         public KeyValuePair<string, string>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, string>(value); } }
     }
 
-    internal class DevObjectFile
+    internal class DevObjectFile : DevObject, ISerialisable
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevObjectFile content;
+
+        public override object Content
+        {
+            get => content;
+            set => content = (Program.DevObjectFile)value;
+        }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
 
         public DevObjectFile()
         {
@@ -91,11 +158,16 @@ namespace Serializer
             this.content = content;
         }
 
-        public HashSet<string> Tags { get { return content.tags; } set { content.tags = value; } }
+        public static implicit operator DevObjectFile(Program.DevObjectFile content)
+        {
+            return new DevObjectFile(content);
+        }
+
+        public string[] Tags { get { return content.tags.ToArray(); } set { content.tags = new HashSet<string>(value); } }
         public String? Filename { get { return content.filename; } set { content.filename = value; } }
         public String Description { get { return content.Description; } set { content.Description = value; } }
         public String? Editor { get { return content.Editor; } set { content.Editor = value; } }
-        public KeyValuePair<string, Program.DevObjectFile.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, DevObject.Pointer>(value); } }
+        public KeyValuePair<string, Program.DevObjectFile.Pointer>[] Pointers { get { return content.pointers.ToArray(); } set { content.pointers = new Dictionary<string, Program.DevObject.Pointer>(value); } }
         public KeyValuePair<string, string?>[] Functions { get { return content.functions.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.functions = new Dictionary<string, (string, CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value ?? string.Empty, null)))); } }
         public KeyValuePair<string, string?>[] Properties { get { return content.properties.Select(p => new KeyValuePair<string, string?>(p.Key, p.Value.Item1)).ToArray(); } set { content.properties = new Dictionary<string, (string, CompiledCode?)>(value.Select(p => new KeyValuePair<string, (string, CompiledCode?)>(p.Key, (p.Value ?? string.Empty, null)))); } }
         public string UserAction { get { return content.userAction.Item1; } set { content.userAction = (value, null); } }
@@ -106,7 +178,7 @@ namespace Serializer
         public string DrawCode { get { return content.drawCode.Item1; } set { content.drawCode = (value, null); } }
     }
 
-    internal class DevCommands
+    internal class DevCommands : ISerialisable
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevCommandGroup content;
@@ -119,12 +191,29 @@ namespace Serializer
         {
             this.content = content;
         }
+
+        public object Content
+        {
+            get => content;
+            set => content = (Program.DevCommandGroup)value;
+        }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+
+        public static implicit operator DevCommands(Program.DevCommandGroup content)
+        {
+            return new DevCommands(content);
+        }
+
         public String Label { get { return content.Label; } set { content.Label = value; } }
         public String Output { get { return content.Output; } set { content.Output = value; } }
         public String Commands { get { return content.Content; } set { content = Program.DevCommandGroup.FromString(content.Label, content.Output, value); } }
     }
 
-    internal class DevFacet
+    internal class DevFacet : ISerialisable
     {
         [Newtonsoft.Json.JsonIgnore]
         internal Program.DevFacet content;
@@ -136,6 +225,22 @@ namespace Serializer
         public DevFacet(Program.DevFacet content)
         {
             this.content = content;
+        }
+
+        public object Content
+        {
+            get => content;
+            set => content = (Program.DevFacet)value;
+        }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
+        }
+
+        public static implicit operator DevFacet(Program.DevFacet content)
+        {
+            return new DevFacet(content);
         }
 
         public System.Windows.Rect Description { get { return content.PrintLayout; } set { content.PrintLayout = value; } }

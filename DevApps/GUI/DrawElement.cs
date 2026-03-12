@@ -1,5 +1,4 @@
-﻿using DevApps.Scripts;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -45,19 +44,18 @@ namespace DevApps.GUI
         /// <param name="position">Position du curseur dans le Canvas</param>
         internal void RunAction(Point position)
         {
-            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
+            try
             {
-                Program.DevObject.References.TryGetValue(this.Name, out var reference);
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                DevObject._checkLock.Wait();
 
-                if (reference != null)
+                if (Program.DevObject.TryGet(this.Name, out var reference))
                 {
                     if (String.IsNullOrEmpty(reference.GetUserAction()) == false)
                     {
-                        var handle2 = reference.mutexReadOutput.WaitOne();
-                        if (handle2)
+                        try
                         {
+                            reference._readOutput.Wait();
+
                             var engine = reference.UserAction.Item2?.Engine;
                             if (engine != null)
                             {
@@ -79,19 +77,28 @@ namespace DevApps.GUI
                                 }
                                 catch (Exception ex)
                                 {
-                                    System.Console.WriteLine("******************************************");
-                                    System.Console.WriteLine("RunAction: " + this.Name);
-                                    System.Console.WriteLine(engine.FormatError(ex));
-                                    System.Console.WriteLine("******************************************");
+                                    Program.Logger.WriteLine("******************************************");
+                                    Program.Logger.WriteLine("RunAction: " + this.Name);
+                                    Program.Logger.WriteLine(engine.FormatError(ex));
+                                    Program.Logger.WriteLine("******************************************");
                                 }
                             }
-                            reference.mutexReadOutput.ReleaseMutex();
                         }
+                        finally
+                        {
+                            reference._readOutput.Release();
+                        }
+
 
                         this.InvalidateVisual();
                     }
                 }
             }
+            finally
+            {
+                DevObject._checkLock.Release();
+            }
+
         }
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
@@ -109,13 +116,11 @@ namespace DevApps.GUI
 
             base.OnRender(drawingContext);
 
-            var handle = Program.DevObject.mutexCheckObjectList.WaitOne();
-            if (handle)
+            try
             {
-                Program.DevObject.References.TryGetValue(this.Name, out var reference);
-                Program.DevObject.mutexCheckObjectList.ReleaseMutex();
+                DevObject._checkLock.Wait();
 
-                if (facet != null && reference != null)
+                if (facet != null && Program.DevObject.TryGet(this.Name, out var reference))
                 {
                     var ContentWidth = this.ActualWidth;
                     var ContentHeight = this.ActualHeight;
@@ -170,9 +175,10 @@ namespace DevApps.GUI
                     // Execute le script de dessin
                     if (reference.DrawCode.Item2 != null)
                     {
-                        var handle2 = reference.mutexReadOutput.WaitOne();
-                        if (handle2)
+                        try
                         {
+                            reference._readOutput.Wait();
+
                             var engine = reference.DrawCode.Item2?.Engine;
                             if (engine != null)
                             {
@@ -198,17 +204,24 @@ namespace DevApps.GUI
                                 }
                                 catch (Exception ex)
                                 {
-                                    System.Console.WriteLine("******************************************");
-                                    System.Console.WriteLine("OnRender: " + this.Name);
-                                    System.Console.WriteLine(engine.FormatError(ex));
-                                    System.Console.WriteLine("******************************************");
+                                    Program.Logger.WriteLine("******************************************");
+                                    Program.Logger.WriteLine("OnRender: " + this.Name);
+                                    Program.Logger.WriteLine(engine.FormatError(ex));
+                                    Program.Logger.WriteLine("******************************************");
                                 }
                             }
-
-                            reference.mutexReadOutput.ReleaseMutex();
                         }
+                        finally
+                        {
+                            reference._readOutput.Release();
+                        }
+
                     }
                 }
+            }
+            finally
+            {
+                DevObject._checkLock.Release();
             }
         }
     }

@@ -29,8 +29,8 @@ namespace DevApps.Scripts
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("write_bytes(): Failed to write in output");
-                System.Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine("write_bytes(): Failed to write in output");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 

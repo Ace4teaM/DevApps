@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32;
+﻿using DevApps.Commands;
+using DevApps.Record;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -188,7 +190,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors du chargement des ressources : " + ex.Message);
+                Program.Logger.WriteLine("Erreur lors du chargement des ressources : " + ex.Message);
             }
 
             InitializeComponent();
@@ -250,8 +252,8 @@ namespace DevApps.GUI
                             var path = key.GetValue(null, null)?.ToString();
                             if(path == null)
                             {
-                                Console.WriteLine("DevAppsSetup n'est pas installé ou n'est pas enregistré au registre");
-                                Console.WriteLine("Veuillez d'abord executer DevAppsSetup.exe");
+                                Program.Logger.WriteLine("DevAppsSetup n'est pas installé ou n'est pas enregistré au registre");
+                                Program.Logger.WriteLine("Veuillez d'abord executer DevAppsSetup.exe");
                                 return;
                             }
                             else
@@ -264,7 +266,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Erreur : " + ex.Message);
+                    Program.Logger.WriteLine("Erreur : " + ex.Message);
                 }
             };
             menu.Items.Add(m);
@@ -288,7 +290,7 @@ namespace DevApps.GUI
                         JsonSerializer serializer = JsonSerializer.CreateDefault();
                         serializer.Error += (sender, e) =>
                         {
-                            System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                            Program.Logger.WriteLine(e.ErrorContext.Error.ToString());
                         };
 
                         var proj = new Serializer.DevExternalProject();
@@ -311,7 +313,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -333,7 +335,7 @@ namespace DevApps.GUI
                             JsonSerializer serializer = JsonSerializer.CreateDefault();
                             serializer.Error += (sender, e) =>
                             {
-                                System.Console.WriteLine(e.ErrorContext.Error.ToString());
+                                Program.Logger.WriteLine(e.ErrorContext.Error.ToString());
                             };
 
                             var proj = new Serializer.DevExternalProject();
@@ -392,7 +394,7 @@ namespace DevApps.GUI
                                 }
                                 catch (Exception ex2)
                                 {
-                                    Console.WriteLine(ex2.Message);
+                                    Program.Logger.WriteLine(ex2.Message);
                                 }
                             }
 
@@ -404,8 +406,27 @@ namespace DevApps.GUI
                                 Program.DevFacet.References.Add(name, o.Value.content);
                             }
 
-                            Program.DevObject.CompilObjects(proj.Objects.Select(p=>p.Value.content));
-                            Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                            try
+                            {
+                                DevObject._executeLock.Wait();
+
+                                try
+                                {
+                                    DevObject._checkLock.Wait();
+
+                                    Program.DevObject.CompilObjects(proj.Objects.Select(p => p.Value.content));
+                                    Program.DevObject.Init();// initialise les objets qui ne le sont pas encore
+                                }
+                                finally
+                                {
+                                    DevObject._checkLock.Release();
+                                }
+                            }
+                            finally
+                            {
+                                DevObject._executeLock.Release();
+                            }
+
                             GuiService.InvalidateFacets();
                         };
                         menu.Items.Add(m);
@@ -420,7 +441,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -439,7 +460,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
 
@@ -447,31 +468,43 @@ namespace DevApps.GUI
         {
             if(Program.DevObject.References.Count == 0)
             {
-                MessageBox.Show("Aucun objet à construire !", "Build", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(GuiService.EditorWindow, "Aucun objet à construire !", "Build", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
             if (GuiService.IsObjectsView)
             {
-                Console.WriteLine("Construit tous les objets...");
+                Program.Logger.WriteLine("Construit tous les objets...");
                 Program.DevObject.Build();
-                Console.WriteLine("Terminé");
+                Program.Logger.WriteLine("Terminé");
             }
             else if (GuiService.IsFacetsView)
             {
-                Console.WriteLine("Construit la facette active...");
-                var facet = GuiService.GetSelectedFacet();
+                Program.Logger.WriteLine("Construit la facette active...");
+                var facet = FacetListBox.SelectedItem as FacetItem;
                 if(facet != null)
                 {
-                    facet.Build();
-                    Console.WriteLine("Terminé");
+                    DevApps.Features.Facets.Build(facet.Header).Wait();
+                    Program.Logger.WriteLine("Terminé");
                 }
             }
         }
 
         internal void InvalidateFacets()
         {
+            // si la vue n'existe plus, bascule sur une vue vide
+            if (this.Content is DesignerView view && DevFacet.References.ContainsKey(view.Name) == false)
+            {
+                this.Content = new UserControl();
+            }
+
             OnPropertyChange(nameof(FacetItems));
+        }
+
+        internal void SelectLastFacet()
+        {
+            // sélectionne la nouvelle facette créée
+            FacetListBox.SelectedIndex = FacetListBox.Items.Count - 1;
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -479,19 +512,20 @@ namespace DevApps.GUI
             var item = ((ListBox)sender).SelectedItem as FacetItem;
             if(item != null)
             {
-                this.Content = new DesignerView(Program.DevFacet.References.First(p => p.Key == item.Header.ToString()).Value);
+                this.Content = new DesignerView(item.Header.ToString());
             }
         }
         private void MenuItem_Click_DeleteFacet(object sender, RoutedEventArgs e)
         {
             if (SelectedFacet != null)
             {
-                Program.DevFacet.References.Remove(SelectedFacet.Header.ToString());
+                CommandsService.Run(
+                    "delete facet",
+                    () => Features.Facets.Delete(SelectedFacet.Header.ToString())
+                  ).Wait();
             }
 
             this.Content = new UserControl();
-
-            OnPropertyChange(nameof(FacetItems));
         }
 
         private void MenuItem_Click_RenameFacet(object sender, RoutedEventArgs e)
@@ -638,9 +672,11 @@ namespace DevApps.GUI
             wnd.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             if (wnd.ShowDialog() == true)
             {
-                Program.DevFacet.Create(wnd.Value, []);
-                InvalidateFacets();
-                FacetListBox.SelectedIndex = FacetListBox.Items.Count-1;
+                CommandsService.Run(
+                    "create facet",
+                    () => Features.Facets.Create(wnd.Value, [])
+                  ).Wait();
+                SelectLastFacet();
             }
         }
 
@@ -689,7 +725,7 @@ namespace DevApps.GUI
             if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.S)
             {
                 // Sauvegarde les données permanentes
-                DevObject.SaveOutput();
+                DevApps.Features.Objects.SaveAllOutputs().Wait();
 
                 Program.SaveProject();
             }
@@ -699,7 +735,7 @@ namespace DevApps.GUI
             {
                 if (IsDesignerView)
                 {
-                    DevApps.Print.Services.Print(((DesignerView)this.Content).facette);
+                    DevApps.Print.Services.Print(((DesignerView)this.Content).Facet);
                 }
             }
 
@@ -804,7 +840,7 @@ namespace DevApps.GUI
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Program.Logger.WriteLine(ex.Message);
                 }
             }
         }
@@ -817,7 +853,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Program.Logger.WriteLine($"Error: {ex.Message}");
             }
         }
 
@@ -905,7 +941,7 @@ namespace DevApps.GUI
                     var ratio = (1.0 / size.L) * size.H;
                     var newHeight = ratio * rect.Width;
                     // si on ajuste la hauteur pour ce ratio de largeur
-                    // a t'on suffisament pour contenir le tout ? (si positif = plus grand)
+                    // a t'on suffisamment pour contenir le tout ? (si positif = plus grand)
                     if (newHeight >= rect.Height)
                     {
                         var diff = newHeight - rect.Height;
@@ -938,6 +974,20 @@ namespace DevApps.GUI
                 TogglePrintZone = true;
             }
             DropdownPopup.IsOpen = false;
+        }
+
+        private void Apply_Click(object sender, RoutedEventArgs e)
+        {
+            DevApps.Features.Objects.Delete("test").Wait();
+        }
+
+        private void UndoButton_Click(object sender, RoutedEventArgs e)
+        {
+            HistoryServices.Undo();
+        }
+        private void RedoButton_Click(object sender, RoutedEventArgs e)
+        {
+            HistoryServices.Redo();
         }
     }
 }

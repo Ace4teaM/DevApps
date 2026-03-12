@@ -1,9 +1,6 @@
 ﻿using DevApps.GUI;
-using PdfSharp.Charting;
 using System.IO;
-using System.Text;
 using System.Windows;
-using System.Windows.Media;
 
 internal partial class Program
 {
@@ -26,13 +23,7 @@ internal partial class Program
                 this.X = X;
             }
 
-            /// <summary>
-            /// Guid utilisé pour identifier l'objet dans l'éditeur
-            /// La valeur n'est pas serialisée
-            /// </summary>
-            [Newtonsoft.Json.JsonIgnore]
-            internal Guid guid = Guid.NewGuid();
-
+            public Guid guid = Guid.NewGuid();
             public string text;
             public double X, Y;
         }
@@ -46,13 +37,7 @@ internal partial class Program
                 this.X = X;
             }
 
-            /// <summary>
-            /// Guid utilisé pour identifier l'objet dans l'éditeur
-            /// La valeur n'est pas serialisée
-            /// </summary>
-            [Newtonsoft.Json.JsonIgnore]
-            internal Guid guid = Guid.NewGuid();
-
+            public Guid guid = Guid.NewGuid();
             public string path;
             public double X, Y;
         }
@@ -169,8 +154,13 @@ internal partial class Program
             public System.Windows.Point pos;
         }
 
+        /// <summary>
+        /// Enregistreur d'états des objets (pour l'historisation, l'annulation, la duplication, ...)
+        /// </summary>
+        public static DevApps.Record.Recorder<string, Serializer.DevFacet, Program.DevFacet> Recorder = new();
+
         public static Dictionary<string, DevFacet> References = new Dictionary<string, DevFacet>();
-        internal Dictionary<string,ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
+        internal Dictionary<string, ObjectProperties> Objects = new Dictionary<string, ObjectProperties>();
         internal Dictionary<string, CommandProperties> Commands = new Dictionary<string, CommandProperties>();
         internal List<Geometry> Geometries = new List<Geometry>();
         internal List<Text> Texts = new List<Text>();
@@ -217,7 +207,7 @@ internal partial class Program
             Commands.Clear();
             foreach (var p in items)
             {
-                if(p.Value != null)
+                if (p.Value != null)
                     Commands.Add(p.Key, p.Value);
             }
         }
@@ -251,14 +241,42 @@ internal partial class Program
         }
 
         /// <summary>
+        /// Obtient la zone d'occupation des objets
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <returns></returns>
+        public bool TryGetBoundingBox(out Rect rect)
+        {
+            List<Rect> rects = new List<Rect>();
+            rects.AddRange(Objects.Select(p => p.Value.zone));
+            rects.AddRange(Commands.Select(p => new Rect(p.Value.pos, new Point(10, 10)))); // obtenir la taille
+            rects.AddRange(Geometries.Select(p => new Rect(p.X, p.Y, 10, 10))); // obtenir la taille
+            rects.AddRange(Texts.Select(p => new Rect(p.X, p.Y, 10, 10))); // obtenir la taille
+
+            if (rects.Count == 0)
+            {
+                rect = Rect.Empty;
+                return false;
+            }
+
+            rect = rects[0];
+            foreach (var r in rects.Skip(1))
+            {
+                rect = Rect.Union(rect, r);
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Représente la zone d'impression de la page
         /// </summary>
-        public System.Windows.Rect PrintLayout { get; set; } = new System.Windows.Rect(0,0,1000,1000);
+        public System.Windows.Rect PrintLayout { get; set; } = new System.Windows.Rect(0, 0, 1000, 1000);
 
         public static DevFacet Create(string name, string[] objectNames)
         {
             var o = new DevFacet();
-            foreach(var obj in objectNames)
+            foreach (var obj in objectNames)
             {
                 o.Objects.Add(obj, new ObjectProperties());
             }
@@ -272,6 +290,14 @@ internal partial class Program
             return References.GetValueOrDefault(name);
         }
 
+        public static readonly DevFacet NullFacet = new DevFacet();
+
+        public static bool TryGet(string name, out DevFacet facet)
+        {
+            facet = References.GetValueOrDefault(name) ?? NullFacet;
+            return facet != NullFacet;
+        }
+
         public string WindowsPathToLinuxPath(string path)
         {
             return path.Replace(@":\", @"/").Insert(0, @"/").Replace(@"\", @"/");
@@ -282,66 +308,59 @@ internal partial class Program
         /// </summary>
         public void Build()
         {
-            var handle = DevObject.mutexExecuteObjects.WaitOne();
-            if (handle)
+            var refs = DevObject.References.Where(p => Objects.ContainsKey(p.Key)).ToArray();
+
+            DevObject.Build(refs);
+
+            // exécute l'environnement de commandes
+            try
             {
-                var refs = DevObject.References.Where(p => Objects.ContainsKey(p.Key)).ToArray();
+                var shellPath = "powershell.exe";
+                var shellSet = @"set {0} ""{1}""";
+                var shellEnv = @"$Env:PATH += "";{0}""";
+                var shellExit = @"exit";
 
-                DevObject.Build(refs);
+                // creation de l'environnement de commandes
+                using System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = shellPath;
+                startInfo.UseShellExecute = false;
+                //startInfo.RedirectStandardOutput = true;
+                startInfo.RedirectStandardInput = true;
+                startInfo.CreateNoWindow = false;
+                process.StartInfo = startInfo;
 
-                // exécute l'environnement de commandes
-                try
+                if (process.Start())
                 {
-                    var shellPath = "powershell.exe";
-                    var shellSet = @"set {0} ""{1}""";
-                    var shellEnv = @"$Env:PATH += "";{0}""";
-                    var shellExit = @"exit";
+                    // ajout des variables locales
+                    StreamWriter ws = process.StandardInput;
 
-                    // creation de l'environnement de commandes
-                    using System.Diagnostics.Process process = new System.Diagnostics.Process();
-                    System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-                    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;//System.Diagnostics.ProcessWindowStyle.Hidden;
-                    startInfo.FileName = shellPath;
-                    startInfo.UseShellExecute = false;
-                    //startInfo.RedirectStandardOutput = true;
-                    startInfo.RedirectStandardInput = true;
-                    startInfo.CreateNoWindow = false;
-                    process.StartInfo = startInfo;
+                    ws.WriteLine(String.Format(shellSet, "dir", Path.GetFullPath(".")));
 
-                    if (process.Start())
+                    // ajout les chemins d'accès aux outils
+                    foreach (var o in GuiService.externalsTools)
+                        ws.WriteLine(String.Format(shellEnv, o.Value.Replace("\"", "")));
+
+                    // ajout lien vers les objets
+                    foreach (var o in refs)
+                        ws.WriteLine(String.Format(shellSet, o.Key, Path.GetFullPath(Path.Combine(DataDir, o.Key))));
+
+                    // on execute les commandes
+                    foreach (var c in Commands)
                     {
-                        // ajout des variables locales
-                        StreamWriter ws = process.StandardInput;
-
-                        ws.WriteLine(String.Format(shellSet, "dir", Path.GetFullPath(".")));
-
-                        // ajout les chemins d'accès aux outils
-                        foreach (var o in GuiService.externalsTools)
-                            ws.WriteLine(String.Format(shellEnv, o.Value.Replace("\"", "")));
-
-                        // ajout lien vers les objets
-                        foreach (var o in refs)
-                            ws.WriteLine(String.Format(shellSet, o.Key, Path.GetFullPath(Path.Combine(DataDir, o.Key))));
-
-                        // on execute les commandes
-                        foreach (var c in Commands)
-                        {
-                            ws.WriteLine(c.Value);
-                        }
-
-                        ws.WriteLine(shellExit);
-                        process.WaitForExit();
+                        ws.WriteLine(c.Value);
                     }
-                }
-                catch (Exception ex)
-                {
-                    System.Console.WriteLine("Facette: Erreur d'execution de la commande");
-                    System.Console.WriteLine(ex.Message);
-                }
 
-                DevObject.mutexExecuteObjects.ReleaseMutex();
+                    ws.WriteLine(shellExit);
+                    process.WaitForExit();
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.WriteLine("Facette: Erreur d'execution de la commande");
+                Program.Logger.WriteLine(ex.Message);
             }
         }
-
     }
 }

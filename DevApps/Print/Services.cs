@@ -19,7 +19,7 @@ namespace DevApps.Print
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
         public static void Print(Program.DevFacet facet)
@@ -38,7 +38,7 @@ namespace DevApps.Print
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Program.Logger.WriteLine(ex.Message);
             }
         }
     }

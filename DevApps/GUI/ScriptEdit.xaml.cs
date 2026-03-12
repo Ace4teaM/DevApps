@@ -125,7 +125,7 @@ namespace DevApps.GUI
             if(Value == textEditor.Document.Text)
                 return;
 
-            switch (MessageBox.Show("Sauvegarder les modifications ?", "Attention", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning))
+            switch (MessageBox.Show(GuiService.EditorWindow, "Sauvegarder les modifications ?", "Attention", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning))
             {
                 case MessageBoxResult.Yes:
                     {
@@ -165,7 +165,7 @@ namespace DevApps.GUI
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("L'expression est incorrecte.\n" + ex.Message, "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                        MessageBox.Show(GuiService.EditorWindow, "L'expression est incorrecte.\n" + ex.Message, "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                         e.Cancel = true;
                     }
                 }
@@ -179,11 +179,11 @@ namespace DevApps.GUI
                 ScriptSource source = CurrentEngine.CreateStatementsFromString(textEditor.Document.Text);
                 CompiledCode compiled = source.Compile();
                 ValidationMessage = "OK";
-                MessageBox.Show("Compilation OK", "Compilation", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(GuiService.EditorWindow, "Compilation OK", "Compilation", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Microsoft.Scripting.SyntaxErrorException ex)
             {
-                MessageBox.Show("Erreur de compilation.\n" + String.Format("L{0} C{1}: {2}", ex.Line, ex.Column, ex.Message), "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                MessageBox.Show(GuiService.EditorWindow, "Erreur de compilation.\n" + String.Format("L{0} C{1}: {2}", ex.Line, ex.Column, ex.Message), "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 ValidationMessage = ex.Message;
                 try
                 {
@@ -193,7 +193,7 @@ namespace DevApps.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erreur de compilation.\n" + ex.Message, "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                MessageBox.Show(GuiService.EditorWindow, "Erreur de compilation.\n" + ex.Message, "Compilation", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 ValidationMessage = ex.Message;
             }
 
