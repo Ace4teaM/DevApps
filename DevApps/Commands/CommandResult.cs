@@ -1,11 +1,11 @@
 ﻿using DevApps.Record;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 
 namespace DevApps.Commands
 {
     /// <summary>
-    /// Type uniforme de retour des outils MCP, avec sérialisation JSON intégrée et gestion des exceptions.
+    /// Format de résultat d'une commande utilisateur
     /// </summary>
     public class CommandResult
     {
@@ -29,7 +29,7 @@ namespace DevApps.Commands
             }
             catch (Exception ex)
             {
-                return JsonSerializer.Serialize(new CommandResult
+                return JsonConvert.SerializeObject(new CommandResult
                 {
                     Success = false,
                     Message = ex.Message
@@ -46,7 +46,7 @@ namespace DevApps.Commands
                 HistoryServices.Rollback();
             }
 
-            return JsonSerializer.Serialize(result);
+            return JsonConvert.SerializeObject(result, Formatting.Indented);
         }
         /// <summary>
         /// Execute une commande avec valeur de retour et retourne le résultat
@@ -68,7 +68,7 @@ namespace DevApps.Commands
             }
             catch (Exception ex)
             {
-                return JsonSerializer.Serialize(new CommandResult
+                return JsonConvert.SerializeObject(new CommandResult
                 {
                     Success = false,
                     Message = ex.Message
@@ -85,7 +85,7 @@ namespace DevApps.Commands
                 HistoryServices.Rollback();
             }
 
-            return JsonSerializer.Serialize(result);
+            return JsonConvert.SerializeObject(result);
         }
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;

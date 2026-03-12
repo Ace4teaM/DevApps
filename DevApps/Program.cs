@@ -1,9 +1,8 @@
 ﻿using DevApps;
+using DevApps.Commands;
 using DevApps.Extends;
 using DevApps.GUI;
-using DevApps.MCP;
 using DevApps.Scripts;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
@@ -302,11 +301,9 @@ internal partial class Program
             GuiService.WaitWindowLoaded();
         }
 
-        // execute le connecteur d'IA (serveur MCP)
-        if (args.Contains("-i"))
-        {
-            MCPService.Start();
-        }
+        // serveur inter-precessus
+        InfosServer.Start();
+        CommandsServer.Start();
 
         LoadProject();
 
@@ -329,8 +326,9 @@ internal partial class Program
         // Attend la fermeture de la fenêtre
         GuiService.WaitWindowClosed();
 
-        // Attend la fin du serveur MCP
-        MCPService.Stop();
+        // Attend la fin du pipe serveur
+        CommandsServer.Stop();
+        InfosServer.Stop();
 
         DevObject.Stop();
 

@@ -1,4 +1,6 @@
-﻿using DevApps.Print;
+﻿using DevApps.Commands;
+using DevApps.Print;
+using System.ComponentModel;
 using System.Dynamic;
 using System.IO;
 using System.Text;
@@ -8,6 +10,11 @@ namespace DevApps.Features
 {
     internal static class Project
     {
+        /// <summary>
+        /// Retourne le contenu du journal de développement
+        /// </summary>
+        [Description("Retourne le contenu du journal de développement")]
+        [RemoteCall]
         internal static async Task<string> ReadDevLog()
         {
             if (File.Exists(Program.JournalFilename))
@@ -17,8 +24,10 @@ namespace DevApps.Features
             return string.Empty;
         }
         /// <summary>
-        /// Crée une description textuelle du projet
+        /// Retourne une description textuelle du projet
         /// </summary>
+        [Description("Retourne une description textuelle du projet")]
+        [RemoteCall]
         public static async Task<string> Summary()
         {
             StringBuilder sb = new StringBuilder();
@@ -49,8 +58,10 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Crée une définition structuré du projet
+        /// Retourne une définition structuré du projet
         /// </summary>
+        [Description("Retourne une définition structuré du projet")]
+        [RemoteCall]
         public static async Task<dynamic> GetData()
         {
             dynamic data = new ExpandoObject();

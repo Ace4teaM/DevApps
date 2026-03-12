@@ -23,13 +23,7 @@ internal partial class Program
                 this.X = X;
             }
 
-            /// <summary>
-            /// Guid utilisé pour identifier l'objet dans l'éditeur
-            /// La valeur n'est pas serialisée
-            /// </summary>
-            [Newtonsoft.Json.JsonIgnore]
-            internal Guid guid = Guid.NewGuid();
-
+            public Guid guid = Guid.NewGuid();
             public string text;
             public double X, Y;
         }
@@ -43,13 +37,7 @@ internal partial class Program
                 this.X = X;
             }
 
-            /// <summary>
-            /// Guid utilisé pour identifier l'objet dans l'éditeur
-            /// La valeur n'est pas serialisée
-            /// </summary>
-            [Newtonsoft.Json.JsonIgnore]
-            internal Guid guid = Guid.NewGuid();
-
+            public Guid guid = Guid.NewGuid();
             public string path;
             public double X, Y;
         }

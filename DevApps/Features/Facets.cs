@@ -1,4 +1,6 @@
-﻿using DevApps.GUI;
+﻿using DevApps.Commands;
+using DevApps.GUI;
+using System.ComponentModel;
 using System.Dynamic;
 using System.Text;
 using System.Windows;
@@ -12,6 +14,8 @@ namespace DevApps.Features
         /// <summary>
         /// Déplace un objet dans la vue
         /// </summary>
+        [Description("Déplace un objet dans la vue")]
+        [RemoteCall]
         public static async Task MoveObject(string name, string objectName, double x, double y, double w, double h)
         {
             try
@@ -44,8 +48,10 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Retire un commande de la vue
+        /// Retire une commande de la vue
         /// </summary>
+        [Description("Retire une commande de la vue")]
+        [RemoteCall]
         public static async Task RemoveCommand(string name, string CommandName)
         {
             try
@@ -81,6 +87,8 @@ namespace DevApps.Features
         /// <summary>
         /// Ajoute un commande dans la vue
         /// </summary>
+        [Description("Ajoute un commande dans la vue")]
+        [RemoteCall]
         public static async Task AddCommand(string name, string CommandName, double x, double y)
         {
             try
@@ -117,6 +125,8 @@ namespace DevApps.Features
         /// <summary>
         /// Retire un objet de la vue
         /// </summary>
+        [Description("Retire un objet de la vue")]
+        [RemoteCall]
         public static async Task RemoveObject(string name, string objectName)
         {
             try
@@ -152,6 +162,8 @@ namespace DevApps.Features
         /// <summary>
         /// Ajoute un objet dans la vue
         /// </summary>
+        [Description("Ajoute un objet dans la vue")]
+        [RemoteCall]
         public static async Task AddObject(string name, string objectName, double x, double y, double w, double h)
         {
             try
@@ -192,6 +204,8 @@ namespace DevApps.Features
         /// <summary>
         /// Supprime une texte de la facette
         /// </summary>
+        [Description("Supprime une texte de la facette")]
+        [RemoteCall]
         public static async Task RemoveText(string name, string guid)
         {
             try
@@ -234,6 +248,8 @@ namespace DevApps.Features
         /// <summary>
         /// Ajoute une texte à une facette
         /// </summary>
+        [Description("Ajoute une texte à une facette")]
+        [RemoteCall]
         public static async Task AddText(string name, string text, double x, double y, string? guid = null)
         {
             try
@@ -277,6 +293,8 @@ namespace DevApps.Features
         /// <summary>
         /// Supprime une géométrie de la facette
         /// </summary>
+        [Description("Supprime une géométrie de la facette")]
+        [RemoteCall]
         public static async Task RemoveGeometry(string name, string guid)
         {
             try
@@ -319,7 +337,9 @@ namespace DevApps.Features
         /// <summary>
         /// Ajoute une géométrie à une facette
         /// </summary>
-        public static async Task AddGeometry(string name, string path, double x, double y, string? guid = null)
+        [Description("Ajoute une géométrie à une facette")]
+        [RemoteCall]
+        public static async Task<string> AddGeometry(string name, string path, double x, double y, string? guid = null)
         {
             try
             {
@@ -334,6 +354,8 @@ namespace DevApps.Features
                         // restaure le guid si il est fournit
                         if (guid != null)
                             geometry.guid = new Guid(guid);
+                        
+                        guid = geometry.guid.ToString(); // pour retour
 
                         facet.Geometries.Add(geometry);
                     }
@@ -352,6 +374,8 @@ namespace DevApps.Features
                 }
                 else
                     throw new Exception($"La facette {name} n'existe pas");
+
+                return guid;
             }
             finally
             {
@@ -365,6 +389,8 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Execute le script de construction de la sortie standard des objets")]
+        [RemoteCall]
         public static async Task Build(string name)
         {
             try
@@ -385,11 +411,13 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Crée une définition structuré de l'objet
+        /// Retourne une définition structuré de la facette
         /// </summary>
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Retourne une définition structuré de la facette")]
+        [RemoteCall]
         public static async Task<dynamic> GetData(string name)
         {
             dynamic data = new ExpandoObject();
@@ -417,11 +445,13 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Crée une description textuelle de l'objet
+        /// Retourne une description textuelle de la facette
         /// </summary>
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Retourne une description textuelle de la facette")]
+        [RemoteCall]
         public static async Task<string> Summary(string name)
         {
             try
@@ -478,6 +508,8 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Liste les noms des facettes")]
+        [RemoteCall]
         public static async Task<string[]> GetNames()
         {
             try
@@ -493,8 +525,10 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        ///Supprime une facette du projet
+        /// Supprime une facette du projet
         /// </summary>
+        [Description("Supprime une facette du projet")]
+        [RemoteCall]
         public static async Task Delete(string name)
         {
             if (DevFacet.TryGet(name, out var obj))
@@ -513,7 +547,8 @@ namespace DevApps.Features
         /// <summary>
         /// Ajoute une facette au projet
         /// </summary>
-        /// <returns></returns>
+        [Description("Ajoute une facette au projet")]
+        [RemoteCall]
         public static async Task<string> Create(string baseName, string[] objectNames)
         {
             string name = baseName;

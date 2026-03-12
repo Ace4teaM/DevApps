@@ -1,5 +1,7 @@
-﻿using DevApps.GUI;
+﻿using DevApps.Commands;
+using DevApps.GUI;
 using DevApps.Print;
+using System.ComponentModel;
 using System.Dynamic;
 using System.IO;
 using System.Security.Cryptography;
@@ -21,6 +23,8 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet mais uniquement sa sortie (Content), les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Construit l'objet et son arbre de dépendances")]
+        [RemoteCall]
         public static async Task BuildTree(string name)
         {
             try
@@ -58,6 +62,7 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Affiche le contenu d'un objet")]
         public static async Task ShowContent(string name)
         {
             DevObject? reference = null;
@@ -98,6 +103,7 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet mais uniquement sa sortie (Content), les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Edite le contenu d'un objet")]
         public static async Task EditContent(string name)
         {
             DevObject? reference = null;
@@ -135,11 +141,13 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Crée une définition structuré de l'objet
+        /// Retourne une définition structuré de l'objet
         /// </summary>
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Retourne une définition structuré de l'objet")]
+        [RemoteCall]
         public static async Task<dynamic> GetData(string name)
         {
             dynamic data = new ExpandoObject();
@@ -166,11 +174,13 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Crée une description textuelle de l'objet
+        /// Retourne une description textuelle de l'objet
         /// </summary>
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Retourne une description textuelle de l'objet")]
+        [RemoteCall]
         public static async Task<string> Summary(string name)
         {
             try
@@ -296,6 +306,8 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Liste les noms des objets")]
+        [RemoteCall]
         public static async Task<string[]> GetNames()
         {
             try
@@ -313,6 +325,8 @@ namespace DevApps.Features
         /// <summary>
         /// Renomme un objet 
         /// </summary>
+        [Description("Renomme un objet")]
+        [RemoteCall]
         public static async Task Rename(string name, string newName)
         {
             try
@@ -403,6 +417,8 @@ namespace DevApps.Features
         /// <summary>
         ///Supprime un objet du projet
         /// </summary>
+        [Description("Supprime un objet du projet")]
+        [RemoteCall]
         public static async Task Delete(string name)
         {
             try
@@ -486,7 +502,8 @@ namespace DevApps.Features
         /// <summary>
         /// Ajoute un objet au projet
         /// </summary>
-        /// <returns></returns>
+        [Description("Ajoute un objet au projet")]
+        [RemoteCall]
         public static async Task<string> Create(string baseName, string description, string[] tags)
         {
             string name = baseName;
@@ -522,9 +539,10 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Crée un objet de référence
+        /// Crée une référence sur un objet existant
         /// </summary>
-        /// <returns></returns>
+        [Description("Crée une référence sur un objet existant")]
+        [RemoteCall]
         public static async Task<string> CreateReference(string name)
         {
             try
@@ -577,6 +595,7 @@ namespace DevApps.Features
         /// <summary>
         /// Crée un ou plusieurs objets à partir de fichiers
         /// </summary>
+        [Description("Crée un ou plusieurs objets à partir de fichiers")]
         public static async Task<string[]> CreateFromFiles(string[] files)
         {
             var objects = new List<Program.DevObject>();
@@ -629,6 +648,7 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Copie le contenu du stream dans le contenu de l'objet")]
         public static async Task CopyFromStream(string name, MemoryStream content)
         {
             // copie la sortie dans l'objet de destination
@@ -675,6 +695,7 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Copie le contenu du stream dans le contenu de l'objet")]
         public static async Task<bool> CopyFromFile(string name, string filename)
         {
             try
@@ -718,6 +739,7 @@ namespace DevApps.Features
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
         /// <returns>true si les contenus sont différent, null si ils ne peuvent être comparé</returns>
+        [Description("Compare le contenu avec un fichier")]
         public static async Task<bool?> IsDifferentFromFile(string name, string filename)
         {
             try
@@ -770,6 +792,7 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Charge le contenu en cache de tous les objets")]
         public static async Task LoadAllOutputs()
         {
             try
@@ -802,6 +825,7 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("Sauvegarde le contenu tous les objets dans le cache")]
         public static async Task SaveAllOutputs()
         {
             try
@@ -834,6 +858,8 @@ namespace DevApps.Features
         /// <remarks>
         /// Ne modifie pas l'objet, les modifications ne sont pas sérialisé dans l'historique avec Recorder
         /// </remarks>
+        [Description("S'assure que tous les objets soit initialisé")]
+        [RemoteCall]
         public static async Task MakeSureAllInitialized()
         {
             try
@@ -901,6 +927,8 @@ namespace DevApps.Features
         /// </summary>
         /// <param name="name">Nom de l'objet à dupliquer</param>
         /// <returns>Nom de l'objet dupliqué</returns>
+        [Description("Duplique un objet")]
+        [RemoteCall]
         public static async Task<string?> Duplicate(string name)
         {
             try
@@ -929,10 +957,12 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Duplique les objets
+        /// Duplique plusieurs objets
         /// </summary>
         /// <param name="name">Noms des objets à dupliquer</param>
         /// <returns>Nom des objets dupliqués</returns>
+        [Description("Duplique plusieurs objets")]
+        [RemoteCall]
         public static async Task<string[]?> Duplicates(string[] names)
         {
             try
@@ -974,6 +1004,8 @@ namespace DevApps.Features
         /// <param name="name">Nom de l'objet</param>
         /// <param name="scriptName">Nom du script</param>
         /// <param name="scriptCode">Code du script</param>
+        [Description("Définit le script d'un objet")]
+        [RemoteCall]
         public static async Task SetScript(string name, ScriptType scriptType, string scriptCode)
         {
             try
@@ -1034,6 +1066,8 @@ namespace DevApps.Features
         /// <param name="pointerName">Nom du pointeur</param>
         /// <param name="pointerTarget">Nom de l'objet ciblé</param>
         /// <param name="tags">Tags associés au pointeur</param>
+        [Description("Ajoute un pointeur à un objet")]
+        [RemoteCall]
         public static async Task AddPointer(string name, string pointerName, string pointerTarget, string[] tags)
         {
             try
@@ -1063,6 +1097,7 @@ namespace DevApps.Features
         /// Copie les données du cache comme contenu initial de l'objet
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
+        [Description("Copie les données du cache comme contenu initial de l'objet")]
         public static async Task MemorizeCachedContent(string name)
         {
             try
@@ -1098,6 +1133,7 @@ namespace DevApps.Features
         /// Copie les données du contenu initial dans le cache de l'objet
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
+        [Description("Copie les données du contenu initial dans le cache de l'objet")]
         public static async Task RestoreCachedContent(string name)
         {
             try
@@ -1131,6 +1167,7 @@ namespace DevApps.Features
         /// Définit l'editeur d'un objet
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
+        [Description("Définit l'editeur d'un objet")]
         public static async Task<string?> SetEditor(string name, string editor)
         {
             try
@@ -1163,6 +1200,8 @@ namespace DevApps.Features
         /// Définit la description d'un objet
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
+        [Description("Définit la description d'un objet")]
+        [RemoteCall]
         public static async Task<string> SetDescription(string name, string description)
         {
             try
@@ -1196,6 +1235,8 @@ namespace DevApps.Features
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
         /// <param name="tags">Tags sous la forme "#un #deux #trois ..."</param>
+        [Description("Définit les tags d'un objet")]
+        [RemoteCall]
         public static async Task<string> SetTags(string name, string tags)
         {
             try
@@ -1243,6 +1284,8 @@ namespace DevApps.Features
         /// Définit l'objet comme modèle en lui attribuant un GUID unique.
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
+        [Description("Définit l'objet comme modèle en lui attribuant un GUID unique")]
+        [RemoteCall]
         public static async Task SetAsModel(string name)
         {
             try
@@ -1285,6 +1328,8 @@ namespace DevApps.Features
         /// Met à jour le modèle depuis un objet du projet.
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
+        [Description("Met à jour le modèle depuis un objet du projet")]
+        [RemoteCall]
         public static async Task UpdateModel(string name)
         {
             try
@@ -1355,6 +1400,8 @@ namespace DevApps.Features
         /// Met à jour un objet depuis son modèle de la bibliothèque partagée.
         /// </summary>
         /// <param name="name">Nom de l'objet</param>
+        [Description("Met à jour un objet depuis son modèle de la bibliothèque partagée")]
+        [RemoteCall]
         public static async Task UpdateFromModel(string name)
         {
             try

@@ -1,5 +1,4 @@
 ﻿using DevApps.Commands;
-using DevApps.MCP;
 using DevApps.Record;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -7,13 +6,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Security.AccessControl;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using static IronPython.Modules._ast;
 using static Program;
 
 namespace DevApps.GUI

@@ -1,4 +1,5 @@
-﻿using DevApps.GUI;
+﻿using DevApps.Commands;
+using System.ComponentModel;
 using static Program;
 
 namespace DevApps.Features
@@ -11,7 +12,8 @@ namespace DevApps.Features
         /// <summary>
         /// Crée une variable
         /// </summary>
-        /// <returns></returns>
+        [Description("Crée une variable")]
+        [RemoteCall]
         public static async Task<string> Create(string baseName, string description) // todo ajouter la valeur par défaut
         {
             string name = baseName;
@@ -40,6 +42,8 @@ namespace DevApps.Features
         /// <summary>
         /// Supprime une variable
         /// </summary>
+        [Description("Supprime une variable")]
+        [RemoteCall]
         public static async Task Delete(string name)
         {
             try
@@ -68,6 +72,8 @@ namespace DevApps.Features
         /// <summary>
         /// Renomme une variable 
         /// </summary>
+        [Description("Renomme une variable")]
+        [RemoteCall]
         public static async Task Rename(string name, string newName)
         {
             try
@@ -123,9 +129,11 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Définit la description d'une variable
+        /// Change la description d'une variable
         /// </summary>
         /// <param name="name">Nom de la variable</param>
+        [Description("Change la description d'une variable")]
+        [RemoteCall]
         public static async Task<string> SetDescription(string name, string description)
         {
             try
@@ -155,9 +163,11 @@ namespace DevApps.Features
         }
 
         /// <summary>
-        /// Définit la valeur d'une variable
+        /// Change la valeur d'une variable
         /// </summary>
         /// <param name="name">Nom de la variable</param>
+        [Description("Change la valeur d'une variable")]
+        [RemoteCall]
         public static async Task<object> SetValue(string name, object? value)
         {
             try
