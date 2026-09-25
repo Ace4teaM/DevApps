@@ -1090,8 +1090,12 @@ namespace DevApps.GUI
             if (element == null)
                 return;
 
+            var previousElement = selectedElement;
             selectedElement = element;
+            lastSelectedElement = previousElement;
+            previousElement?.InvalidateVisual();
             DisplayInfos();
+            element.InvalidateVisual();
             element.BringIntoView();
         }
 

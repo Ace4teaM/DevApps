@@ -23,6 +23,9 @@ namespace DevApps.GUI
     /// </summary>
     public partial class DesignerDataView : UserControl, INotifyPropertyChanged, IKeyCommand, IInvalidableView
     {
+        private string? contextMenuObjectName;
+        private bool contextMenuOpenedByRightClick;
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -133,7 +136,7 @@ namespace DevApps.GUI
                 {
                     if(Name == null)
                         return string.Empty;
-                    var facettes = Program.DevFacet.References.Where(p => p.Value.Objects.Keys.Contains(Name)).Select(p => p.Key).ToList();
+                    var facettes = GetFacetsContainingObject(Name).Select(p => p.Key).ToList();
                     return String.Join(", ", facettes);
                 }
             }
@@ -629,43 +632,107 @@ namespace DevApps.GUI
             var menuItem = sender as MenuItem;
             if (menuItem != null)
             {
-                menuItem.Items.Clear();
-                foreach (var facet in Program.DevFacet.References)
-                {
-                    var item = new MenuItem();
-                    item.Header = facet.Key;
-                    item.Tag = facet.Value;
-                    item.Click += MenuItem_AddToFacet_Click;
-                    menuItem.Items.Add(item);
-                }
+                PopulateFacetMenuItems(menuItem, MenuItem_AddToFacet_Click, configureItem: (item, facet) => item.Tag = facet.Value);
             }
         }
 
         private void MenuItem_SelectInFacet_ContextMenuOpening(object sender, RoutedEventArgs e)
         {
             var menuItem = sender as MenuItem;
-            var objectName = (dataGrid.SelectedItem as TabItem)?.Name;
             if (menuItem != null)
             {
-                menuItem.Items.Clear();
-
-                if (String.IsNullOrWhiteSpace(objectName) == false)
-                {
-                    foreach (var facet in Program.DevFacet.References.Where(p => p.Value.Objects.ContainsKey(objectName)))
-                    {
-                        var item = new MenuItem();
-                        item.Header = facet.Key;
-                        item.Tag = objectName;
-                        item.Click += MenuItem_SelectInFacet_Click;
-                        menuItem.Items.Add(item);
-                    }
-                }
-
-                if (menuItem.Items.Count == 0)
-                {
-                    menuItem.Items.Add(new MenuItem { Header = "(aucune facette)", IsEnabled = false });
-                }
+                PopulateSelectInFacetMenuItems(menuItem);
             }
+        }
+
+        private void PopulateFacetMenuItems(
+            MenuItem menuItem,
+            RoutedEventHandler onClick,
+            IEnumerable<KeyValuePair<string, Program.DevFacet>>? facets = null,
+            Action<MenuItem, KeyValuePair<string, Program.DevFacet>>? configureItem = null)
+        {
+            menuItem.Items.Clear();
+
+            foreach (var facet in facets ?? Program.DevFacet.References)
+            {
+                var item = new MenuItem();
+                item.Header = facet.Key;
+                configureItem?.Invoke(item, facet);
+                item.Click += onClick;
+                menuItem.Items.Add(item);
+            }
+
+            if (menuItem.Items.Count == 0)
+            {
+                menuItem.Items.Add(new MenuItem { Header = "(aucune facette)", IsEnabled = false });
+            }
+        }
+
+        private void DataGrid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            contextMenuOpenedByRightClick = true;
+            var row = FindParent<DataGridRow>(e.OriginalSource as DependencyObject);
+            if (row?.Item is TabItem item)
+            {
+                contextMenuObjectName = item.Name;
+            }
+            else
+            {
+                contextMenuObjectName = null;
+            }
+        }
+
+        private static T? FindParent<T>(DependencyObject? child) where T : DependencyObject
+        {
+            while (child != null)
+            {
+                if (child is T parent)
+                    return parent;
+
+                child = VisualTreeHelper.GetParent(child);
+            }
+
+            return null;
+        }
+
+        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            var openedByRightClick = contextMenuOpenedByRightClick;
+            contextMenuOpenedByRightClick = false;
+
+            if (openedByRightClick == false)
+            {
+                contextMenuObjectName = (dataGrid.SelectedItem as TabItem)?.Name;
+            }
+
+            PopulateSelectInFacetMenuItems(SelectInFacetMenuItem);
+            SelectInFacetMenuItem.IsEnabled = SelectInFacetMenuItem.Items.OfType<MenuItem>().Any(p => p.IsEnabled);
+        }
+
+        private void ContextMenu_Closed(object sender, RoutedEventArgs e)
+        {
+            contextMenuOpenedByRightClick = false;
+            contextMenuObjectName = null;
+        }
+
+        private void PopulateSelectInFacetMenuItems(MenuItem menuItem)
+        {
+            var objectName = contextMenuObjectName;
+            var facets = String.IsNullOrWhiteSpace(objectName)
+                ? Enumerable.Empty<KeyValuePair<string, Program.DevFacet>>()
+                : GetFacetsContainingObject(objectName);
+
+            PopulateFacetMenuItems(
+                menuItem,
+                MenuItem_SelectInFacet_Click,
+                facets,
+                (item, facet) => item.Tag = objectName
+            );
+        }
+
+        private static IEnumerable<KeyValuePair<string, Program.DevFacet>> GetFacetsContainingObject(string objectName)
+        {
+            return Program.DevFacet.References.Where(p => p.Value.Objects?.ContainsKey(objectName) == true);
         }
 
         private void MenuItem_ContextMenuOpening_Pointer(object sender, RoutedEventArgs e)
