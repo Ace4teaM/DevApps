@@ -37,9 +37,9 @@
         <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
     </UserControl.Resources>
     <Grid>
-        <DataGrid x:Name="dataGrid" SelectionChanged="DataGrid_SelectionChanged" BeginningEdit="DataGrid_BeginningEdit" CellEditEnding="DataGrid_CellEditEnding" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False" AllowDrop="True" Drop="DataGrid_Drop">
+        <DataGrid x:Name="dataGrid" SelectionChanged="DataGrid_SelectionChanged" BeginningEdit="DataGrid_BeginningEdit" CellEditEnding="DataGrid_CellEditEnding" PreviewMouseRightButtonDown="DataGrid_PreviewMouseRightButtonDown" AutoGenerateColumns="False" ItemsSource="{Binding Items}" CanUserResizeRows="False" CanUserAddRows="False" CanUserReorderColumns="False" CanUserSortColumns="True" CanUserResizeColumns="False" CanUserDeleteRows="False" AllowDrop="True" Drop="DataGrid_Drop">
             <DataGrid.ContextMenu>
-                <ContextMenu>
+                <ContextMenu Opened="ContextMenu_Opened" Closed="ContextMenu_Closed">
                     <MenuItem Header="Afficher le contenu..." Click="MenuItem_Click_ShowOutput"></MenuItem>
                     <MenuItem Header="Editer le contenu..." Click="MenuItem_Click_EditOutput"></MenuItem>
                     <MenuItem Header="Dupliquer" Click="MenuItem_Click_Duplicate"></MenuItem>
@@ -49,6 +49,9 @@
                     <MenuItem Header="Nouvel objet..." Click="MenuItem_Click_CreateObject"></MenuItem>
                     <MenuItem Header="Nouvelle facette..." Click="MenuItem_Click_CreateFacet"></MenuItem>
                     <MenuItem Header="Ajouter à la facette" SubmenuOpened="MenuItem_ContextMenuOpening">
+                        <MenuItem></MenuItem>
+                    </MenuItem>
+                    <MenuItem x:Name="SelectInFacetMenuItem" Header="Sélectionner dans la facette" SubmenuOpened="MenuItem_SelectInFacet_ContextMenuOpening">
                         <MenuItem></MenuItem>
                     </MenuItem>
                     <MenuItem Header="Ajouter un pointeur vers" SubmenuOpened="MenuItem_ContextMenuOpening_Pointer">
