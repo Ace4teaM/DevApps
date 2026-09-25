@@ -12,10 +12,10 @@ namespace DevApps.GUI
         public About()
         {
             InitializeComponent();
-            DataContext = this;
 
-            var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "N/A";
+            var version = typeof(About).Assembly.GetName().Version?.ToString() ?? "N/A";
             VersionText = $"Version : {version}";
+            DataContext = this;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
