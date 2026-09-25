@@ -507,6 +507,34 @@ namespace DevApps.GUI
             FacetListBox.SelectedIndex = FacetListBox.Items.Count - 1;
         }
 
+        internal void SelectFacetObject(string facetName, string objectName)
+        {
+            var item = FacetListBox.Items.OfType<FacetItem>().FirstOrDefault(p => p.Header == facetName);
+            if (item == null)
+                return;
+
+            FacetListBox.SelectedItem = item;
+            OnPropertyChange(nameof(SelectedFacet));
+
+            if (this.Content is DesignerView view)
+            {
+                if (view.IsLoaded)
+                {
+                    Dispatcher.BeginInvoke(new Action(() => view.SelectObject(objectName)));
+                }
+                else
+                {
+                    RoutedEventHandler? onLoaded = null;
+                    onLoaded = (s, e) =>
+                    {
+                        view.Loaded -= onLoaded;
+                        view.SelectObject(objectName);
+                    };
+                    view.Loaded += onLoaded;
+                }
+            }
+        }
+
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var item = ((ListBox)sender).SelectedItem as FacetItem;

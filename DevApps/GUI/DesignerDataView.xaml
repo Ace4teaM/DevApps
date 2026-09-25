@@ -51,6 +51,9 @@
                     <MenuItem Header="Ajouter à la facette" SubmenuOpened="MenuItem_ContextMenuOpening">
                         <MenuItem></MenuItem>
                     </MenuItem>
+                    <MenuItem Header="Sélectionner dans la facette" SubmenuOpened="MenuItem_SelectInFacet_ContextMenuOpening">
+                        <MenuItem></MenuItem>
+                    </MenuItem>
                     <MenuItem Header="Ajouter un pointeur vers" SubmenuOpened="MenuItem_ContextMenuOpening_Pointer">
                         <MenuItem></MenuItem>
                     </MenuItem>

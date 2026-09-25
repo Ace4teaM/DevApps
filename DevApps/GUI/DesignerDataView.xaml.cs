@@ -561,6 +561,18 @@ namespace DevApps.GUI
             }
         }
 
+        private void MenuItem_SelectInFacet_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var facetName = menuItem?.Header as string;
+            var objectName = menuItem?.Tag as string;
+
+            if (String.IsNullOrWhiteSpace(facetName) == false && String.IsNullOrWhiteSpace(objectName) == false)
+            {
+                GuiService.EditorWindow?.SelectFacetObject(facetName, objectName);
+            }
+        }
+
         private void AddPointerToObject(string targetName)
         {
             var wnd = new NewPointer();
@@ -625,6 +637,33 @@ namespace DevApps.GUI
                     item.Tag = facet.Value;
                     item.Click += MenuItem_AddToFacet_Click;
                     menuItem.Items.Add(item);
+                }
+            }
+        }
+
+        private void MenuItem_SelectInFacet_ContextMenuOpening(object sender, RoutedEventArgs e)
+        {
+            var menuItem = sender as MenuItem;
+            var objectName = (dataGrid.SelectedItem as TabItem)?.Name;
+            if (menuItem != null)
+            {
+                menuItem.Items.Clear();
+
+                if (String.IsNullOrWhiteSpace(objectName) == false)
+                {
+                    foreach (var facet in Program.DevFacet.References.Where(p => p.Value.Objects.ContainsKey(objectName)))
+                    {
+                        var item = new MenuItem();
+                        item.Header = facet.Key;
+                        item.Tag = objectName;
+                        item.Click += MenuItem_SelectInFacet_Click;
+                        menuItem.Items.Add(item);
+                    }
+                }
+
+                if (menuItem.Items.Count == 0)
+                {
+                    menuItem.Items.Add(new MenuItem { Header = "(aucune facette)", IsEnabled = false });
                 }
             }
         }
