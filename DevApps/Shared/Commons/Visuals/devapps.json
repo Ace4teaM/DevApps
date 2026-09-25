@@ -1,0 +1,1292 @@
+{
+  "Variables": [],
+  "Objects": [
+    {
+      "Key": "UML_Class",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "eb2fa33e-bee7-4580-b6c1-6005c0093433",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Class visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0MCIgeT0iMjQiIHdpZHRoPSIxMjAiIGhlaWdodD0iODQiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNDAiIHkxPSI1MCIgeDI9IjE2MCIgeTI9IjUwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNDAiIHkxPSI3OCIgeDI9IjE2MCIgeTI9Ijc4IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+Q2xhc3M8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_Interface",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "e46ee56c-704f-44fb-b4a5-99a055db5ef0",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Interface visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0MCIgeT0iMzAiIHdpZHRoPSIxMjAiIGhlaWdodD0iNzAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1kYXNoYXJyYXk9IjYsNCIvPjx0ZXh0IHg9IjEwMCIgeT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0iYmxhY2siPiZsdDsmbHQ7aW50ZXJmYWNlJmd0OyZndDs8L3RleHQ+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPkludGVyZmFjZTwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_User",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "bd06f25d-e4c1-4ed1-8227-ee43ac13b48b",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML User visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI0NCIgcj0iMTYiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iMTAwIiB5MT0iNjAiIHgyPSIxMDAiIHkyPSI5OCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGxpbmUgeDE9Ijc2IiB5MT0iNzQiIHgyPSIxMjQiIHkyPSI3NCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGxpbmUgeDE9IjEwMCIgeTE9Ijk4IiB4Mj0iODAiIHkyPSIxMTYiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSIxMDAiIHkxPSI5OCIgeDI9IjEyMCIgeTI9IjExNiIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPlVzZXI8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_Actor",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "33ed520e-1c6e-420f-8abd-c5536ab23f60",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Actor visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI0NCIgcj0iMTQiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iMTAwIiB5MT0iNTgiIHgyPSIxMDAiIHkyPSI5NiIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGxpbmUgeDE9IjgyIiB5MT0iNzIiIHgyPSIxMTgiIHkyPSI3MiIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGxpbmUgeDE9IjEwMCIgeTE9Ijk2IiB4Mj0iODYiIHkyPSIxMTQiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSIxMDAiIHkxPSI5NiIgeDI9IjExNCIgeTI9IjExNCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPkFjdG9yPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_Package",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "eb6bcb40-e99e-47ec-88a1-604fe429529d",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Package visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0NCIgeT0iNDIiIHdpZHRoPSIxMTIiIGhlaWdodD0iNjQiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48cmVjdCB4PSI0NCIgeT0iMzAiIHdpZHRoPSI0NCIgaGVpZ2h0PSIxMiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5QYWNrYWdlPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_Component",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "450090ce-936b-4753-bcb3-002ddb2e634c",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Component visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0NCIgeT0iMjgiIHdpZHRoPSIxMTIiIGhlaWdodD0iODAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48cmVjdCB4PSI1OCIgeT0iNDQiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9IjU4IiB5PSI2NiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjEyIiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPkNvbXBvbmVudDwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_Enum",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "6e468aee-7d5d-48e9-bc1b-1f8bb40a83d4",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Enum visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0MiIgeT0iMjgiIHdpZHRoPSIxMTYiIGhlaWdodD0iODAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNDIiIHkxPSI1NCIgeDI9IjE1OCIgeTI9IjU0IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSIxMDAiIHk9IjQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9ImJsYWNrIj4mbHQ7Jmx0O2VudW0mZ3Q7Jmd0OzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+RW51bTwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_Abstract",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "a895b2fc-a556-4c35-ab92-3df5fdb505e0",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Abstract visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0MCIgeT0iMjgiIHdpZHRoPSIxMjAiIGhlaWdodD0iODAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNDAiIHkxPSI1NiIgeDI9IjE2MCIgeTI9IjU2IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNjYiIHkxPSI0NCIgeDI9IjEzNCIgeTI9IjQ0IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+QWJzdHJhY3Q8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_Database",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "2c451fcc-46c7-40d1-80a9-910757e46209",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Database visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8ZWxsaXBzZSBjeD0iMTAwIiBjeT0iMzAiIHJ4PSI0MiIgcnk9IjE0IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PHJlY3QgeD0iNTgiIHk9IjMwIiB3aWR0aD0iODQiIGhlaWdodD0iNjAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48ZWxsaXBzZSBjeD0iMTAwIiBjeT0iOTAiIHJ4PSI0MiIgcnk9IjE0IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPkRhdGFiYXNlPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "UML_Service",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "4ca81bb1-5cac-4cf4-9d5b-a1a1ddf39d1e",
+        "Tags": [
+          "#visual",
+          "#uml"
+        ],
+        "Description": "UML Service visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0NCIgeT0iMzIiIHdpZHRoPSIxMTIiIGhlaWdodD0iNzIiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI1OCIgY3k9IjQ2IiByPSI2IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iNTgiIGN5PSI2NCIgcj0iNiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxjaXJjbGUgY3g9IjU4IiBjeT0iODIiIHI9IjYiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+U2VydmljZTwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Rectangle",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "54bd0f40-5a29-4287-acf1-d1369a8da5bf",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Rectangle visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0NSIgeT0iMzUiIHdpZHRoPSIxMTAiIGhlaWdodD0iNjAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+UmVjdGFuZ2xlPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Triangle",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "48a89014-8bf3-41da-b67a-cf0cbc1bbee5",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Triangle visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjEwMCwyOCA0Miw5NiAxNTgsOTYiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+VHJpYW5nbGU8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Square",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "8bb86c17-d042-4ee3-8191-77bbc2443d83",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Square visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI2MCIgeT0iMzAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5TcXVhcmU8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Circle",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "102a75b4-6265-4e25-adfc-b802c446f351",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Circle visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI3MCIgcj0iMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+Q2lyY2xlPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Pentagon",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "bf25bebe-9d3a-48fc-b892-82b590603dfe",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Pentagon visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjEwMCwyNiA0OCw2MiA2OCwxMDggMTMyLDEwOCAxNTIsNjIiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+UGVudGFnb248L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Hexagon",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "e8380e21-a303-459f-a565-e188c9fbc2e3",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Hexagon visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjYwLDQwIDE0MCw0MCAxNjUsNzAgMTQwLDEwMCA2MCwxMDAgMzUsNzAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+SGV4YWdvbjwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Octagon",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "b786bc7e-0c31-446c-997c-acd1c3067d71",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Octagon visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjcwLDI4IDEzMCwyOCAxNTgsNTYgMTU4LDg0IDEzMCwxMTIgNzAsMTEyIDQyLDg0IDQyLDU2IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPk9jdGFnb248L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Diamond",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "0179bb04-05a5-4fff-80de-3b98f2121f16",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Diamond visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjEwMCwyNCAxNTQsNzAgMTAwLDExNiA0Niw3MCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5EaWFtb25kPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Parallelogram",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "bcdcb5b1-d558-4b14-b28c-3ce444054b91",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Parallelogram visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjYyLDM0IDE1NCwzNCAxMzgsMTA0IDQ2LDEwNCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5QYXJhbGxlbG9ncmFtPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Shapes_Trapezoid",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "aeffcffa-6647-4b0c-b5e4-07404f503826",
+        "Tags": [
+          "#visual",
+          "#shape"
+        ],
+        "Description": "Shapes Trapezoid visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjYwLDQwIDE0MCw0MCAxNjIsMTAwIDM4LDEwMCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5UcmFwZXpvaWQ8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Data",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "3bba94c9-d0b3-4548-bc02-9eed8256f8da",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Data visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0NSIgeT0iMzQiIHdpZHRoPSIxMTAiIGhlaWdodD0iNjIiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNDUiIHkxPSI1NiIgeDI9IjE1NSIgeTI9IjU2IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+RGF0YTwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Item",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "b7ac3aef-0fae-40ff-8c04-e5f39cb89134",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Item visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI2MCIgeT0iMzQiIHdpZHRoPSI4MCIgaGVpZ2h0PSI2MiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSI2MCIgeTE9IjU0IiB4Mj0iMTQwIiB5Mj0iNTQiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSI2MCIgeTE9Ijc0IiB4Mj0iMTQwIiB5Mj0iNzQiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5JdGVtPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Queue",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "a5799078-8872-4adc-a521-f2957364ce2c",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Queue visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSIzNCIgeT0iNDQiIHdpZHRoPSIxMzIiIGhlaWdodD0iNDAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNjgiIHkxPSI0NCIgeDI9IjY4IiB5Mj0iODQiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSIxMDIiIHkxPSI0NCIgeDI9IjEwMiIgeTI9Ijg0IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iMTM2IiB5MT0iNDQiIHgyPSIxMzYiIHkyPSI4NCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBvbHlsaW5lIHBvaW50cz0iMjAsNjQgMzQsNjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxwb2x5bGluZSBwb2ludHM9IjE2Niw2NCAxODAsNjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5RdWV1ZTwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Stack",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "b685cd8f-99ef-4c33-baaa-9895d61f7e2f",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Stack visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI3MCIgeT0iMjYiIHdpZHRoPSI2MCIgaGVpZ2h0PSIyMCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9IjcwIiB5PSI0NiIgd2lkdGg9IjYwIiBoZWlnaHQ9IjIwIiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PHJlY3QgeD0iNzAiIHk9IjY2IiB3aWR0aD0iNjAiIGhlaWdodD0iMjAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48cmVjdCB4PSI3MCIgeT0iODYiIHdpZHRoPSI2MCIgaGVpZ2h0PSIyMCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5TdGFjazwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Buffer",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "13300f60-41a4-4d88-9fcd-c744a667b6c8",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Buffer visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSIzMiIgeT0iNDYiIHdpZHRoPSIxMzYiIGhlaWdodD0iMzYiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI1MiIgY3k9IjY0IiByPSI2IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iNzYiIGN5PSI2NCIgcj0iNiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjY0IiByPSI2IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTI0IiBjeT0iNjQiIHI9IjYiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSIxNDgiIGN5PSI2NCIgcj0iNiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5CdWZmZXI8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Packet",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "3811f7f3-099e-42bb-bf89-d671c4436349",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Packet visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0MCIgeT0iNDAiIHdpZHRoPSIxMjAiIGhlaWdodD0iNDgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48cmVjdCB4PSI1MiIgeT0iNTIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyNCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9Ijc4IiB5PSI1MiIgd2lkdGg9IjQ0IiBoZWlnaHQ9IjI0IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PHJlY3QgeD0iMTI2IiB5PSI1MiIgd2lkdGg9IjIyIiBoZWlnaHQ9IjI0IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPlBhY2tldDwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Frame",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "8890007f-4a5d-4255-9033-c2444a08f6a3",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Frame visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSIzMCIgeT0iMzYiIHdpZHRoPSIxNDAiIGhlaWdodD0iNTYiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNTIiIHkxPSIzNiIgeDI9IjUyIiB5Mj0iOTIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSIxNDgiIHkxPSIzNiIgeDI9IjE0OCIgeTI9IjkyIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+RnJhbWU8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Record",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "521548a0-db7e-4f28-ae06-20a903120510",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Record visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI0NiIgeT0iMzIiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNDYiIHkxPSI1MiIgeDI9IjE1NCIgeTI9IjUyIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNDYiIHkxPSI3MiIgeDI9IjE1NCIgeTI9IjcyIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+UmVjb3JkPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Signal",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "6009e2a9-f21e-493f-a889-b48be31d64a6",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Signal visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWxpbmUgcG9pbnRzPSIzMCw4NCA1NSw4NCA3MCw0NCA5MCwxMDQgMTA4LDU0IDEyOCw5NCAxNTAsNjQgMTcwLDY0IiBmaWxsPSJub25lIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+U2lnbmFsPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Datagram_Event",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "8c3e6692-90b6-455d-8abb-057d81066142",
+        "Tags": [
+          "#visual",
+          "#datagram"
+        ],
+        "Description": "Datagram Event visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSI3MCIgY3k9IjY4IiByPSIxOCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSI4OCIgeTE9IjY4IiB4Mj0iMTQwIiB5Mj0iNjgiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQwLDYyIDE1NCw2OCAxNDAsNzQiIGZpbGw9ImJsYWNrIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+RXZlbnQ8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Star",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "f856893c-93e8-4b42-b57e-d4378a2b579d",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Star visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjEwMCwyOCAxMTEsNTYgMTQyLDU2IDExNyw3NCAxMjYsMTA0IDEwMCw4NiA3NCwxMDQgODMsNzQgNTgsNTYgODksNTYiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+U3RhcjwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Computer",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "084f0931-4bb1-4a47-b935-d844ff2733be",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Computer visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI1MCIgeT0iMzQiIHdpZHRoPSIxMDAiIGhlaWdodD0iNTgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48cmVjdCB4PSI4NCIgeT0iOTQiIHdpZHRoPSIzMiIgaGVpZ2h0PSIxMCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSI3MCIgeTE9IjEwNCIgeDI9IjEzMCIgeTI9IjEwNCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPkNvbXB1dGVyPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Printer",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "a166a007-49d3-4eef-af9f-73252c68ca74",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Printer visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI2MCIgeT0iMjgiIHdpZHRoPSI4MCIgaGVpZ2h0PSIyNCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9IjUwIiB5PSI1MiIgd2lkdGg9IjEwMCIgaGVpZ2h0PSI0NCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9IjY0IiB5PSI3MiIgd2lkdGg9IjcyIiBoZWlnaHQ9IjMwIiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPlByaW50ZXI8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Server",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "57b97596-d36a-4130-861e-4921815f3b24",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Server visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI1NiIgeT0iMjQiIHdpZHRoPSI4OCIgaGVpZ2h0PSIyNCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxyZWN0IHg9IjU2IiB5PSI1NCIgd2lkdGg9Ijg4IiBoZWlnaHQ9IjI0IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PHJlY3QgeD0iNTYiIHk9Ijg0IiB3aWR0aD0iODgiIGhlaWdodD0iMjQiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48Y2lyY2xlIGN4PSI3MCIgY3k9IjM2IiByPSIzIiBmaWxsPSJibGFjayIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iNjYiIHI9IjMiIGZpbGw9ImJsYWNrIi8+PGNpcmNsZSBjeD0iNzAiIGN5PSI5NiIgcj0iMyIgZmlsbD0iYmxhY2siLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+U2VydmVyPC90ZXh0Pgo8L3N2Zz4=",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Error",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "a10fbfdc-6761-4aa6-a38e-489af0b9cde8",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Error visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI2OCIgcj0iMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNzgiIHkxPSI0NiIgeDI9IjEyMiIgeTI9IjkwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjQiLz48bGluZSB4MT0iMTIyIiB5MT0iNDYiIHgyPSI3OCIgeTI9IjkwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjQiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+RXJyb3I8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Validate",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "b01895e8-8561-4b94-a713-8ff07afe5c70",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Validate visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI2OCIgcj0iMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48cG9seWxpbmUgcG9pbnRzPSI3Niw3MCA5NCw4OCAxMjYsNTIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iNCIvPgogIDx0ZXh0IHg9IjEwMCIgeT0iMTI4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9ImJsYWNrIj5WYWxpZGF0ZTwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Warning",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "2fb3b6ee-e730-4186-ae0b-f54b3dca8d74",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Warning visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cG9seWdvbiBwb2ludHM9IjEwMCwyNCAxNTgsMTA2IDQyLDEwNiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSIxMDAiIHkxPSI0OCIgeDI9IjEwMCIgeTI9Ijc4IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjQiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSI5MCIgcj0iMyIgZmlsbD0iYmxhY2siLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+V2FybmluZzwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Info",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "361243bf-c429-4fe6-868c-08a1a4125fa4",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Info visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI2OCIgcj0iMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iMTAwIiB5MT0iNjAiIHgyPSIxMDAiIHkyPSI5MCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iNDgiIHI9IjMiIGZpbGw9ImJsYWNrIi8+CiAgPHRleHQgeD0iMTAwIiB5PSIxMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iYmxhY2siPkluZm88L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Cloud",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "fcc418d0-f475-4bcd-b9c9-afd6690ac8c1",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Cloud visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSI3OCIgY3k9IjcwIiByPSIxOCIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxjaXJjbGUgY3g9Ijk4IiBjeT0iNTYiIHI9IjIwIiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTIyIiBjeT0iNzAiIHI9IjE4IiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PHJlY3QgeD0iNjgiIHk9IjcwIiB3aWR0aD0iNjQiIGhlaWdodD0iMjAiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+Q2xvdWQ8L3RleHQ+Cjwvc3ZnPg==",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    },
+    {
+      "Key": "Icons_Lock",
+      "Value": {
+        "BaseGuid": null,
+        "Guid": "51ec71a1-35bb-49cd-b7fb-05943f22db1c",
+        "Tags": [
+          "#visual",
+          "#icon"
+        ],
+        "Description": "Icons Lock visual",
+        "InitialDataBase64": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMTQwIiB2aWV3Qm94PSIwIDAgMjAwIDE0MCI+CiAgPHJlY3QgeD0iMSIgeT0iMSIgd2lkdGg9IjE5OCIgaGVpZ2h0PSIxMzgiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cmVjdCB4PSI2MiIgeT0iNjIiIHdpZHRoPSI3NiIgaGVpZ2h0PSI0NiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Ik0gNzYgNjIgTCA3NiA0NiBBIDI0IDI0IDAgMCAxIDEyNCA0NiBMIDEyNCA2MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iODIiIHI9IjYiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmaWxsPSJibGFjayI+TG9jazwvdGV4dD4KPC9zdmc+",
+        "Editor": null,
+        "Pointers": [],
+        "Functions": [],
+        "Properties": [],
+        "UserAction": "",
+        "LoopMethod": "",
+        "InitMethod": "",
+        "BuildMethod": "",
+        "ObjectCode": "",
+        "DrawCode": "gui.svg(out)"
+      }
+    }
+  ],
+  "References": [],
+  "Facets": [
+    {
+      "Key": "UML",
+      "Value": {
+        "Description": "0,0,1400,900",
+        "Objects": [
+          {
+            "Key": "UML_Class",
+            "Value": {
+              "zone": "40,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_Interface",
+            "Value": {
+              "zone": "260,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_User",
+            "Value": {
+              "zone": "480,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_Actor",
+            "Value": {
+              "zone": "700,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_Package",
+            "Value": {
+              "zone": "920,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_Component",
+            "Value": {
+              "zone": "40,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_Enum",
+            "Value": {
+              "zone": "260,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_Abstract",
+            "Value": {
+              "zone": "480,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_Database",
+            "Value": {
+              "zone": "700,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "UML_Service",
+            "Value": {
+              "zone": "920,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    },
+    {
+      "Key": "Shapes",
+      "Value": {
+        "Description": "0,0,1400,900",
+        "Objects": [
+          {
+            "Key": "Shapes_Rectangle",
+            "Value": {
+              "zone": "40,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Triangle",
+            "Value": {
+              "zone": "260,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Square",
+            "Value": {
+              "zone": "480,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Circle",
+            "Value": {
+              "zone": "700,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Pentagon",
+            "Value": {
+              "zone": "920,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Hexagon",
+            "Value": {
+              "zone": "40,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Octagon",
+            "Value": {
+              "zone": "260,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Diamond",
+            "Value": {
+              "zone": "480,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Parallelogram",
+            "Value": {
+              "zone": "700,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Shapes_Trapezoid",
+            "Value": {
+              "zone": "920,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    },
+    {
+      "Key": "Datagram",
+      "Value": {
+        "Description": "0,0,1400,900",
+        "Objects": [
+          {
+            "Key": "Datagram_Data",
+            "Value": {
+              "zone": "40,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Item",
+            "Value": {
+              "zone": "260,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Queue",
+            "Value": {
+              "zone": "480,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Stack",
+            "Value": {
+              "zone": "700,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Buffer",
+            "Value": {
+              "zone": "920,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Packet",
+            "Value": {
+              "zone": "40,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Frame",
+            "Value": {
+              "zone": "260,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Record",
+            "Value": {
+              "zone": "480,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Signal",
+            "Value": {
+              "zone": "700,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Datagram_Event",
+            "Value": {
+              "zone": "920,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    },
+    {
+      "Key": "Icons",
+      "Value": {
+        "Description": "0,0,1400,900",
+        "Objects": [
+          {
+            "Key": "Icons_Star",
+            "Value": {
+              "zone": "40,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Computer",
+            "Value": {
+              "zone": "260,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Printer",
+            "Value": {
+              "zone": "480,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Server",
+            "Value": {
+              "zone": "700,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Error",
+            "Value": {
+              "zone": "920,60,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Validate",
+            "Value": {
+              "zone": "40,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Warning",
+            "Value": {
+              "zone": "260,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Info",
+            "Value": {
+              "zone": "480,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Cloud",
+            "Value": {
+              "zone": "700,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          },
+          {
+            "Key": "Icons_Lock",
+            "Value": {
+              "zone": "920,240,200,140",
+              "background": "#FFFFFFFF",
+              "TitlePos": "TopLeft"
+            }
+          }
+        ],
+        "Commands": [],
+        "Geometries": [],
+        "Texts": []
+      }
+    }
+  ]
+}
