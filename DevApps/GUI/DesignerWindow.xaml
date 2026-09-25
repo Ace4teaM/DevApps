@@ -92,7 +92,7 @@
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="CloseButton_Click">✕</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MaximizeButton_Click">🗖</Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="MinimizeButton_Click">🗕</Button>
-            <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="AboutButton_Click">?</Button>
+            <Button DockPanel.Dock="Right" Style="{StaticResource SystemButtonStyle}" Click="AboutButton_Click" ToolTip="À propos" AutomationProperties.Name="À propos">?</Button>
             <Button DockPanel.Dock="Right" Click="UndoButton_Click">Undo</Button>
             <Button DockPanel.Dock="Right" Click="RedoButton_Click">Redo</Button>
             <Border BorderBrush="White" BorderThickness="1" Background="WhiteSmoke" CornerRadius="5" Margin="2,5,2,5" ToolTip="{Binding AppPath, Mode=OneWay}">
