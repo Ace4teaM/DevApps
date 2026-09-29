@@ -811,6 +811,16 @@ namespace DevApps.GUI
             e.Handled = true;
         }
 
+        private void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            var wnd = new About
+            {
+                Owner = this
+            };
+            wnd.ShowDialog();
+            e.Handled = true;
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             this.Content = new WelcomeView();
