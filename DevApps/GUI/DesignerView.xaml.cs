@@ -1084,6 +1084,21 @@ namespace DevApps.GUI
             return MyCanvas.Children.OfType<DrawElement>().FirstOrDefault(p => p.Name == name);
         }
 
+        internal void SelectObject(string name)
+        {
+            var element = GetElement(name);
+            if (element == null)
+                return;
+
+            var previousElement = selectedElement;
+            selectedElement = element;
+            lastSelectedElement = previousElement;
+            previousElement?.InvalidateVisual();
+            DisplayInfos();
+            element.InvalidateVisual();
+            element.BringIntoView();
+        }
+
         internal DrawGeometry AddGeometry(DevFacet.Geometry geometry)
         {
             var element = new DrawGeometry(System.Windows.Media.Geometry.Parse(geometry.path));

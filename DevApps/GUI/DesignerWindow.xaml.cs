@@ -21,6 +21,7 @@ namespace DevApps.GUI
     public partial class DesignerWindow : Window, INotifyPropertyChanged
     {
         internal string statusText = "Ready";
+        private string? requestedFacetSelectionObjectName;
         public string StatusText { get => statusText; set { statusText = value; PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusText))); } }
         public string SendButtonText
         {
@@ -507,12 +508,70 @@ namespace DevApps.GUI
             FacetListBox.SelectedIndex = FacetListBox.Items.Count - 1;
         }
 
+        internal void SelectFacetObject(string facetName, string objectName)
+        {
+            var item = FacetListBox.Items.OfType<FacetItem>().FirstOrDefault(p => p.Header == facetName);
+            if (item == null)
+                return;
+
+            if (this.Content is DesignerView currentView && currentView.FacetName == facetName && FacetListBox.SelectedItem == item)
+            {
+                Dispatcher.BeginInvoke(new Action(() => currentView.SelectObject(objectName)));
+                return;
+            }
+
+            requestedFacetSelectionObjectName = objectName;
+            FacetListBox.SelectedItem = item;
+            OnPropertyChange(nameof(SelectedFacet));
+
+            if (requestedFacetSelectionObjectName != null)
+            {
+                var requestedObjectName = requestedFacetSelectionObjectName;
+                requestedFacetSelectionObjectName = null;
+                ShowFacet(item, requestedObjectName);
+            }
+        }
+
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var item = ((ListBox)sender).SelectedItem as FacetItem;
             if(item != null)
             {
-                this.Content = new DesignerView(item.Header.ToString());
+                var requestedObjectName = requestedFacetSelectionObjectName;
+                requestedFacetSelectionObjectName = null;
+                ShowFacet(item, requestedObjectName);
+            }
+        }
+
+        private void ShowFacet(FacetItem item, string? objectName = null)
+        {
+            var view = new DesignerView(item.Header.ToString());
+            this.Content = view;
+
+            if (String.IsNullOrWhiteSpace(objectName))
+                return;
+
+            void SelectObjectInView()
+            {
+                if (ReferenceEquals(this.Content, view))
+                {
+                    view.SelectObject(objectName);
+                }
+            }
+
+            if (view.IsLoaded)
+            {
+                Dispatcher.BeginInvoke(new Action(SelectObjectInView));
+            }
+            else
+            {
+                RoutedEventHandler? onLoaded = null;
+                onLoaded = (s, e) =>
+                {
+                    view.Loaded -= onLoaded;
+                    SelectObjectInView();
+                };
+                view.Loaded += onLoaded;
             }
         }
         private void MenuItem_Click_DeleteFacet(object sender, RoutedEventArgs e)
